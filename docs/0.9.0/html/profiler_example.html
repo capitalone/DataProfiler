@@ -564,21 +564,21 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span></span>import os
+import sys
+import json
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+try:
+    sys.path.insert(0, '..')
+    import dataprofiler as dp
+except ImportError:
+    import dataprofiler as dp
 
-<span class="n">data_path</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
+data_path = "../dataprofiler/tests/data"
 
-<span class="c1"># remove extra tf loggin</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+# remove extra tf loggin
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 </pre></div>
 </div>
 </div>
@@ -587,12 +587,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/aws_honeypot_marx_geo.csv"</span><span class="p">))</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span></span>data = dp.Data(os.path.join(data_path, "csv/aws_honeypot_marx_geo.csv"))
+profile = dp.Profiler(data)
 
-<span class="c1"># Compact - A high level view, good for quick reviews</span>
-<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# Compact - A high level view, good for quick reviews
+report  = profile.report(report_options={"output_format":"compact"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -602,13 +602,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># run data profiler and get the report</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="n">my_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"col_int"</span><span class="p">,</span> <span class="s2">"col_float"</span><span class="p">])</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">my_dataframe</span><span class="p">)</span>
+<span></span># run data profiler and get the report
+import pandas as pd
+my_dataframe = pd.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]], columns=["col_int", "col_float"])
+profile = dp.Profiler(my_dataframe)
 
-<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+report  = profile.report(report_options={"output_format":"pretty"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -621,12 +621,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/aws_honeypot_marx_geo.csv"</span><span class="p">))</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">profiler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">)</span>
+<span></span>data = dp.Data(os.path.join(data_path, "csv/aws_honeypot_marx_geo.csv"))
+profile = dp.Profiler(data, profiler_type='structured')
 
-<span class="c1"># print the report using json to prettify.</span>
-<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# print the report using json to prettify.
+report = profile.report(report_options={"output_format": "pretty"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -642,21 +642,21 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/diamonds.csv"</span><span class="p">))</span>
+<span></span>data = dp.Data(os.path.join(data_path, "csv/diamonds.csv"))
 
-<span class="n">profile_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
+profile_options = dp.ProfilerOptions()
 
-<span class="c1"># Setting multiple options via set</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span> <span class="s2">"histogram.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"int.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+# Setting multiple options via set
+profile_options.set({ "histogram.is_enabled": False, "int.is_enabled": False})
 
-<span class="c1"># Set options via directly setting them</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">max_sample_size</span> <span class="o">=</span> <span class="mi">1000</span>
+# Set options via directly setting them
+profile_options.structured_options.data_labeler.max_sample_size = 1000
 
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
-<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
+profile = dp.Profiler(data, options=profile_options)
+report  = profile.report(report_options={"output_format":"compact"})
 
-<span class="c1"># Print the report</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# Print the report
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -669,22 +669,22 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Load and profile a CSV file</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/sparse-first-and-last-column-header-and-author.txt"</span><span class="p">))</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span></span># Load and profile a CSV file
+data = dp.Data(os.path.join(data_path, "csv/sparse-first-and-last-column-header-and-author.txt"))
+profile = dp.Profiler(data)
 
-<span class="c1"># Update the profile with new data:</span>
-<span class="n">new_data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/sparse-first-and-last-column-skip-header.txt"</span><span class="p">))</span>
-<span class="c1"># new_data = dp.Data(os.path.join(data_path, "iris-utf-16.csv")) # will error due to schema mismatch</span>
-<span class="n">profile</span><span class="o">.</span><span class="n">update_profile</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+# Update the profile with new data:
+new_data = dp.Data(os.path.join(data_path, "csv/sparse-first-and-last-column-skip-header.txt"))
+# new_data = dp.Data(os.path.join(data_path, "iris-utf-16.csv")) # will error due to schema mismatch
+profile.update_profile(new_data)
 
-<span class="c1"># Take a peek at the data</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+# Take a peek at the data
+print(data.data)
+print(new_data.data)
 
-<span class="c1"># Report the compact version of the profile</span>
-<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# Report the compact version of the profile
+report  = profile.report(report_options={"output_format":"compact"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -697,20 +697,20 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Load a CSV file with a schema</span>
-<span class="n">data1</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/sparse-first-and-last-column-header-and-author.txt"</span><span class="p">))</span>
-<span class="n">profile1</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+<span></span># Load a CSV file with a schema
+data1 = dp.Data(os.path.join(data_path, "csv/sparse-first-and-last-column-header-and-author.txt"))
+profile1 = dp.Profiler(data1)
 
-<span class="c1"># Load another CSV file with the same schema</span>
-<span class="n">data2</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/sparse-first-and-last-column-skip-header.txt"</span><span class="p">))</span>
-<span class="n">profile2</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span>
+# Load another CSV file with the same schema
+data2 = dp.Data(os.path.join(data_path, "csv/sparse-first-and-last-column-skip-header.txt"))
+profile2 = dp.Profiler(data2)
 
-<span class="c1"># Merge the profiles</span>
-<span class="n">profile3</span> <span class="o">=</span> <span class="n">profile1</span> <span class="o">+</span> <span class="n">profile2</span>
+# Merge the profiles
+profile3 = profile1 + profile2
 
-<span class="c1"># Report the compact version of the profile</span>
-<span class="n">report</span>  <span class="o">=</span> <span class="n">profile3</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# Report the compact version of the profile
+report  = profile3.report(report_options={"output_format":"compact"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -731,11 +731,11 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span></span>from pprint import pprint
 
-<span class="c1"># structured differences example</span>
-<span class="n">data_split_differences</span> <span class="o">=</span> <span class="n">profile1</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">profile2</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">data_split_differences</span><span class="p">)</span>
+# structured differences example
+data_split_differences = profile1.diff(profile2)
+pprint(data_split_differences)
 </pre></div>
 </div>
 </div>
@@ -753,15 +753,15 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span></span>import matplotlib.pyplot as plt
 
 
-<span class="c1"># get the data</span>
-<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">"csv/aws_honeypot_marx_geo.csv"</span><span class="p">))</span>
+# get the data
+data_folder = "../dataprofiler/tests/data"
+data = dp.Data(os.path.join(data_folder, "csv/aws_honeypot_marx_geo.csv"))
 
-<span class="c1"># profile the data</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+# profile the data
+profile = dp.Profiler(data)
 </pre></div>
 </div>
 </div>
@@ -770,9 +770,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># generate a missing values matrix</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">graphs</span><span class="o">.</span><span class="n">plot_missing_values_matrix</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(),</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Missing Values Matrix"</span><span class="p">)</span>
+<span></span># generate a missing values matrix
+fig = plt.figure(figsize=(8, 6), dpi=100)
+fig = dp.graphs.plot_missing_values_matrix(profile, ax=fig.gca(), title="Missing Values Matrix")
 </pre></div>
 </div>
 </div>
@@ -781,10 +781,10 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># generate histogram of all int/float columns</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">graphs</span><span class="o">.</span><span class="n">plot_histograms</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">set_dpi</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span></span># generate histogram of all int/float columns
+fig = dp.graphs.plot_histograms(profile)
+fig.set_size_inches(8, 6)
+fig.set_dpi(100)
 </pre></div>
 </div>
 </div>
@@ -797,21 +797,21 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Load data</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/names-col.txt"</span><span class="p">))</span>
+<span></span># Load data
+data = dp.Data(os.path.join(data_path, "csv/names-col.txt"))
 
-<span class="c1"># Generate a profile</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+# Generate a profile
+profile = dp.Profiler(data)
 
-<span class="c1"># Save a profile to disk for later (saves as pickle file)</span>
-<span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">"my_profile.pkl"</span><span class="p">)</span>
+# Save a profile to disk for later (saves as pickle file)
+profile.save(filepath="my_profile.pkl")
 
-<span class="c1"># Load a profile from disk</span>
-<span class="n">loaded_profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"my_profile.pkl"</span><span class="p">)</span>
+# Load a profile from disk
+loaded_profile = dp.Profiler.load("my_profile.pkl")
 
-<span class="c1"># Report the compact version of the profile</span>
-<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# Report the compact version of the profile
+report = profile.report(report_options={"output_format":"compact"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>
@@ -821,32 +821,32 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Load a multiple files via the Data class</span>
-<span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"csv/sparse-first-and-last-column-header-and-author.txt"</span><span class="p">,</span>
-             <span class="s2">"csv/sparse-first-and-last-column-skip-header.txt"</span><span class="p">]</span>
-<span class="n">data_objects</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
-    <span class="n">data_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)))</span>
+<span></span># Load a multiple files via the Data class
+filenames = ["csv/sparse-first-and-last-column-header-and-author.txt",
+             "csv/sparse-first-and-last-column-skip-header.txt"]
+data_objects = []
+for filename in filenames:
+    data_objects.append(dp.Data(os.path.join(data_path, filename)))
 
 
-<span class="c1"># Generate and save profiles</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_objects</span><span class="p">)):</span>
-    <span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data_objects</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-    <span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">"data-"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s2">".pkl"</span><span class="p">)</span>
+# Generate and save profiles
+for i in range(len(data_objects)):
+    profile = dp.Profiler(data_objects[i])
+    profile.save(filepath="data-"+str(i)+".pkl")
 
 
-<span class="c1"># Load profiles and add them together</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_objects</span><span class="p">)):</span>
-    <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"data-"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s2">".pkl"</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">profile</span> <span class="o">+=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"data-"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s2">".pkl"</span><span class="p">)</span>
+# Load profiles and add them together
+profile = None
+for i in range(len(data_objects)):
+    if profile is None:
+        profile = dp.Profiler.load("data-"+str(i)+".pkl")
+    else:
+        profile += dp.Profiler.load("data-"+str(i)+".pkl")
 
 
-<span class="c1"># Report the compact version of the profile</span>
-<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+# Report the compact version of the profile
+report = profile.report(report_options={"output_format":"compact"})
+print(json.dumps(report, indent=4))
 </pre></div>
 </div>
 </div>

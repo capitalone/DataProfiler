@@ -225,7 +225,7 @@
 <p>Contains functions for the data labeler.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.f1_report_dict_to_str">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></span><span class="sig-name descname"><span class="pre">f1_report_dict_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1_report</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.f1_report_dict_to_str" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></span><span class="sig-name descname"><span class="pre">f1_report_dict_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1_report</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_names</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.f1_report_dict_to_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the report string from the f1_report dict.</p>
 <dl>
 <dt>Example Output:</dt><dd><blockquote>
@@ -381,11 +381,11 @@ None, the argmax is converted to 1, and the rest 0.</p></li>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.add_loss">
 <span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.add_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add loss tensor(s), potentially dependent on layer inputs.</p>
-<p>Some losses (for instance, activity regularization losses) may be dependent
-on the inputs passed when calling a layer. Hence, when reusing the same
-layer on different inputs <cite>a</cite> and <cite>b</cite>, some entries in <cite>layer.losses</cite> may
-be dependent on <cite>a</cite> and some on <cite>b</cite>. This method automatically keeps track
-of dependencies.</p>
+<p>Some losses (for instance, activity regularization losses) may be
+dependent on the inputs passed when calling a layer. Hence, when reusing
+the same layer on different inputs <cite>a</cite> and <cite>b</cite>, some entries in
+<cite>layer.losses</cite> may be dependent on <cite>a</cite> and some on <cite>b</cite>. This method
+automatically keeps track of dependencies.</p>
 <p>This method can be used inside a subclassed layer or model’s <cite>call</cite>
 function, in which case <cite>losses</cite> should be a Tensor or list of Tensors.</p>
 <p>Example:</p>
@@ -399,10 +399,15 @@ return inputs</p>
 </dl>
 </div></blockquote>
 <p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
-<p>This method can also be called directly on a Functional Model during
-construction. In this case, any loss Tensors passed to this Model must
-be symbolic and be able to be traced back to the model’s <cite>Input`s. These
-losses become part of the model’s topology and are tracked in `get_config</cite>.</p>
+<p>The same code works in distributed training: the input to <cite>add_loss()</cite>
+is treated like a regularization loss and averaged across replicas
+by the training loop (both built-in <cite>Model.fit()</cite> and compliant custom
+training loops).</p>
+<p>The <cite>add_loss</cite> method can also be called directly on a Functional Model
+during construction. In this case, any loss Tensors passed to this Model
+must be symbolic and be able to be traced back to the model’s <cite>Input`s.
+These losses become part of the model’s topology and are tracked in
+`get_config</cite>.</p>
 <p>Example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">inputs</span> <span class="pre">=</span> <span class="pre">tf.keras.Input(shape=(10,))</span>
@@ -412,10 +417,10 @@ losses become part of the model’s topology and are tracked in `get_config</cit
 <span class="pre">#</span> <span class="pre">Activity</span> <span class="pre">regularization.</span>
 <span class="pre">model.add_loss(tf.abs(tf.reduce_mean(x)))</span>
 <span class="pre">`</span></code></p>
-<p>If this is not the case for your loss (if, for example, your loss references
-a <cite>Variable</cite> of one of the model’s layers), you can wrap your loss in a
-zero-argument lambda. These losses are not tracked as part of the model’s
-topology since they can’t be serialized.</p>
+<p>If this is not the case for your loss (if, for example, your loss
+references a <cite>Variable</cite> of one of the model’s layers), you can wrap your
+loss in a zero-argument lambda. These losses are not tracked as part of
+the model’s topology since they can’t be serialized.</p>
 <p>Example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">inputs</span> <span class="pre">=</span> <span class="pre">tf.keras.Input(shape=(10,))</span>
@@ -429,8 +434,9 @@ topology since they can’t be serialized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>losses</strong> – Loss tensor, or list/tuple of tensors. Rather than tensors, losses
-may also be zero-argument callables which create a loss tensor.</p></li>
+<li><p><strong>losses</strong> – Loss tensor, or list/tuple of tensors. Rather than tensors,
+losses may also be zero-argument callables which create a loss
+tensor.</p></li>
 <li><p><strong>**kwargs</strong> – Used for backwards compatibility only.</p></li>
 </ul>
 </dd>
@@ -469,8 +475,9 @@ save the model via `save()</cite>.</p>
 <span class="pre">model.add_metric(math_ops.reduce_sum(x),</span> <span class="pre">name='metric_1')</span>
 <span class="pre">`</span></code></p>
 <p>Note: Calling <cite>add_metric()</cite> with the result of a metric object on a
-Functional Model, as shown in the example below, is not supported. This is
-because we cannot trace the metric result tensor back to the model’s inputs.</p>
+Functional Model, as shown in the example below, is not supported. This
+is because we cannot trace the metric result tensor back to the model’s
+inputs.</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">inputs</span> <span class="pre">=</span> <span class="pre">tf.keras.Input(shape=(10,))</span>
 <span class="pre">x</span> <span class="pre">=</span> <span class="pre">tf.keras.layers.Dense(10)(inputs)</span>
@@ -485,9 +492,9 @@ because we cannot trace the metric result tensor back to the model’s inputs.</
 <li><p><strong>name</strong> – String metric name.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments for backward compatibility.
 Accepted values:
-<cite>aggregation</cite> - When the <cite>value</cite> tensor provided is not the result of
-calling a <cite>keras.Metric</cite> instance, it will be aggregated by default
-using a <cite>keras.Metric.Mean</cite>.</p></li>
+<cite>aggregation</cite> - When the <cite>value</cite> tensor provided is not the result
+of calling a <cite>keras.Metric</cite> instance, it will be aggregated by
+default using a <cite>keras.Metric.Mean</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -496,15 +503,15 @@ using a <cite>keras.Metric.Mean</cite>.</p></li>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.add_update">
 <span class="sig-name descname"><span class="pre">add_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.add_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add update op(s), potentially dependent on layer inputs.</p>
-<p>Weight updates (for instance, the updates of the moving mean and variance
-in a BatchNormalization layer) may be dependent on the inputs passed
-when calling a layer. Hence, when reusing the same layer on
+<p>Weight updates (for instance, the updates of the moving mean and
+variance in a BatchNormalization layer) may be dependent on the inputs
+passed when calling a layer. Hence, when reusing the same layer on
 different inputs <cite>a</cite> and <cite>b</cite>, some entries in <cite>layer.updates</cite> may be
 dependent on <cite>a</cite> and some on <cite>b</cite>. This method automatically keeps track
 of dependencies.</p>
-<p>This call is ignored when eager execution is enabled (in that case, variable
-updates are run on the fly and thus do not need to be tracked for later
-execution).</p>
+<p>This call is ignored when eager execution is enabled (in that case,
+variable updates are run on the fly and thus do not need to be tracked
+for later execution).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>updates</strong> – Update op, or list/tuple of update ops, or zero-arg callable
@@ -527,7 +534,7 @@ on this Layer, when executing in Eager mode.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.build">
 <span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
+<dd><p>Creates the variables of the layer (for subclass implementers).</p>
 <p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
 can override if they need a state-creation step in-between
 layer instantiation and layer call. It is invoked automatically before
@@ -543,13 +550,21 @@ the first execution of <cite>call()</cite>.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.build_from_config">
+<span class="sig-name descname"><span class="pre">build_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.build_from_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
-<p>The <cite>call()</cite> method may not create state (except in its first invocation,
-wrapping the creation of variables or other resources in <cite>tf.init_scope()</cite>).
-It is recommended to create state in <cite>__init__()</cite>, or the <cite>build()</cite> method
-that is called automatically before <cite>call()</cite> executes the first time.</p>
+<p>The <cite>call()</cite> method may not create state (except in its first
+invocation, wrapping the creation of variables or other resources in
+<cite>tf.init_scope()</cite>).  It is recommended to create state, including
+<cite>tf.Variable</cite> instances and nested <cite>Layer</cite> instances,</p>
+<blockquote>
+<div><p>in <cite>__init__()</cite>, or in the <cite>build()</cite> method that is</p>
+</div></blockquote>
+<p>called automatically before <cite>call()</cite> executes for the first time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -561,7 +576,8 @@ The first positional <cite>inputs</cite> argument is subject to special rules:
 of a keyword argument.</p>
 </div></blockquote>
 <ul>
-<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as
+tensors.</p></li>
 <li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
 <li><p>Layers are built (<cite>build(input_shape)</cite> method)
 using shape info from <cite>inputs</cite> only.</p></li>
@@ -569,7 +585,8 @@ using shape info from <cite>inputs</cite> only.</p></li>
 <li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
 If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
 casting behavior in mixed precision should be handled manually.</p></li>
-<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite>
+only.</p></li>
 <li><p>Integration with various ecosystem packages like TFMOT, TFLite,
 TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
 positional and keyword arguments.</p></li>
@@ -586,10 +603,10 @@ The following optional keyword arguments are reserved:
 </div></blockquote>
 <ul>
 <li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
-<cite>mask</cite> argument, its default value will be set to the mask generated
-for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
-that generated a corresponding mask, i.e. if it came from a Keras
-layer with masking support).</p></li>
+<cite>mask</cite> argument, its default value will be set to the mask
+generated for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come
+from a layer that generated a corresponding mask, i.e. if it came
+from a Keras layer with masking support).</p></li>
 </ul>
 </p></li>
 </ul>
@@ -606,13 +623,13 @@ layer with masking support).</p></li>
 <p>This is equivalent to <cite>Layer.dtype_policy.compute_dtype</cite>. Unless
 mixed precision is used, this is the same as <cite>Layer.dtype</cite>, the dtype of
 the weights.</p>
-<p>Layers automatically cast their inputs to the compute dtype, which causes
-computations and the output to be in the compute dtype as well. This is done
-by the base Layer class in <cite>Layer.__call__</cite>, so you do not have to insert
-these casts if implementing your own layer.</p>
-<p>Layers often perform certain internal computations in higher precision when
-<cite>compute_dtype</cite> is float16 or bfloat16 for numeric stability. The output
-will still typically be float16 or bfloat16 in such cases.</p>
+<p>Layers automatically cast their inputs to the compute dtype, which
+causes computations and the output to be in the compute dtype as well.
+This is done by the base Layer class in <cite>Layer.__call__</cite>, so you do not
+have to insert these casts if implementing your own layer.</p>
+<p>Layers often perform certain internal computations in higher precision
+when <cite>compute_dtype</cite> is float16 or bfloat16 for numeric stability. The
+output will still typically be float16 or bfloat16 in such cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The layer’s compute dtype.</p>
@@ -648,13 +665,15 @@ happened before. This requires that the layer will later be used with
 inputs that match the input shape provided here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_shape</strong> – Shape tuple (tuple of integers)
-or list of shape tuples (one per output tensor of the layer).
+<dd class="field-odd"><p><strong>input_shape</strong> – Shape tuple (tuple of integers) or <cite>tf.TensorShape</cite>,
+or structure of shape tuples / <cite>tf.TensorShape</cite> instances
+(one per output tensor of the layer).
 Shape tuples can include None for free dimensions,
 instead of an integer.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An input shape tuple.</p>
+<dd class="field-even"><p>A <cite>tf.TensorShape</cite> instance
+or structure of <cite>tf.TensorShape</cite> instances.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -675,7 +694,7 @@ objects, describing a candidate input for the layer.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Single TensorSpec or nested structure of TensorSpec objects, describing</dt><dd><p>how the layer would transform the provided input.</p>
+<dt>Single TensorSpec or nested structure of TensorSpec objects,</dt><dd><p>describing how the layer would transform the provided input.</p>
 </dd>
 </dl>
 </p>
@@ -722,9 +741,9 @@ dtype of the layer’s computations.</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.finalize_state">
 <span class="sig-name descname"><span class="pre">finalize_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.finalize_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finalizes the layers state after updating layer weights.</p>
-<p>This function can be subclassed in a layer and will be called after updating
-a layer weights. It can be overridden to finalize any additional layer state
-after a weight update.</p>
+<p>This function can be subclassed in a layer and will be called after
+updating a layer weights. It can be overridden to finalize any
+additional layer state after a weight update.</p>
 <p>This function will be called after weights of a layer have been restored
 from a loaded model.</p>
 </dd></dl>
@@ -746,6 +765,10 @@ output of get_config.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.get_build_config">
+<span class="sig-name descname"><span class="pre">get_build_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.get_build_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.get_input_at">
 <span class="sig-name descname"><span class="pre">get_input_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.get_input_at" title="Permalink to this definition">¶</a></dt>
@@ -863,12 +886,12 @@ first time the layer was called.</p>
 <span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.get_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current weights of the layer, as NumPy arrays.</p>
 <p>The weights of a layer represent the state of the layer. This function
-returns both trainable and non-trainable weight values associated with this
-layer as a list of NumPy arrays, which can in turn be used to load state
-into similarly parameterized layers.</p>
-<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel matrix
-and the bias vector. These can be used to set the weights of another
-<cite>Dense</cite> layer:</p>
+returns both trainable and non-trainable weight values associated with
+this layer as a list of NumPy arrays, which can in turn be used to load
+state into similarly parameterized layers.</p>
+<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel
+matrix and the bias vector. These can be used to set the weights of
+another <cite>Dense</cite> layer:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">layer_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>  <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a_out</span> <span class="o">=</span> <span class="n">layer_a</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]]))</span>
@@ -962,16 +985,16 @@ have the same shape.</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.input_spec">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.input_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>InputSpec</cite> instance(s) describing the input format for this layer.</p>
-<p>When you create a layer subclass, you can set <cite>self.input_spec</cite> to enable
-the layer to run input compatibility checks when it is called.
-Consider a <cite>Conv2D</cite> layer: it can only be called on a single input tensor
-of rank 4. As such, you can set, in <cite>__init__()</cite>:</p>
+<p>When you create a layer subclass, you can set <cite>self.input_spec</cite> to
+enable the layer to run input compatibility checks when it is called.
+Consider a <cite>Conv2D</cite> layer: it can only be called on a single input
+tensor of rank 4. As such, you can set, in <cite>__init__()</cite>:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">self.input_spec</span> <span class="pre">=</span> <span class="pre">tf.keras.layers.InputSpec(ndim=4)</span>
 <span class="pre">`</span></code></p>
 <p>Now, if you try to call the layer on an input that isn’t rank 4
-(for instance, an input of shape <cite>(2,)</cite>, it will raise a nicely-formatted
-error:</p>
+(for instance, an input of shape <cite>(2,)</cite>, it will raise a
+nicely-formatted error:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">ValueError:</span> <span class="pre">Input</span> <span class="pre">0</span> <span class="pre">of</span> <span class="pre">layer</span> <span class="pre">conv2d</span> <span class="pre">is</span> <span class="pre">incompatible</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">layer:</span>
 <span class="pre">expected</span> <span class="pre">ndim=4,</span> <span class="pre">found</span> <span class="pre">ndim=1.</span> <span class="pre">Full</span> <span class="pre">shape</span> <span class="pre">received:</span> <span class="pre">[2]</span>
@@ -992,9 +1015,10 @@ error:</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.losses">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of losses added using the <cite>add_loss()</cite> API.</p>
-<p>Variable regularization tensors are created when this property is accessed,
-so it is eager safe: accessing <cite>losses</cite> under a <cite>tf.GradientTape</cite> will
-propagate gradients back to the corresponding variables.</p>
+<p>Variable regularization tensors are created when this property is
+accessed, so it is eager safe: accessing <cite>losses</cite> under a
+<cite>tf.GradientTape</cite> will propagate gradients back to the corresponding
+variables.</p>
 <p>Examples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyLayer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
 <span class="gp">... </span>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
@@ -1039,12 +1063,13 @@ propagate gradients back to the corresponding variables.</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.merge_state">
 <span class="sig-name descname"><span class="pre">merge_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.merge_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merges the state from one or more metrics.</p>
-<p>This method can be used by distributed systems to merge the state computed
-by different metric instances. Typically the state will be stored in the
-form of the metric’s weights. For example, a tf.keras.metrics.Mean metric
-contains a list of two weight values: a total and a count. If there were two
-instances of a tf.keras.metrics.Accuracy that each independently aggregated
-partial state for an overall accuracy calculation, these two metric’s states
+<p>This method can be used by distributed systems to merge the state
+computed by different metric instances. Typically the state will be
+stored in the form of the metric’s weights. For example, a
+tf.keras.metrics.Mean metric contains a list of two weight values: a
+total and a count. If there were two instances of a
+tf.keras.metrics.Accuracy that each independently aggregated partial
+state for an overall accuracy calculation, these two metric’s states
 could be combined as follows:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">update_state</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
@@ -1061,11 +1086,12 @@ could be combined as follows:</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>metrics</strong> – an iterable of metrics. The metrics must have compatible state.</p>
+<dd class="field-odd"><p><strong>metrics</strong> – an iterable of metrics. The metrics must have compatible
+state.</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the provided iterable does not contain metrics matching the
-    metric’s required specifications.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided iterable does not contain metrics matching
+    the metric’s required specifications.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1118,8 +1144,8 @@ first).</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.FBetaScore.non_trainable_weights">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.non_trainable_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all non-trainable weights tracked by this layer.</p>
-<p>Non-trainable weights are <em>not</em> updated during training. They are expected
-to be updated manually in <cite>call()</cite>.</p>
+<p>Non-trainable weights are <em>not</em> updated during training. They are
+expected to be updated manually in <cite>call()</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A list of non-trainable variables.</p>
@@ -1201,9 +1227,9 @@ sets the weight values from numpy arrays. The weight values should be
 passed in the order they are created by the layer. Note that the layer’s
 weights must be instantiated before calling this function, by calling
 the layer.</p>
-<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel matrix
-and the bias vector. These can be used to set the weights of another
-<cite>Dense</cite> layer:</p>
+<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel
+matrix and the bias vector. These can be used to set the weights of
+another <cite>Dense</cite> layer:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">layer_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>  <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a_out</span> <span class="o">=</span> <span class="n">layer_a</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]]))</span>
@@ -1317,8 +1343,8 @@ first).</p>
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.FBetaScore.variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of all layer variables/weights.</p>
 <p>Alias of <cite>self.weights</cite>.</p>
-<p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
-themselves Keras layers.</p>
+<p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are
+not themselves Keras layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A list of variables.</p>
@@ -1427,11 +1453,11 @@ None, the argmax is converted to 1, and the rest 0.</p></li>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.add_loss">
 <span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.add_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add loss tensor(s), potentially dependent on layer inputs.</p>
-<p>Some losses (for instance, activity regularization losses) may be dependent
-on the inputs passed when calling a layer. Hence, when reusing the same
-layer on different inputs <cite>a</cite> and <cite>b</cite>, some entries in <cite>layer.losses</cite> may
-be dependent on <cite>a</cite> and some on <cite>b</cite>. This method automatically keeps track
-of dependencies.</p>
+<p>Some losses (for instance, activity regularization losses) may be
+dependent on the inputs passed when calling a layer. Hence, when reusing
+the same layer on different inputs <cite>a</cite> and <cite>b</cite>, some entries in
+<cite>layer.losses</cite> may be dependent on <cite>a</cite> and some on <cite>b</cite>. This method
+automatically keeps track of dependencies.</p>
 <p>This method can be used inside a subclassed layer or model’s <cite>call</cite>
 function, in which case <cite>losses</cite> should be a Tensor or list of Tensors.</p>
 <p>Example:</p>
@@ -1445,10 +1471,15 @@ return inputs</p>
 </dl>
 </div></blockquote>
 <p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
-<p>This method can also be called directly on a Functional Model during
-construction. In this case, any loss Tensors passed to this Model must
-be symbolic and be able to be traced back to the model’s <cite>Input`s. These
-losses become part of the model’s topology and are tracked in `get_config</cite>.</p>
+<p>The same code works in distributed training: the input to <cite>add_loss()</cite>
+is treated like a regularization loss and averaged across replicas
+by the training loop (both built-in <cite>Model.fit()</cite> and compliant custom
+training loops).</p>
+<p>The <cite>add_loss</cite> method can also be called directly on a Functional Model
+during construction. In this case, any loss Tensors passed to this Model
+must be symbolic and be able to be traced back to the model’s <cite>Input`s.
+These losses become part of the model’s topology and are tracked in
+`get_config</cite>.</p>
 <p>Example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">inputs</span> <span class="pre">=</span> <span class="pre">tf.keras.Input(shape=(10,))</span>
@@ -1458,10 +1489,10 @@ losses become part of the model’s topology and are tracked in `get_config</cit
 <span class="pre">#</span> <span class="pre">Activity</span> <span class="pre">regularization.</span>
 <span class="pre">model.add_loss(tf.abs(tf.reduce_mean(x)))</span>
 <span class="pre">`</span></code></p>
-<p>If this is not the case for your loss (if, for example, your loss references
-a <cite>Variable</cite> of one of the model’s layers), you can wrap your loss in a
-zero-argument lambda. These losses are not tracked as part of the model’s
-topology since they can’t be serialized.</p>
+<p>If this is not the case for your loss (if, for example, your loss
+references a <cite>Variable</cite> of one of the model’s layers), you can wrap your
+loss in a zero-argument lambda. These losses are not tracked as part of
+the model’s topology since they can’t be serialized.</p>
 <p>Example:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">inputs</span> <span class="pre">=</span> <span class="pre">tf.keras.Input(shape=(10,))</span>
@@ -1475,8 +1506,9 @@ topology since they can’t be serialized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>losses</strong> – Loss tensor, or list/tuple of tensors. Rather than tensors, losses
-may also be zero-argument callables which create a loss tensor.</p></li>
+<li><p><strong>losses</strong> – Loss tensor, or list/tuple of tensors. Rather than tensors,
+losses may also be zero-argument callables which create a loss
+tensor.</p></li>
 <li><p><strong>**kwargs</strong> – Used for backwards compatibility only.</p></li>
 </ul>
 </dd>
@@ -1515,8 +1547,9 @@ save the model via `save()</cite>.</p>
 <span class="pre">model.add_metric(math_ops.reduce_sum(x),</span> <span class="pre">name='metric_1')</span>
 <span class="pre">`</span></code></p>
 <p>Note: Calling <cite>add_metric()</cite> with the result of a metric object on a
-Functional Model, as shown in the example below, is not supported. This is
-because we cannot trace the metric result tensor back to the model’s inputs.</p>
+Functional Model, as shown in the example below, is not supported. This
+is because we cannot trace the metric result tensor back to the model’s
+inputs.</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">inputs</span> <span class="pre">=</span> <span class="pre">tf.keras.Input(shape=(10,))</span>
 <span class="pre">x</span> <span class="pre">=</span> <span class="pre">tf.keras.layers.Dense(10)(inputs)</span>
@@ -1531,9 +1564,9 @@ because we cannot trace the metric result tensor back to the model’s inputs.</
 <li><p><strong>name</strong> – String metric name.</p></li>
 <li><p><strong>**kwargs</strong> – Additional keyword arguments for backward compatibility.
 Accepted values:
-<cite>aggregation</cite> - When the <cite>value</cite> tensor provided is not the result of
-calling a <cite>keras.Metric</cite> instance, it will be aggregated by default
-using a <cite>keras.Metric.Mean</cite>.</p></li>
+<cite>aggregation</cite> - When the <cite>value</cite> tensor provided is not the result
+of calling a <cite>keras.Metric</cite> instance, it will be aggregated by
+default using a <cite>keras.Metric.Mean</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1542,15 +1575,15 @@ using a <cite>keras.Metric.Mean</cite>.</p></li>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.add_update">
 <span class="sig-name descname"><span class="pre">add_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.add_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add update op(s), potentially dependent on layer inputs.</p>
-<p>Weight updates (for instance, the updates of the moving mean and variance
-in a BatchNormalization layer) may be dependent on the inputs passed
-when calling a layer. Hence, when reusing the same layer on
+<p>Weight updates (for instance, the updates of the moving mean and
+variance in a BatchNormalization layer) may be dependent on the inputs
+passed when calling a layer. Hence, when reusing the same layer on
 different inputs <cite>a</cite> and <cite>b</cite>, some entries in <cite>layer.updates</cite> may be
 dependent on <cite>a</cite> and some on <cite>b</cite>. This method automatically keeps track
 of dependencies.</p>
-<p>This call is ignored when eager execution is enabled (in that case, variable
-updates are run on the fly and thus do not need to be tracked for later
-execution).</p>
+<p>This call is ignored when eager execution is enabled (in that case,
+variable updates are run on the fly and thus do not need to be tracked
+for later execution).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>updates</strong> – Update op, or list/tuple of update ops, or zero-arg callable
@@ -1573,7 +1606,7 @@ on this Layer, when executing in Eager mode.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.build">
 <span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
+<dd><p>Creates the variables of the layer (for subclass implementers).</p>
 <p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
 can override if they need a state-creation step in-between
 layer instantiation and layer call. It is invoked automatically before
@@ -1589,13 +1622,21 @@ the first execution of <cite>call()</cite>.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.build_from_config">
+<span class="sig-name descname"><span class="pre">build_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.build_from_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
-<p>The <cite>call()</cite> method may not create state (except in its first invocation,
-wrapping the creation of variables or other resources in <cite>tf.init_scope()</cite>).
-It is recommended to create state in <cite>__init__()</cite>, or the <cite>build()</cite> method
-that is called automatically before <cite>call()</cite> executes the first time.</p>
+<p>The <cite>call()</cite> method may not create state (except in its first
+invocation, wrapping the creation of variables or other resources in
+<cite>tf.init_scope()</cite>).  It is recommended to create state, including
+<cite>tf.Variable</cite> instances and nested <cite>Layer</cite> instances,</p>
+<blockquote>
+<div><p>in <cite>__init__()</cite>, or in the <cite>build()</cite> method that is</p>
+</div></blockquote>
+<p>called automatically before <cite>call()</cite> executes for the first time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1607,7 +1648,8 @@ The first positional <cite>inputs</cite> argument is subject to special rules:
 of a keyword argument.</p>
 </div></blockquote>
 <ul>
-<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as
+tensors.</p></li>
 <li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
 <li><p>Layers are built (<cite>build(input_shape)</cite> method)
 using shape info from <cite>inputs</cite> only.</p></li>
@@ -1615,7 +1657,8 @@ using shape info from <cite>inputs</cite> only.</p></li>
 <li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
 If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
 casting behavior in mixed precision should be handled manually.</p></li>
-<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite>
+only.</p></li>
 <li><p>Integration with various ecosystem packages like TFMOT, TFLite,
 TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
 positional and keyword arguments.</p></li>
@@ -1632,10 +1675,10 @@ The following optional keyword arguments are reserved:
 </div></blockquote>
 <ul>
 <li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
-<cite>mask</cite> argument, its default value will be set to the mask generated
-for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
-that generated a corresponding mask, i.e. if it came from a Keras
-layer with masking support).</p></li>
+<cite>mask</cite> argument, its default value will be set to the mask
+generated for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come
+from a layer that generated a corresponding mask, i.e. if it came
+from a Keras layer with masking support).</p></li>
 </ul>
 </p></li>
 </ul>
@@ -1652,13 +1695,13 @@ layer with masking support).</p></li>
 <p>This is equivalent to <cite>Layer.dtype_policy.compute_dtype</cite>. Unless
 mixed precision is used, this is the same as <cite>Layer.dtype</cite>, the dtype of
 the weights.</p>
-<p>Layers automatically cast their inputs to the compute dtype, which causes
-computations and the output to be in the compute dtype as well. This is done
-by the base Layer class in <cite>Layer.__call__</cite>, so you do not have to insert
-these casts if implementing your own layer.</p>
-<p>Layers often perform certain internal computations in higher precision when
-<cite>compute_dtype</cite> is float16 or bfloat16 for numeric stability. The output
-will still typically be float16 or bfloat16 in such cases.</p>
+<p>Layers automatically cast their inputs to the compute dtype, which
+causes computations and the output to be in the compute dtype as well.
+This is done by the base Layer class in <cite>Layer.__call__</cite>, so you do not
+have to insert these casts if implementing your own layer.</p>
+<p>Layers often perform certain internal computations in higher precision
+when <cite>compute_dtype</cite> is float16 or bfloat16 for numeric stability. The
+output will still typically be float16 or bfloat16 in such cases.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The layer’s compute dtype.</p>
@@ -1694,13 +1737,15 @@ happened before. This requires that the layer will later be used with
 inputs that match the input shape provided here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input_shape</strong> – Shape tuple (tuple of integers)
-or list of shape tuples (one per output tensor of the layer).
+<dd class="field-odd"><p><strong>input_shape</strong> – Shape tuple (tuple of integers) or <cite>tf.TensorShape</cite>,
+or structure of shape tuples / <cite>tf.TensorShape</cite> instances
+(one per output tensor of the layer).
 Shape tuples can include None for free dimensions,
 instead of an integer.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>An input shape tuple.</p>
+<dd class="field-even"><p>A <cite>tf.TensorShape</cite> instance
+or structure of <cite>tf.TensorShape</cite> instances.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1721,7 +1766,7 @@ objects, describing a candidate input for the layer.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Single TensorSpec or nested structure of TensorSpec objects, describing</dt><dd><p>how the layer would transform the provided input.</p>
+<dt>Single TensorSpec or nested structure of TensorSpec objects,</dt><dd><p>describing how the layer would transform the provided input.</p>
 </dd>
 </dl>
 </p>
@@ -1768,9 +1813,9 @@ dtype of the layer’s computations.</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.finalize_state">
 <span class="sig-name descname"><span class="pre">finalize_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.finalize_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finalizes the layers state after updating layer weights.</p>
-<p>This function can be subclassed in a layer and will be called after updating
-a layer weights. It can be overridden to finalize any additional layer state
-after a weight update.</p>
+<p>This function can be subclassed in a layer and will be called after
+updating a layer weights. It can be overridden to finalize any
+additional layer state after a weight update.</p>
 <p>This function will be called after weights of a layer have been restored
 from a loaded model.</p>
 </dd></dl>
@@ -1792,6 +1837,10 @@ output of get_config.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.get_build_config">
+<span class="sig-name descname"><span class="pre">get_build_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.get_build_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.get_input_at">
 <span class="sig-name descname"><span class="pre">get_input_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.get_input_at" title="Permalink to this definition">¶</a></dt>
@@ -1909,12 +1958,12 @@ first time the layer was called.</p>
 <span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.get_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current weights of the layer, as NumPy arrays.</p>
 <p>The weights of a layer represent the state of the layer. This function
-returns both trainable and non-trainable weight values associated with this
-layer as a list of NumPy arrays, which can in turn be used to load state
-into similarly parameterized layers.</p>
-<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel matrix
-and the bias vector. These can be used to set the weights of another
-<cite>Dense</cite> layer:</p>
+returns both trainable and non-trainable weight values associated with
+this layer as a list of NumPy arrays, which can in turn be used to load
+state into similarly parameterized layers.</p>
+<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel
+matrix and the bias vector. These can be used to set the weights of
+another <cite>Dense</cite> layer:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">layer_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>  <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a_out</span> <span class="o">=</span> <span class="n">layer_a</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]]))</span>
@@ -2008,16 +2057,16 @@ have the same shape.</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.input_spec">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.input_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>InputSpec</cite> instance(s) describing the input format for this layer.</p>
-<p>When you create a layer subclass, you can set <cite>self.input_spec</cite> to enable
-the layer to run input compatibility checks when it is called.
-Consider a <cite>Conv2D</cite> layer: it can only be called on a single input tensor
-of rank 4. As such, you can set, in <cite>__init__()</cite>:</p>
+<p>When you create a layer subclass, you can set <cite>self.input_spec</cite> to
+enable the layer to run input compatibility checks when it is called.
+Consider a <cite>Conv2D</cite> layer: it can only be called on a single input
+tensor of rank 4. As such, you can set, in <cite>__init__()</cite>:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`python</span>
 <span class="pre">self.input_spec</span> <span class="pre">=</span> <span class="pre">tf.keras.layers.InputSpec(ndim=4)</span>
 <span class="pre">`</span></code></p>
 <p>Now, if you try to call the layer on an input that isn’t rank 4
-(for instance, an input of shape <cite>(2,)</cite>, it will raise a nicely-formatted
-error:</p>
+(for instance, an input of shape <cite>(2,)</cite>, it will raise a
+nicely-formatted error:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">ValueError:</span> <span class="pre">Input</span> <span class="pre">0</span> <span class="pre">of</span> <span class="pre">layer</span> <span class="pre">conv2d</span> <span class="pre">is</span> <span class="pre">incompatible</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">layer:</span>
 <span class="pre">expected</span> <span class="pre">ndim=4,</span> <span class="pre">found</span> <span class="pre">ndim=1.</span> <span class="pre">Full</span> <span class="pre">shape</span> <span class="pre">received:</span> <span class="pre">[2]</span>
@@ -2038,9 +2087,10 @@ error:</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.losses">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of losses added using the <cite>add_loss()</cite> API.</p>
-<p>Variable regularization tensors are created when this property is accessed,
-so it is eager safe: accessing <cite>losses</cite> under a <cite>tf.GradientTape</cite> will
-propagate gradients back to the corresponding variables.</p>
+<p>Variable regularization tensors are created when this property is
+accessed, so it is eager safe: accessing <cite>losses</cite> under a
+<cite>tf.GradientTape</cite> will propagate gradients back to the corresponding
+variables.</p>
 <p>Examples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyLayer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
 <span class="gp">... </span>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
@@ -2085,12 +2135,13 @@ propagate gradients back to the corresponding variables.</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.merge_state">
 <span class="sig-name descname"><span class="pre">merge_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.merge_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merges the state from one or more metrics.</p>
-<p>This method can be used by distributed systems to merge the state computed
-by different metric instances. Typically the state will be stored in the
-form of the metric’s weights. For example, a tf.keras.metrics.Mean metric
-contains a list of two weight values: a total and a count. If there were two
-instances of a tf.keras.metrics.Accuracy that each independently aggregated
-partial state for an overall accuracy calculation, these two metric’s states
+<p>This method can be used by distributed systems to merge the state
+computed by different metric instances. Typically the state will be
+stored in the form of the metric’s weights. For example, a
+tf.keras.metrics.Mean metric contains a list of two weight values: a
+total and a count. If there were two instances of a
+tf.keras.metrics.Accuracy that each independently aggregated partial
+state for an overall accuracy calculation, these two metric’s states
 could be combined as follows:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">update_state</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
@@ -2107,11 +2158,12 @@ could be combined as follows:</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>metrics</strong> – an iterable of metrics. The metrics must have compatible state.</p>
+<dd class="field-odd"><p><strong>metrics</strong> – an iterable of metrics. The metrics must have compatible
+state.</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the provided iterable does not contain metrics matching the
-    metric’s required specifications.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided iterable does not contain metrics matching
+    the metric’s required specifications.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2164,8 +2216,8 @@ first).</p>
 <dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.F1Score.non_trainable_weights">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.non_trainable_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all non-trainable weights tracked by this layer.</p>
-<p>Non-trainable weights are <em>not</em> updated during training. They are expected
-to be updated manually in <cite>call()</cite>.</p>
+<p>Non-trainable weights are <em>not</em> updated during training. They are
+expected to be updated manually in <cite>call()</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A list of non-trainable variables.</p>
@@ -2257,9 +2309,9 @@ sets the weight values from numpy arrays. The weight values should be
 passed in the order they are created by the layer. Note that the layer’s
 weights must be instantiated before calling this function, by calling
 the layer.</p>
-<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel matrix
-and the bias vector. These can be used to set the weights of another
-<cite>Dense</cite> layer:</p>
+<p>For example, a <cite>Dense</cite> layer returns a list of two values: the kernel
+matrix and the bias vector. These can be used to set the weights of
+another <cite>Dense</cite> layer:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">layer_a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>  <span class="n">kernel_initializer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">constant_initializer</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a_out</span> <span class="o">=</span> <span class="n">layer_a</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]]))</span>
@@ -2378,8 +2430,8 @@ first).</p>
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.F1Score.variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of all layer variables/weights.</p>
 <p>Alias of <cite>self.weights</cite>.</p>
-<p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
-themselves Keras layers.</p>
+<p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are
+not themselves Keras layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A list of variables.</p>

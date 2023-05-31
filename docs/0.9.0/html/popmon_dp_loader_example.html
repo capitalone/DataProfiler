@@ -491,15 +491,15 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">popmon</span>  <span class="c1"># noqa</span>
+<span></span>import os
+import sys
+try:
+    sys.path.insert(0, '..')
+    import dataprofiler as dp
+except ImportError:
+    import dataprofiler as dp
+import pandas as pd
+import popmon  # noqa
 </pre></div>
 </div>
 </div>
@@ -512,14 +512,14 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">def</span> <span class="nf">popmon_dataloader</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">time_index</span><span class="p">):</span>
-    <span class="c1"># Load pm dataframe (Can only read csvs unless reader option is changed)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">time_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pm_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="n">time_index</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">time_index</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">pm_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pm_data</span>
+<span></span>def popmon_dataloader(path, time_index):
+    # Load pm dataframe (Can only read csvs unless reader option is changed)
+    if not time_index is None:
+        pm_data = pd.read_csv(path, parse_dates=[time_index])
+    else:
+        time_index = True
+        pm_data = pd.read_csv(path)
+    return pm_data
 </pre></div>
 </div>
 </div>
@@ -529,23 +529,23 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">def</span> <span class="nf">dp_dataloader</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="c1"># Datalaoder from dataprofiler used</span>
-    <span class="n">dp_data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span></span>def dp_dataloader(path):
+    # Datalaoder from dataprofiler used
+    dp_data = dp.Data(path)
 
-    <span class="c1"># Profiler used to ensure proper label for datetime even</span>
-    <span class="c1"># when null values exist</span>
-    <span class="n">profiler_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
-    <span class="n">profiler_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s1">'*.is_enabled'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Runs first disabling all options in profiler</span>
-                          <span class="s1">'*.datetime.is_enabled'</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-    <span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">dp_data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profiler_options</span><span class="p">)</span>
+    # Profiler used to ensure proper label for datetime even
+    # when null values exist
+    profiler_options = dp.ProfilerOptions()
+    profiler_options.set({'*.is_enabled': False,  # Runs first disabling all options in profiler
+                          '*.datetime.is_enabled': True})
+    profile = dp.Profiler(dp_data, options=profiler_options)
 
-    <span class="c1"># convert any time/datetime types from strings to actual datatime type</span>
-    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dp_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">profile</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'data_type'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'datetime'</span><span class="p">:</span>
-            <span class="n">dp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">dp_data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+    # convert any time/datetime types from strings to actual datatime type
+    for ind, col in enumerate(dp_data.data.columns):
+        if profile.profile[ind].profile.get('data_type') == 'datetime':
+            dp_data.data[col] = pd.to_datetime(dp_data.data[col])
 
-    <span class="k">return</span> <span class="n">dp_data</span><span class="o">.</span><span class="n">data</span>
+    return dp_data.data
 </pre></div>
 </div>
 </div>
@@ -558,12 +558,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">gzip</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="n">popmon_tutorial_data</span> <span class="o">=</span> <span class="n">popmon</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s2">"flight_delays.csv.gz"</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">popmon_tutorial_data</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'./flight_delays.csv'</span><span class="p">,</span> <span class="s1">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
+<span></span>import gzip
+import shutil
+popmon_tutorial_data = popmon.resources.data("flight_delays.csv.gz")
+with gzip.open(popmon_tutorial_data, 'rb') as f_in:
+    with open('./flight_delays.csv', 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
 </pre></div>
 </div>
 </div>
@@ -573,12 +573,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Default csv from popmon example</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">"./flight_delays.csv"</span>
-<span class="n">time_index</span> <span class="o">=</span> <span class="s2">"DATE"</span>
-<span class="n">report_output_dir</span> <span class="o">=</span> <span class="s2">"./popmon_output/flight_delays_full"</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">)</span>
+<span></span># Default csv from popmon example
+path = "./flight_delays.csv"
+time_index = "DATE"
+report_output_dir = "./popmon_output/flight_delays_full"
+if not os.path.exists(report_output_dir):
+    os.makedirs(report_output_dir)
 
 </pre></div>
 </div>
@@ -588,19 +588,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pm_data</span> <span class="o">=</span> <span class="n">popmon_dataloader</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">time_index</span><span class="p">)</span>
+<span></span>pm_data = popmon_dataloader(path, time_index)
 
-<span class="n">report_pm_loader</span> <span class="o">=</span> <span class="n">pm_data</span><span class="o">.</span><span class="n">pm_stability_report</span><span class="p">(</span>
-    <span class="n">time_axis</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-    <span class="n">time_width</span><span class="o">=</span><span class="s2">"1w"</span><span class="p">,</span>
-    <span class="n">time_offset</span><span class="o">=</span><span class="s2">"2015-07-02"</span><span class="p">,</span>
-    <span class="n">extended_report</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">pull_rules</span><span class="o">=</span><span class="p">{</span><span class="s2">"*_pull"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">]},</span>
-<span class="p">)</span>
+report_pm_loader = pm_data.pm_stability_report(
+    time_axis=time_index,
+    time_width="1w",
+    time_offset="2015-07-02",
+    extended_report=False,
+    pull_rules={"*_pull": [10, 7, -7, -10]},
+)
 
-<span class="c1"># Save popmon reports</span>
-<span class="n">report_pm_loader</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">,</span> <span class="s2">"popmon_loader_report.html"</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Report printed at:"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">,</span> <span class="s2">"popmon_loader_report.html"</span><span class="p">))</span>
+# Save popmon reports
+report_pm_loader.to_file(os.path.join(report_output_dir, "popmon_loader_report.html"))
+print("Report printed at:", os.path.join(report_output_dir, "popmon_loader_report.html"))
 </pre></div>
 </div>
 </div>
@@ -610,19 +610,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">dp_dataframe</span> <span class="o">=</span> <span class="n">dp_dataloader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-<span class="c1"># Generate pm report using dp dataloader</span>
-<span class="n">report_dp_loader</span> <span class="o">=</span> <span class="n">dp_dataframe</span><span class="o">.</span><span class="n">pm_stability_report</span><span class="p">(</span>
-    <span class="n">time_axis</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-    <span class="n">time_width</span><span class="o">=</span><span class="s2">"1w"</span><span class="p">,</span>
-    <span class="n">time_offset</span><span class="o">=</span><span class="s2">"2015-07-02"</span><span class="p">,</span>
-    <span class="n">extended_report</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">pull_rules</span><span class="o">=</span><span class="p">{</span><span class="s2">"*_pull"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">]},</span>
-<span class="p">)</span>
+<span></span>dp_dataframe = dp_dataloader(path)
+# Generate pm report using dp dataloader
+report_dp_loader = dp_dataframe.pm_stability_report(
+    time_axis=time_index,
+    time_width="1w",
+    time_offset="2015-07-02",
+    extended_report=False,
+    pull_rules={"*_pull": [10, 7, -7, -10]},
+)
 
-<span class="c1"># Save popmon reports</span>
-<span class="n">report_dp_loader</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">,</span> <span class="s2">"dataprofiler_loader_report.html"</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Report printed at:"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">,</span> <span class="s2">"dataprofiler_loader_report.html"</span><span class="p">))</span>
+# Save popmon reports
+report_dp_loader.to_file(os.path.join(report_output_dir, "dataprofiler_loader_report.html"))
+print("Report printed at:", os.path.join(report_output_dir, "dataprofiler_loader_report.html"))
 </pre></div>
 </div>
 </div>
@@ -639,10 +639,10 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Default csv from popmon example (mini version)</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/flight_delays.csv"</span>
-<span class="n">time_index</span> <span class="o">=</span> <span class="s2">"DATE"</span>
-<span class="n">report_output_dir</span> <span class="o">=</span> <span class="s2">"./popmon_output/flight_delays_mini"</span>
+<span></span># Default csv from popmon example (mini version)
+path = "../dataprofiler/tests/data/csv/flight_delays.csv"
+time_index = "DATE"
+report_output_dir = "./popmon_output/flight_delays_mini"
 </pre></div>
 </div>
 </div>
@@ -651,10 +651,10 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Random csv from dataprofiler tests</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"</span>
-<span class="n">time_index</span> <span class="o">=</span> <span class="s2">"datetime"</span>
-<span class="n">report_output_dir</span> <span class="o">=</span> <span class="s2">"./popmon_output/aws_honeypot_marx_geo"</span>
+<span></span># Random csv from dataprofiler tests
+path = "../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"
+time_index = "datetime"
+report_output_dir = "./popmon_output/aws_honeypot_marx_geo"
 </pre></div>
 </div>
 </div>
@@ -663,11 +663,11 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Random json file from dataprofiler tests</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/json/math.json"</span>
+<span></span># Random json file from dataprofiler tests
+path = "../dataprofiler/tests/data/json/math.json"
 
-<span class="n">time_index</span> <span class="o">=</span> <span class="s2">"data.9"</span>
-<span class="n">report_output_dir</span> <span class="o">=</span> <span class="s2">"./popmon_output/math"</span>
+time_index = "data.9"
+report_output_dir = "./popmon_output/math"
 </pre></div>
 </div>
 </div>
@@ -677,9 +677,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">)</span>
-<span class="n">dp_dataframe</span> <span class="o">=</span> <span class="n">dp_dataloader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span></span>if not os.path.exists(report_output_dir):
+    os.makedirs(report_output_dir)
+dp_dataframe = dp_dataloader(path)
 </pre></div>
 </div>
 </div>
@@ -693,14 +693,14 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Generate pm report using dp dataloader</span>
-<span class="n">report_dp_loader</span> <span class="o">=</span> <span class="n">dp_dataframe</span><span class="o">.</span><span class="n">pm_stability_report</span><span class="p">(</span>
-    <span class="n">time_axis</span><span class="o">=</span><span class="n">time_index</span><span class="p">,</span>
-    <span class="n">time_width</span><span class="o">=</span><span class="s2">"1w"</span><span class="p">,</span>
-    <span class="n">time_offset</span><span class="o">=</span><span class="s2">"2015-07-02"</span><span class="p">,</span>
-    <span class="n">extended_report</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">pull_rules</span><span class="o">=</span><span class="p">{</span><span class="s2">"*_pull"</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">]},</span>
-<span class="p">)</span>
+<span></span># Generate pm report using dp dataloader
+report_dp_loader = dp_dataframe.pm_stability_report(
+    time_axis=time_index,
+    time_width="1w",
+    time_offset="2015-07-02",
+    extended_report=False,
+    pull_rules={"*_pull": [10, 7, -7, -10]},
+)
 </pre></div>
 </div>
 </div>
@@ -710,9 +710,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Save dp reports</span>
-<span class="n">report_dp_loader</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">,</span> <span class="s2">"dataprofiler_loader_report.html"</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Report printed at:"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_output_dir</span><span class="p">,</span> <span class="s2">"dataprofiler_loader_report.html"</span><span class="p">))</span>
+<span></span># Save dp reports
+report_dp_loader.to_file(os.path.join(report_output_dir, "dataprofiler_loader_report.html"))
+print("Report printed at:", os.path.join(report_output_dir, "dataprofiler_loader_report.html"))
 </pre></div>
 </div>
 </div>

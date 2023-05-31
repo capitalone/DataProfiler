@@ -485,12 +485,12 @@ to the desired architectures. In this example, we define such a new model to be 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span></span>import os
+import sys
+import json
+import pandas as pd
+sys.path.insert(0, '..')
+import dataprofiler as dp
 </pre></div>
 </div>
 </div>
@@ -502,17 +502,17 @@ to the desired architectures. In this example, we define such a new model to be 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># use data reader to read input data</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"</span><span class="p">)</span>
-<span class="n">df_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span>
+<span></span># use data reader to read input data
+data = dp.Data("../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv")
+df_data = data.data
 
-<span class="c1"># split data to training and test set</span>
-<span class="n">split_ratio</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">df_data</span> <span class="o">=</span> <span class="n">df_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">data_train</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[:</span><span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">split_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_data</span><span class="p">))]</span>
-<span class="n">data_test</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">split_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_data</span><span class="p">)):]</span>
+# split data to training and test set
+split_ratio = 0.2
+df_data = df_data.sample(frac=1).reset_index(drop=True)
+data_train = df_data[:int((1 - split_ratio) * len(df_data))]
+data_test = df_data[int((1 - split_ratio) * len(df_data)):]
 
-<span class="n">df_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+df_data.head()
 </pre></div>
 </div>
 </div>
@@ -528,211 +528,211 @@ to the desired architectures. In this example, we define such a new model to be 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">dataprofiler.labelers.character_level_cnn_model</span> <span class="kn">import</span> <span class="n">CharacterLevelCnnModel</span><span class="p">,</span> <span class="n">F1Score</span><span class="p">,</span> \
-                                                            <span class="n">create_glove_char</span><span class="p">,</span> <span class="n">build_embd_dictionary</span>
-<span class="kn">from</span> <span class="nn">dataprofiler.labelers.base_model</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span></span>import tensorflow as tf
+import numpy as np
+from dataprofiler.labelers.character_level_cnn_model import CharacterLevelCnnModel, F1Score, \
+                                                            create_glove_char, build_embd_dictionary
+from dataprofiler.labelers.base_model import BaseModel
 
-<span class="c1"># CharacterLevelLstmModel derives from CharacterLevelCnnModel</span>
-<span class="c1">#########################################################</span>
-<span class="c1">#########################################################</span>
-<span class="k">class</span> <span class="nc">CharacterLevelLstmModel</span><span class="p">(</span><span class="n">CharacterLevelCnnModel</span><span class="p">):</span>
+# CharacterLevelLstmModel derives from CharacterLevelCnnModel
+#########################################################
+#########################################################
+class CharacterLevelLstmModel(CharacterLevelCnnModel):
 
-    <span class="c1"># boolean if the label mapping requires the mapping for index 0 reserved</span>
-    <span class="n">requires_zero_mapping</span> <span class="o">=</span> <span class="kc">True</span>
+    # boolean if the label mapping requires the mapping for index 0 reserved
+    requires_zero_mapping = True
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        LSTM Model Initializer</span>
-<span class="sd">        """</span>
+    def __init__(self, label_mapping=None, parameters=None):
+        """
+        LSTM Model Initializer
+        """
 
-        <span class="c1"># parameter initialization</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">parameters</span><span class="p">:</span>
-            <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'max_length'</span><span class="p">,</span> <span class="mi">3400</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'max_char_encoding_id'</span><span class="p">,</span> <span class="mi">127</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'dim_embed'</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'size_fc'</span><span class="p">,</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">])</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'dropout'</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-        <span class="c1"># new parameters for LSTM model</span>
-        <span class="c1">#########################################################</span>
-        <span class="c1">#########################################################</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'size_lstm'</span><span class="p">,</span> <span class="p">[</span><span class="mi">64</span><span class="p">])</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'rec_dropout'</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'activation'</span><span class="p">,</span> <span class="s2">"tanh"</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'recurrent_activation'</span><span class="p">,</span> <span class="s2">"sigmoid"</span><span class="p">)</span>
-        <span class="c1">#########################################################</span>
-        <span class="c1">#########################################################</span>
-        <span class="n">parameters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'default_label'</span><span class="p">,</span> <span class="s2">"UNKNOWN"</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="p">[</span><span class="s1">'pad_label'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'PAD'</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_epoch_id</span> <span class="o">=</span> <span class="mi">0</span>
+        # parameter initialization
+        if not parameters:
+            parameters = {}
+        parameters.setdefault('max_length', 3400)
+        parameters.setdefault('max_char_encoding_id', 127)
+        parameters.setdefault('dim_embed', 64)
+        parameters.setdefault('size_fc', [32, 32])
+        parameters.setdefault('dropout', 0.1)
+        # new parameters for LSTM model
+        #########################################################
+        #########################################################
+        parameters.setdefault('size_lstm', [64])
+        parameters.setdefault('rec_dropout', 0.1)
+        parameters.setdefault('activation', "tanh")
+        parameters.setdefault('recurrent_activation', "sigmoid")
+        #########################################################
+        #########################################################
+        parameters.setdefault('default_label', "UNKNOWN")
+        parameters['pad_label'] = 'PAD'
+        self._epoch_id = 0
 
-        <span class="c1"># reconstruct flags for model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_num_labels</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_default_ind</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        # reconstruct flags for model
+        self._model_num_labels = 0
+        self._model_default_ind = -1
 
-        <span class="n">BaseModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_mapping</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+        BaseModel.__init__(self, label_mapping, parameters)
 
-    <span class="k">def</span> <span class="nf">_validate_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Validate the parameters sent in. Raise error if invalid parameters are</span>
-<span class="sd">        present.</span>
-<span class="sd">        """</span>
-        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">list_of_necessary_params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'max_length'</span><span class="p">,</span> <span class="s1">'max_char_encoding_id'</span><span class="p">,</span>
-                                    <span class="s1">'dim_embed'</span><span class="p">,</span> <span class="s1">'size_fc'</span><span class="p">,</span> <span class="s1">'dropout'</span><span class="p">,</span>
-                                    <span class="s1">'size_lstm'</span><span class="p">,</span> <span class="s1">'rec_dropout'</span><span class="p">,</span> <span class="s1">'activation'</span><span class="p">,</span>
-                                    <span class="s1">'recurrent_activation'</span><span class="p">,</span> <span class="s1">'default_label'</span><span class="p">,</span>
-                                    <span class="s1">'pad_label'</span><span class="p">]</span>
-        <span class="c1"># Make sure the necessary parameters are present and valid.</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'max_length'</span><span class="p">,</span> <span class="s1">'max_char_encoding_id'</span><span class="p">,</span> <span class="s1">'dim_embed'</span><span class="p">,</span>
-                         <span class="s1">'size_conv'</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> \
-                        <span class="ow">or</span> <span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s2">" must be a valid integer or float "</span>
-                                          <span class="s2">"greater than 0."</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'dropout'</span><span class="p">,</span> <span class="s1">'rec_dropout'</span><span class="p">]:</span> <span class="c1"># additional check for rec_dropout</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> \
-                        <span class="ow">or</span> <span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s2">" must be a valid integer or float "</span>
-                                          <span class="s2">"from 0 to 1."</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="s1">'size_fc'</span> <span class="ow">or</span> <span class="n">param</span> <span class="o">==</span> <span class="s1">'size_lstm'</span><span class="p">:</span> <span class="c1"># additional check for size_lstm</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> \
-                        <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s2">" must be a non-empty list of "</span>
-                                          <span class="s2">"integers."</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s2">" must be a non-empty "</span>
-                                                  <span class="s2">"list of integers."</span><span class="p">)</span>
-                            <span class="k">break</span>
-            <span class="k">elif</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'default_label'</span><span class="p">,</span> <span class="s1">'activation'</span><span class="p">,</span> <span class="s1">'recurrent_activation'</span><span class="p">]:</span> <span class="c1"># additional check for activation and recurrent_activation</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">error</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="o">+</span> <span class="s2">" must be a string."</span>
-                    <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+    def _validate_parameters(self, parameters):
+        """
+        Validate the parameters sent in. Raise error if invalid parameters are
+        present.
+        """
+        errors = []
+        list_of_necessary_params = ['max_length', 'max_char_encoding_id',
+                                    'dim_embed', 'size_fc', 'dropout',
+                                    'size_lstm', 'rec_dropout', 'activation',
+                                    'recurrent_activation', 'default_label',
+                                    'pad_label']
+        # Make sure the necessary parameters are present and valid.
+        for param in parameters:
+            if param in ['max_length', 'max_char_encoding_id', 'dim_embed',
+                         'size_conv']:
+                if not isinstance(parameters[param], (int, float)) \
+                        or parameters[param] &lt; 0:
+                    errors.append(param + " must be a valid integer or float "
+                                          "greater than 0.")
+            elif param in ['dropout', 'rec_dropout']: # additional check for rec_dropout
+                if not isinstance(parameters[param], (int, float)) \
+                        or parameters[param] &lt; 0 or parameters[param] &gt; 1:
+                    errors.append(param + " must be a valid integer or float "
+                                          "from 0 to 1.")
+            elif param == 'size_fc' or param == 'size_lstm': # additional check for size_lstm
+                if not isinstance(parameters[param], list) \
+                        or len(parameters[param]) == 0:
+                    errors.append(param + " must be a non-empty list of "
+                                          "integers.")
+                else:
+                    for item in parameters[param]:
+                        if not isinstance(item, int):
+                            errors.append(param + " must be a non-empty "
+                                                  "list of integers.")
+                            break
+            elif param in ['default_label', 'activation', 'recurrent_activation']: # additional check for activation and recurrent_activation
+                if not isinstance(parameters[param], str):
+                    error = str(param) + " must be a string."
+                    errors.append(error)
 
-        <span class="c1"># Error if there are extra parameters thrown in</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">list_of_necessary_params</span><span class="p">:</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="s2">" is not an accepted parameter."</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">))</span>
+        # Error if there are extra parameters thrown in
+        for param in parameters:
+            if param not in list_of_necessary_params:
+                errors.append(param + " is not an accepted parameter.")
+        if errors:
+            raise ValueError('\n'.join(errors))
 
-    <span class="k">def</span> <span class="nf">_construct_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Model constructor for the data labeler. This also serves as a weight</span>
-<span class="sd">        reset.</span>
+    def _construct_model(self):
+        """
+        Model constructor for the data labeler. This also serves as a weight
+        reset.
 
-<span class="sd">        :return: None</span>
-<span class="sd">        """</span>
-        <span class="n">num_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_labels</span>
-        <span class="n">default_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'default_label'</span><span class="p">]]</span>
+        :return: None
+        """
+        num_labels = self.num_labels
+        default_ind = self.label_mapping[self._parameters['default_label']]
 
-        <span class="c1"># Reset model</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">clear_session</span><span class="p">()</span>
+        # Reset model
+        tf.keras.backend.clear_session()
 
-        <span class="c1"># generate glove embedding</span>
-        <span class="n">create_glove_char</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dim_embed'</span><span class="p">])</span>
+        # generate glove embedding
+        create_glove_char(self._parameters['dim_embed'])
 
-        <span class="c1"># generate model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Sequential</span><span class="p">()</span>
+        # generate model
+        self._model = tf.keras.models.Sequential()
 
-        <span class="c1"># default parameters</span>
-        <span class="n">max_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'max_length'</span><span class="p">]</span>
-        <span class="n">max_char_encoding_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'max_char_encoding_id'</span><span class="p">]</span>
+        # default parameters
+        max_length = self._parameters['max_length']
+        max_char_encoding_id = self._parameters['max_char_encoding_id']
 
-        <span class="c1"># Encoding layer</span>
-        <span class="k">def</span> <span class="nf">encoding_function</span><span class="p">(</span><span class="n">input_str</span><span class="p">):</span>
-            <span class="n">char_in_vector</span> <span class="o">=</span> <span class="n">CharacterLevelLstmModel</span><span class="o">.</span><span class="n">_char_encoding_layer</span><span class="p">(</span>
-                <span class="n">input_str</span><span class="p">,</span> <span class="n">max_char_encoding_id</span><span class="p">,</span> <span class="n">max_length</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">char_in_vector</span>
+        # Encoding layer
+        def encoding_function(input_str):
+            char_in_vector = CharacterLevelLstmModel._char_encoding_layer(
+                input_str, max_char_encoding_id, max_length)
+            return char_in_vector
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">))</span>
+        self._model.add(tf.keras.layers.Input(shape=(None,), dtype=tf.string))
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="n">encoding_function</span><span class="p">,</span>
-                                   <span class="n">output_shape</span><span class="o">=</span><span class="nb">tuple</span><span class="p">([</span><span class="n">max_length</span><span class="p">])))</span>
+        self._model.add(
+            tf.keras.layers.Lambda(encoding_function,
+                                   output_shape=tuple([max_length])))
 
-        <span class="c1"># Create a pre-trained weight matrix</span>
-        <span class="c1"># character encoding indices range from 0 to max_char_encoding_id,</span>
-        <span class="c1"># we add one extra index for out-of-vocabulary character</span>
-        <span class="n">embed_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="s2">"../dataprofiler/labelers"</span><span class="p">,</span> <span class="s2">"embeddings/glove-reduced-</span><span class="si">{}</span><span class="s2">D.txt"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dim_embed'</span><span class="p">]))</span>
-        <span class="n">embedding_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_char_encoding_id</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>
-                                     <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dim_embed'</span><span class="p">]))</span>
-        <span class="n">embedding_dict</span> <span class="o">=</span> <span class="n">build_embd_dictionary</span><span class="p">(</span><span class="n">embed_file</span><span class="p">)</span>
+        # Create a pre-trained weight matrix
+        # character encoding indices range from 0 to max_char_encoding_id,
+        # we add one extra index for out-of-vocabulary character
+        embed_file = os.path.join(
+            "../dataprofiler/labelers", "embeddings/glove-reduced-{}D.txt".format(
+                self._parameters['dim_embed']))
+        embedding_matrix = np.zeros((max_char_encoding_id + 2,
+                                     self._parameters['dim_embed']))
+        embedding_dict = build_embd_dictionary(embed_file)
 
-        <span class="n">input_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">max_length</span><span class="p">])</span>
-        <span class="c1"># Fill in the weight matrix: let pad and space be 0s</span>
-        <span class="k">for</span> <span class="n">ascii_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_char_encoding_id</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">chr</span><span class="p">(</span><span class="n">ascii_num</span><span class="p">)</span> <span class="ow">in</span> <span class="n">embedding_dict</span><span class="p">:</span>
-                <span class="n">embedding_matrix</span><span class="p">[</span><span class="n">ascii_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">embedding_dict</span><span class="p">[</span><span class="nb">chr</span><span class="p">(</span><span class="n">ascii_num</span><span class="p">)]</span>
+        input_shape = tuple([max_length])
+        # Fill in the weight matrix: let pad and space be 0s
+        for ascii_num in range(max_char_encoding_id):
+            if chr(ascii_num) in embedding_dict:
+                embedding_matrix[ascii_num + 1] = embedding_dict[chr(ascii_num)]
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
-            <span class="n">max_char_encoding_id</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dim_embed'</span><span class="p">],</span>
-            <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="n">embedding_matrix</span><span class="p">],</span>
-            <span class="n">input_length</span><span class="o">=</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        self._model.add(tf.keras.layers.Embedding(
+            max_char_encoding_id + 2,
+            self._parameters['dim_embed'],
+            weights=[embedding_matrix],
+            input_length=input_shape[0],
+            trainable=True))
 
-        <span class="c1"># Add the lstm layers</span>
-        <span class="c1">#########################################################</span>
-        <span class="c1">#########################################################</span>
-        <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'size_lstm'</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
-                                     <span class="n">recurrent_dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'rec_dropout'</span><span class="p">],</span>
-                                     <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'activation'</span><span class="p">],</span>
-                                     <span class="n">recurrent_activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'recurrent_activation'</span><span class="p">],</span>
-                                     <span class="n">return_sequences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dropout'</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dropout'</span><span class="p">]))</span>
-        <span class="c1">#########################################################</span>
-        <span class="c1">#########################################################</span>
+        # Add the lstm layers
+        #########################################################
+        #########################################################
+        for size in self._parameters['size_lstm']:
+            self._model.add(
+                tf.keras.layers.LSTM(units=size,
+                                     recurrent_dropout=self._parameters['rec_dropout'],
+                                     activation=self._parameters['activation'],
+                                     recurrent_activation=self._parameters['recurrent_activation'],
+                                     return_sequences=True))
+            if self._parameters['dropout']:
+                self._model.add(tf.keras.layers.Dropout(self._parameters['dropout']))
+        #########################################################
+        #########################################################
 
-        <span class="c1"># Add the fully connected layers</span>
-        <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'size_fc'</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'relu'</span><span class="p">))</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dropout'</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                    <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'dropout'</span><span class="p">]))</span>
+        # Add the fully connected layers
+        for size in self._parameters['size_fc']:
+            self._model.add(
+                tf.keras.layers.Dense(units=size, activation='relu'))
+            if self._parameters['dropout']:
+                self._model.add(
+                    tf.keras.layers.Dropout(self._parameters['dropout']))
 
-        <span class="c1"># Add the final Softmax layer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">'softmax'</span><span class="p">))</span>
+        # Add the final Softmax layer
+        self._model.add(
+            tf.keras.layers.Dense(num_labels, activation='softmax'))
 
-        <span class="c1"># Output the model into a .pb file for TensorFlow</span>
-        <span class="n">argmax_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+        # Output the model into a .pb file for TensorFlow
+        argmax_layer = tf.keras.backend.argmax(self._model.output)
 
-        <span class="c1"># Create confidence layers</span>
-        <span class="n">final_predicted_layer</span> <span class="o">=</span> <span class="n">CharacterLevelLstmModel</span><span class="o">.</span><span class="n">_argmax_threshold_layer</span><span class="p">(</span>
-            <span class="n">num_labels</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">default_ind</span><span class="o">=</span><span class="n">default_ind</span><span class="p">)</span>
+        # Create confidence layers
+        final_predicted_layer = CharacterLevelLstmModel._argmax_threshold_layer(
+            num_labels, threshold=0.0, default_ind=default_ind)
 
-        <span class="n">argmax_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">outputs</span> <span class="o">+</span> \
-                         <span class="p">[</span><span class="n">argmax_layer</span><span class="p">,</span>
-                          <span class="n">final_predicted_layer</span><span class="p">(</span><span class="n">argmax_layer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">output</span><span class="p">)]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">argmax_outputs</span><span class="p">)</span>
+        argmax_outputs = self._model.outputs + \
+                         [argmax_layer,
+                          final_predicted_layer(argmax_layer, self._model.output)]
+        self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
-        <span class="c1"># Compile the model</span>
-        <span class="n">softmax_output_layer_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">losses</span> <span class="o">=</span> <span class="p">{</span><span class="n">softmax_output_layer_name</span><span class="p">:</span> <span class="s2">"categorical_crossentropy"</span><span class="p">}</span>
+        # Compile the model
+        softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
+        losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
-        <span class="c1"># use f1 score metric</span>
-        <span class="n">f1_score_training</span> <span class="o">=</span> <span class="n">F1Score</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="s1">'micro'</span><span class="p">)</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="n">softmax_output_layer_name</span><span class="p">:</span> <span class="p">[</span><span class="s1">'acc'</span><span class="p">,</span> <span class="n">f1_score_training</span><span class="p">]}</span>
+        # use f1 score metric
+        f1_score_training = F1Score(num_classes=num_labels, average='micro')
+        metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">losses</span><span class="p">,</span>
-                            <span class="n">optimizer</span><span class="o">=</span><span class="s2">"adam"</span><span class="p">,</span>
-                            <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+        self._model.compile(loss=losses,
+                            optimizer="adam",
+                            metrics=metrics)
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_epoch_id</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_num_labels</span> <span class="o">=</span> <span class="n">num_labels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_default_ind</span> <span class="o">=</span> <span class="n">default_ind</span>
+        self._epoch_id = 0
+        self._model_num_labels = num_labels
+        self._model_default_ind = default_ind
 
 </pre></div>
 </div>
@@ -746,35 +746,35 @@ to the desired architectures. In this example, we define such a new model to be 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># get labels from the given dataset</span>
-<span class="n">value_label_df</span> <span class="o">=</span> <span class="n">data_train</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">melt</span><span class="p">()</span>
-<span class="n">value_label_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># labels=1, values=0 in that order</span>
-<span class="n">value_label_df</span> <span class="o">=</span> <span class="n">value_label_df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="n">labels</span> <span class="o">=</span> <span class="n">value_label_df</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span></span># get labels from the given dataset
+value_label_df = data_train.reset_index(drop=True).melt()
+value_label_df.columns = [1, 0]  # labels=1, values=0 in that order
+value_label_df = value_label_df.astype(str)
+labels = value_label_df[1].unique().tolist()
 
-<span class="c1"># create a new LSTM model</span>
-<span class="c1"># set default label (one of the column names) to the model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">CharacterLevelLstmModel</span><span class="p">(</span><span class="n">label_mapping</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">'default_label'</span><span class="p">:</span> <span class="s1">'comment'</span><span class="p">})</span>
+# create a new LSTM model
+# set default label (one of the column names) to the model
+model = CharacterLevelLstmModel(label_mapping=labels, parameters={'default_label': 'comment'})
 
-<span class="c1"># add the new LSTM model to the data labeler</span>
-<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+# add the new LSTM model to the data labeler
+data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
+data_labeler.set_model(model)
 
-<span class="c1"># set default label (one of the column names) to the preprocessor and postprocessor</span>
-<span class="n">processor_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'default_label'</span><span class="p">:</span> <span class="s1">'comment'</span><span class="p">}</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">_preprocessor</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">processor_params</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">_postprocessor</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">processor_params</span><span class="p">)</span>
+# set default label (one of the column names) to the preprocessor and postprocessor
+processor_params = {'default_label': 'comment'}
+data_labeler._preprocessor.set_params(**processor_params)
+data_labeler._postprocessor.set_params(**processor_params)
 
-<span class="c1"># train the data labeler</span>
-<span class="n">save_dirpath</span><span class="o">=</span><span class="s2">"data_labeler_saved"</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">save_dirpath</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dirpath</span><span class="p">)</span>
+# train the data labeler
+save_dirpath="data_labeler_saved"
+if not os.path.exists(save_dirpath):
+    os.makedirs(save_dirpath)
 
-<span class="n">epochs</span><span class="o">=</span><span class="mi">2</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="n">value_label_df</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">value_label_df</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">save_dirpath</span><span class="p">:</span>
-    <span class="n">data_labeler</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="n">save_dirpath</span><span class="p">)</span>
+epochs=2
+data_labeler.fit(
+    x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs)
+if save_dirpath:
+    data_labeler.save_to_disk(save_dirpath)
 </pre></div>
 </div>
 </div>
@@ -784,30 +784,30 @@ to the desired architectures. In this example, we define such a new model to be 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># predict with the data labeler object</span>
-<span class="n">profile_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">"structured_options.text.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"int.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"float.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"order.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"category.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"datetime.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,})</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s1">'structured_options.data_labeler.data_labeler_object'</span><span class="p">:</span> <span class="n">data_labeler</span><span class="p">})</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+<span></span># predict with the data labeler object
+profile_options = dp.ProfilerOptions()
+profile_options.set({"structured_options.text.is_enabled": False,
+                     "int.is_enabled": False,
+                     "float.is_enabled": False,
+                     "order.is_enabled": False,
+                     "category.is_enabled": False,
+                     "datetime.is_enabled": False,})
+profile_options.set({'structured_options.data_labeler.data_labeler_object': data_labeler})
+profile = dp.Profiler(data_test, options=profile_options)
 
-<span class="c1"># get the prediction from the data profiler</span>
-<span class="k">def</span> <span class="nf">get_structured_results</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">col_report</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">'data_stats'</span><span class="p">]:</span>
-        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_report</span><span class="p">[</span><span class="s1">'column_name'</span><span class="p">])</span>
-        <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_report</span><span class="p">[</span><span class="s1">'data_label'</span><span class="p">])</span>
+# get the prediction from the data profiler
+def get_structured_results(results):
+    columns = []
+    predictions = []
+    for col_report in results['data_stats']:
+        columns.append(col_report['column_name'])
+        predictions.append(col_report['data_label'])
 
-    <span class="n">df_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'Column'</span><span class="p">:</span> <span class="n">columns</span><span class="p">,</span> <span class="s1">'Prediction'</span><span class="p">:</span> <span class="n">predictions</span><span class="p">})</span>
-    <span class="k">return</span> <span class="n">df_results</span>
+    df_results = pd.DataFrame({'Column': columns, 'Prediction': predictions})
+    return df_results
 
-<span class="n">results</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">get_structured_results</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+results = profile.report()
+print(get_structured_results(results))
 </pre></div>
 </div>
 </div>

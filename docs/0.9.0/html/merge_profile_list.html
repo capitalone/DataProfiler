@@ -480,23 +480,23 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span></span>import os
+import sys
+import json
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+import pandas as pd
+import tensorflow as tf
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-    <span class="kn">from</span> <span class="nn">dataprofiler.profilers.utils</span> <span class="kn">import</span> <span class="n">merge_profile_list</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-    <span class="kn">from</span> <span class="nn">dataprofiler.profilers.utils</span> <span class="kn">import</span> <span class="n">merge_profile_list</span>
+try:
+    sys.path.insert(0, '..')
+    import dataprofiler as dp
+    from dataprofiler.profilers.utils import merge_profile_list
+except ImportError:
+    import dataprofiler as dp
+    from dataprofiler.profilers.utils import merge_profile_list
 
-<span class="c1"># remove extra tf loggin</span>
-<span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+# remove extra tf loggin
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 </pre></div>
 </div>
 </div>
@@ -513,10 +513,10 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'col1'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">'col2'</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]}</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+<span></span>d = {'col1': [1, 2], 'col2': [3, 4]}
+df = pd.DataFrame(data=d)
 
-<span class="n">list_of_profiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">df</span><span class="p">)]</span>
+list_of_profiles = [dp.Profiler(df), dp.Profiler(df)]
 </pre></div>
 </div>
 </div>
@@ -526,7 +526,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">list_of_profiles</span>
+<span></span>list_of_profiles
 </pre></div>
 </div>
 </div>
@@ -539,7 +539,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">single_profile</span> <span class="o">=</span> <span class="n">merge_profile_list</span><span class="p">(</span><span class="n">list_of_profiles</span><span class="o">=</span><span class="n">list_of_profiles</span><span class="p">)</span>
+<span></span>single_profile = merge_profile_list(list_of_profiles=list_of_profiles)
 </pre></div>
 </div>
 </div>
@@ -549,7 +549,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">single_profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+<span></span>single_profile.report()
 </pre></div>
 </div>
 </div>

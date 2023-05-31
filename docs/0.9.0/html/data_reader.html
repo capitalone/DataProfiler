@@ -493,14 +493,14 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span></span>import os
+import sys
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+try:
+    sys.path.insert(0, '..')
+    import dataprofiler as dp
+except ImportError:
+    import dataprofiler as dp
 </pre></div>
 </div>
 </div>
@@ -509,39 +509,39 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># use data reader to read input data with different file types</span>
-<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
-<span class="n">csv_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"csv/aws_honeypot_marx_geo.csv"</span><span class="p">,</span>
-    <span class="s2">"csv/all-strings-skip-header-author.csv"</span><span class="p">,</span> <span class="c1"># csv files with the author/description on the first line</span>
-    <span class="s2">"csv/sparse-first-and-last-column-empty-first-row.txt"</span><span class="p">,</span> <span class="c1"># csv file with the .txt extension</span>
-<span class="p">]</span>
-<span class="n">json_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"json/complex_nested.json"</span><span class="p">,</span>
-    <span class="s2">"json/honeypot_intentially_mislabeled_file.csv"</span><span class="p">,</span> <span class="c1"># json file with the .csv extension</span>
-<span class="p">]</span>
-<span class="n">parquet_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"parquet/nation.dict.parquet"</span><span class="p">,</span>
-    <span class="s2">"parquet/nation.plain.intentionally_mislabled_file.csv"</span><span class="p">,</span> <span class="c1"># parquet file with the .csv extension</span>
-<span class="p">]</span>
-<span class="n">avro_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"avro/userdata1.avro"</span><span class="p">,</span>
-    <span class="s2">"avro/userdata1_intentionally_mislabled_file.json"</span><span class="p">,</span> <span class="c1"># avro file with the .json extension</span>
-<span class="p">]</span>
-<span class="n">graph_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"csv/graph_data_csv_identify.csv"</span><span class="p">,</span> <span class="c1"># csv file with graph column names</span>
-<span class="p">]</span>
-<span class="n">text_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"txt/discussion_reddit.txt"</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="n">all_files</span> <span class="o">=</span> <span class="n">csv_files</span> <span class="o">+</span> <span class="n">json_files</span> <span class="o">+</span> <span class="n">parquet_files</span> <span class="o">+</span> <span class="n">avro_files</span> <span class="o">+</span> <span class="n">graph_files</span> <span class="o">+</span> <span class="n">text_files</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'filepath'</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">*</span> <span class="mi">58</span> <span class="o">+</span> <span class="s1">'data type'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span><span class="o">*</span><span class="mi">80</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">all_files</span><span class="p">:</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{:&lt;65}</span><span class="s2"> </span><span class="si">{:&lt;15}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span></span># use data reader to read input data with different file types
+data_folder = "../dataprofiler/tests/data"
+csv_files = [
+    "csv/aws_honeypot_marx_geo.csv",
+    "csv/all-strings-skip-header-author.csv", # csv files with the author/description on the first line
+    "csv/sparse-first-and-last-column-empty-first-row.txt", # csv file with the .txt extension
+]
+json_files = [
+    "json/complex_nested.json",
+    "json/honeypot_intentially_mislabeled_file.csv", # json file with the .csv extension
+]
+parquet_files = [
+    "parquet/nation.dict.parquet",
+    "parquet/nation.plain.intentionally_mislabled_file.csv", # parquet file with the .csv extension
+]
+avro_files = [
+    "avro/userdata1.avro",
+    "avro/userdata1_intentionally_mislabled_file.json", # avro file with the .json extension
+]
+graph_files = [
+    "csv/graph_data_csv_identify.csv", # csv file with graph column names
+]
+text_files = [
+    "txt/discussion_reddit.txt",
+]
+all_files = csv_files + json_files + parquet_files + avro_files + graph_files + text_files
+print('filepath' + ' ' * 58 + 'data type')
+print('='*80)
+for file in all_files:
+    filepath = os.path.join(data_folder, file)
+    data = dp.Data(filepath)
+    print("{:&lt;65} {:&lt;15}".format(file, data.data_type))
+print("\n")
 </pre></div>
 </div>
 </div>
@@ -550,9 +550,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># importing from a url</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s1">'https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/diamonds.csv'</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span># importing from a url
+data = dp.Data('https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/diamonds.csv')
+data.head()
 </pre></div>
 </div>
 </div>
@@ -573,19 +573,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+<span></span>import pandas as pd
+from dataprofiler.data_readers.csv_data import CSVData
 
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="s1">'my'</span><span class="p">,</span> <span class="s1">'random'</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">])</span>
+df = pd.DataFrame(['my', 'random', 'data'])
 
-<span class="c1"># specify via the `Data` class</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s1">'csv'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Type: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+# specify via the `Data` class
+data = dp.Data(data=df, data_type='csv')
+print('Data Type: ', data.data_type)
 
-<span class="c1"># specifically use the CSVData class</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Type: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+# specifically use the CSVData class
+data = CSVData(data=df)
+print('Data Type: ', data.data_type)
 </pre></div>
 </div>
 </div>
@@ -599,14 +599,14 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Type: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Filepath: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'File Encoding: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">file_encoding</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Length (two techniques): '</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Data Access:"</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span>
+<span></span>filepath = "../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"
+data = dp.Data(filepath)
+print('Data Type: ', data.data_type)
+print('Data Filepath: ', data.input_file_path)
+print('File Encoding: ', data.file_encoding)
+print('Data Length (two techniques): ', len(data), data.length)
+print("Data Access:")
+data.data
 </pre></div>
 </div>
 </div>
@@ -627,12 +627,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># supplemental function</span>
-<span class="k">def</span> <span class="nf">add_true_false_color</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Converts True to green and False to red in printed text."""</span>
-    <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[92m  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">is_match</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0m"</span>
-    <span class="k">return</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[31m "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">is_match</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0m"</span>
+<span></span># supplemental function
+def add_true_false_color(value):
+    """Converts True to green and False to red in printed text."""
+    if value:
+        return "\x1b[92m  " + str(is_match) + "\x1b[0m"
+    return "\x1b[31m " + str(is_match) + "\x1b[0m"
 </pre></div>
 </div>
 </div>
@@ -641,33 +641,33 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+<span></span>from dataprofiler.data_readers.csv_data import CSVData
 
 
-<span class="n">non_csv_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">'json/iris-utf-8.json'</span><span class="p">,</span>
-    <span class="s1">'json/honeypot_intentially_mislabeled_file.csv'</span><span class="p">,</span>
-    <span class="s1">'parquet/titanic.parq'</span><span class="p">,</span>
-    <span class="s1">'parquet/nation.plain.intentionally_mislabled_file.csv'</span><span class="p">,</span>
-    <span class="s1">'txt/code.txt'</span><span class="p">,</span>
-    <span class="s1">'txt/sentence.txt'</span><span class="p">,</span>
-    <span class="s1">'avro/users.avro'</span><span class="p">,</span>
-    <span class="s1">'avro/snappy_compressed_intentionally_mislabeled_file.csv'</span><span class="p">,</span>
-<span class="p">]</span>
+non_csv_files = [
+    'json/iris-utf-8.json',
+    'json/honeypot_intentially_mislabeled_file.csv',
+    'parquet/titanic.parq',
+    'parquet/nation.plain.intentionally_mislabled_file.csv',
+    'txt/code.txt',
+    'txt/sentence.txt',
+    'avro/users.avro',
+    'avro/snappy_compressed_intentionally_mislabeled_file.csv',
+]
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Is the file a CSV?"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">:</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
-    <span class="n">is_match</span> <span class="o">=</span> <span class="n">CSVData</span><span class="o">.</span><span class="n">is_match</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">add_true_false_color</span><span class="p">(</span><span class="n">is_match</span><span class="p">),</span> <span class="s1">':'</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+print("Is the file a CSV?")
+print('=' * 80)
+for file in csv_files:
+    filepath = os.path.join(data_folder, file)
+    is_match = CSVData.is_match(filepath)
+    print(add_true_false_color(is_match), ':', file)
+    print('=' * 80)
 
-<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">non_csv_files</span><span class="p">:</span>
-    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
-    <span class="n">is_match</span> <span class="o">=</span> <span class="n">CSVData</span><span class="o">.</span><span class="n">is_match</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">add_true_false_color</span><span class="p">(</span><span class="n">is_match</span><span class="p">),</span> <span class="s1">':'</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+for file in non_csv_files:
+    filepath = os.path.join(data_folder, file)
+    is_match = CSVData.is_match(filepath)
+    print(add_true_false_color(is_match), ':', file)
+    print('=' * 80)
 </pre></div>
 </div>
 </div>
@@ -685,18 +685,18 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/diamonds.csv"</span>
+<span></span>filepath = "../dataprofiler/tests/data/csv/diamonds.csv"
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'original data:'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+data = dp.Data(filepath)
+print('original data:')
+print('=' * 80)
+print(data.data[:5])
 
-<span class="nb">print</span><span class="p">()</span>
-<span class="n">data</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'data_format'</span><span class="p">:</span> <span class="s1">'records'</span><span class="p">,</span> <span class="s1">'record_samples_per_line'</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'reloaded data:'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+print()
+data.reload(options={'data_format': 'records', 'record_samples_per_line': 1})
+print('reloaded data:')
+print('=' * 80)
+data.data[:5]
 </pre></div>
 </div>
 </div>
@@ -736,18 +736,18 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># use data reader to read delimited data</span>
-<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
-<span class="n">csv_files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"csv/diamonds.csv"</span><span class="p">,</span>
-    <span class="s2">"csv/all-strings-skip-header-author.csv"</span><span class="p">,</span> <span class="c1"># csv files with the author/description on the first line</span>
-    <span class="s2">"csv/sparse-first-and-last-column-empty-first-row.txt"</span><span class="p">,</span> <span class="c1"># csv file with the .txt extension</span>
-<span class="p">]</span>
+<span></span># use data reader to read delimited data
+data_folder = "../dataprofiler/tests/data"
+csv_files = [
+    "csv/diamonds.csv",
+    "csv/all-strings-skip-header-author.csv", # csv files with the author/description on the first line
+    "csv/sparse-first-and-last-column-empty-first-row.txt", # csv file with the .txt extension
+]
 
-<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">:</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+for file in csv_files:
+    data = CSVData(os.path.join(data_folder, file))
+    print(data.data.head())
+    print('=' * 80)
 </pre></div>
 </div>
 </div>
@@ -767,15 +767,15 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># options are set via a dictionary object in which the parameters are specified.</span>
-<span class="c1"># these are the default values for each option</span>
-<span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"delimiter"</span><span class="p">:</span> <span class="s2">","</span><span class="p">,</span>
-    <span class="s2">"quotechar"</span><span class="p">:</span> <span class="s1">'"'</span><span class="p">,</span>
-    <span class="s2">"header"</span><span class="p">:</span> <span class="s1">'auto'</span><span class="p">,</span>
-    <span class="s2">"data_format"</span><span class="p">:</span> <span class="s2">"dataframe"</span><span class="p">,</span>  <span class="c1"># type: str, choices: "dataframe", "records"</span>
-    <span class="s2">"selected_columns"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(),</span>
-<span class="p">}</span>
+<span></span># options are set via a dictionary object in which the parameters are specified.
+# these are the default values for each option
+options = {
+    "delimiter": ",",
+    "quotechar": '"',
+    "header": 'auto',
+    "data_format": "dataframe",  # type: str, choices: "dataframe", "records"
+    "selected_columns": list(),
+}
 </pre></div>
 </div>
 </div>
@@ -788,11 +788,11 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># display the data we are reading</span>
-<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/daily-activity-sheet-@-singlequote.csv"</span>
-<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+<span></span># display the data we are reading
+filepath = "../dataprofiler/tests/data/csv/daily-activity-sheet-@-singlequote.csv"
+num_lines = 10
+with open(filepath) as fp:
+    print(''.join(fp.readlines()[:num_lines]))
 </pre></div>
 </div>
 </div>
@@ -801,12 +801,12 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Auto detected'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'delimiter: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'quotechar: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">quotechar</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>data = dp.Data(filepath)  # or use CSVData
+print('Auto detected')
+print('=' * 80)
+print('delimiter: ', data.delimiter)
+print('quotechar: ', data.quotechar)
+data.data.head()
 </pre></div>
 </div>
 </div>
@@ -815,13 +815,13 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'delimiter'</span><span class="p">:</span> <span class="s1">'@'</span><span class="p">,</span> <span class="s1">'quotechar'</span><span class="p">:</span> <span class="s2">"'"</span><span class="p">}</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'manually set'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'delimiter: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'quotechar: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">quotechar</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>options = {'delimiter': '@', 'quotechar': "'"}
+data = dp.Data(filepath, options=options)  # or use CSVData
+print('manually set')
+print('=' * 80)
+print('delimiter: ', data.delimiter)
+print('quotechar: ', data.quotechar)
+data.data.head()
 </pre></div>
 </div>
 </div>
@@ -830,23 +830,23 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># intentional failure with incorrect options</span>
-<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'delimiter'</span><span class="p">:</span> <span class="s1">','</span><span class="p">,</span> <span class="s1">'quotechar'</span><span class="p">:</span> <span class="s1">'"'</span><span class="p">}</span>
+<span></span># intentional failure with incorrect options
+options = {'delimiter': ',', 'quotechar': '"'}
 
-<span class="c1"># will be interepted as TextData because the delimtier and quotechar were incorrect</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'intentional faliure set'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'delimiter: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>  <span class="c1"># attribute error raised here, bc TextData, not CSVData</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'quotechar: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">quotechar</span><span class="p">)</span>
+# will be interepted as TextData because the delimtier and quotechar were incorrect
+data = dp.Data(filepath, options=options)
+print('intentional faliure set')
+print('=' * 80)
+try:
+    print('delimiter: ', data.delimiter)  # attribute error raised here, bc TextData, not CSVData
+    print('quotechar: ', data.quotechar)
 
-    <span class="c1"># should not reach this or something went wrong</span>
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">'Should have failed because this is detected as TextData.'</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'When data_type is not set or the CSVData is not set, it will fail over to the</span><span class="se">\n</span><span class="s1">'</span>
-          <span class="s1">'next best reader. In this case it is "TextData"</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span>
+    # should not reach this or something went wrong
+    raise Exception('Should have failed because this is detected as TextData.')
+except AttributeError:
+    print('When data_type is not set or the CSVData is not set, it will fail over to the\n'
+          'next best reader. In this case it is "TextData"\n')
+data.data
 </pre></div>
 </div>
 </div>
@@ -860,11 +860,11 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># display the data we are reading</span>
-<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/sparse-first-and-last-column-header-and-author-description.txt"</span>
-<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+<span></span># display the data we are reading
+filepath = "../dataprofiler/tests/data/csv/sparse-first-and-last-column-header-and-author-description.txt"
+num_lines = 10
+with open(filepath) as fp:
+    print(''.join(fp.readlines()[:num_lines]))
 </pre></div>
 </div>
 </div>
@@ -873,11 +873,11 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'header'</span><span class="p">:</span> <span class="s1">'auto'</span><span class="p">}</span>  <span class="c1"># auto detected (default value)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Header:'</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>options = {'header': 'auto'}  # auto detected (default value)
+data = dp.Data(filepath, options=options)  # or use CSVData
+print('Data Header:', data.header)
+print('=' * 80)
+data.data.head()
 </pre></div>
 </div>
 </div>
@@ -886,11 +886,11 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'header'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>  <span class="c1"># intentionally set incorrectly at value 2</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Header:'</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>options = {'header': 2}  # intentionally set incorrectly at value 2
+data = dp.Data(filepath, options=options)  # or use CSVData
+print('Data Header:', data.header)
+print('=' * 80)
+data.data.head()
 </pre></div>
 </div>
 </div>
@@ -909,11 +909,11 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># display the data we are reading</span>
-<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/diamonds.csv"</span>
-<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+<span></span># display the data we are reading
+filepath = "../dataprofiler/tests/data/csv/diamonds.csv"
+num_lines = 10
+with open(filepath) as fp:
+    print(''.join(fp.readlines()[:num_lines]))
 </pre></div>
 </div>
 </div>
@@ -922,9 +922,9 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'data_format'</span><span class="p">:</span> <span class="s1">'dataframe'</span><span class="p">}</span>  <span class="c1"># default</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+<span></span>options = {'data_format': 'dataframe'}  # default
+data = dp.Data(filepath, options=options)  # or use CSVData
+data.data[:5]
 </pre></div>
 </div>
 </div>
@@ -933,9 +933,9 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'data_format'</span><span class="p">:</span> <span class="s1">'records'</span><span class="p">,</span> <span class="s1">'record_samples_per_line'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+<span></span>options = {'data_format': 'records', 'record_samples_per_line': 1}
+data = dp.Data(filepath, options=options)
+data.data[:5]
 </pre></div>
 </div>
 </div>
@@ -948,11 +948,11 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># display the data we are reading</span>
-<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"</span>
-<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+<span></span># display the data we are reading
+filepath = "../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"
+num_lines = 10
+with open(filepath) as fp:
+    print(''.join(fp.readlines()[:num_lines]))
 </pre></div>
 </div>
 </div>
@@ -961,9 +961,9 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'selected_columns'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'datetime'</span><span class="p">,</span> <span class="s1">'host'</span><span class="p">,</span> <span class="s1">'src'</span><span class="p">,</span> <span class="s1">'proto'</span><span class="p">]}</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>options = {'selected_columns': ['datetime', 'host', 'src', 'proto']}
+data = dp.Data(filepath, options=options)
+data.data.head()
 </pre></div>
 </div>
 </div>
@@ -995,15 +995,15 @@ Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dataprofiler.data_readers.graph_data</span> <span class="kn">import</span> <span class="n">GraphData</span>
+<span></span>from dataprofiler.data_readers.graph_data import GraphData
 
-<span class="c1"># use data reader to read delimited data</span>
-<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
-<span class="n">graph_file</span> <span class="o">=</span> <span class="s2">"csv/graph_data_csv_identify.csv"</span>
+# use data reader to read delimited data
+data_folder = "../dataprofiler/tests/data"
+graph_file = "csv/graph_data_csv_identify.csv"
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">GraphData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">graph_file</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+data = GraphData(os.path.join(data_folder, graph_file))
+print(data.data.edges)
+print('=' * 80)
 </pre></div>
 </div>
 </div>

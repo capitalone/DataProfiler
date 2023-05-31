@@ -225,7 +225,7 @@
 <p>Contains class for training data labeler model.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dataprofiler.labelers.char_load_tf_model.CharLoadTFModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.char_load_tf_model.</span></span><span class="sig-name descname"><span class="pre">CharLoadTFModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.char_load_tf_model.</span></span><span class="sig-name descname"><span class="pre">CharLoadTFModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseTrainableModel" title="dataprofiler.labelers.base_model.BaseTrainableModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.base_model.BaseTrainableModel</span></code></a></p>
 <p>For training data labeler model.</p>
 <p>Initialize Loadable TF Model.</p>
@@ -401,12 +401,12 @@ to single encoding index.</p></li>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.label_mapping">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">label_mapping</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.label_mapping" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">label_mapping</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict[str,</span> <span class="pre">int]</span></em><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return mapping of labels to their encoded values.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.labels">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="pre">:</span> <span class="pre">list</span></em><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.labels" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="pre">:</span> <span class="pre">list[str]</span></em><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve the label.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -421,7 +421,7 @@ to single encoding index.</p></li>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.reverse_label_mapping">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reverse_label_mapping</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict</span></em><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reverse_label_mapping</span></span><em class="property"><span class="pre">:</span> <span class="pre">dict[int,</span> <span class="pre">str]</span></em><a class="headerlink" href="#dataprofiler.labelers.char_load_tf_model.CharLoadTFModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return reversed order of current labels.</p>
 <p>Useful for when needed to extract Labels via indices.</p>
 </dd></dl>

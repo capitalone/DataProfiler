@@ -83,9 +83,6 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ig
         """
         profile = super().load_from_dict(data)
         profile._load_hist_helper(data)
-        quantiles = data.pop("quantiles")
-        quantiles_dict = {int(key): quantiles[key] for key in quantiles.keys()}
-        profile.quantiles = quantiles_dict
         return profile
 
     @property

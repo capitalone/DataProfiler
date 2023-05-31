@@ -359,13 +359,13 @@ class TestNumericStatsMixin(unittest.TestCase):
 
     def test_from_dict_helper(self):
         fake_profile_name = "Fake profile name"
-        # Actual deserialization
 
         # Build expected CategoricalColumn
         actual_profile = TestColumn()
         expected_profile = TestColumn()
         mock_saved_profile = dict(
             {
+                "quantiles": [30, 6],
                 "_stored_histogram": {
                     "total_loss": 0,
                     "current_loss": 0,
@@ -374,10 +374,12 @@ class TestNumericStatsMixin(unittest.TestCase):
                         "bin_counts": [1, 1, 1],
                         "bin_edges": [1.0, 2.0, 3.0, 4.0],
                     },
-                }
+                },
             }
         )
         expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
+        expected_profile._stored_histogram["quantiles"] = [30.0, 6.0]
+
         expected_profile._stored_histogram["histogram"] = {
             "bin_counts": np.array([1, 1, 1]),
             "bin_edges": np.array([1.0, 2.0, 3.0, 4.0]),
@@ -1193,7 +1195,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": {bin_num: None for bin_num in range(999)},
+                    "quantiles": [bin_num for bin_num in range(999)],
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

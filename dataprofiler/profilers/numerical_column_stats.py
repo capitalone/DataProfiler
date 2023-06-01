@@ -53,10 +53,10 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 "NumericalStatsMixin parameter 'options' must be "
                 "of type NumericalOptions."
             )
-        self.min: int | float | None = None
-        self.max: int | float | None = None
+        self.min: int | float | np.float64 | np.int64 | None = None
+        self.max: int | float | np.float64 | np.int64 | None = None
         self._top_k_modes: int = 5  # By default, return at max 5 modes
-        self.sum: int | float | np.float64 = np.float64(0)
+        self.sum: int | float | np.float64 | np.int64 = np.float64(0)
         self._biased_variance: float | np.float64 = np.float64(np.nan)
         self._biased_skewness: float | np.float64 = np.float64(np.nan)
         self._biased_kurtosis: float | np.float64 = np.float64(np.nan)
@@ -359,9 +359,18 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         return profile
 
-    def _load_stats_helper(self, data):
-        # Pop off stuff specific to numerical stats
-        hist = data.pop("_stored_histogram")
+    def _load_stats_helper(self, deserialized_data: dict):
+        """Assistance function in the deserialization of profiler objects.
+
+            This function is to be used to enforce correct typing for attributes
+            associated with the NumericStatsMixinconversions when loading profiler
+            objects in from their serialized saved format
+        :var deserialized_data: The dictionary read in from the serialized form
+            of the profiler object
+        :type deserialized_data: Dict
+        """
+        # Pop off attributes specific to numerical stats histogram creation
+        hist = deserialized_data.pop("_stored_histogram")
         # Convert hist lists to numpy arrays
         for key in hist.keys():
             value = hist[key]
@@ -371,6 +380,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                     for x in hist[key].keys()
                 }
             self._stored_histogram[key] = value
+
         # Convert values to correct types
         if self.min is not None and type(self.min) not in [np.float64, np.int64]:
             self.min = (
@@ -380,7 +390,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             self.max = (
                 np.float64(self.max) if type(self.max) == float else np.int64(self.max)
             )
-        if self.sum is not None and type(self.sum) not in [np.float64, np.int64]:
+        if type(self.sum) not in [np.float64, np.int64]:
             self.sum = (
                 np.float64(self.sum) if type(self.sum) == float else np.int64(self.sum)
             )

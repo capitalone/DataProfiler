@@ -155,6 +155,66 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
 
         return profile
 
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: CategoricalColumn
+        """
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        profile = super().load_from_dict(data)
+        profile._load_stats_helper(data)
+        # Fix float specific typing
+        # Convert values to correct types
+        if profile._precision["min"] is not None and type(
+            profile._precision["min"]
+        ) not in [np.float64, np.int64]:
+            profile._precision["min"] = (
+                np.float64(profile._precision["min"])
+                if type(profile._precision["min"]) == float
+                else np.int64(profile._precision["min"])
+            )
+        if profile._precision["max"] is not None and type(
+            profile._precision["max"]
+        ) not in [np.float64, np.int64]:
+            profile._precision["max"] = (
+                np.float64(profile._precision["max"])
+                if type(profile._precision["max"]) == float
+                else np.int64(profile._precision["max"])
+            )
+        if profile._precision["sum"] is not None and type(
+            profile._precision["sum"]
+        ) not in [np.float64, np.int64]:
+            profile._precision["sum"] = (
+                np.float64(profile._precision["sum"])
+                if type(profile._precision["sum"]) == float
+                else np.int64(profile._precision["sum"])
+            )
+        if profile._precision["mean"] is not None and type(
+            profile._precision["mean"]
+        ) not in [np.float64, np.int64]:
+            profile._precision["mean"] = (
+                np.float64(profile._precision["mean"])
+                if type(profile._precision["mean"]) == float
+                else np.int64(profile._precision["mean"])
+            )
+        if profile._precision["biased_var"] is not None:
+            profile._precision["biased_var"] = np.float64(
+                profile._precision["biased_var"]
+            )
+        if profile._precision["sample_size"] is not None:
+            profile._precision["sample_size"] = np.int64(
+                profile._precision["sample_size"]
+            )
+
+        return profile
+
     @property
     def profile(self) -> dict:
         """
@@ -273,12 +333,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
         # Determine statistics precision
         precision_sum = len_per_float.sum()
         subset_precision = {
-            "min": len_per_float.min(),
-            "max": len_per_float.max(),
-            "biased_var": float(np.var(len_per_float)),
-            "sum": precision_sum,
-            "mean": precision_sum / sample_size,
-            "sample_size": sample_size,
+            "min": np.float64(len_per_float.min()),
+            "max": np.float64(len_per_float.max()),
+            "biased_var": np.float64(np.var(len_per_float)),
+            "sum": np.float64(precision_sum),
+            "mean": np.float64(precision_sum / sample_size),
+            "sample_size": np.int64(sample_size),
         }
 
         return subset_precision

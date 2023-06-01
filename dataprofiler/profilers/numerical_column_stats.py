@@ -365,7 +365,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             This function is to be used to enforce correct typing for attributes
             associated with the NumericStatsMixinconversions when loading profiler
             objects in from their serialized saved format
-        :var deserialized_data: The dictionary read in from the serialized form
+        :param deserialized_data: The dictionary read in from the serialized form
             of the profiler object
         :type deserialized_data: Dict
         """

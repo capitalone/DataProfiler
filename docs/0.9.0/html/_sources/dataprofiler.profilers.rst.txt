@@ -22,7 +22,6 @@ Modules
    dataprofiler.profilers.graph_profiler
    dataprofiler.profilers.histogram_utils
    dataprofiler.profilers.int_column_profile
-   dataprofiler.profilers.json_decoder
    dataprofiler.profilers.json_encoder
    dataprofiler.profilers.numerical_column_stats
    dataprofiler.profilers.order_column_profile

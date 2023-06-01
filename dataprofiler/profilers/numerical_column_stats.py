@@ -398,11 +398,11 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             self.num_zeros = np.int64(self.num_zeros)
         if self.num_negatives is not None:
             self.num_negatives = np.int64(self.num_zeros)
-        if self._biased_variance is not None:
+        if not np.isnan(self._biased_variance):
             self._biased_variance = np.float64(self._biased_variance)
-        if self._biased_skewness is not None:
+        if not np.isnan(self._biased_variance):
             self._biased_skewness = np.float64(self._biased_skewness)
-        if self._biased_kurtosis is not None:
+        if not np.isnan(self._biased_variance):
             self._biased_kurtosis = np.float64(self._biased_kurtosis)
 
     def diff(

@@ -365,26 +365,26 @@ class TestNumericStatsMixin(unittest.TestCase):
         expected_profile = TestColumn()
         mock_saved_profile = dict(
             {
-                "quantiles": [30, 6],
+                "quantiles": None,
                 "_stored_histogram": {
                     "total_loss": 0,
                     "current_loss": 0,
                     "suggested_bin_count": 1000,
                     "histogram": {
-                        "bin_counts": [1, 1, 1],
-                        "bin_edges": [1.0, 2.0, 3.0, 4.0],
+                        "bin_counts": None,
+                        "bin_edges": None,
                     },
                 },
             }
         )
         expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
-        expected_profile._stored_histogram["quantiles"] = [30.0, 6.0]
+        expected_profile.quantiles = None
 
         expected_profile._stored_histogram["histogram"] = {
-            "bin_counts": np.array([1, 1, 1]),
-            "bin_edges": np.array([1.0, 2.0, 3.0, 4.0]),
+            "bin_counts": None,
+            "bin_edges": None,
         }
-        actual_profile._load_stats_helper(mock_saved_profile)
+        actual_profile._load_stats_helper()
 
         test_utils.assert_profiles_equal(expected_profile, actual_profile)
 

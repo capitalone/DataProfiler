@@ -359,40 +359,37 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         return profile
 
-    def _load_stats_helper(self, deserialized_data: dict):
+    def _load_stats_helper(self):
         """Assistance function in the deserialization of profiler objects.
 
-            This function is to be used to enforce correct typing for attributes
-            associated with the NumericStatsMixinconversions when loading profiler
-            objects in from their serialized saved format
-        :param deserialized_data: The dictionary read in from the serialized form
-            of the profiler object
-        :type deserialized_data: Dict
+        This function is to be used to enforce correct typing for attributes
+        associated with the NumericStatsMixinconversions when loading profiler
+        objects in from their serialized saved format
         """
-        # Pop off attributes specific to numerical stats histogram creation
-        hist = deserialized_data.pop("_stored_histogram")
         # Convert hist lists to numpy arrays
-        for key in hist.keys():
-            value = hist[key]
+        for key in self._stored_histogram.keys():
+            value = self._stored_histogram[key]
             if key == "histogram":
                 value = {
-                    x: np.array(hist[key][x]) if hist[key][x] is not None else None
-                    for x in hist[key].keys()
+                    x: np.array(self._stored_histogram[key][x])
+                    if self._stored_histogram[key][x] is not None
+                    else None
+                    for x in self._stored_histogram[key].keys()
                 }
             self._stored_histogram[key] = value
 
         # Convert values to correct types
         if self.min is not None and type(self.min) not in [np.float64, np.int64]:
             self.min = (
-                np.float64(self.min) if type(self.min) == float else np.int64(self.min)
+                np.float64(self.min) if type(self.min) is float else np.int64(self.min)
             )
         if self.max is not None and type(self.max) not in [np.float64, np.int64]:
             self.max = (
-                np.float64(self.max) if type(self.max) == float else np.int64(self.max)
+                np.float64(self.max) if type(self.max) is float else np.int64(self.max)
             )
         if type(self.sum) not in [np.float64, np.int64]:
             self.sum = (
-                np.float64(self.sum) if type(self.sum) == float else np.int64(self.sum)
+                np.float64(self.sum) if type(self.sum) is float else np.int64(self.sum)
             )
         if self.num_zeros is not None:
             self.num_zeros = np.int64(self.num_zeros)

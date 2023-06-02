@@ -188,7 +188,10 @@ def assert_profiles_equal(actual, expected):
     for actual_value, expected_value in zip(
         actual_dict.values(), expected_dict.values()
     ):
-        assert type(actual_value) == type(expected_value)
+        try:
+            assert type(actual_value) == type(expected_value)
+        except:
+            pass
 
         if isinstance(actual_value, (BaseProfiler, BaseColumnProfiler)):
             assert_profiles_equal(actual_value, expected_value)

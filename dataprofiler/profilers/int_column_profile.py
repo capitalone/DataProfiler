@@ -84,7 +84,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ig
         # This is an ambiguous call to super classes.
         # If load_from_dict is part of both super classes there may be issues
         profile = super().load_from_dict(data)
-        profile._load_hist_helper(data)
+        profile._load_stats_helper()
         return profile
 
     @property

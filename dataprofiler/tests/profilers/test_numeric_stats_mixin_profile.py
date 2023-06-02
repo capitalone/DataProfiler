@@ -365,26 +365,26 @@ class TestNumericStatsMixin(unittest.TestCase):
         expected_profile = TestColumn()
         mock_saved_profile = dict(
             {
-                "quantiles": [30, 6],
+                "quantiles": None,
                 "_stored_histogram": {
-                    "total_loss": 0,
-                    "current_loss": 0,
+                    "total_loss": np.float64(0.0),
+                    "current_loss": np.float64(0.0),
                     "suggested_bin_count": 1000,
                     "histogram": {
-                        "bin_counts": [1, 1, 1],
-                        "bin_edges": [1.0, 2.0, 3.0, 4.0],
+                        "bin_counts": None,
+                        "bin_edges": None,
                     },
                 },
             }
         )
         expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
-        expected_profile._stored_histogram["quantiles"] = [30.0, 6.0]
+        expected_profile.quantiles = None
 
         expected_profile._stored_histogram["histogram"] = {
-            "bin_counts": np.array([1, 1, 1]),
-            "bin_edges": np.array([1.0, 2.0, 3.0, 4.0]),
+            "bin_counts": None,
+            "bin_edges": None,
         }
-        actual_profile._load_hist_helper(mock_saved_profile)
+        actual_profile._load_stats_helper()
 
         test_utils.assert_profiles_equal(expected_profile, actual_profile)
 
@@ -1158,8 +1158,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         expected_historam_methods = {}
         for method in expected_histogram_bin_method_names:
             expected_historam_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": 0.0,
+                "current_loss": 0.0,
                 "suggested_bin_count": expected_min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
@@ -1172,7 +1172,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "min": None,
                     "max": None,
                     "_top_k_modes": 5,
-                    "sum": 0,
+                    "sum": 0.0,
                     "_biased_variance": np.nan,
                     "_biased_skewness": np.nan,
                     "_biased_kurtosis": np.nan,
@@ -1187,15 +1187,16 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 0,
                     "num_negatives": 0,
+                    "_num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
-                        "total_loss": 0,
-                        "current_loss": 0,
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
                         "suggested_bin_count": 1000,
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": [bin_num for bin_num in range(999)],
+                    "quantiles": None,
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

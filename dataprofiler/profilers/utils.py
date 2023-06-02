@@ -387,7 +387,10 @@ T = TypeVar("T", bound=Subtractable)
 
 
 @overload
-def find_diff_of_numbers(stat1: float | np.float64, stat2: float | np.float64) -> Any:
+def find_diff_of_numbers(
+    stat1: int | float | np.float64 | np.int64 | None,
+    stat2: int | float | np.float64 | np.int64 | None,
+) -> Any:
     ...
 
 
@@ -404,9 +407,9 @@ def find_diff_of_numbers(stat1, stat2):
     For ints/floats, returns stat1 - stat2.
 
     :param stat1: the first statistical input
-    :type stat1: Union[int, float]
+    :type stat1: Union[int, float, np.float64, np.int64, None]
     :param stat2: the second statistical input
-    :type stat2: Union[int, float]
+    :type stat2: Union[int, float, np.float64, np.int64, None]
     :return: the difference of the stats
     """
     if stat1 is None and stat2 is None:

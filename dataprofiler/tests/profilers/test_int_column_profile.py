@@ -36,10 +36,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertListEqual(
-            [profiler.quantiles[k] for k in (0, 1, 2)],
-            [0, 1, 2],
-        )
+        self.assertIsNone(profiler.quantiles)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -1120,8 +1117,8 @@ class TestIntColumn(unittest.TestCase):
         expected_historam_methods = {}
         for method in expected_histogram_bin_method_names:
             expected_historam_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": 0.0,
+                "current_loss": 0.0,
                 "suggested_bin_count": expected_min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
@@ -1134,7 +1131,7 @@ class TestIntColumn(unittest.TestCase):
                     "min": None,
                     "max": None,
                     "_top_k_modes": 5,
-                    "sum": 0,
+                    "sum": 0.0,
                     "_biased_variance": np.nan,
                     "_biased_skewness": np.nan,
                     "_biased_kurtosis": np.nan,
@@ -1149,15 +1146,16 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 0,
                     "num_negatives": 0,
+                    "_num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
-                        "total_loss": 0,
-                        "current_loss": 0,
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
                         "suggested_bin_count": 1000,
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": [bin_num for bin_num in range(999)],
+                    "quantiles": None,
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",
@@ -1230,10 +1228,11 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 1,
                     "num_negatives": 0,
+                    "_num_quantiles": 1000,
                     "histogram_methods": {
                         "custom": {
-                            "total_loss": 0,
-                            "current_loss": 0,
+                            "total_loss": 0.0,
+                            "current_loss": 0.0,
                             "suggested_bin_count": 5,
                             "histogram": {"bin_counts": None, "bin_edges": None},
                         }
@@ -1318,9 +1317,14 @@ class TestIntColumn(unittest.TestCase):
         with test_utils.mock_timeit():
             expected_profile.update(df_int)
 
+        # Validate reporting before deserialization
+        expected_profile.report()
+
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
         deserialized = load_column_profile(json.loads(serialized))
 
+        # Validate reporting after deserialization
+        deserialized.report()
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
         df_int = pd.Series(

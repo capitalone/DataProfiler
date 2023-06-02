@@ -188,11 +188,7 @@ def assert_profiles_equal(actual, expected):
     for actual_value, expected_value in zip(
         actual_dict.values(), expected_dict.values()
     ):
-        # Condition to test whether the types are equal when a value can be float or float64
-        if type(actual_value) is np.float64 or type(expected_value) is np.float64:
-            assert type(float(actual_value)) == type(float(expected_value))
-        else:
-            assert type(actual_value) == type(expected_value)
+        assert type(actual_value) == type(expected_value)
 
         if isinstance(actual_value, (BaseProfiler, BaseColumnProfiler)):
             assert_profiles_equal(actual_value, expected_value)

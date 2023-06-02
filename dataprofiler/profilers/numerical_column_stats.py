@@ -97,16 +97,16 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 self.histogram_bin_method_names = ["custom"]
         self.histogram_methods: dict = {}
         self._stored_histogram: dict = {
-            "total_loss": 0,
-            "current_loss": 0,
+            "total_loss": np.float64(0.0),
+            "current_loss": np.float64(0.0),
             "suggested_bin_count": self.min_histogram_bin,
             "histogram": {"bin_counts": None, "bin_edges": None},
         }
         self._batch_history: list = []
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": np.float64(0.0),
+                "current_loss": np.float64(0.0),
                 "suggested_bin_count": self.min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
@@ -180,8 +180,8 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         self.histogram_methods = dict()
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": np.float64(0.0),
+                "current_loss": np.float64(0.0),
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
 
@@ -363,20 +363,36 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         """Assistance function in the deserialization of profiler objects.
 
         This function is to be used to enforce correct typing for attributes
-        associated with the NumericStatsMixinconversions when loading profiler
+        associated with the NumericStatsMixin conversions when loading profiler
         objects in from their serialized saved format
         """
-        # Convert hist lists to numpy arrays
-        for key in self._stored_histogram.keys():
-            value = self._stored_histogram[key]
-            if key == "histogram":
-                value = {
-                    x: np.array(self._stored_histogram[key][x])
-                    if self._stored_histogram[key][x] is not None
-                    else None
-                    for x in self._stored_histogram[key].keys()
-                }
-            self._stored_histogram[key] = value
+
+        def convert_histogram_key_types_to_np(histogram_info: dict):
+            if histogram_info["total_loss"] is not None:
+                histogram_info["total_loss"] = np.float64(histogram_info["total_loss"])
+
+            if histogram_info["current_loss"] is not None:
+                histogram_info["current_loss"] = np.float64(
+                    histogram_info["current_loss"]
+                )
+
+            # Convert hist lists to numpy arrays
+            for key in histogram_info["histogram"].keys():
+                if histogram_info["histogram"][key] is not None:
+                    histogram_info["histogram"][key] = np.array(
+                        histogram_info["histogram"][key]
+                    )
+            return histogram_info
+
+        self._stored_histogram = convert_histogram_key_types_to_np(
+            self._stored_histogram
+        )
+
+        # Convert hist method attributes to correct types
+        for key in self.histogram_methods.keys():
+            self.histogram_methods[key] = convert_histogram_key_types_to_np(
+                self.histogram_methods[key]
+            )
 
         # Convert values to correct types
         if self.min is not None and type(self.min) not in [np.float64, np.int64]:
@@ -1055,7 +1071,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             sum_var += bin_var
         return sum_var
 
-    def _histogram_bin_error(self, input_array: np.ndarray | pd.Series) -> float:
+    def _histogram_bin_error(self, input_array: np.ndarray | pd.Series) -> np.float64:
         """
         Calculate error of each value from bin of the histogram it falls within.
 
@@ -1083,7 +1099,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             (input_array - (bin_edges[inds] + bin_edges[inds - 1]) / 2) ** 2
         )
 
-        return sum_error
+        return np.float64(sum_error)
 
     @staticmethod
     def _histogram_loss(
@@ -1093,7 +1109,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         avg_totalvar: float,
         run_time: float,
         avg_runtime: float,
-    ) -> float:
+    ) -> np.float64:
 
         norm_diff_var: float = 0
         norm_total_var: float = 0
@@ -1105,7 +1121,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         penalized_time = 1  # currently set as 1s
         if (run_time - avg_runtime) >= penalized_time:
             norm_runtime = float(run_time - avg_runtime) / avg_runtime
-        return norm_diff_var + norm_total_var + norm_runtime
+        return np.float64(norm_diff_var + norm_total_var + norm_runtime)
 
     def _select_method_for_histogram(
         self,

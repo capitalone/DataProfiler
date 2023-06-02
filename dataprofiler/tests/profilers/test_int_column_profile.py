@@ -1115,8 +1115,8 @@ class TestIntColumn(unittest.TestCase):
         expected_historam_methods = {}
         for method in expected_histogram_bin_method_names:
             expected_historam_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": 0.0,
+                "current_loss": 0.0,
                 "suggested_bin_count": expected_min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
@@ -1147,8 +1147,8 @@ class TestIntColumn(unittest.TestCase):
                     "_num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
-                        "total_loss": 0,
-                        "current_loss": 0,
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
                         "suggested_bin_count": 1000,
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
@@ -1229,8 +1229,8 @@ class TestIntColumn(unittest.TestCase):
                     "_num_quantiles": 1000,
                     "histogram_methods": {
                         "custom": {
-                            "total_loss": 0,
-                            "current_loss": 0,
+                            "total_loss": 0.0,
+                            "current_loss": 0.0,
                             "suggested_bin_count": 5,
                             "histogram": {"bin_counts": None, "bin_edges": None},
                         }
@@ -1315,9 +1315,14 @@ class TestIntColumn(unittest.TestCase):
         with test_utils.mock_timeit():
             expected_profile.update(df_int)
 
+        # Validate reporting before deserialization
+        expected_profile.report()
+
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
         deserialized = load_column_profile(json.loads(serialized))
 
+        # Validate reporting after deserialization
+        deserialized.report()
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
         df_int = pd.Series(

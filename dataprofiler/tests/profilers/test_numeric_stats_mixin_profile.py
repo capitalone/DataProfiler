@@ -367,8 +367,8 @@ class TestNumericStatsMixin(unittest.TestCase):
             {
                 "quantiles": None,
                 "_stored_histogram": {
-                    "total_loss": 0,
-                    "current_loss": 0,
+                    "total_loss": np.float64(0.0),
+                    "current_loss": np.float64(0.0),
                     "suggested_bin_count": 1000,
                     "histogram": {
                         "bin_counts": None,
@@ -1158,8 +1158,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         expected_historam_methods = {}
         for method in expected_histogram_bin_method_names:
             expected_historam_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": 0.0,
+                "current_loss": 0.0,
                 "suggested_bin_count": expected_min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
@@ -1190,8 +1190,8 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "_num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
-                        "total_loss": 0,
-                        "current_loss": 0,
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
                         "suggested_bin_count": 1000,
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },

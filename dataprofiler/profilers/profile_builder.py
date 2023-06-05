@@ -1731,6 +1731,7 @@ class StructuredProfiler(BaseProfiler):
         i.e. every column in the Profile was read up to this row (possibly
         further in some cols)
         """
+        # import ipdb; ipdb.set_trace();
         return min([col.sample_size for col in self._profile], default=0)
 
     @property
@@ -1889,20 +1890,6 @@ class StructuredProfiler(BaseProfiler):
         if self.total_samples:
             return len(self.hashed_row_dict) / self.total_samples
         return 0
-
-    def _get_sample_size(self, df_series: pd.Series) -> int:
-        """
-        Determine the minimum sampling size for detecting column type.
-
-        :param df_series: a column of data
-        :type df_series: pandas.core.series.Series
-        :return: integer sampling size
-        :rtype: int
-        """
-        len_df = len(df_series)
-        if len_df <= self._min_sample_size:
-            return int(len_df)
-        return max(int(self._sampling_ratio * len_df), self._min_sample_size)
 
     def _get_row_is_null_ratio(self) -> float:
         """Return whether row is null ratio."""

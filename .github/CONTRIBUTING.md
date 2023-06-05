@@ -60,6 +60,14 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 5. Make sure your code lints.
 6. Issue that pull request!
 
+## Feature Pull Request Workflow
+When working on a new feature, which will require multiple pull requests, the following workflow is to ensure that it is most efficient and safe for developers and reviewers.
+
+1. A feature branch that an author is working on should live on their fork and not on `capitalone/dataprofiler`. This is becuase a rebase requires a force push and we do not want to open up permissions on a feature branch on `capitalone/dataprofiler` for any potential user to force push to a `feature/<branch_name>` on `capitalone/dataprofiler`.
+2. Naming convention both for feature branches on forks and on `capitalone/dataprofiler: `feature/<name_of_branch>`.
+3. To resolve issues between `main` and your feature branch use interactive rebase. Documentation [here](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
+4. Maintainers may from time to time make an exception to the above workflow and host a feature branch on `capitalone/dataprofiler`. Permissions would then be reconfigured for a force push to core team membership exclusively.
+
 ## Any contributions you make will be under the Apache License 2.0
 In short, when you submit code changes, your submissions are understood to be under the same [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) that covers the project. Feel free to contact the maintainers if that's a concern.
 

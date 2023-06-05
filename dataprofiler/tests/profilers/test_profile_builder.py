@@ -1431,7 +1431,6 @@ class TestStructuredProfiler(unittest.TestCase):
         sparse_profile = dp.StructuredProfiler(
             sparse_df, min_true_samples=2, samples_per_update=1
         )
-        # import ipdb; ipdb.set_trace();
         self.assertEqual(2, sparse_profile._min_col_samples_used)
 
     @mock.patch(

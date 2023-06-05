@@ -1731,7 +1731,6 @@ class StructuredProfiler(BaseProfiler):
         i.e. every column in the Profile was read up to this row (possibly
         further in some cols)
         """
-        # import ipdb; ipdb.set_trace();
         return min([col.sample_size for col in self._profile], default=0)
 
     @property

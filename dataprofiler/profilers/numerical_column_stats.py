@@ -393,17 +393,13 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             self.histogram_methods[key] = convert_histogram_key_types_to_np(
                 self.histogram_methods[key]
             )
-        # Convert values to correct types
-        float_int_to_np_conversion = (
-            np.int64 if self.type in ["int", "string", "text"] else np.float64
-        )
 
         if self.min is not None:
-            self.min = float_int_to_np_conversion(self.min)
+            self.min = np.float64(self.min)
         if self.max is not None:
-            self.max = float_int_to_np_conversion(self.max)
+            self.max = np.float64(self.max)
         if self.sum is not None:
-            self.sum = float_int_to_np_conversion(self.sum)
+            self.sum = np.float64(self.sum)
         if self.num_zeros is not None:
             self.num_zeros = np.int64(self.num_zeros)
         if self.num_negatives is not None:

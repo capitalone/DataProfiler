@@ -2477,6 +2477,41 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         profiler._sampling_ratio = 0.2
         self.assertEqual(10000, update_mock.call_args[0][1])
 
+    def test_sampling_ratio_passed_to_profile(self):
+
+        # data setup
+        data = pd.DataFrame([0] * int(50e3))
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.structured_options.sampling_ratio = 0.6
+
+        # test data size * 0.60 > min_sample_size; therefore, select sample_ratio
+        profiler = dp.StructuredProfiler(data[:10000], options=profiler_options)
+        self.assertEqual(6000, profiler.report()["global_stats"]["samples_used"])
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.structured_options.sampling_ratio = 0.01
+
+        # test data size * 0.01 < min_sample_size; therefore, select min_sample_size
+        profiler = dp.StructuredProfiler(data[:10000], options=profiler_options)
+        self.assertEqual(5000, profiler.report()["global_stats"]["samples_used"])
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.structured_options.sampling_ratio = 1
+
+        # test data size * 1.00 > min_sample_size; therefore, select sample_ratio
+        profiler = dp.StructuredProfiler(data[:10000], options=profiler_options)
+        self.assertEqual(10000, profiler.report()["global_stats"]["samples_used"])
+
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
     )

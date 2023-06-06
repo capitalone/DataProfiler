@@ -681,9 +681,9 @@ class BaseProfiler:
         self._min_true_samples: int = min_true_samples
         self.total_samples: int = 0
         self.times: dict[str, float] = defaultdict(float)
+        self._sampling_ratio: float = getattr(options, "sampling_ratio", 0.2)
 
         # TODO: allow set via options
-        self._sampling_ratio: float = 0.2
         self._min_sample_size: int = 5000
 
         # assign data labeler

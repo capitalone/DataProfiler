@@ -1023,10 +1023,60 @@ class HyperLogLogOptions(BooleanOption):
         return errors
 
 
+class UniqueCountOptions(BooleanOption):
+    """For configuring options for unique row count."""
+
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        full_hashing: bool = True,
+        hll_hashing: bool = False,
+    ) -> None:
+        """
+        Initialize options for unique row counts.
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        """
+        BooleanOption.__init__(self, is_enabled=is_enabled)
+        self.full_hashing = BooleanOption(is_enabled=full_hashing)
+        self.hll_hashing = HyperLogLogOptions(is_enabled=hll_hashing)
+
+    def _validate_helper(self, variable_path: str = "UniqueCountOptions") -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if not isinstance(self.full_hashing, BooleanOption):
+            errors.append(f"{variable_path}.full_hashing must be a BooleanOption.")
+        if not isinstance(self.hll_hashing, HyperLogLogOptions):
+            errors.append(f"{variable_path}.hll_hashing must be a HyperLogLogOptions.")
+        if self.full_hashing.is_enabled and self.hll_hashing.is_enabled:
+            errors.append(
+                f"Both {variable_path}.full_hashing and {variable_path}.hll_hashing "
+                f"cannot be enabled simultaneously."
+            )
+        if not self.full_hashing.is_enabled and not self.hll_hashing.is_enabled:
+            errors.append(
+                f"Either {variable_path}.full_hashing and {variable_path}.hll_hashing "
+                f"must be enabled."
+            )
+
+        errors += self.full_hashing._validate_helper(variable_path + ".full_hashing")
+        errors += self.hll_hashing._validate_helper(variable_path + ".hll_hashing")
+        return errors
+
+
 class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = False) -> None:
+    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
         """
         Initialize options for row statistics.
 
@@ -1034,7 +1084,7 @@ class RowStatisticsOptions(BooleanOption):
         :vartype is_enabled: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
-        self.hll_row_hashing = HyperLogLogOptions(is_enabled=False)
+        self.unique_count = UniqueCountOptions(is_enabled=unique_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
@@ -1047,6 +1097,12 @@ class RowStatisticsOptions(BooleanOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        errors = super()._validate_helper(variable_path=variable_path)
+        if not isinstance(self.unique_count, UniqueCountOptions):
+            errors.append(
+                f"{variable_path}.full_hashing must be an UniqueCountOptions."
+            )
+        errors += self.unique_count._validate_helper(variable_path + ".unique_counts")
         return super()._validate_helper(variable_path)
 
 
@@ -1296,7 +1352,7 @@ class StructuredOptions(BaseOption):
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
         self.null_replication_metrics = BooleanOption(is_enabled=False)
-        self.row_statistics = RowStatisticsOptions(is_enabled=True)
+        self.row_statistics = RowStatisticsOptions()
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values

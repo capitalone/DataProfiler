@@ -1533,7 +1533,7 @@ class StructuredProfiler(BaseProfiler):
             self.hashed_row_object: HyperLogLog = HyperLogLog(
                 p=options.row_statistics.unique_count.hll.register_count,
                 seed=options.row_statistics.unique_count.hll.seed,
-                sparse=False
+                sparse=False,
             )
 
         if data is not None:
@@ -1595,11 +1595,20 @@ class StructuredProfiler(BaseProfiler):
                 self.options.row_statistics.unique_count.is_enabled
                 and other.options.row_statistics.unique_count.is_enabled
             ):
-                if self.options.row_statistics.unique_count.hashing_method == other.options.row_statistics.unique_count.hashing_method == "full":
+                if (
+                    self.options.row_statistics.unique_count.hashing_method
+                    == other.options.row_statistics.unique_count.hashing_method
+                    == "full"
+                ):
                     merged_profile.hashed_row_object.update(self.hashed_row_object)
                     merged_profile.hashed_row_object.update(other.hashed_row_object)
-                elif self.options.row_statistics.unique_count.hashing_method == other.options.row_statistics.unique_count.hashing_method == "hll"\
-                        and self.options.row_statistics.unique_count.hll.seed == other.options.row_statistics.unique_count.hll.seed:
+                elif (
+                    self.options.row_statistics.unique_count.hashing_method
+                    == other.options.row_statistics.unique_count.hashing_method
+                    == "hll"
+                    and self.options.row_statistics.unique_count.hll.seed
+                    == other.options.row_statistics.unique_count.hll.seed
+                ):
                     self.hashed_row_object.merge(other.hashed_row_object)
                     merged_profile.hashed_row_object = self.hashed_row_object
 
@@ -1906,7 +1915,7 @@ class StructuredProfiler(BaseProfiler):
         """Return unique row ratio."""
         if self.total_samples:
             if self.options.row_statistics.unique_count.hashing_method == "full":
-                    return len(self.hashed_row_object) / self.total_samples
+                return len(self.hashed_row_object) / self.total_samples
             elif self.options.row_statistics.unique_count.hashing_method == "hll":
                 return int(self.hashed_row_object.cardinality()) / self.total_samples
         return 0
@@ -1959,12 +1968,15 @@ class StructuredProfiler(BaseProfiler):
             if self.options.row_statistics.unique_count.hashing_method == "full":
                 try:
                     self.hashed_row_object.update(
-                        dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
+                        dict.fromkeys(
+                            pd.util.hash_pandas_object(data, index=False), True
+                        )
                     )
                 except TypeError:
                     self.hashed_row_object.update(
                         dict.fromkeys(
-                            pd.util.hash_pandas_object(data.astype(str), index=False), True
+                            pd.util.hash_pandas_object(data.astype(str), index=False),
+                            True,
                         )
                     )
             elif self.options.row_statistics.unique_count.hashing_method == "hll":

@@ -1,26 +1,18 @@
 from dataprofiler.profilers.profiler_options import HyperLogLogOptions
 from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
-    TestBooleanOption,
+    TestBaseOption,
 )
 
 
-class TestHyperLogLogOptions(TestBooleanOption):
+class TestHyperLogLogOptions(TestBaseOption):
 
     option_class = HyperLogLogOptions
 
     def test_init(self):
         option = self.get_options()
-        self.assertDictEqual(
-            {"is_enabled": False, "seed": 0, "register_count": 10}, option.properties
-        )
-        option = self.get_options(is_enabled=True)
-        self.assertDictEqual(
-            {"is_enabled": True, "seed": 0, "register_count": 10}, option.properties
-        )
+        self.assertDictEqual({"seed": 0, "register_count": 10}, option.properties)
         option = self.get_options(seed=10, register_count=9)
-        self.assertDictEqual(
-            {"is_enabled": False, "seed": 10, "register_count": 9}, option.properties
-        )
+        self.assertDictEqual({"seed": 10, "register_count": 9}, option.properties)
 
     def test_set_helper(self):
         super().test_set_helper()
@@ -28,14 +20,10 @@ class TestHyperLogLogOptions(TestBooleanOption):
     def test_set(self):
         super().test_set()
         option = self.get_options()
-        option.set({"is_enabled": True, "seed": 5, "register_count": 8})
-        self.assertDictEqual(
-            {"is_enabled": True, "seed": 5, "register_count": 8}, option.properties
-        )
+        option.set({"seed": 5, "register_count": 8})
+        self.assertDictEqual({"seed": 5, "register_count": 8}, option.properties)
 
     def test_validate_helper(self):
-        super().test_validate_helper()
-
         optpth = self.get_options_path()
 
         # Default configuration
@@ -92,8 +80,6 @@ class TestHyperLogLogOptions(TestBooleanOption):
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
     def test_validate(self):
-        super().test_validate_helper()
-
         optpth = self.get_options_path()
 
         # Default configuration
@@ -159,13 +145,6 @@ class TestHyperLogLogOptions(TestBooleanOption):
         )
 
     def test_eq(self):
-        options = self.get_options()
-        options2 = self.get_options()
-        options.is_enabled = True
-        self.assertNotEqual(options, options2)
-        options2.is_enabled = True
-        self.assertEqual(options, options2)
-
         options = self.get_options()
         options2 = self.get_options()
         options.seed = 1

@@ -1310,7 +1310,7 @@ class TestIntColumn(unittest.TestCase):
         fake_profile_name = "Fake profile name"
         # Actual deserialization
 
-        # Build expected CategoricalColumn
+        # Build expected IntColumn
         df_int = pd.Series([1, 2, 5, 7, 4, 3, 2, 7, 8, 9])
         expected_profile = IntColumn(fake_profile_name)
 

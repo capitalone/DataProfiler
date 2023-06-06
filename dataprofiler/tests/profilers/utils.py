@@ -185,10 +185,12 @@ def assert_profiles_equal(actual, expected):
     assert len(actual_dict.keys()) == len(expected_dict.keys())
     assert actual_dict.keys() == expected_dict.keys()
 
-    for actual_value, expected_value in zip(
-        actual_dict.values(), expected_dict.values()
-    ):
-        assert type(actual_value) == type(expected_value)
+    for key in expected_dict.keys():
+        actual_value = actual_dict.get(key, None)
+        expected_value = expected_dict.get(key, None)
+        assert type(actual_value) == type(
+            expected_value
+        ), f"{actual_value} and {expected_value} do not have the same type for key: {key}"
 
         if isinstance(actual_value, (BaseProfiler, BaseColumnProfiler)):
             assert_profiles_equal(actual_value, expected_value)

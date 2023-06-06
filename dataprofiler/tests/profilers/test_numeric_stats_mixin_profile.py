@@ -384,7 +384,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             "bin_counts": None,
             "bin_edges": None,
         }
-        actual_profile._load_stats_helper()
+        actual_profile._reformat_numeric_stats_types_on_serialized_profiles()
 
         test_utils.assert_profiles_equal(expected_profile, actual_profile)
 

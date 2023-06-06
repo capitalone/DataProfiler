@@ -1520,14 +1520,7 @@ class StructuredProfiler(BaseProfiler):
         # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
-        if options.row_statistics.hll_row_hashing.is_enabled:
-            self.hyper_log_log_table: HyperLogLog = HyperLogLog(
-                p=options.row_statistics.hll_row_hashing.register_count,
-                seed=options.row_statistics.hll_row_hashing.seed,
-                sparse=False
-            )
-        else:
-            self.hashed_row_dict: dict = dict()
+        self.hashed_row_object: dict | HyperLogLog = dict()
         self._profile: list[StructuredColProfiler] = []  # type: ignore[assignment]
         self._col_name_to_idx: dict[str | int, list[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
@@ -1535,6 +1528,13 @@ class StructuredProfiler(BaseProfiler):
 
         # capitalone/synthetic-data specific metrics
         self._null_replication_metrics: dict = None  # type: ignore[assignment]
+
+        if options.row_statistics.unique_count.hashing_method == "hll":
+            self.hashed_row_object: HyperLogLog = HyperLogLog(
+                p=options.row_statistics.unique_count.hll.register_count,
+                seed=options.row_statistics.unique_count.hll.seed,
+                sparse=False
+            )
 
         if data is not None:
             self.update_profile(data)
@@ -1591,12 +1591,17 @@ class StructuredProfiler(BaseProfiler):
                 self.row_is_null_count + other.row_is_null_count
             )
 
-            if self.options.row_statistics.hll_row_hashing.is_enabled:
-                self.hyper_log_log_table.merge(other.hyper_log_log_table)
-                merged_profile.hyper_log_log_table = self.hyper_log_log_table
-            else:
-                merged_profile.hashed_row_dict.update(self.hashed_row_dict)
-                merged_profile.hashed_row_dict.update(other.hashed_row_dict)
+            if (
+                self.options.row_statistics.unique_count.is_enabled
+                and other.options.row_statistics.unique_count.is_enabled
+            ):
+                if self.options.row_statistics.unique_count.hashing_method == other.options.row_statistics.unique_count.hashing_method == "full":
+                    merged_profile.hashed_row_object.update(self.hashed_row_object)
+                    merged_profile.hashed_row_object.update(other.hashed_row_object)
+                elif self.options.row_statistics.unique_count.hashing_method == other.options.row_statistics.unique_count.hashing_method == "hll"\
+                        and self.options.row_statistics.unique_count.hll.seed == other.options.row_statistics.unique_count.hll.seed:
+                    self.hashed_row_object.merge(other.hashed_row_object)
+                    merged_profile.hashed_row_object = self.hashed_row_object
 
         self_to_other_idx = self._get_and_validate_schema_mapping(
             self._col_name_to_idx, other._col_name_to_idx
@@ -1900,9 +1905,10 @@ class StructuredProfiler(BaseProfiler):
     def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""
         if self.total_samples:
-            if self.options.row_statistics.hll_row_hashing.is_enabled:
-                return int(self.hyper_log_log_table.cardinality()) / self.total_samples
-            return len(self.hashed_row_dict) / self.total_samples
+            if self.options.row_statistics.unique_count.hashing_method == "full":
+                    return len(self.hashed_row_object) / self.total_samples
+            elif self.options.row_statistics.unique_count.hashing_method == "hll":
+                return int(self.hashed_row_object.cardinality()) / self.total_samples
         return 0
 
     def _get_row_is_null_ratio(self) -> float:
@@ -1919,9 +1925,10 @@ class StructuredProfiler(BaseProfiler):
 
     def _get_duplicate_row_count(self) -> int:
         """Retun dup row count."""
-        if self.options.row_statistics.hll_row_hashing.is_enabled:
-            return self.total_samples - int(self.hyper_log_log_table.cardinality())
-        return self.total_samples - len(self.hashed_row_dict)
+        if self.options.row_statistics.unique_count.hashing_method == "full":
+            return self.total_samples - len(self.hashed_row_object)
+        elif self.options.row_statistics.unique_count.hashing_method == "hll":
+            return self.total_samples - int(self.hashed_row_object.cardinality())
 
     @utils.method_timeit(name="row_stats")
     def _update_row_statistics(
@@ -1944,21 +1951,25 @@ class StructuredProfiler(BaseProfiler):
                 "Cannot calculate row statistics on data that is" "not a DataFrame"
             )
 
-        self.total_samples += len(data)
-        if self.options.row_statistics.hll_row_hashing.is_enabled:
-            for record in data.to_records(index=False):
-                self.hyper_log_log_table.add(record.tobytes())
-        else:
-            try:
-                self.hashed_row_dict.update(
-                    dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
-                )
-            except TypeError:
-                self.hashed_row_dict.update(
-                    dict.fromkeys(
-                        pd.util.hash_pandas_object(data.astype(str), index=False), True
+        if not self.options.row_statistics.is_enabled:
+            return
+
+        if self.options.row_statistics.unique_count.is_enabled:
+            self.total_samples += len(data)
+            if self.options.row_statistics.unique_count.hashing_method == "full":
+                try:
+                    self.hashed_row_object.update(
+                        dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
                     )
-                )
+                except TypeError:
+                    self.hashed_row_object.update(
+                        dict.fromkeys(
+                            pd.util.hash_pandas_object(data.astype(str), index=False), True
+                        )
+                    )
+            elif self.options.row_statistics.unique_count.hashing_method == "hll":
+                for _, record in data.iterrows():
+                    self.hashed_row_object.add(record.to_string(index=False))
 
         # Calculate Null Column Count
         null_rows = set()
@@ -2750,8 +2761,8 @@ class StructuredProfiler(BaseProfiler):
             hashing_object_name = "hyper_log_log_table"
             hashing_object_dict = self.hyper_log_log_table.__dict__
         else:
-            hashing_object_name = "hashed_row_dict"
-            hashing_object_dict = self.hashed_row_dict
+            hashing_object_name = "hashed_row_object"
+            hashing_object_dict = self.hashed_row_object
 
         # Create dictionary for all metadata, options, and profile
         data_dict = {

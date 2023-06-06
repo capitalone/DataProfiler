@@ -982,12 +982,10 @@ class CorrelationOptions(BaseInspectorOptions):
         return errors
 
 
-class HyperLogLogOptions(BooleanOption):
+class HyperLogLogOptions(BaseOption):
     """Options for alternative method of gathering unique row count."""
 
-    def __init__(
-        self, is_enabled: bool = False, seed: int = 0, register_count: int = 10
-    ) -> None:
+    def __init__(self, seed: int = 0, register_count: int = 10) -> None:
         """
         Initialize options for the hyperloglog method of gathering unique row count.
 
@@ -998,7 +996,6 @@ class HyperLogLogOptions(BooleanOption):
         :ivar register_count: number of registers is equal to 2^register_count
         :vartype register_count: int
         """
-        BooleanOption.__init__(self, is_enabled=is_enabled)
         self.seed = seed
         self.register_count = register_count
 
@@ -1011,13 +1008,12 @@ class HyperLogLogOptions(BooleanOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        errors = super()._validate_helper(variable_path=variable_path)
+        errors = []
 
         if not isinstance(self.register_count, int):
             errors.append(f"{variable_path}.register_count must be an integer.")
         elif self.register_count <= 0:
             errors.append(f"{variable_path}.register_count must be greater than 0.")
-
         if not isinstance(self.seed, int):
             errors.append(f"{variable_path}.seed must be an integer.")
         return errors
@@ -1026,21 +1022,18 @@ class HyperLogLogOptions(BooleanOption):
 class UniqueCountOptions(BooleanOption):
     """For configuring options for unique row count."""
 
-    def __init__(
-        self,
-        is_enabled: bool = True,
-        full_hashing: bool = True,
-        hll_hashing: bool = False,
-    ) -> None:
+    def __init__(self, is_enabled: bool = True, hashing_method: str = "full") -> None:
         """
         Initialize options for unique row counts.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
+        :ivar hashing_method: property to specify row hashing method ("full" | "hll")
+        :vartype hashing_method: str
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
-        self.full_hashing = BooleanOption(is_enabled=full_hashing)
-        self.hll_hashing = HyperLogLogOptions(is_enabled=hll_hashing)
+        self.hashing_method = hashing_method
+        self.hll = HyperLogLogOptions()
 
     def _validate_helper(self, variable_path: str = "UniqueCountOptions") -> list[str]:
         """
@@ -1053,23 +1046,17 @@ class UniqueCountOptions(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
 
-        if not isinstance(self.full_hashing, BooleanOption):
-            errors.append(f"{variable_path}.full_hashing must be a BooleanOption.")
-        if not isinstance(self.hll_hashing, HyperLogLogOptions):
+        if not isinstance(self.hashing_method, str):
+            errors.append(f"{variable_path}.full_hashing must be a String.")
+        if isinstance(self.hashing_method, str) and self.hashing_method not in [
+            "full",
+            "hll",
+        ]:
+            errors.append(f"{variable_path}.hashing_method must be 'full' or 'hll'.")
+        if not isinstance(self.hll, HyperLogLogOptions):
             errors.append(f"{variable_path}.hll_hashing must be a HyperLogLogOptions.")
-        if self.full_hashing.is_enabled and self.hll_hashing.is_enabled:
-            errors.append(
-                f"Both {variable_path}.full_hashing and {variable_path}.hll_hashing "
-                f"cannot be enabled simultaneously."
-            )
-        if not self.full_hashing.is_enabled and not self.hll_hashing.is_enabled:
-            errors.append(
-                f"Either {variable_path}.full_hashing and {variable_path}.hll_hashing "
-                f"must be enabled."
-            )
 
-        errors += self.full_hashing._validate_helper(variable_path + ".full_hashing")
-        errors += self.hll_hashing._validate_helper(variable_path + ".hll_hashing")
+        errors += self.hll._validate_helper(variable_path + ".hll")
         return errors
 
 

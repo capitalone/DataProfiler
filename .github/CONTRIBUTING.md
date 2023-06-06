@@ -68,6 +68,14 @@ When working on a new feature, which will require multiple pull requests, the fo
 3. To resolve issues between `main` and your feature branch use interactive rebase. Documentation [here](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
 4. Maintainers may from time to time make an exception to the above workflow and host a feature branch on `capitalone/dataprofiler`. Permissions would then be reconfigured for a force push to core team membership exclusively.
 
+See below image for the above text points visualized of both `main` and `gh-pages`.
+
+<p text-align="left">
+    <picture>
+      <source srcset="https://github.com/capitalone/DataProfiler/raw/gh-pages/docs/source/_static/images/branching_workflow_diagram.png">
+    </picture>
+</p>
+
 ## Any contributions you make will be under the Apache License 2.0
 In short, when you submit code changes, your submissions are understood to be under the same [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) that covers the project. Feel free to contact the maintainers if that's a concern.
 

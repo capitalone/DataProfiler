@@ -39,7 +39,7 @@ class TestHyperLogLogOptions(TestBooleanOption):
         optpth = self.get_options_path()
 
         # Default configuration
-        option = self.get_options(seed=0, register_count=10)
+        option = self.get_options()
         self.assertEqual([], option._validate_helper())
 
         # Valid configurations

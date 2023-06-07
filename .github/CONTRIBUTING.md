@@ -67,7 +67,7 @@ When working on a new feature, which will require multiple pull requests, the fo
 2. Feature branch naming convention:
   - Feature branches on forks and on `capitalone/dataprofiler: `feature/<feature_name>`
   - GH Pages feature branch naming convention: `feature/dev-gh-pages/<feature_name>`
-3. Staging Branch is to be used as a proxy for a rebase. It is exactly what the name suggest -- a staging area for PRs to `dev` and `dev-gh-pages` and to `main` and `gh-pages`. Naming convention for `staging/` is:
+3. Staging Branch is to be used as a proxy for a rebase. Note: there should be no commits to the staging branch once it is made. Staging is exactly what the name suggest -- a staging area for PRs to `dev` and `dev-gh-pages` and to `main` and `gh-pages`. Naming convention for `staging/` is:
   - `staging/dev/<feature_name>`
   - `staging/dev-gh-pages/<feature_name>`
   - `staging/main/<version_tag>`

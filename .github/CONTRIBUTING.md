@@ -65,7 +65,7 @@ When working on a new feature, which will require multiple pull requests, the fo
 
 1. A feature branch that an author is working on should live on their fork and not on `capitalone/dataprofiler`. This is becuase a rebase requires a force push and we do not want to open up permissions on a feature branch on `capitalone/dataprofiler` for any potential user to force push to a `feature/<branch_name>` on `capitalone/dataprofiler`.
 2. Feature branch naming convention:
-  - Feature branches on forks and on `capitalone/dataprofiler: `feature/<feature_name>`
+  - Feature branches on forks and on `capitalone/dataprofiler`: `feature/<feature_name>`
   - GH Pages feature branch naming convention: `feature/dev-gh-pages/<feature_name>`
 3. Staging Branch is to be used as a proxy for a rebase. Note: there should be no commits to the staging branch once it is made. Staging is exactly what the name suggest -- a staging area for PRs to `dev` and `dev-gh-pages` and to `main` and `gh-pages`. Naming convention for `staging/` is:
   - `staging/dev/<feature_name>`

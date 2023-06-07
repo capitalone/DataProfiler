@@ -60,6 +60,28 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 5. Make sure your code lints.
 6. Issue that pull request!
 
+## Feature Pull Request Workflow
+When working on a new feature, which will require multiple pull requests, the following workflow is to ensure that it is most efficient and safe for developers and reviewers.
+
+1. A feature branch that an author is working on should live on their fork and not on `capitalone/dataprofiler`. This is becuase a rebase requires a force push and we do not want to open up permissions on a feature branch on `capitalone/dataprofiler` for any potential user to force push to a `feature/<branch_name>` on `capitalone/dataprofiler`.
+2. Feature branch naming convention:
+  - Feature branches on forks and on `capitalone/dataprofiler`: `feature/<feature_name>`
+  - GH Pages feature branch naming convention: `feature/dev-gh-pages/<feature_name>`
+3. Staging Branch is to be used as a proxy for a rebase. Note: there should be no commits to the staging branch once it is made. Staging is exactly what the name suggest -- a staging area for PRs to `dev` and `dev-gh-pages` and to `main` and `gh-pages`. Naming convention for `staging/` is:
+  - `staging/dev/<feature_name>`
+  - `staging/dev-gh-pages/<feature_name>`
+  - `staging/main/<version_tag>`
+4. Release will live under the naming convention and folder of `release/`. The naming convention, for example, is `release/0.0.1` for the branch itself. `0.0.1` or whatever the version tag is should match the version tag that will be used for deployment when drafting a new release. Hot fixes and and commits are permitted to be PR'd into the release branch.
+5. Maintainers may from time to time make an exception to the above workflow and host a feature branch on `capitalone/dataprofiler`. Permissions would then be reconfigured for a force push to core team membership exclusively.
+
+See below image for the above text points visualized for both `main` and `gh-pages` workflows.
+
+<p text-align="left">
+    <picture>
+      <source srcset="https://github.com/capitalone/DataProfiler/raw/gh-pages/docs/source/_static/images/branching_workflow_diagram.png">
+    </picture>
+</p>
+
 ## Any contributions you make will be under the Apache License 2.0
 In short, when you submit code changes, your submissions are understood to be under the same [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) that covers the project. Feel free to contact the maintainers if that's a concern.
 

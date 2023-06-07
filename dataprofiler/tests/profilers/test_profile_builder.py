@@ -340,13 +340,13 @@ class TestStructuredProfiler(unittest.TestCase):
         with test_utils.mock_timeit():
             profiler = dp.StructuredProfiler(data[:3], options=profiler_options)
 
-        self.assertEqual(5, len(profiler.hashed_row_object.cardinality()))
+        self.assertEqual(2, profiler.hashed_row_object.cardinality())
 
         # check after update
         with test_utils.mock_timeit():
             profiler.update_profile(data[3:])
 
-        self.assertEqual(5, len(profiler.hashed_row_object.cardinality()))
+        self.assertEqual(5, profiler.hashed_row_object.cardinality())
 
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_object))

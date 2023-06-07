@@ -1529,7 +1529,7 @@ class StructuredProfiler(BaseProfiler):
         # capitalone/synthetic-data specific metrics
         self._null_replication_metrics: dict = None  # type: ignore[assignment]
 
-        if isinstance(self.hashed_row_object, HyperLogLog):
+        if self.options.row_statistics.unique_count.hashing_method == "hll":
             self.hashed_row_object = HyperLogLog(
                 p=options.row_statistics.unique_count.hll.register_count,
                 seed=options.row_statistics.unique_count.hll.seed,

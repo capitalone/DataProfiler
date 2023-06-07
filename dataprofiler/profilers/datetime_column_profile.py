@@ -131,6 +131,31 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         """
         return self.profile
 
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: DateTimeColumn
+        """
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        profile = super().load_from_dict(data)
+
+        if profile._dt_obj_min is not None:
+            str_time = profile._dt_obj_min.replace("T", " ")
+            profile._dt_obj_min = pd.Timestamp(str_time)
+
+        if profile._dt_obj_max is not None:
+            str_time = profile._dt_obj_max.replace("T", " ")
+            profile._dt_obj_max = pd.Timestamp(str_time)
+
+        return profile
+
     @property
     def profile(self) -> dict:
         """Return the profile of the column."""

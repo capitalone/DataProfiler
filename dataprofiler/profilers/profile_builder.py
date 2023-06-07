@@ -1520,7 +1520,7 @@ class StructuredProfiler(BaseProfiler):
         # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
-        self.hashed_row_object: dict | HyperLogLog = dict()
+        self.hashed_row_object: dict | HyperLogLog = None
         self._profile: list[StructuredColProfiler] = []  # type: ignore[assignment]
         self._col_name_to_idx: dict[str | int, list[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
@@ -1530,12 +1530,13 @@ class StructuredProfiler(BaseProfiler):
         self._null_replication_metrics: dict = None  # type: ignore[assignment]
 
         if options.row_statistics.unique_count.hashing_method == "hll":
-            self.hashed_row_object: HyperLogLog = HyperLogLog(
+            self.hashed_row_object = HyperLogLog(
                 p=options.row_statistics.unique_count.hll.register_count,
                 seed=options.row_statistics.unique_count.hll.seed,
                 sparse=False,
             )
-
+        elif options.row_statistics.unique_count.hashing_method == "full":
+            self.hashed_row_object = dict()
         if data is not None:
             self.update_profile(data)
 
@@ -1980,9 +1981,19 @@ class StructuredProfiler(BaseProfiler):
                         )
                     )
             elif self.options.row_statistics.unique_count.hashing_method == "hll":
-                for _, record in data.iterrows():
-                    self.hashed_row_object.add(record.to_string(index=False))
+                batch_size = 2048
 
+                for batch_ind in range(len(data) // batch_size + 1):
+                    start_ind = batch_ind * batch_size
+                    if start_ind >= len(data):
+                        break
+                    end_ind = (batch_ind + 1) * batch_size
+                    for record in (
+                        data[start_ind : min(end_ind, len(data))]
+                        .to_json(orient="records", lines=True)
+                        .splitlines()
+                    ):
+                        self.hashed_row_object.add(record)
         # Calculate Null Column Count
         null_rows = set()
         null_in_row_count = set()

@@ -1520,7 +1520,7 @@ class StructuredProfiler(BaseProfiler):
         # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
-        self.hashed_row_object: HyperLogLog | dict
+        self.hashed_row_object: HyperLogLog | dict = dict()
         self._profile: list[StructuredColProfiler] = []  # type: ignore[assignment]
         self._col_name_to_idx: dict[str | int, list[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
@@ -1535,8 +1535,6 @@ class StructuredProfiler(BaseProfiler):
                 seed=options.row_statistics.unique_count.hll.seed,
                 sparse=False,
             )
-        elif isinstance(self.hashed_row_object, dict):
-            self.hashed_row_object = dict()
         if data is not None:
             self.update_profile(data)
 

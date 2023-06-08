@@ -523,3 +523,12 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        data_new = ["2012-02-10 15:43:30", "02/10/12 15:43", "Mar 12, 2014"]
+        df_new = pd.Series(data_new)
+
+        # validating update after deserialization
+        deserialized.update(df_new)
+
+        assert deserialized._dt_obj_min == pd.Timestamp("2012-02-10 15:43:00")
+        assert deserialized._dt_obj_max == pd.Timestamp("2014-03-12 00:00:00")

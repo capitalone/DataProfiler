@@ -147,12 +147,10 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         profile = super().load_from_dict(data)
 
         if profile._dt_obj_min is not None:
-            str_time = profile._dt_obj_min.replace("T", " ")
-            profile._dt_obj_min = pd.Timestamp(str_time)
+            profile._dt_obj_min = pd.Timestamp(profile._dt_obj_min)
 
         if profile._dt_obj_max is not None:
-            str_time = profile._dt_obj_max.replace("T", " ")
-            profile._dt_obj_max = pd.Timestamp(str_time)
+            profile._dt_obj_max = pd.Timestamp(profile._dt_obj_max)
 
         return profile
 

@@ -76,11 +76,7 @@ When working on a new feature, which will require multiple pull requests, the fo
 
 See below image for the above text points visualized for both `main` and `gh-pages` workflows.
 
-<p text-align="left">
-    <picture>
-      <source srcset="https://github.com/capitalone/DataProfiler/raw/gh-pages/docs/source/_static/images/branching_workflow_diagram.png">
-    </picture>
-</p>
+![image](https://github.com/capitalone/DataProfiler/raw/gh-pages/docs/source/_static/images/branching_workflow_diagram.png)
 
 ## Any contributions you make will be under the Apache License 2.0
 In short, when you submit code changes, your submissions are understood to be under the same [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) that covers the project. Feel free to contact the maintainers if that's a concern.

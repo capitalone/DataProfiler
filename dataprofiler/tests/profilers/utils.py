@@ -10,6 +10,7 @@ import dataprofiler as dp
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.profile_builder import BaseProfiler
 from dataprofiler.profilers.utils import find_diff_of_dicts
+from dataprofiler.tests.test_utils import patched_assert_warns
 
 
 def set_seed(seed=None):
@@ -188,9 +189,12 @@ def assert_profiles_equal(actual, expected):
     for key in expected_dict.keys():
         actual_value = actual_dict.get(key, None)
         expected_value = expected_dict.get(key, None)
+
         assert type(actual_value) == type(
             expected_value
-        ), f"{actual_value} and {expected_value} do not have the same type for key: {key}"
+        ), f"{actual_value} with type {type(actual_value)} and \
+            {expected_value} with type {type(expected_value)} \
+            do not have the same type for key: {key}"
 
         if isinstance(actual_value, (BaseProfiler, BaseColumnProfiler)):
             assert_profiles_equal(actual_value, expected_value)

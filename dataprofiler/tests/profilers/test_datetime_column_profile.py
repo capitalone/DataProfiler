@@ -524,6 +524,15 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
+        expected_formats = [
+            "%m/%d/%y %H:%M",
+            "%Y-%m-%d %H:%M:%S",
+            "%B %d, %Y",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y%m%dT%H%M%S",
+            "%b %d, %Y",
+        ]
+
         data_new = ["2012-02-10T15:43:30", "20120210T154300", "March 12, 2014"]
         df_new = pd.Series(data_new)
 
@@ -532,3 +541,5 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         assert deserialized._dt_obj_min == pd.Timestamp("2012-02-10 15:43:00")
         assert deserialized._dt_obj_max == pd.Timestamp("2014-03-12 00:00:00")
+
+        assert set(deserialized.date_formats) == set(expected_formats)

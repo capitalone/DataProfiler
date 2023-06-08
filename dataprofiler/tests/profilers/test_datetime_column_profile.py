@@ -524,7 +524,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-        data_new = ["2012-02-10 15:43:30", "02/10/12 15:43", "Mar 12, 2014"]
+        data_new = ["2012-02-10T15:43:30", "20120210T154300", "March 12, 2014"]
         df_new = pd.Series(data_new)
 
         # validating update after deserialization

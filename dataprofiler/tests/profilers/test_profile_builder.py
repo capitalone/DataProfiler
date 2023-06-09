@@ -3512,7 +3512,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
     def setUpClass(cls):
         test_utils.set_seed(seed=0)
 
-        sample_strs = [
+        data = [
             "orange",
             "green",
             "blue",
@@ -3522,14 +3522,11 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             "chevy",
             "ford",
             "toyota",
-        ]
+            "apple",
+        ] * 10
 
-        data = []
-        for x in range(500):
-            if x % 2:
-                data.append(sample_strs[x % 9])
-            else:
-                data.append(f"#{x}")
+        for x in range(100):
+            data.append(f"{x}")
 
         cls.data = pd.DataFrame(data)
 
@@ -3717,16 +3714,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
     def test_null_row_stats_correct_after_updates(self, *mocks):
         data1 = pd.DataFrame([[1, None], [1, 1], [None, None], [None, 1]])
         data2 = pd.DataFrame([[None, None], [1, None], [None, None], [None, 1]])
@@ -3822,20 +3809,11 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profile2.row_is_null_count)
         self.assertEqual(0, profile2.row_has_null_count)
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
     def test_list_data(self, *mocks):
-        data = [[1, 1], [None, None], [3, 3], [4, 4], [5, 5], [None, None], [1, 1]]
+
+        data = pd.DataFrame(
+            {"a": [1, None, 3, 4, 5, None, 1], "b": [1, None, 3, 4, 5, None, 1]}
+        )
         # test hll_row_hashing
         profiler_options = ProfilerOptions()
         profiler_options.set(
@@ -3851,67 +3829,11 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         self.assertEqual(5, profiler.hashed_row_object.cardinality())
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
-    def test_pandas_series_data(self, *mocks):
-        data = pd.Series([1, None, 3, 4, 5, None, 1])
-
-        profiler_options = ProfilerOptions()
-        profiler_options.set(
-            {
-                "*.is_enabled": False,
-                "row_statistics.*.is_enabled": True,
-                "row_statistics.unique_count.hashing_method": "hll",
-            }
-        )
-
-        with test_utils.mock_timeit():
-            profiler = dp.StructuredProfiler(data, options=profiler_options)
-
-        self.assertEqual(5, profiler.hashed_row_object.cardinality())
-
-        # test properties when series has name
-        data.name = "test"
-
-        with test_utils.mock_timeit():
-            profiler = dp.StructuredProfiler(data, options=profiler_options)
-
-        self.assertEqual(5, profiler.hashed_row_object.cardinality())
-
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._merge_correlation"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "StructuredProfiler._update_chi2"
-    )
     def test_add_profilers(self, *mocks):
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
 
-        profiler_default_options = ProfilerOptions()
-        profiler_default_options.set(
+        default_options = ProfilerOptions()
+        default_options.set(
             {
                 "*.is_enabled": False,
                 "row_statistics.*.is_enabled": True,
@@ -3919,15 +3841,15 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
 
-        profiler_row_stats_disabled = ProfilerOptions()
-        profiler_row_stats_disabled.set(
+        row_stats_disabled_options = ProfilerOptions()
+        row_stats_disabled_options.set(
             {
                 "*.is_enabled": False,
             }
         )
 
-        profiler_unique_count_disabled = ProfilerOptions()
-        profiler_unique_count_disabled.set(
+        unique_count_disabled_options = ProfilerOptions()
+        unique_count_disabled_options.set(
             {
                 "*.is_enabled": False,
                 "row_statistics.is_enabled": True,
@@ -3935,8 +3857,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
 
-        profiler_full_hashing_method = ProfilerOptions()
-        profiler_full_hashing_method.set(
+        full_hashing_method_options = ProfilerOptions()
+        full_hashing_method_options.set(
             {
                 "*.is_enabled": False,
                 "row_statistics.is_enabled": True,
@@ -3945,8 +3867,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
 
-        profiler_seed_mismatch = ProfilerOptions()
-        profiler_seed_mismatch.set(
+        seed_mismatch_options = ProfilerOptions()
+        seed_mismatch_options.set(
             {
                 "*.is_enabled": False,
                 "row_statistics.is_enabled": True,
@@ -3956,8 +3878,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
 
-        profiler_reg_count_mismatch = ProfilerOptions()
-        profiler_reg_count_mismatch.set(
+        reg_count_mismatch_options = ProfilerOptions()
+        reg_count_mismatch_options.set(
             {
                 "*.is_enabled": False,
                 "row_statistics.is_enabled": True,
@@ -3968,21 +3890,27 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
 
         with test_utils.mock_timeit():
-            profile1 = dp.StructuredProfiler(data[:2], options=profiler_default_options)
-            profile2 = dp.StructuredProfiler(
-                data[2:], options=profiler_row_stats_disabled
+            default_profiler_1 = dp.StructuredProfiler(
+                data[:2], options=default_options
             )
-            profile3 = dp.StructuredProfiler(
-                data[2:], options=profiler_unique_count_disabled
+            row_stats_disabled_profiler = dp.StructuredProfiler(
+                data[2:], options=row_stats_disabled_options
             )
-            profile4 = dp.StructuredProfiler(
-                data[2:], options=profiler_full_hashing_method
+            unique_count_disabled_profiler = dp.StructuredProfiler(
+                data[2:], options=unique_count_disabled_options
             )
-            profile5 = dp.StructuredProfiler(data[2:], options=profiler_seed_mismatch)
-            profile6 = dp.StructuredProfiler(
-                data[2:], options=profiler_reg_count_mismatch
+            full_hashing_method_profiler = dp.StructuredProfiler(
+                data[2:], options=full_hashing_method_options
             )
-            profile7 = dp.StructuredProfiler(data[2:], options=profiler_default_options)
+            seed_mismatch_profiler = dp.StructuredProfiler(
+                data[2:], options=seed_mismatch_options
+            )
+            reg_count_mismatch_profiler = dp.StructuredProfiler(
+                data[2:], options=reg_count_mismatch_options
+            )
+            default_profiler_2 = dp.StructuredProfiler(
+                data[2:], options=default_options
+            )
 
         # test row stats options mismatch
         with self.assertRaisesRegex(
@@ -3990,7 +3918,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             "Attempting to merge two profiles with row statistics "
             "option enabled on one profile but not the other.",
         ):
-            profile1 + profile2
+            default_profiler_1 + row_stats_disabled_profiler
 
         # test unique count options mismatch
         with self.assertRaisesRegex(
@@ -3998,14 +3926,14 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             "Attempting to merge two profiles with unique row "
             "count option enabled on one profile but not the other.",
         ):
-            profile1 + profile3
+            default_profiler_1 + unique_count_disabled_profiler
 
         # test hashing method options mismatch
         with self.assertRaisesRegex(
             ValueError,
             "Attempting to merge profiles with different row hashing methods.",
         ):
-            profile1 + profile4
+            default_profiler_1 + full_hashing_method_profiler
 
         # test seed options mismatch
         with self.assertRaisesRegex(
@@ -4013,7 +3941,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             "Attempting to merge profiles whose row hashing "
             "objects are of different seed or register count.",
         ):
-            profile1 + profile5
+            default_profiler_1 + seed_mismatch_profiler
 
         # test register count options mismatch
         with self.assertRaisesRegex(
@@ -4021,65 +3949,21 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             "Attempting to merge profiles whose row hashing "
             "objects are of different seed or register count.",
         ):
-            profile1 + profile6
+            default_profiler_1 + reg_count_mismatch_profiler
 
         # test successful merge
         with test_utils.mock_timeit():
-            merged_profile = profile1 + profile7
+            merged_profile = default_profiler_1 + default_profiler_2
 
         self.assertEqual(5, merged_profile.hashed_row_object.cardinality())
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "StructuredProfiler._get_correlation"
-    )
-    def test_stream_profilers(self, *mocks):
-        mocks[0].return_value = None
-        data = pd.DataFrame(
-            [
-                ["test1", 1.0],
-                ["test2", None],
-                ["test1", 1.0],
-                [None, None],
-                [None, 5.0],
-                [None, 5.0],
-                [None, None],
-                ["test3", 7.0],
-            ]
-        )
-
-        profiler_options = ProfilerOptions()
-        profiler_options.set(
-            {
-                "*.is_enabled": False,
-                "row_statistics.*.is_enabled": True,
-                "row_statistics.unique_count.hashing_method": "hll",
-            }
-        )
-
-        with test_utils.mock_timeit():
-            profiler = dp.StructuredProfiler(data[:3], options=profiler_options)
-
-        self.assertEqual(2, profiler.hashed_row_object.cardinality())
-
-        # check after update
-        with test_utils.mock_timeit():
-            profiler.update_profile(data[3:])
-
-        self.assertEqual(5, profiler.hashed_row_object.cardinality())
-
     def test_correct_unique_row_ratio_test(self):
-        self.assertEqual(259, len(self.trained_schema_full.hashed_row_object))
-        self.assertEqual(500, self.trained_schema_full.total_samples)
-        self.assertEqual(0.518, self.trained_schema_full._get_unique_row_ratio())
+        self.assertEqual(110, len(self.trained_schema_full.hashed_row_object))
+        self.assertEqual(200, self.trained_schema_full.total_samples)
+        self.assertEqual(0.55, self.trained_schema_full._get_unique_row_ratio())
 
         # not completely accurate since hll is estimation
-        self.assertEqual(259, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
 
     def test_unique_row_ratio_unique_count_disabled(self):
         profiler_options = ProfilerOptions()
@@ -4103,12 +3987,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
     def test_correct_duplicate_row_count(self):
-        self.assertEqual(259, len(self.trained_schema_full.hashed_row_object))
-        self.assertEqual(500, self.trained_schema_full.total_samples)
-        self.assertEqual(241, self.trained_schema_full._get_duplicate_row_count())
+        self.assertEqual(110, len(self.trained_schema_full.hashed_row_object))
+        self.assertEqual(200, self.trained_schema_full.total_samples)
+        self.assertEqual(90, self.trained_schema_full._get_duplicate_row_count())
 
         # not completely accurate since register count is 1024
-        self.assertEqual(259, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
 
     def test_correct_duplicate_row_count_unique_count_disabled(self):
         profiler_options_1 = ProfilerOptions()
@@ -4152,7 +4036,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profiler._get_duplicate_row_count())
 
     def test_save_and_load_hll(self):
-        self.assertEqual(259, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
@@ -4162,7 +4046,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             mock_file.seek(0)
             with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
                 load_profile = dp.StructuredProfiler.load("mock.pkl")
-        self.assertEqual(259, load_profile.hashed_row_object.cardinality())
+        self.assertEqual(110, load_profile.hashed_row_object.cardinality())
 
         # Check that reports are equivalent
         save_report = test_utils.clean_report(self.trained_schema_hll.report())

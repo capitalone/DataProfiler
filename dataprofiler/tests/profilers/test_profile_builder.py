@@ -3563,8 +3563,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
 
-        profiler_options = ProfilerOptions()
-        profiler_options.set(
+        profiler_options_full = ProfilerOptions()
+        profiler_options_full.set(
             {
                 "*.is_enabled": False,
                 "row_statistics.*.is_enabled": True,
@@ -3576,8 +3576,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             cls.trained_schema_hll = dp.StructuredProfiler(
                 cls.data, len(cls.data), options=profiler_options_hll
             )
-            cls.trained_schema = dp.StructuredProfiler(
-                cls.data, len(cls.data), options=profiler_options
+            cls.trained_schema_full = dp.StructuredProfiler(
+                cls.data, len(cls.data), options=profiler_options_full
             )
 
     def test_correct_rows_ingested(self):
@@ -4087,9 +4087,9 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(5, profiler.hashed_row_object.cardinality())
 
     def test_correct_unique_row_ratio_test(self):
-        self.assertEqual(259, len(self.trained_schema.hashed_row_object))
-        self.assertEqual(500, self.trained_schema.total_samples)
-        self.assertEqual(0.518, self.trained_schema._get_unique_row_ratio())
+        self.assertEqual(259, len(self.trained_schema_full.hashed_row_object))
+        self.assertEqual(500, self.trained_schema_full.total_samples)
+        self.assertEqual(0.518, self.trained_schema_full._get_unique_row_ratio())
 
         # not completely accurate since hll is estimation
         self.assertEqual(259, self.trained_schema_hll.hashed_row_object.cardinality())
@@ -4116,9 +4116,9 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
     def test_correct_duplicate_row_count(self):
-        self.assertEqual(259, len(self.trained_schema.hashed_row_object))
-        self.assertEqual(500, self.trained_schema.total_samples)
-        self.assertEqual(241, self.trained_schema._get_duplicate_row_count())
+        self.assertEqual(259, len(self.trained_schema_full.hashed_row_object))
+        self.assertEqual(500, self.trained_schema_full.total_samples)
+        self.assertEqual(241, self.trained_schema_full._get_duplicate_row_count())
 
         # not completely accurate since register count is 1024
         self.assertEqual(259, self.trained_schema_hll.hashed_row_object.cardinality())

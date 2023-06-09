@@ -1564,6 +1564,43 @@ class StructuredProfiler(BaseProfiler):
                 "profiles and cannot be added together."
             )
 
+        # Check row statistics options
+        if (
+            self.options.row_statistics.is_enabled
+            != other.options.row_statistics.is_enabled
+        ):
+            raise ValueError(
+                "Attempting to merge two profiles with row statistics "
+                "option enabled on one profile but not the other."
+            )
+        # Check unique_count options
+        if (
+            self.options.row_statistics.unique_count.is_enabled
+            != other.options.row_statistics.unique_count.is_enabled
+        ):
+            raise ValueError(
+                "Attempting to merge two profiles with unique row "
+                "count option enabled on one profile but not the other."
+            )
+        # Check hashing_method options
+        if (
+            self.options.row_statistics.unique_count.hashing_method
+            != other.options.row_statistics.unique_count.hashing_method
+        ):
+            raise ValueError(
+                "Attempting to merge profiles with different row hashing methods."
+            )
+        if (
+            self.options.row_statistics.unique_count.hll.seed
+            != other.options.row_statistics.unique_count.hll.seed
+            or self.options.row_statistics.unique_count.hll.register_count
+            != other.options.row_statistics.unique_count.hll.register_count
+        ):
+            raise ValueError(
+                "Attempting to merge profiles whose row hashing "
+                "objects are of different seed or register count."
+            )
+
     def __add__(  # type: ignore[override]
         self, other: StructuredProfiler
     ) -> StructuredProfiler:
@@ -1582,7 +1619,6 @@ class StructuredProfiler(BaseProfiler):
             self.options.row_statistics.is_enabled
             and other.options.row_statistics.is_enabled
         ):
-
             merged_profile.row_has_null_count = (
                 self.row_has_null_count + other.row_has_null_count
             )
@@ -1904,14 +1940,21 @@ class StructuredProfiler(BaseProfiler):
 
         return _prepare_report(report, output_format, omit_keys)
 
-    def _get_unique_row_ratio(self) -> float:
+    def _get_unique_row_ratio(self) -> float | None:
         """Return unique row ratio."""
-        if self.total_samples:
-            if isinstance(self.hashed_row_object, dict):
-                return len(self.hashed_row_object) / self.total_samples
-            elif isinstance(self.hashed_row_object, HyperLogLog):
-                return int(self.hashed_row_object.cardinality()) / self.total_samples
-        return 0
+        if (
+            self.options.row_statistics.is_enabled
+            and self.options.row_statistics.unique_count.is_enabled
+        ):
+            if self.total_samples:
+                if isinstance(self.hashed_row_object, dict):
+                    return len(self.hashed_row_object) / self.total_samples
+                elif isinstance(self.hashed_row_object, HyperLogLog):
+                    return (
+                        int(self.hashed_row_object.cardinality()) / self.total_samples
+                    )
+            return 0
+        return None
 
     def _get_row_is_null_ratio(self) -> float:
         """Return whether row is null ratio."""
@@ -1925,13 +1968,20 @@ class StructuredProfiler(BaseProfiler):
             return self.row_has_null_count / self._min_col_samples_used
         return 0
 
-    def _get_duplicate_row_count(self) -> int:
-        """Retun dup row count."""
-        if isinstance(self.hashed_row_object, dict):
-            return self.total_samples - len(self.hashed_row_object)
-        elif isinstance(self.hashed_row_object, HyperLogLog):
-            return self.total_samples - int(self.hashed_row_object.cardinality())
-        return 0
+    def _get_duplicate_row_count(self) -> int | None:
+        """Return dup row count."""
+        if (
+            self.options.row_statistics.is_enabled
+            and self.options.row_statistics.unique_count.is_enabled
+        ):
+            if isinstance(self.hashed_row_object, dict):
+                return self.total_samples - len(self.hashed_row_object)
+            elif isinstance(self.hashed_row_object, HyperLogLog):
+                return max(
+                    0, self.total_samples - int(self.hashed_row_object.cardinality())
+                )
+            return 0
+        return None
 
     @utils.method_timeit(name="row_stats")
     def _update_row_statistics(
@@ -1954,11 +2004,7 @@ class StructuredProfiler(BaseProfiler):
                 "Cannot calculate row statistics on data that is" "not a DataFrame"
             )
 
-        if not self.options.row_statistics.is_enabled:
-            return
-
         if self.options.row_statistics.unique_count.is_enabled:
-            self.total_samples += len(data)
             if isinstance(self.hashed_row_object, dict):
                 try:
                     self.hashed_row_object.update(
@@ -1987,6 +2033,7 @@ class StructuredProfiler(BaseProfiler):
                         .splitlines()
                     ):
                         self.hashed_row_object.add(record)
+
         # Calculate Null Column Count
         null_rows = set()
         null_in_row_count = set()
@@ -2754,6 +2801,9 @@ class StructuredProfiler(BaseProfiler):
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()
 
+        # Update total samples between correlation and row stats functionality
+        self.total_samples += len(data)
+
         if self.options.row_statistics.is_enabled:
             # Only pass along sample ids if necessary
             samples_for_row_stats = None
@@ -2773,12 +2823,6 @@ class StructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
-        hashing_object_dict: dict = dict()
-        if isinstance(self.hashed_row_object, HyperLogLog):
-            hashing_object_dict = self.hashed_row_object.__dict__
-        elif isinstance(self.hashed_row_object, dict):
-            hashing_object_dict = self.hashed_row_object
-
         # Create dictionary for all metadata, options, and profile
         data_dict = {
             "total_samples": self.total_samples,
@@ -2786,7 +2830,7 @@ class StructuredProfiler(BaseProfiler):
             "file_type": self.file_type,
             "row_has_null_count": self.row_has_null_count,
             "row_is_null_count": self.row_is_null_count,
-            "hashed_row_object": hashing_object_dict,
+            "hashed_row_object": self.hashed_row_object,
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "options": self.options,

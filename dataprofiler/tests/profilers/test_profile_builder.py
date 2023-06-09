@@ -2580,27 +2580,6 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(0, profile._min_id)
         self.assertEqual(6, profile._max_id)
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
-    def test_row_statistics(self, *mocks):
-        data = pd.Series([1, None, 3, 4, 5, None, 1])
-        profile1 = StructuredProfiler(data)
-        self.assertEqual(2, profile1.row_is_null_count)
-        self.assertEqual(2, profile1.row_has_null_count)
-        self.assertEqual(5 / 7, profile1._get_unique_row_ratio())
-
-        options = StructuredOptions()
-        options.row_statistics.is_enabled = False
-        options.multiprocess.is_enabled = False
-        profile2 = StructuredProfiler(data, options=options)
-        self.assertEqual(0, profile2.row_is_null_count)
-        self.assertEqual(0, profile2.row_has_null_count)
-        self.assertEqual(0, profile2._get_unique_row_ratio())
-
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
@@ -3834,6 +3813,14 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         # Weird pandas behavior makes this None since this column will be
         # recognized as object, not float64
         self.assertSetEqual({8}, profile._profile[1].null_types_index["None"])
+
+        # Tests row stats disabled
+        options = StructuredOptions()
+        options.row_statistics.is_enabled = False
+        options.multiprocess.is_enabled = False
+        profile2 = StructuredProfiler(data1, options=options)
+        self.assertEqual(0, profile2.row_is_null_count)
+        self.assertEqual(0, profile2.row_has_null_count)
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"

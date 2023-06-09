@@ -4164,6 +4164,28 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(1000, profiler.hashed_row_object.cardinality())
         self.assertEqual(0, profiler._get_duplicate_row_count())
 
+    def test_save_and_load_hll(self):
+        self.assertEqual(259, self.trained_schema_hll.hashed_row_object.cardinality())
+
+        # Save and Load profile with Mock IO
+        with mock.patch("builtins.open") as m:
+            mock_file = setup_save_mock_open(m)
+            self.trained_schema_hll.save()
+
+            mock_file.seek(0)
+            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
+                load_profile = dp.StructuredProfiler.load("mock.pkl")
+        self.assertEqual(259, load_profile.hashed_row_object.cardinality())
+
+        # Check that reports are equivalent
+        save_report = test_utils.clean_report(self.trained_schema_hll.report())
+        load_report = test_utils.clean_report(load_profile.report())
+        self.assertDictEqual(save_report, load_report)
+
+        # validate both are still usable after
+        self.trained_schema_hll.update_profile(pd.DataFrame([4, 5]))
+        load_profile.update_profile(pd.DataFrame([4, 5]))
+
 
 class TestProfilerFactoryClass(unittest.TestCase):
     def test_profiler_factory_class_bad_input(self):

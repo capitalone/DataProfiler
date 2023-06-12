@@ -3509,21 +3509,23 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
     def setUpClass(cls):
         test_utils.set_seed(seed=0)
 
-        data = [
-            "orange",
-            "green",
-            "blue",
-            "mexico",
-            "france",
-            "morocco",
-            "chevy",
-            "ford",
-            "toyota",
-            "apple",
-        ] * 10
-
-        for x in range(100):
-            data.append(f"{x}")
+        data = {
+            "names": [
+                "orange",
+                "green",
+                "blue",
+                "mexico",
+                "france",
+                "morocco",
+                "chevy",
+                "ford",
+                "toyota",
+                "apple",
+            ]
+            * 2,
+            "numbers": [1, 2, 3, 4, 5] * 4,
+            "tf_null": [None, 1, None, 2] * 5,
+        }
 
         cls.data = pd.DataFrame(data)
 
@@ -3560,7 +3562,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         }
         test_dataset = pd.DataFrame(data=test_dict)
         profiler_options = ProfilerOptions()
-        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
         trained_schema = dp.StructuredProfiler(
             test_dataset, len(test_dataset), options=profiler_options
         )
@@ -3588,7 +3595,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         file_path = os.path.join(test_root_path, "data", "csv/empty_rows.txt")
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
-        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
         profile = dp.StructuredProfiler(data, options=profiler_options)
         self.assertEqual(2, profile.row_has_null_count)
         self.assertEqual(0.25, profile._get_row_has_null_ratio())
@@ -3603,12 +3615,37 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3 / 24, profile._get_row_is_null_ratio())
 
+    def test_row_is_null_ratio_row_stats_disabled(self):
+        profiler_options_1 = ProfilerOptions()
+        profiler_options_1.set(
+            {
+                "*.is_enabled": False,
+            }
+        )
+        profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options_1)
+        self.assertIsNone(profiler._get_row_is_null_ratio())
+
+    def test_row_has_null_ratio_row_stats_disabled(self):
+        profiler_options_1 = ProfilerOptions()
+        profiler_options_1.set(
+            {
+                "*.is_enabled": False,
+            }
+        )
+        profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options_1)
+        self.assertIsNone(profiler._get_row_has_null_ratio())
+
     def test_null_in_file(self):
         filename_null_in_file = os.path.join(
             test_root_path, "data", "csv/sparse-first-and-last-column.txt"
         )
         profiler_options = ProfilerOptions()
-        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
         data = dp.Data(filename_null_in_file)
         profile = dp.StructuredProfiler(data, options=profiler_options)
 
@@ -3639,7 +3676,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         ]
         data = pd.DataFrame(data, columns=["NAME", "VALUE"])
         profiler_options = ProfilerOptions()
-        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
 
         col_one_len = len(data["NAME"])
         col_two_len = len(data["VALUE"])
@@ -3671,7 +3713,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
     def test_null_calculation_with_differently_sampled_cols(self):
         opts = ProfilerOptions()
-        opts.structured_options.multiprocess.is_enabled = False
+        opts.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
         data = pd.DataFrame(
             {
                 "full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -3711,21 +3758,16 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
     def test_null_row_stats_correct_after_updates(self, *mocks):
         data1 = pd.DataFrame([[1, None], [1, 1], [None, None], [None, 1]])
         data2 = pd.DataFrame([[None, None], [1, None], [None, None], [None, 1]])
         opts = ProfilerOptions()
-        opts.structured_options.multiprocess.is_enabled = False
+        opts.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
 
         # When setting min true samples/samples per update
         profile = dp.StructuredProfiler(
@@ -3754,7 +3796,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # When not setting min true samples/samples per update
         opts = ProfilerOptions()
-        opts.structured_options.multiprocess.is_enabled = False
+        opts.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+            }
+        )
         profile = dp.StructuredProfiler(data1, options=opts)
         self.assertEqual(3, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
@@ -3810,8 +3857,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # Tests row stats disabled
         options = StructuredOptions()
-        options.row_statistics.is_enabled = False
-        options.multiprocess.is_enabled = False
+        options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": False,
+            }
+        )
         profile2 = StructuredProfiler(data1, options=options)
         self.assertEqual(0, profile2.row_is_null_count)
         self.assertEqual(0, profile2.row_has_null_count)
@@ -3819,7 +3870,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
     def test_list_data_with_hll(self):
 
         data = pd.DataFrame(
-            {"a": [1, None, 3, 4, 5, None, 1], "b": [1, None, 3, 4, 5, None, 1]}
+            {"a": [1, 1, 4, 4, 3, 1, None], "b": [1, None, 3, 4, 4, None, 1]}
         )
         # test hll_row_hashing
         profiler_options = ProfilerOptions()
@@ -3834,7 +3885,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         with test_utils.mock_timeit():
             profiler = dp.StructuredProfiler(data, options=profiler_options)
 
-        self.assertEqual(5, profiler.hashed_row_object.cardinality())
+        self.assertEqual(6, profiler.hashed_row_object.cardinality())
 
     def test_add_profilers_row_statistics_options(self):
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
@@ -4002,21 +4053,22 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(5, merged_profile.hashed_row_object.cardinality())
 
     def test_correct_unique_row_ratio_full_row_hashing(self):
-        self.assertEqual(110, len(self.trained_schema_full.hashed_row_object))
-        self.assertEqual(200, self.trained_schema_full.total_samples)
-        self.assertEqual(0.55, self.trained_schema_full._get_unique_row_ratio())
+        self.assertEqual(15, len(self.trained_schema_full.hashed_row_object))
+        self.assertEqual(20, self.trained_schema_full.total_samples)
+        self.assertEqual(0.75, self.trained_schema_full._get_unique_row_ratio())
 
     def test_correct_unique_row_ratio_hll_row_hashing(self):
         # if data changes, hll might not be completely accurate since it is estimation
-        self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
-        self.assertEqual(200, self.trained_schema_hll.total_samples)
-        self.assertEqual(0.55, self.trained_schema_hll._get_unique_row_ratio())
+        self.assertEqual(15, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(20, self.trained_schema_hll.total_samples)
+        self.assertEqual(0.75, self.trained_schema_hll._get_unique_row_ratio())
 
     def test_unique_row_ratio_unique_count_disabled(self):
         profiler_options = ProfilerOptions()
         profiler_options.set(
             {
                 "*.is_enabled": False,
+                "row_statistics.unique_count.is_enabled": False,
             }
         )
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
@@ -4034,27 +4086,28 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
     def test_correct_duplicate_row_count_full_row_hashing(self):
-        self.assertEqual(110, len(self.trained_schema_full.hashed_row_object))
-        self.assertEqual(200, self.trained_schema_full.total_samples)
-        self.assertEqual(90, self.trained_schema_full._get_duplicate_row_count())
+        self.assertEqual(15, len(self.trained_schema_full.hashed_row_object))
+        self.assertEqual(20, self.trained_schema_full.total_samples)
+        self.assertEqual(5, self.trained_schema_full._get_duplicate_row_count())
 
     def test_correct_duplicate_row_count_hll_row_hashing(self):
         # if data changes, hll might not be completely accurate since it is estimation
-        self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
-        self.assertEqual(200, self.trained_schema_hll.total_samples)
-        self.assertEqual(90, self.trained_schema_hll._get_duplicate_row_count())
+        self.assertEqual(15, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(20, self.trained_schema_hll.total_samples)
+        self.assertEqual(5, self.trained_schema_hll._get_duplicate_row_count())
 
-    def test_correct_duplicate_row_count_unique_count_disabled(self):
+    def test_duplicate_row_count_unique_count_disabled(self):
         profiler_options_1 = ProfilerOptions()
         profiler_options_1.set(
             {
                 "*.is_enabled": False,
+                "row_statistics.unique_count.is_enabled": False,
             }
         )
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options_1)
         self.assertIsNone(profiler._get_duplicate_row_count())
 
-    def test_correct_duplicate_row_count_empty_profiler(self):
+    def test_duplicate_row_count_empty_profiler(self):
         profiler_options = ProfilerOptions()
         profiler_options.set(
             {
@@ -4086,7 +4139,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profiler._get_duplicate_row_count())
 
     def test_save_and_load_hll(self):
-        self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(15, self.trained_schema_hll.hashed_row_object.cardinality())
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
@@ -4096,7 +4149,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             mock_file.seek(0)
             with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
                 load_profile = dp.StructuredProfiler.load("mock.pkl")
-        self.assertEqual(110, load_profile.hashed_row_object.cardinality())
+        self.assertEqual(15, load_profile.hashed_row_object.cardinality())
 
         # Check that reports are equivalent
         save_report = test_utils.clean_report(self.trained_schema_hll.report())
@@ -4112,11 +4165,15 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
 
         # validate both are still usable after
-        self.trained_schema_hll.update_profile(pd.DataFrame([4, 5]))
-        load_profile.update_profile(pd.DataFrame([4, 5]))
+        self.trained_schema_hll.update_profile(
+            pd.DataFrame({"names": ["hello"], "numbers": [5], "tf_null": [None]})
+        )
+        load_profile.update_profile(
+            pd.DataFrame({"names": ["hello"], "numbers": [5], "tf_null": [None]})
+        )
 
-        self.assertEqual(202, self.trained_schema_hll.total_samples)
-        self.assertEqual(202, load_profile.total_samples)
+        self.assertEqual(21, self.trained_schema_hll.total_samples)
+        self.assertEqual(21, load_profile.total_samples)
 
 
 class TestProfilerFactoryClass(unittest.TestCase):

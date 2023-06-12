@@ -1965,14 +1965,20 @@ class StructuredProfiler(BaseProfiler):
                 return int(self.hashed_row_object.cardinality()) / self.total_samples
         return 0
 
-    def _get_row_is_null_ratio(self) -> float:
+    def _get_row_is_null_ratio(self) -> float | None:
         """Return whether row is null ratio."""
+        if not self.options.row_statistics.is_enabled:
+            return None
+
         if self._min_col_samples_used:
             return self.row_is_null_count / self._min_col_samples_used
         return 0
 
-    def _get_row_has_null_ratio(self) -> float:
+    def _get_row_has_null_ratio(self) -> float | None:
         """Return whether row has null ratio."""
+        if not self.options.row_statistics.is_enabled:
+            return None
+
         if self._min_col_samples_used:
             return self.row_has_null_count / self._min_col_samples_used
         return 0

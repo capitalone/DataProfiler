@@ -282,9 +282,7 @@ class OrderColumn(BaseColumnProfiler):
         :rtype: CategoricalColumn
         """
         # This is an ambiguous call to super classes.
-        profile = super().load_from_dict(data)
-
-        return profile
+        return super().load_from_dict(data)
 
     @property
     def profile(self) -> dict:

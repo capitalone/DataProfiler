@@ -1782,7 +1782,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 "row_has_null_ratio": -0.25,
                 "row_is_null_ratio": -0.25,
                 "unique_row_ratio": "unchanged",
-                "duplicate_row_count": -0.25,
+                "duplicate_row_count": "unchanged",
                 "file_type": "unchanged",
                 "encoding": "unchanged",
                 "correlation_matrix": np.array(

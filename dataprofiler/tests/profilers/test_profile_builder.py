@@ -3714,7 +3714,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
 
-    def test_null_row_stats_correct_after_updates(self, *mocks):
+    def test_null_row_stats_correct_after_updates(self):
         data1 = pd.DataFrame([[1, None], [1, 1], [None, None], [None, 1]])
         data2 = pd.DataFrame([[None, None], [1, None], [None, None], [None, 1]])
         opts = ProfilerOptions()
@@ -3809,7 +3809,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0, profile2.row_is_null_count)
         self.assertEqual(0, profile2.row_has_null_count)
 
-    def test_list_data(self, *mocks):
+    def test_list_data_with_hll(self):
 
         data = pd.DataFrame(
             {"a": [1, None, 3, 4, 5, None, 1], "b": [1, None, 3, 4, 5, None, 1]}
@@ -3829,7 +3829,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         self.assertEqual(5, profiler.hashed_row_object.cardinality())
 
-    def test_add_profilers(self, *mocks):
+    def test_add_profilers_row_statistics_options(self):
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
 
         default_options = ProfilerOptions()
@@ -3957,13 +3957,16 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         self.assertEqual(5, merged_profile.hashed_row_object.cardinality())
 
-    def test_correct_unique_row_ratio_test(self):
+    def test_correct_unique_row_ratio_full_row_hashing(self):
         self.assertEqual(110, len(self.trained_schema_full.hashed_row_object))
         self.assertEqual(200, self.trained_schema_full.total_samples)
         self.assertEqual(0.55, self.trained_schema_full._get_unique_row_ratio())
 
-        # not completely accurate since hll is estimation
+    def test_correct_unique_row_ratio_hll_row_hashing(self):
+        # if data changes, hll might not be completely accurate since it is estimation
         self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(200, self.trained_schema_hll.total_samples)
+        self.assertEqual(0.55, self.trained_schema_hll._get_unique_row_ratio())
 
     def test_unique_row_ratio_unique_count_disabled(self):
         profiler_options = ProfilerOptions()
@@ -3986,13 +3989,16 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
-    def test_correct_duplicate_row_count(self):
+    def test_correct_duplicate_row_count_full_row_hashing(self):
         self.assertEqual(110, len(self.trained_schema_full.hashed_row_object))
         self.assertEqual(200, self.trained_schema_full.total_samples)
         self.assertEqual(90, self.trained_schema_full._get_duplicate_row_count())
 
-        # not completely accurate since register count is 1024
+    def test_correct_duplicate_row_count_hll_row_hashing(self):
+        # if data changes, hll might not be completely accurate since it is estimation
         self.assertEqual(110, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(200, self.trained_schema_hll.total_samples)
+        self.assertEqual(90, self.trained_schema_hll._get_duplicate_row_count())
 
     def test_correct_duplicate_row_count_unique_count_disabled(self):
         profiler_options_1 = ProfilerOptions()
@@ -4015,7 +4021,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
         self.assertEqual(0, profiler._get_duplicate_row_count())
 
-    def test_duplicate_row_count_cardinality_greater_than_total_samples(self, *mocks):
+    def test_duplicate_row_count_hll_cardinality_greater_than_total_samples(self):
         profiler_options = ProfilerOptions()
         profiler_options.set(
             {

@@ -1590,15 +1590,23 @@ class StructuredProfiler(BaseProfiler):
             raise ValueError(
                 "Attempting to merge profiles with different row hashing methods."
             )
+        # Check hll seed
         if (
             self.options.row_statistics.unique_count.hll.seed
             != other.options.row_statistics.unique_count.hll.seed
-            or self.options.row_statistics.unique_count.hll.register_count
+        ):
+            raise ValueError(
+                "Attempting to merge profiles whose row hashing "
+                "objects are of different seed."
+            )
+        # Check hll register count
+        if (
+            self.options.row_statistics.unique_count.hll.register_count
             != other.options.row_statistics.unique_count.hll.register_count
         ):
             raise ValueError(
                 "Attempting to merge profiles whose row hashing "
-                "objects are of different seed or register count."
+                "objects are of different register count."
             )
 
     def __add__(  # type: ignore[override]

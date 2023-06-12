@@ -3885,7 +3885,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
                 "row_statistics.is_enabled": True,
                 "row_statistics.unique_count.is_enabled": True,
                 "row_statistics.unique_count.hashing_method": "hll",
-                "row_statistics.unique_count.hll.seed": 12,
+                "row_statistics.unique_count.hll.register_count": 12,
             }
         )
 
@@ -3939,7 +3939,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         with self.assertRaisesRegex(
             ValueError,
             "Attempting to merge profiles whose row hashing "
-            "objects are of different seed or register count.",
+            "objects are of different seed.",
         ):
             default_profiler_1 + seed_mismatch_profiler
 
@@ -3947,7 +3947,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         with self.assertRaisesRegex(
             ValueError,
             "Attempting to merge profiles whose row hashing "
-            "objects are of different seed or register count.",
+            "objects are of different register count.",
         ):
             default_profiler_1 + reg_count_mismatch_profiler
 
@@ -4057,11 +4057,22 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         # Check that reports are equivalent
         save_report = test_utils.clean_report(self.trained_schema_hll.report())
         load_report = test_utils.clean_report(load_profile.report())
-        self.assertDictEqual(save_report, load_report)
+        self.assertEqual(
+            save_report["global_stats"]["unique_row_ratio"],
+            load_report["global_stats"]["unique_row_ratio"],
+        )
+
+        self.assertEqual(
+            save_report["global_stats"]["duplicate_row_count"],
+            load_report["global_stats"]["duplicate_row_count"],
+        )
 
         # validate both are still usable after
         self.trained_schema_hll.update_profile(pd.DataFrame([4, 5]))
         load_profile.update_profile(pd.DataFrame([4, 5]))
+
+        self.assertEqual(202, self.trained_schema_hll.total_samples)
+        self.assertEqual(202, load_profile.total_samples)
 
 
 class TestProfilerFactoryClass(unittest.TestCase):

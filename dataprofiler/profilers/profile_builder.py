@@ -1739,7 +1739,7 @@ class StructuredProfiler(BaseProfiler):
                 ),
                 "duplicate_row_count": utils.find_diff_of_numbers(
                     self._get_duplicate_row_count(),
-                    other_profile._get_row_is_null_ratio(),
+                    other_profile._get_duplicate_row_count(),
                 ),
                 "correlation_matrix": utils.find_diff_of_matrices(
                     self.correlation_matrix, other_profile.correlation_matrix

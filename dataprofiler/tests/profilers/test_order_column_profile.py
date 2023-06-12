@@ -8,9 +8,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import OrderColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 
 from .. import test_utils
+from . import utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.
@@ -413,3 +415,40 @@ class TestOrderColumn(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = OrderColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        fake_profile_name = "Fake profile name"
+
+        # Build expected orderColumn
+        df_order = pd.Series(["za", "z", "c", "a"])
+        expected_profile = OrderColumn(fake_profile_name)
+
+        with utils.mock_timeit():
+            expected_profile.update(df_order)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_order = pd.Series(
+            [
+                "c",  # add existing
+                "zza",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_order)
+
+        assert deserialized.sample_size == 6
+        assert deserialized._last_value == "zza"

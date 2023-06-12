@@ -4172,8 +4172,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             pd.DataFrame({"names": ["hello"], "numbers": [5], "tf_null": [None]})
         )
 
-        self.assertEqual(21, self.trained_schema_hll.total_samples)
-        self.assertEqual(21, load_profile.total_samples)
+        self.assertEqual(16, self.trained_schema_hll.hashed_row_object.cardinality())
+        self.assertEqual(16, load_profile.hashed_row_object.cardinality())
 
 
 class TestProfilerFactoryClass(unittest.TestCase):

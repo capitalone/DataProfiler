@@ -4165,11 +4165,24 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
 
         # validate both are still usable after
+        # first row should be unique, second should be duplicate
         self.trained_schema_hll.update_profile(
-            pd.DataFrame({"names": ["hello"], "numbers": [5], "tf_null": [None]})
+            pd.DataFrame(
+                {
+                    "names": ["hello", "orange"],
+                    "numbers": [5, 1],
+                    "tf_null": [None, None],
+                }
+            )
         )
         load_profile.update_profile(
-            pd.DataFrame({"names": ["hello"], "numbers": [5], "tf_null": [None]})
+            pd.DataFrame(
+                {
+                    "names": ["hello", "orange"],
+                    "numbers": [5, 1],
+                    "tf_null": [None, None],
+                }
+            )
         )
 
         self.assertEqual(16, self.trained_schema_hll.hashed_row_object.cardinality())

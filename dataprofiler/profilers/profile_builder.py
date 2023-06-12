@@ -1592,7 +1592,8 @@ class StructuredProfiler(BaseProfiler):
             )
         # Check hll seed
         if (
-            self.options.row_statistics.unique_count.hll.seed
+            self.options.row_statistics.unique_count.hashing_method == "hll"
+            and self.options.row_statistics.unique_count.hll.seed
             != other.options.row_statistics.unique_count.hll.seed
         ):
             raise ValueError(
@@ -1601,7 +1602,8 @@ class StructuredProfiler(BaseProfiler):
             )
         # Check hll register count
         if (
-            self.options.row_statistics.unique_count.hll.register_count
+            self.options.row_statistics.unique_count.hashing_method == "hll"
+            and self.options.row_statistics.unique_count.hll.register_count
             != other.options.row_statistics.unique_count.hll.register_count
         ):
             raise ValueError(
@@ -1951,18 +1953,17 @@ class StructuredProfiler(BaseProfiler):
     def _get_unique_row_ratio(self) -> float | None:
         """Return unique row ratio."""
         if (
-            self.options.row_statistics.is_enabled
-            and self.options.row_statistics.unique_count.is_enabled
+            not self.options.row_statistics.is_enabled
+            or not self.options.row_statistics.unique_count.is_enabled
         ):
-            if self.total_samples:
-                if isinstance(self.hashed_row_object, dict):
-                    return len(self.hashed_row_object) / self.total_samples
-                elif isinstance(self.hashed_row_object, HyperLogLog):
-                    return (
-                        int(self.hashed_row_object.cardinality()) / self.total_samples
-                    )
-            return 0
-        return None
+            return None
+
+        if self.total_samples:
+            if isinstance(self.hashed_row_object, dict):
+                return len(self.hashed_row_object) / self.total_samples
+            elif isinstance(self.hashed_row_object, HyperLogLog):
+                return int(self.hashed_row_object.cardinality()) / self.total_samples
+        return 0
 
     def _get_row_is_null_ratio(self) -> float:
         """Return whether row is null ratio."""
@@ -1979,17 +1980,18 @@ class StructuredProfiler(BaseProfiler):
     def _get_duplicate_row_count(self) -> int | None:
         """Return dup row count."""
         if (
-            self.options.row_statistics.is_enabled
-            and self.options.row_statistics.unique_count.is_enabled
+            not self.options.row_statistics.is_enabled
+            or not self.options.row_statistics.unique_count.is_enabled
         ):
-            if isinstance(self.hashed_row_object, dict):
-                return self.total_samples - len(self.hashed_row_object)
-            elif isinstance(self.hashed_row_object, HyperLogLog):
-                return max(
-                    0, self.total_samples - int(self.hashed_row_object.cardinality())
-                )
-            return 0
-        return None
+            return None
+
+        if isinstance(self.hashed_row_object, dict):
+            return self.total_samples - len(self.hashed_row_object)
+        elif isinstance(self.hashed_row_object, HyperLogLog):
+            return max(
+                0, self.total_samples - int(self.hashed_row_object.cardinality())
+            )
+        return 0
 
     @utils.method_timeit(name="row_stats")
     def _update_row_statistics(

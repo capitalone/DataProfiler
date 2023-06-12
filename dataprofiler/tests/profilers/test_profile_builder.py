@@ -73,9 +73,6 @@ class TestStructuredProfiler(unittest.TestCase):
             cls.trained_schema = dp.StructuredProfiler(
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
             )
-            cls.trained_schema_hll = dp.StructuredProfiler(
-                cls.aws_dataset, len(cls.aws_dataset), options=profiler_options_hll
-            )
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -3714,7 +3711,17 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
 
-    def test_null_row_stats_correct_after_updates(self):
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+    )
+    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder."
+        "StructuredProfiler._update_correlation"
+    )
+    def test_null_row_stats_correct_after_updates(self, *mocks):
         data1 = pd.DataFrame([[1, None], [1, 1], [None, None], [None, 1]])
         data2 = pd.DataFrame([[None, None], [1, None], [None, None], [None, 1]])
         opts = ProfilerOptions()
@@ -3836,7 +3843,8 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         default_options.set(
             {
                 "*.is_enabled": False,
-                "row_statistics.*.is_enabled": True,
+                "row_statistics.is_enabled": True,
+                "row_statistics.unique_count.is_enabled": True,
                 "row_statistics.unique_count.hashing_method": "hll",
             }
         )
@@ -3889,6 +3897,28 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
 
+        full_hashing_ignore_reg_count_mismatch_options_1 = ProfilerOptions()
+        full_hashing_ignore_reg_count_mismatch_options_1.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+                "row_statistics.unique_count.is_enabled": True,
+                "row_statistics.unique_count.hashing_method": "full",
+                "row_statistics.unique_count.hll.register_count": 12,
+            }
+        )
+
+        full_hashing_ignore_reg_count_mismatch_options_2 = ProfilerOptions()
+        full_hashing_ignore_reg_count_mismatch_options_2.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.is_enabled": True,
+                "row_statistics.unique_count.is_enabled": True,
+                "row_statistics.unique_count.hashing_method": "full",
+                "row_statistics.unique_count.hll.register_count": 12,
+            }
+        )
+
         with test_utils.mock_timeit():
             default_profiler_1 = dp.StructuredProfiler(
                 data[:2], options=default_options
@@ -3907,6 +3937,12 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             )
             reg_count_mismatch_profiler = dp.StructuredProfiler(
                 data[2:], options=reg_count_mismatch_options
+            )
+            full_hashing_ignore_reg_count_mismatch_profiler_1 = dp.StructuredProfiler(
+                data[:2], options=full_hashing_ignore_reg_count_mismatch_options_1
+            )
+            full_hashing_ignore_reg_count_mismatch_profiler_2 = dp.StructuredProfiler(
+                data[2:], options=full_hashing_ignore_reg_count_mismatch_options_2
             )
             default_profiler_2 = dp.StructuredProfiler(
                 data[2:], options=default_options
@@ -3950,6 +3986,14 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             "objects are of different register count.",
         ):
             default_profiler_1 + reg_count_mismatch_profiler
+
+        with test_utils.mock_timeit():
+            merged_profile = (
+                full_hashing_ignore_reg_count_mismatch_profiler_1
+                + full_hashing_ignore_reg_count_mismatch_profiler_2
+            )
+
+        self.assertEqual(5, len(merged_profile.hashed_row_object))
 
         # test successful merge
         with test_utils.mock_timeit():

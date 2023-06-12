@@ -6,6 +6,7 @@ import abc
 import copy
 import re
 import warnings
+from typing import Any
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
@@ -1557,7 +1558,8 @@ class ProfilerOptions(BaseOption):
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
         :ivar presets: A pre-configured mapping of a string name to group of options:
-            "complete", "data_types", and "numeric_stats_disabled". Default: None
+            "complete", "data_types", "numeric_stats_disabled",
+            and "memory_optimization". Default: None
         :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
@@ -1570,6 +1572,8 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
+            elif self.presets == "memory_optimization":
+                self._memory_optimization_presets()
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})
@@ -1582,6 +1586,27 @@ class ProfilerOptions(BaseOption):
         self.set({"*.int.is_numeric_stats_enabled": False})
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
+
+    def _memory_optimization_presets(self) -> None:  # split into more dicts
+        self.set(
+            {
+                "structured_options.row_statistics.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+                "structured_options.data_labeler.is_enabled": False,
+                "structured_options.datetime.is_enabled": False,
+                "structured_options.order.is_enabled": False,
+                "structured_options.chi2_homogeneity.is_enabled": False,
+                "structured_options.null_replication_metrics.is_enabled": False,
+                "unstructured_options.data_labeler.is_enabled": False,
+                """structured_options.category.
+                max_sample_size_to_check_stop_condition""": 250,
+                "structured_options.category.stop_condition_unique_value_ratio": 0.5,
+                "*.histogram_and_quantiles.is_enabled": True,
+                "*.mode.is_enabled": False,
+                "*.median.is_enabled": False,
+                "*.median_abs_deviation.is_enabled": False,
+            }
+        )
 
     def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """
@@ -1620,7 +1645,7 @@ class ProfilerOptions(BaseOption):
 
         return errors
 
-    def set(self, options: dict[str, bool]) -> None:
+    def set(self, options: dict[str, Any]) -> None:
         """
         Overwrite BaseOption.set.
 

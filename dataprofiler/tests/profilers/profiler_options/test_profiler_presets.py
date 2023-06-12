@@ -33,3 +33,25 @@ class TestProfilerPresets(unittest.TestCase):
         self.assertFalse(options.structured_options.null_replication_metrics.is_enabled)
         self.assertTrue(options.structured_options.category.is_enabled)
         self.assertTrue(options.structured_options.order.is_enabled)
+
+    def test_profiler_preset_memory_optimization(self, *mocks):
+        options = ProfilerOptions(presets="memory_optimization")
+        self.assertFalse(options.structured_options.row_statistics.is_enabled)
+        self.assertFalse(options.structured_options.multiprocess.is_enabled)
+        self.assertFalse(options.structured_options.data_labeler.is_enabled)
+        self.assertFalse(options.structured_options.datetime.is_enabled)
+        self.assertFalse(options.structured_options.order.is_enabled)
+        self.assertFalse(options.structured_options.chi2_homogeneity.is_enabled)
+        self.assertFalse(options.structured_options.null_replication_metrics.is_enabled)
+        self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
+        self.assertEqual(
+            options.structured_options.category.max_sample_size_to_check_stop_condition,
+            250,
+        )
+        self.assertEqual(
+            options.structured_options.category.stop_condition_unique_value_ratio, 0.5
+        )
+        self.assertTrue(options.structured_options.histogram_and_quantiles.is_enabled)
+        self.assertFalse(options.structured_options.mode.is_enabled)
+        self.assertFalse(options.structured_options.median.is_enabled)
+        self.assertFalse(options.structured_options.median_abs_deviation.is_enabled)

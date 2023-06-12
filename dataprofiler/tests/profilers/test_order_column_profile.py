@@ -427,7 +427,6 @@ class TestOrderColumn(unittest.TestCase):
 
     def test_json_decode_after_update(self):
         fake_profile_name = "Fake profile name"
-        # Actual deserialization
 
         # Build expected orderColumn
         df_order = pd.Series(["za", "z", "c", "a"])

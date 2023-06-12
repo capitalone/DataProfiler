@@ -62,6 +62,7 @@ repos:
             requests>=2.28.1,
             networkx>=2.5.1,
             typing-extensions>=3.10.0.2,
+            HLL>=2.0.3,
 
             # requirements-dev.txt
             check-manifest>=0.48,
@@ -108,7 +109,7 @@ repos:
         additional_dependencies: ['h5py', 'wheel', 'future', 'numpy', 'pandas',
         'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
         'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
-        'networkx','typing-extensions']
+        'networkx','typing-extensions', 'HLL']
   # Pyupgrade - standardize and modernize Python syntax for newer versions of the language
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.0

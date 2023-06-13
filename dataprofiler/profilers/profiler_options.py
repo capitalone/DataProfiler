@@ -1070,7 +1070,7 @@ class UniqueCountOptions(BooleanOption):
 class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
+    def __init__(self, is_enabled: bool = True, unique_count: bool = True, null_count = True) -> None:
         """
         Initialize options for row statistics.
 
@@ -1079,6 +1079,7 @@ class RowStatisticsOptions(BooleanOption):
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
         self.unique_count = UniqueCountOptions(is_enabled=unique_count)
+        self.null_count = BooleanOption(is_enabled=null_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"

@@ -55,7 +55,5 @@ class TestProfilerPresets(unittest.TestCase):
     def test_profiler_preset_failure(self, *mocks):
         expected_error = "The preset entered is not a valid preset."
         options = ProfilerOptions(presets="failing_preset")
-        with self.assertRaisesRegex(
-            ValueError, expected_error
-        ):
-            options.validate()    
+        with self.assertRaisesRegex(ValueError, expected_error):
+            options.validate()

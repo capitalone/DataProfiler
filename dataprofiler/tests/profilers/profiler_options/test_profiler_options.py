@@ -8,6 +8,7 @@ from dataprofiler import Data, Profiler, ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 from dataprofiler.profilers.profiler_options import FloatOptions, IntOptions
 
+
 @mock.patch(
     "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update",
     return_value=None,

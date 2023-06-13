@@ -8,8 +8,7 @@ from dataprofiler import Data, Profiler, ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 from dataprofiler.profilers.profiler_options import (
     FloatOptions,
-    IntOptions,
-    RowStatisticsOptions,
+    IntOptions
 )
 
 
@@ -58,13 +57,6 @@ class TestProfilerOptions(unittest.TestCase):
         profile2 = Profiler(self.data, options=options)
         # Stored in Profiler as StructuredOptions
         self.assertEqual(profile2.options, options.structured_options)
-
-    def test_row_statistics_options(self, *mocks):
-        options = RowStatisticsOptions()
-        self.assertTrue(hasattr(options, "unique_count"))
-        self.assertTrue(hasattr(options, "null_count"))
-        self.assertTrue(options.null_count.is_enabled)
-        self.assertTrue(options.unique_count.is_enabled)
 
     def test_set_failures(self, *mocks):
 

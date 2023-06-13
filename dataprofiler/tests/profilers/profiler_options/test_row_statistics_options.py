@@ -24,6 +24,13 @@ class TestRowStatisticsOptions(TestBooleanOption):
         for key in self.keys:
             self.assertIn(key, options.properties)
 
+    def test_row_statistics_options(self):
+        options = RowStatisticsOptions()
+        self.assertTrue(hasattr(options, "unique_count"))
+        self.assertTrue(hasattr(options, "null_count"))
+        self.assertTrue(options.null_count.is_enabled)
+        self.assertTrue(options.unique_count.is_enabled)
+
     def test_set_helper(self):
         super().test_set_helper()
         option = self.get_options()

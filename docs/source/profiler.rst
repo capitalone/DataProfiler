@@ -593,7 +593,12 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
 Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
-  * **presets** - A pre-configured mapping of a string name to group of options: "complete", "data_types", and "numeric_stats_disabled".
+  * **presets** - A pre-configured mapping of a string name to group of options: 
+    * "complete"
+    * "data_types" 
+    * "numeric_stats_disabled"
+    * "memory_optimization"
+
     By default is None
   * **structured_options** - Options responsible for all structured data
 

@@ -1632,13 +1632,6 @@ class ProfilerOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        set_of_presets = {
-            "complete",
-            "data_types",
-            "numeric_stats_disabled",
-            "memory_optimization",
-        }
-
         if not isinstance(variable_path, str):
             raise ValueError("The variable path must be a string.")
 
@@ -1664,9 +1657,6 @@ class ProfilerOptions(BaseOption):
         errors += self.unstructured_options._validate_helper(
             variable_path=variable_path + ".unstructured_options"
         )
-
-        if self.presets is not None and self.presets not in set_of_presets:
-            raise ValueError("The preset entered is not a valid preset.")
 
         return errors
 

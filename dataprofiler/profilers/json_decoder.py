@@ -3,6 +3,7 @@ from typing import Dict, Optional, Type
 
 from .base_column_profilers import BaseColumnProfiler
 from .categorical_column_profile import CategoricalColumn
+from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn
 from .float_column_profile import FloatColumn
 from .int_column_profile import IntColumn
@@ -27,6 +28,7 @@ def get_column_profiler_class(class_name: str) -> Type[BaseColumnProfiler]:
         IntColumn.__name__: IntColumn,
         DateTimeColumn.__name__: DateTimeColumn,
         OrderColumn.__name__: OrderColumn,
+        DataLabelerColumn.__name__: DataLabelerColumn,
     }
 
     profile_class: Optional[Type[BaseColumnProfiler]] = profiles.get(class_name)

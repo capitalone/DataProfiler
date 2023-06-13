@@ -1,3 +1,4 @@
+import json
 import unittest
 from collections import defaultdict
 from unittest import mock
@@ -7,7 +8,10 @@ import pandas as pd
 
 from dataprofiler.profilers import utils
 from dataprofiler.profilers.data_labeler_column_profile import DataLabelerColumn
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
+
+from . import utils as test_utils
 
 
 @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
@@ -391,3 +395,172 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         diff_profile = profiler1.diff(profiler2)
         self.assertIsNone(merge_profile.data_label)
+
+
+class TestDataLabelerColumnProfilerNoMock(unittest.TestCase):
+    def test_json_encode(self):
+        profiler = DataLabelerColumn("")
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "DataLabelerColumn",
+                "data": {
+                    "name": "",
+                    "col_index": float("nan"),
+                    "sample_size": 0,
+                    "metadata": {},
+                    "times": {},
+                    "thread_safe": False,
+                    "_max_sample_size": 1000,
+                    "data_labeler": "structured_model",
+                    "_reverse_label_mapping": None,
+                    "_possible_data_labels": None,
+                    "_rank_distribution": None,
+                    "_sum_predictions": None,
+                    "_top_k_voting": 1,
+                    "_min_voting_prob": 0.2,
+                    "_min_prob_differential": 0.2,
+                    "_top_k_labels": 3,
+                    "_min_top_label_prob": 0.35,
+                    "_DataLabelerColumn__calculations": {},
+                },
+            }
+        )
+
+        self.assertEqual(serialized, expected)
+
+    def test_json_encode_after_update(self):
+        data = pd.Series(["1", "2", "3"], dtype=object)
+        profiler = DataLabelerColumn(data.name)
+
+        time_array = [float(i) for i in range(4, 0, -1)]
+        with mock.patch("time.time", side_effect=lambda: time_array.pop()):
+            profiler.update(data)
+
+            serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+            expected = json.dumps(
+                {
+                    "class": "DataLabelerColumn",
+                    "data": {
+                        "name": None,
+                        "col_index": float("nan"),
+                        "sample_size": 3,
+                        "metadata": {},
+                        "times": {"data_labeler_predict": 3.0},
+                        "thread_safe": False,
+                        "_max_sample_size": 1000,
+                        "data_labeler": "structured_model",
+                        "_reverse_label_mapping": {
+                            "1": "UNKNOWN",
+                            "2": "ADDRESS",
+                            "3": "BAN",
+                            "4": "CREDIT_CARD",
+                            "5": "DATE",
+                            "6": "TIME",
+                            "7": "DATETIME",
+                            "8": "DRIVERS_LICENSE",
+                            "9": "EMAIL_ADDRESS",
+                            "10": "UUID",
+                            "11": "HASH_OR_KEY",
+                            "12": "IPV4",
+                            "13": "IPV6",
+                            "14": "MAC_ADDRESS",
+                            "15": "PERSON",
+                            "16": "PHONE_NUMBER",
+                            "17": "SSN",
+                            "18": "URL",
+                            "19": "US_STATE",
+                            "20": "INTEGER",
+                            "21": "FLOAT",
+                            "22": "QUANTITY",
+                            "23": "ORDINAL",
+                        },
+                        "_possible_data_labels": [
+                            "UNKNOWN",
+                            "ADDRESS",
+                            "BAN",
+                            "CREDIT_CARD",
+                            "DATE",
+                            "TIME",
+                            "DATETIME",
+                            "DRIVERS_LICENSE",
+                            "EMAIL_ADDRESS",
+                            "UUID",
+                            "HASH_OR_KEY",
+                            "IPV4",
+                            "IPV6",
+                            "MAC_ADDRESS",
+                            "PERSON",
+                            "PHONE_NUMBER",
+                            "SSN",
+                            "URL",
+                            "US_STATE",
+                            "INTEGER",
+                            "FLOAT",
+                            "QUANTITY",
+                            "ORDINAL",
+                        ],
+                        "_rank_distribution": {
+                            "UNKNOWN": 0,
+                            "ADDRESS": 0,
+                            "BAN": 0,
+                            "CREDIT_CARD": 0,
+                            "DATE": 0,
+                            "TIME": 0,
+                            "DATETIME": 0,
+                            "DRIVERS_LICENSE": 0,
+                            "EMAIL_ADDRESS": 0,
+                            "UUID": 0,
+                            "HASH_OR_KEY": 0,
+                            "IPV4": 0,
+                            "IPV6": 0,
+                            "MAC_ADDRESS": 0,
+                            "PERSON": 0,
+                            "PHONE_NUMBER": 0,
+                            "SSN": 0,
+                            "URL": 0,
+                            "US_STATE": 0,
+                            "INTEGER": 2,
+                            "FLOAT": 0,
+                            "QUANTITY": 0,
+                            "ORDINAL": 1,
+                        },
+                        "_sum_predictions": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            2.0,
+                            0.0,
+                            0.0,
+                            1.0,
+                        ],
+                        "_top_k_voting": 1,
+                        "_min_voting_prob": 0.2,
+                        "_min_prob_differential": 0.2,
+                        "_top_k_labels": 3,
+                        "_min_top_label_prob": 0.35,
+                        "_DataLabelerColumn__calculations": {},
+                    },
+                }
+            )
+
+            self.assertEqual(serialized, expected)

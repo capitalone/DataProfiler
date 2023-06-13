@@ -1070,7 +1070,9 @@ class UniqueCountOptions(BooleanOption):
 class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = True, unique_count: bool = True, null_count = True) -> None:
+    def __init__(
+        self, is_enabled: bool = True, unique_count: bool = True, null_count=True
+    ) -> None:
         """
         Initialize options for row statistics.
 

@@ -10,7 +10,7 @@ class TestHyperLogLogOptions(TestBaseOption):
 
     def test_init(self):
         option = self.get_options()
-        self.assertDictEqual({"seed": 0, "register_count": 10}, option.properties)
+        self.assertDictEqual({"seed": 0, "register_count": 15}, option.properties)
         option = self.get_options(seed=10, register_count=9)
         self.assertDictEqual({"seed": 10, "register_count": 9}, option.properties)
 
@@ -137,6 +137,15 @@ class TestHyperLogLogOptions(TestBaseOption):
             "HyperLogLogOptions.seed must be an integer.",
             "HyperLogLogOptions.register_count must be greater than 0.",
         ]
+
+        # Option raise warning if register_count greater than or equal to 20
+        option = self.get_options(register_count=20)
+        with self.assertWarnsRegex(
+            UserWarning,
+            "HyperLogLogOptions.register_count is greater than or equal "
+            "to 20, so the row hashing object is greater than 5 MB.",
+        ):
+            option.validate()
 
         # Testing multiple errors
         option = self.get_options(seed="hello", register_count=0)

@@ -1587,28 +1587,19 @@ class ProfilerOptions(BaseOption):
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
 
-    def _memory_optimization_presets(self) -> None:  # split into more dicts
-        self.set(
-            {
-                "structured_options.row_statistics.is_enabled": False,
-                "structured_options.multiprocess.is_enabled": False,
-                "structured_options.data_labeler.is_enabled": False,
-                "structured_options.datetime.is_enabled": False,
-                "structured_options.order.is_enabled": False,
-                "structured_options.chi2_homogeneity.is_enabled": False,
-                "structured_options.null_replication_metrics.is_enabled": False,
-                "unstructured_options.data_labeler.is_enabled": False,
-                """structured_options.category.
-                max_sample_size_to_check_stop_condition""": 250,
-                "structured_options.category.stop_condition_unique_value_ratio": 0.5,
-                "*.histogram_and_quantiles.is_enabled": True,
-                "*.mode.is_enabled": False,
-                "*.median.is_enabled": False,
-                "*.median_abs_deviation.is_enabled": False,
-            }
-        )
-
-    def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
+    def _memory_optimization_presets(self) -> None:
+        self.set({"structured_options.row_statistics.is_enabled": False})
+        self.set({"structured_options.multiprocess.is_enabled": False})
+        self.set({"structured_options.data_labeler.is_enabled": False})
+        self.set({"structured_options.datetime.is_enabled": False})
+        self.set({"structured_options.order.is_enabled": False})
+        self.set({"structured_options.chi2_homogeneity.is_enabled": False})
+        self.set({"structured_options.null_replication_metrics.is_enabled": False})
+        self.set({"unstructured_options.data_labeler.is_enabled": False})
+        self.set({"structured_options.category.max_sample_size_to_check_stop_condition": 5000})
+        self.set({"structured_options.category.stop_condition_unique_value_ratio": 0.5})
+        
+    def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:        
         """
         Validate the options do not conflict and cause errors.
 
@@ -1617,6 +1608,11 @@ class ProfilerOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        set_of_presets = {"complete", 
+                        "data_types", 
+                        "numeric_stats_disabled", 
+                        "memory_optimization"}
+
         if not isinstance(variable_path, str):
             raise ValueError("The variable path must be a string.")
 
@@ -1642,6 +1638,9 @@ class ProfilerOptions(BaseOption):
         errors += self.unstructured_options._validate_helper(
             variable_path=variable_path + ".unstructured_options"
         )
+
+        if self.presets is not None and self.presets not in set_of_presets:
+            raise ValueError("The preset entered is not a valid preset.")            
 
         return errors
 

@@ -46,12 +46,16 @@ class TestProfilerPresets(unittest.TestCase):
         self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
         self.assertEqual(
             options.structured_options.category.max_sample_size_to_check_stop_condition,
-            250,
+            5000,
         )
         self.assertEqual(
             options.structured_options.category.stop_condition_unique_value_ratio, 0.5
         )
-        self.assertTrue(options.structured_options.histogram_and_quantiles.is_enabled)
-        self.assertFalse(options.structured_options.mode.is_enabled)
-        self.assertFalse(options.structured_options.median.is_enabled)
-        self.assertFalse(options.structured_options.median_abs_deviation.is_enabled)
+
+    def test_profiler_preset_failure(self, *mocks):
+        expected_error = "The preset entered is not a valid preset."
+        options = ProfilerOptions(presets="failing_preset")
+        with self.assertRaisesRegex(
+            ValueError, expected_error
+        ):
+            options.validate()    

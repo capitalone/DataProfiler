@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 import warnings
@@ -8,6 +9,8 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import TextColumn, utils
+from dataprofiler.profilers.json_decoder import load_column_profile
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import TextOptions
 from dataprofiler.tests.profilers import utils as test_utils
 
@@ -607,3 +610,135 @@ class TestTextColumnProfiler(unittest.TestCase):
             places=2,
         )
         self.assertDictEqual(expected_diff, profile_diff)
+
+    @mock.patch("time.time", return_value=0.0)
+    def test_json_encode_after_update(self, time):
+        df = pd.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
+        ).apply(str)
+
+        text_options = TextOptions()
+        text_options.histogram_and_quantiles.bin_count_or_method = 5
+        profiler = TextColumn(df.name, text_options)
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "TextColumn",
+                "data": {
+                    "min": None,
+                    "max": None,
+                    "_top_k_modes": 5,
+                    "sum": 0.0,
+                    "_biased_variance": np.nan,
+                    "_biased_skewness": np.nan,
+                    "_biased_kurtosis": np.nan,
+                    "_median_is_enabled": True,
+                    "_median_abs_dev_is_enabled": True,
+                    "max_histogram_bin": 100000,
+                    "min_histogram_bin": 1000,
+                    "histogram_bin_method_names": ["custom"],
+                    "histogram_selection": None,
+                    "user_set_histogram_bin": 5,
+                    "bias_correction": True,
+                    "_mode_is_enabled": True,
+                    "num_zeros": 0,
+                    "num_negatives": 0,
+                    "_num_quantiles": 1000,
+                    "histogram_methods": {
+                        "custom": {
+                            "total_loss": 0.0,
+                            "current_loss": 0.0,
+                            "suggested_bin_count": 1000,
+                            "histogram": {"bin_counts": None, "bin_edges": None},
+                        }
+                    },
+                    "_stored_histogram": {
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
+                        "suggested_bin_count": 1000,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "_batch_history": [],
+                    "quantiles": None,
+                    "_NumericStatsMixin__calculations": {
+                        "min": "_get_min",
+                        "max": "_get_max",
+                        "sum": "_get_sum",
+                        "variance": "_get_variance",
+                        "skewness": "_get_skewness",
+                        "kurtosis": "_get_kurtosis",
+                        "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                    },
+                    "name": None,
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": {},
+                    "times": {},
+                    "thread_safe": True,
+                    "match_count": 0,
+                    "vocab": [],
+                    "_TextColumn__calculations": {"vocab": "_update_vocab"},
+                },
+            }
+        )
+
+        self.assertEqual(serialized, expected)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = TextColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        fake_profile_name = "Fake profile name"
+        # Actual deserialization
+
+        # Build expected IntColumn
+        df_int = pd.Series(["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"])
+        expected_profile = TextColumn(fake_profile_name)
+
+        with test_utils.mock_timeit():
+            expected_profile.update(df_int)
+
+        # Validate reporting before deserialization
+        expected_profile.report()
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        # Validate reporting after deserialization
+        deserialized.report()
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_str = pd.Series(
+            [
+                "aa",  # add existing
+                "awsome",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_str)
+
+        assert deserialized.sample_size == 12
+        assert set(deserialized.vocab) == {
+            "3",
+            "c",
+            "2",
+            "4",
+            "b",
+            "d",
+            "f",
+            "a",
+            "w",
+            "s",
+            "o",
+            "m",
+            "e",
+        }

@@ -6,6 +6,7 @@ from .categorical_column_profile import CategoricalColumn
 from .datetime_column_profile import DateTimeColumn
 from .float_column_profile import FloatColumn
 from .int_column_profile import IntColumn
+from .text_column_profile import TextColumn
 
 
 def get_column_profiler_class(class_name: str) -> Type[BaseColumnProfiler]:
@@ -25,6 +26,7 @@ def get_column_profiler_class(class_name: str) -> Type[BaseColumnProfiler]:
         FloatColumn.__name__: FloatColumn,
         IntColumn.__name__: IntColumn,
         DateTimeColumn.__name__: DateTimeColumn,
+        TextColumn.__name__: TextColumn,
     }
 
     profile_class: Optional[Type[BaseColumnProfiler]] = profiles.get(class_name)

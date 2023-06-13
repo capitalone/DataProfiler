@@ -190,3 +190,17 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
         self._update_helper(df_series, profile)
 
         return self
+
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :return: Profiler with attributes populated.
+        :rtype: TextColumn
+        """
+        profile = super().load_from_dict(data)
+        profile._reformat_numeric_stats_types_on_serialized_profiles()
+        return profile

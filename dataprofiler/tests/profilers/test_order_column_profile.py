@@ -429,7 +429,7 @@ class TestOrderColumn(unittest.TestCase):
         fake_profile_name = "Fake profile name"
 
         # Build expected orderColumn
-        df_order = pd.Series(["za", "z", "c", "a"])
+        df_order = pd.Series(["za", "z", "c", "c"])
         expected_profile = OrderColumn(fake_profile_name)
 
         with utils.mock_timeit():
@@ -440,10 +440,12 @@ class TestOrderColumn(unittest.TestCase):
 
         utils.assert_profiles_equal(deserialized, expected_profile)
 
+        # Adding data to update that is in descending order
+        # (consistent with previous data)
         df_order = pd.Series(
             [
                 "c",  # add existing
-                "zza",  # add new
+                "a",  # add new
             ]
         )
 
@@ -451,4 +453,19 @@ class TestOrderColumn(unittest.TestCase):
         deserialized.update(df_order)
 
         assert deserialized.sample_size == 6
+        assert deserialized._last_value == "a"
+        assert deserialized.order == expected_profile.order
+
+        # Adding data to update that is in random order
+        # (not consistent with previous data)
+        df_order = pd.Series(
+            [
+                "c",  # add existing
+                "zza",  # add new
+            ]
+        )
+        deserialized.update(df_order)
+
+        assert deserialized.sample_size == 8
         assert deserialized._last_value == "zza"
+        assert deserialized.order == "random"

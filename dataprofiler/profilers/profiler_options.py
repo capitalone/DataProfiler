@@ -1621,9 +1621,7 @@ class ProfilerOptions(BaseOption):
                 ): 5000
             }
         )
-        self.set(
-            {("structured_options.category" ".stop_condition_unique_value_ratio"): 0.5}
-        )
+        self.set({"structured_options.category.stop_condition_unique_value_ratio": 0.5})
 
     def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """

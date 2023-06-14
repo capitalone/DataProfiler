@@ -600,6 +600,9 @@ Below is an breakdown of all the options.
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
 
       * is_enabled - (Boolean) Enables or disables multiprocessing
+      
+    * **sample_ratio** - The ratio from 0 to 1 of how much of the input data to sample. Default value set to 0.2.
+    
     * **int** - Options for the integer columns
 
       * is_enabled - (Boolean) Enables or disables the integer operations
@@ -653,7 +656,7 @@ Below is an breakdown of all the options.
       * precision - Finds the precision (significant figures) within the column
 
         * is_enabled - (Boolean) Enables or disables precision
-      * sample_ratio - (Float) The ratio of 0 to 1 how much data (identified as floats) to utilize as samples in determining precision
+      
 
       * min - Finds minimum value in a column
 

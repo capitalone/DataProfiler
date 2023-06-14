@@ -613,7 +613,6 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     @mock.patch("time.time", return_value=0.0)
     def test_json_encode_after_update(self, time):
-        self.maxDiff = None
         df = pd.Series(
             [
                 "abcd",

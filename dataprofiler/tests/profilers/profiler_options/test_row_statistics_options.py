@@ -7,7 +7,7 @@ from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
 class TestRowStatisticsOptions(TestBooleanOption):
 
     option_class = RowStatisticsOptions
-    keys = ["unique_count"]
+    keys = ["unique_count", "null_count"]
 
     def get_options(self, **params):
         options = RowStatisticsOptions()
@@ -23,13 +23,6 @@ class TestRowStatisticsOptions(TestBooleanOption):
         options = self.get_options()
         for key in self.keys:
             self.assertIn(key, options.properties)
-
-    def test_row_statistics_options(self):
-        options = RowStatisticsOptions()
-        self.assertTrue(hasattr(options, "unique_count"))
-        self.assertTrue(hasattr(options, "null_count"))
-        self.assertTrue(options.null_count.is_enabled)
-        self.assertTrue(options.unique_count.is_enabled)
 
     def test_set_helper(self):
         super().test_set_helper()

@@ -1582,6 +1582,15 @@ class StructuredProfiler(BaseProfiler):
                 "Attempting to merge two profiles with unique row "
                 "count option enabled on one profile but not the other."
             )
+        # Check null_count options
+        if (
+            self.options.row_statistics.null.is_enabled
+            != other.options.row_statistics.null_count.is_enabled
+        ):
+            raise ValueError(
+                "Attempting to merge two profiles with null row "
+                "count option enabled on one profile but not the other."
+            )
         # Check hashing_method options
         if (
             self.options.row_statistics.unique_count.hashing_method

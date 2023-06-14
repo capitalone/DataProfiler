@@ -241,19 +241,62 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(5, len(merged_profile.hashed_row_object))
         self.assertDictEqual({"row_stats": 2}, merged_profile.times)
 
-        # test success when null_count option is disabled
-        profiler_options_null_count = ProfilerOptions()
-        profiler_options_null_count.set({"row_statistics.null_count.is_enabled": False})
-        profile = dp.StructuredProfiler(data, options=profiler_options_null_count)
-        self.assertEqual(0, profile.row_has_null_count)
-        self.assertEqual(0, profile.row_is_null_count)
-
         # test success if drawn from multiple files
         profile2.encoding = "test"
         profile2.file_type = "test"
         merged_profile = profile1 + profile2
         self.assertEqual("multiple files", merged_profile.encoding)
         self.assertEqual("multiple files", merged_profile.file_type)
+
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+    )
+    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder."
+        "StructuredProfiler._update_correlation"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder."
+        "StructuredProfiler._merge_correlation"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder." "StructuredProfiler._update_chi2"
+    )
+    def test_add_profiles_null_count_not_enabled(self, *mocks):
+        profiler1_options_null_count = ProfilerOptions()
+        profiler1_options_null_count.set(
+            {"row_statistics.null_count.is_enabled": False}
+        )
+        profiler2_options_null_count = ProfilerOptions()
+        profiler2_options_null_count.set({"row_statistics.null_count.is_enabled": True})
+
+        data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
+        with test_utils.mock_timeit():
+            profile1 = dp.StructuredProfiler(
+                data[:2], options=profiler1_options_null_count
+            )
+            profile2 = dp.StructuredProfiler(
+                data[2:], options=profiler2_options_null_count
+            )
+
+        self.assertEqual(0, profile1.row_has_null_count)
+        self.assertEqual(0, profile1.row_is_null_count)
+        self.assertLess(0, profile2.row_has_null_count)
+        self.assertLess(0, profile2.row_is_null_count)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "The two profilers were not setup with the "
+            "same options, hence they do not calculate "
+            "the same profiles and cannot be added "
+            "together.",
+        ):
+            profile1 + profile2
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"

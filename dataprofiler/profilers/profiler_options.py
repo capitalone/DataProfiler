@@ -1071,16 +1071,19 @@ class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
     def __init__(
-        self, is_enabled: bool = True, unique_count: bool = True, null_count: bool = True
+        self,
+        is_enabled: bool = True,
+        unique_count: bool = True,
+        null_count: bool = True,
     ) -> None:
         """
         Initialize options for row statistics.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
-        :ivar unique_count: UniqueCountOptions object; used as an option in RowStatisticsOptions
+        :ivar unique_count: UniqueCountOptions object as option
         :vartype unique_count: UniqueCountOptions
-        ivar null_count: BooleanOption object; used as an option in RowStatisticsOptions
+        ivar null_count: BooleanOption object as option
         :vartype null_count: BooleanOption
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)

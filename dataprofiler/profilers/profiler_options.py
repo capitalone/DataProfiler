@@ -1082,7 +1082,7 @@ class RowStatisticsOptions(BooleanOption):
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
         :ivar unique_count: UniqueCountOptions object as option
-        :vartype unique_count: UniqueCountOptions
+        :vartype unique_count: bool
         ivar null_count: BooleanOption object as option
         :vartype null_count: BooleanOption
         """

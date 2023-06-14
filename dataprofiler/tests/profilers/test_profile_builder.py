@@ -248,26 +248,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual("multiple files", merged_profile.encoding)
         self.assertEqual("multiple files", merged_profile.file_type)
 
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
-    )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._merge_correlation"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder." "StructuredProfiler._update_chi2"
-    )
-    def test_add_profiles_null_count_not_enabled(self, *mocks):
+    def test_add_profiles_null_count_not_enabled(self):
         profiler1_options_null_count = ProfilerOptions()
         profiler1_options_null_count.set(
             {"row_statistics.null_count.is_enabled": False}
@@ -289,17 +270,12 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertLess(0, profile2.row_has_null_count)
         self.assertLess(0, profile2.row_is_null_count)
 
-        try:
-            with self.assertRaisesRegex(
-                ValueError,
-                "The two profilers were not setup with the "
-                "same options, hence they do not calculate "
-                "the same profiles and cannot be added "
-                "together.",
-            ):
-                profile1 + profile2
-        except:
-            pass
+        with self.assertRaisesRegex(
+            ValueError,
+            "Attempting to merge two profiles with null row "
+            "count option enabled on one profile but not the other.",
+        ):
+            profile1 + profile2
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"

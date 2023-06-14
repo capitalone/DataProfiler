@@ -1084,7 +1084,7 @@ class RowStatisticsOptions(BooleanOption):
         :ivar unique_count: UniqueCountOptions object as option
         :vartype unique_count: bool
         ivar null_count: BooleanOption object as option
-        :vartype null_count: BooleanOption
+        :vartype null_count: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
         self.unique_count = UniqueCountOptions(is_enabled=unique_count)

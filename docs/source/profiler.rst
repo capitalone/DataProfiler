@@ -601,7 +601,7 @@ Below is an breakdown of all the options.
 
       * is_enabled - (Boolean) Enables or disables multiprocessing
       
-    * **sample_ratio** - The ratio from 0 to 1 of how much of the input data to sample. Default value set to 0.2.
+    * **sampling_ratio** - The ratio from 0 to 1 of how much of the input data to sample. Default value set to 0.2.
     
     * **int** - Options for the integer columns
 

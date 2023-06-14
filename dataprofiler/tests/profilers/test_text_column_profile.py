@@ -613,27 +613,50 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     @mock.patch("time.time", return_value=0.0)
     def test_json_encode_after_update(self, time):
+        self.maxDiff = None
         df = pd.Series(
-            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
+            [
+                "abcd",
+                "aa",
+                "abcd",
+                "lito-potamus",
+                "b",
+                "4",
+                ".098",
+                "2",
+                "dfd",
+                "2",
+                "12.32",
+            ]
         ).apply(str)
 
         text_options = TextOptions()
         text_options.histogram_and_quantiles.bin_count_or_method = 5
         profiler = TextColumn(df.name, text_options)
+        with test_utils.mock_timeit():
+            profiler.update(df)
 
         serialized = json.dumps(profiler, cls=ProfileEncoder)
+        serialized_dict = json.loads(serialized)
+
+        # popping quantiles and comparing as list below since it is so large
+        serialized_quantiles = serialized_dict["data"].pop("quantiles")
+
+        # popping vocab and comparing as set below since order is random
+        serialized_vocab = serialized_dict["data"].pop("vocab")
+        serialized = json.dumps(serialized_dict)
 
         expected = json.dumps(
             {
                 "class": "TextColumn",
                 "data": {
-                    "min": None,
-                    "max": None,
+                    "min": 1.0,
+                    "max": 12.0,
                     "_top_k_modes": 5,
-                    "sum": 0.0,
-                    "_biased_variance": np.nan,
-                    "_biased_skewness": np.nan,
-                    "_biased_kurtosis": np.nan,
+                    "sum": 38.0,
+                    "_biased_variance": 9.33884297520661,
+                    "_biased_skewness": 1.8025833203700588,
+                    "_biased_kurtosis": 2.7208317017777395,
                     "_median_is_enabled": True,
                     "_median_abs_dev_is_enabled": True,
                     "max_histogram_bin": 100000,
@@ -650,18 +673,32 @@ class TestTextColumnProfiler(unittest.TestCase):
                         "custom": {
                             "total_loss": 0.0,
                             "current_loss": 0.0,
-                            "suggested_bin_count": 1000,
+                            "suggested_bin_count": 5,
                             "histogram": {"bin_counts": None, "bin_edges": None},
                         }
                     },
                     "_stored_histogram": {
-                        "total_loss": 0.0,
-                        "current_loss": 0.0,
+                        "total_loss": 7.63,
+                        "current_loss": 7.63,
                         "suggested_bin_count": 1000,
-                        "histogram": {"bin_counts": None, "bin_edges": None},
+                        "histogram": {
+                            "bin_counts": [6, 4, 0, 0, 1],
+                            "bin_edges": [1.0, 3.2, 5.4, 7.6000000000000005, 9.8, 12.0],
+                        },
                     },
-                    "_batch_history": [],
-                    "quantiles": None,
+                    "_batch_history": [
+                        {
+                            "match_count": 11,
+                            "sample_size": 11,
+                            "min": 1.0,
+                            "max": 12.0,
+                            "sum": 38.0,
+                            "biased_variance": 9.33884297520661,
+                            "mean": 3.4545454545454546,
+                            "biased_skewness": 1.8025833203700588,
+                            "biased_kurtosis": 2.7208317017777395,
+                        }
+                    ],
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",
@@ -673,18 +710,32 @@ class TestTextColumnProfiler(unittest.TestCase):
                     },
                     "name": None,
                     "col_index": np.nan,
-                    "sample_size": 0,
+                    "sample_size": 11,
                     "metadata": {},
-                    "times": {},
+                    "times": {
+                        "vocab": 1.0,
+                        "min": 1.0,
+                        "max": 1.0,
+                        "sum": 1.0,
+                        "variance": 1.0,
+                        "skewness": 1.0,
+                        "kurtosis": 1.0,
+                        "histogram_and_quantiles": 1.0,
+                    },
                     "thread_safe": True,
-                    "match_count": 0,
-                    "vocab": [],
+                    "match_count": 11,
                     "_TextColumn__calculations": {"vocab": "_update_vocab"},
+                    "type": "string",
                 },
             }
         )
 
+        expected_vocab = profiler.vocab
+        expected_quantiles = profiler.quantiles
+
         self.assertEqual(serialized, expected)
+        self.assertSetEqual(set(serialized_vocab), set(expected_vocab))
+        self.assertListEqual(serialized_quantiles, expected_quantiles)
 
     def test_json_decode(self):
         fake_profile_name = None
@@ -700,7 +751,21 @@ class TestTextColumnProfiler(unittest.TestCase):
         # Actual deserialization
 
         # Build expected IntColumn
-        df_int = pd.Series(["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"])
+        df_int = pd.Series(
+            [
+                "abcd",
+                "aa",
+                "abcd",
+                "lito-potamus",
+                "b",
+                "4",
+                ".098",
+                "2",
+                "dfd",
+                "2",
+                "12.32",
+            ]
+        )
         expected_profile = TextColumn(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -726,19 +791,30 @@ class TestTextColumnProfiler(unittest.TestCase):
         # validating update after deserialization
         deserialized.update(df_str)
 
-        assert deserialized.sample_size == 12
+        assert deserialized.sample_size == 13
         assert set(deserialized.vocab) == {
-            "3",
-            "c",
+            ".",
+            "-",
+            "1",
             "2",
+            "3",
             "4",
-            "b",
-            "d",
-            "f",
+            "8",
+            "9",
+            "0",
             "a",
-            "w",
-            "s",
-            "o",
-            "m",
+            "b",
+            "c",
+            "d",
             "e",
+            "f",
+            "i",
+            "l",
+            "m",
+            "o",
+            "p",
+            "s",
+            "t",
+            "u",
+            "w",
         }

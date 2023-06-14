@@ -249,33 +249,67 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual("multiple files", merged_profile.file_type)
 
     def test_add_profiles_null_count_not_enabled(self):
-        profiler1_options_null_count = ProfilerOptions()
-        profiler1_options_null_count.set(
-            {"row_statistics.null_count.is_enabled": False}
+        profiler_options_null_count = ProfilerOptions()
+        profiler_options_null_count.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": True,
+            }
         )
-        profiler2_options_null_count = ProfilerOptions()
-        profiler2_options_null_count.set({"row_statistics.null_count.is_enabled": True})
-
+        profiler_options_null_disabled = ProfilerOptions()
+        profiler_options_null_disabled.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": False,
+            }
+        )
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         with test_utils.mock_timeit():
-            profile1 = dp.StructuredProfiler(
-                data[:2], options=profiler1_options_null_count
+            profiler_w_null_count = dp.StructuredProfiler(
+                data[:2], options=profiler_options_null_count
             )
-            profile2 = dp.StructuredProfiler(
-                data[2:], options=profiler2_options_null_count
+            profiler_w_disabled_null_count = dp.StructuredProfiler(
+                data[2:], options=profiler_options_null_disabled
             )
-
-        self.assertEqual(0, profile1.row_has_null_count)
-        self.assertEqual(0, profile1.row_is_null_count)
-        self.assertLess(0, profile2.row_has_null_count)
-        self.assertLess(0, profile2.row_is_null_count)
 
         with self.assertRaisesRegex(
             ValueError,
             "Attempting to merge two profiles with null row "
             "count option enabled on one profile but not the other.",
         ):
-            profile1 + profile2
+            profiler_w_null_count + profiler_w_disabled_null_count
+
+    def test_null_counts_w_disabled_null_count(self):
+        profiler_options_null_count = ProfilerOptions()
+        profiler_options_null_count.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": True,
+            }
+        )
+        profiler_options_null_disabled = ProfilerOptions()
+        profiler_options_null_disabled.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": False,
+            }
+        )
+        data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
+        with test_utils.mock_timeit():
+            profiler_w_null_count = dp.StructuredProfiler(
+                data[:2], options=profiler_options_null_count
+            )
+            profiler_w_disabled_null_count = dp.StructuredProfiler(
+                data[2:], options=profiler_options_null_disabled
+            )
+        self.assertLess(0, profiler_w_null_count.row_has_null_count)
+        self.assertLess(0, profiler_w_null_count.row_is_null_count)
+        self.assertEqual(0, profiler_w_disabled_null_count.row_has_null_count)
+        self.assertEqual(0, profiler_w_disabled_null_count.row_is_null_count)
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"

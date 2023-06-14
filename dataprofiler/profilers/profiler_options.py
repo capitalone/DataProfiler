@@ -1071,15 +1071,25 @@ class UniqueCountOptions(BooleanOption):
 class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        unique_count: bool = True,
+        null_count: bool = True,
+    ) -> None:
         """
         Initialize options for row statistics.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
+        :ivar unique_count: boolean option to enable/disable unique_count
+        :vartype unique_count: bool
+        ivar null_count: boolean option to enable/disable null_count
+        :vartype null_count: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
         self.unique_count = UniqueCountOptions(is_enabled=unique_count)
+        self.null_count = BooleanOption(is_enabled=null_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
@@ -1095,9 +1105,14 @@ class RowStatisticsOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.unique_count, UniqueCountOptions):
             errors.append(
-                f"{variable_path}.full_hashing must be an UniqueCountOptions."
+                f"{variable_path}.unique_count must be an UniqueCountOptions."
             )
+
+        if not isinstance(self.null_count, BooleanOption):
+            errors.append(f"{variable_path}.null_count must be an BooleanOption.")
+
         errors += self.unique_count._validate_helper(variable_path + ".unique_counts")
+        errors += self.null_count._validate_helper(variable_path + ".null_count")
         return super()._validate_helper(variable_path)
 
 

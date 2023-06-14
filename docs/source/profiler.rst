@@ -596,22 +596,26 @@ Below is an breakdown of all the options.
 
   * **presets** - A pre-configured mapping of a string name to group of options: 
     * **"complete"**
+
       .. code-block:: python
         options = ProfilerOptions(presets="complete")
 
     * **"data_types"**
+  
       .. code-block:: python
         options = ProfilerOptions(presets="data_types") 
 
     * **"numeric_stats_disabled"**
+  
       .. code-block:: python
         options = ProfilerOptions(presets="numeric_stats_disabled")
-        
+
     * **"memory_optimization"**
+  
       .. code-block:: python
         options = ProfilerOptions(presets="memory_optimization")
 
-    By default is None
+    * default is None
   * **structured_options** - Options responsible for all structured data
 
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.

@@ -172,10 +172,7 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         options2.data_labeler_object._model = 7
         self.assertEqual(options, options2)
 
-    @mock.patch(
-        "dataprofiler.labelers.base_data_labeler.BaseDataLabeler", spec=BaseDataLabeler
-    )
-    def test_json_encode_after_update(self, *mocks):
+    def test_json_encode_after_update(self):
         option = DataLabelerOptions()
 
         with mock.patch(

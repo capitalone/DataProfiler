@@ -636,14 +636,14 @@ class TestTextColumnProfiler(unittest.TestCase):
         with test_utils.mock_timeit():
             profiler.update(df)
 
-        serialized = json.dumps(profiler, cls=ProfileEncoder)
-        serialized_dict = json.loads(serialized)
+        serialized_dict = json.loads(json.dumps(profiler, cls=ProfileEncoder))
 
         # popping quantiles and comparing as list below since it is so large
         serialized_quantiles = serialized_dict["data"].pop("quantiles")
 
         # popping vocab and comparing as set below since order is random
         serialized_vocab = serialized_dict["data"].pop("vocab")
+
         serialized = json.dumps(serialized_dict)
 
         expected = json.dumps(

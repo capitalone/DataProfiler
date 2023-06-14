@@ -596,9 +596,16 @@ Below is an breakdown of all the options.
   * **presets** - A pre-configured mapping of a string name to group of options: 
     * **"complete"**
       .. code-block:: python
-    * **"data_types"** 
+        options = ProfilerOptions(presets="complete")
+    * **"data_types"**
+      .. code-block:: python
+        options = ProfilerOptions(presets="data_types")  
     * **"numeric_stats_disabled"**
+      .. code-block:: python
+        options = ProfilerOptions(presets="numeric_stats_disabled")
     * **"memory_optimization"**
+      .. code-block:: python
+        options = ProfilerOptions(presets="memory_optimization")
 
     By default is None
   * **structured_options** - Options responsible for all structured data

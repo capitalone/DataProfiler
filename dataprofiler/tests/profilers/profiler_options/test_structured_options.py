@@ -317,7 +317,9 @@ class TestStructuredOptions(TestBaseOption):
         self.assertEqual(options, options2)
 
     def test_json_encode_after_update(self):
-        option = StructuredOptions()
+        option = StructuredOptions(
+            null_values={"str": 1}, column_null_values={2: {"other_str": 5}}
+        )
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
@@ -550,8 +552,8 @@ class TestStructuredOptions(TestBaseOption):
                         "class": "BooleanOption",
                         "data": {"is_enabled": False},
                     },
-                    "null_values": None,
-                    "column_null_values": None,
+                    "null_values": {"str": 1},
+                    "column_null_values": {2: {"other_str": 5}},
                 },
             }
         )

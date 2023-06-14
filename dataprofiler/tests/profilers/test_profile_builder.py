@@ -234,6 +234,7 @@ class TestStructuredProfiler(unittest.TestCase):
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type
         )
         self.assertTrue(merged_profile.options.row_statistics.null_count.is_enabled)
+        self.assertTrue(merged_profile.options.row_statistics.unique_count.is_enabled)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
         self.assertEqual(7, merged_profile.total_samples)

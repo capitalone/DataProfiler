@@ -593,8 +593,35 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
 Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
-  * **presets** - A pre-configured mapping of a string name to group of options: "complete", "data_types", and "numeric_stats_disabled".
-    By default is None
+
+  * **presets** - A pre-configured mapping of a string name to group of options: 
+
+    * **default is None**
+
+    * **"complete"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="complete")
+
+    * **"data_types"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="data_types") 
+
+    * **"numeric_stats_disabled"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="numeric_stats_disabled")
+
+    * **"memory_optimization"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="memory_optimization")
+
   * **structured_options** - Options responsible for all structured data
 
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.

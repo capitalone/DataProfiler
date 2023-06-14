@@ -1,4 +1,5 @@
 pass
+import json
 from unittest import mock
 
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
@@ -170,3 +171,32 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         self.assertNotEqual(options, options2)
         options2.data_labeler_object._model = 7
         self.assertEqual(options, options2)
+
+    @mock.patch(
+        "dataprofiler.labelers.base_data_labeler.BaseDataLabeler", spec=BaseDataLabeler
+    )
+    def test_json_encode_after_update(self, *mocks):
+        option = DataLabelerOptions()
+
+        with mock.patch(
+            "dataprofiler.labelers.base_data_labeler.BaseDataLabeler",
+            spec=BaseDataLabeler,
+        ) as BaseDataLabelerMock:
+            BaseDataLabelerMock._default_model_loc = "test_loc"
+            option.data_labeler_object = BaseDataLabelerMock
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "DataLabelerOptions",
+                "data": {
+                    "is_enabled": True,
+                    "data_labeler_dirpath": None,
+                    "max_sample_size": None,
+                    "data_labeler_object": "test_loc",
+                },
+            }
+        )
+
+        self.assertEqual(serialized, expected)

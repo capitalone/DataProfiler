@@ -2060,49 +2060,50 @@ class StructuredProfiler(BaseProfiler):
                         self.hashed_row_object.add(record)
 
         # Calculate Null Column Count
-        null_rows = set()
-        null_in_row_count = set()
-        first_col_flag = True
-        for column in self._profile:
-            null_type_dict = column.null_types_index
-            null_row_indices = set()
-            if null_type_dict:
-                null_row_indices = set.union(*null_type_dict.values())
-
-            # If sample ids provided, only consider nulls in rows that
-            # were fully sampled
-            if sample_ids is not None:
-                # This is the amount (integer) indices were shifted by in the
-                # event of overlap
-                shift = column._index_shift
-                if shift is None:
-                    # Shift is None if index is str or if no overlap detected
-                    null_row_indices = null_row_indices.intersection(
-                        data.index[sample_ids[: self._min_sampled_from_batch]]
-                    )
-                else:
-                    # Only shift if index shift detected (must be ints)
-                    null_row_indices = null_row_indices.intersection(
-                        data.index[sample_ids[: self._min_sampled_from_batch]] + shift
-                    )
-
-            # Find the common null indices between the columns
-            if first_col_flag:
-                null_rows = null_row_indices
-                null_in_row_count = null_row_indices
-                first_col_flag = False
-            else:
-                null_rows = null_rows.intersection(null_row_indices)
-                null_in_row_count = null_in_row_count.union(null_row_indices)
-
-        # If sample_ids provided, increment since that means only new data read
         if self.options.row_statistics.null_count.is_enabled:
-            if sample_ids is not None:
-                self.row_has_null_count += len(null_in_row_count)
-                self.row_is_null_count += len(null_rows)
-            else:
-                self.row_has_null_count = len(null_in_row_count)
-                self.row_is_null_count = len(null_rows)
+            null_rows = set()
+            null_in_row_count = set()
+            first_col_flag = True
+            for column in self._profile:
+                null_type_dict = column.null_types_index
+                null_row_indices = set()
+                if null_type_dict:
+                    null_row_indices = set.union(*null_type_dict.values())
+
+                # If sample ids provided, only consider nulls in rows that
+                # were fully sampled
+                if sample_ids is not None:
+                    # This is the amount (integer) indices were shifted by in the
+                    # event of overlap
+                    shift = column._index_shift
+                    if shift is None:
+                        # Shift is None if index is str or if no overlap detected
+                        null_row_indices = null_row_indices.intersection(
+                            data.index[sample_ids[: self._min_sampled_from_batch]]
+                        )
+                    else:
+                        # Only shift if index shift detected (must be ints)
+                        null_row_indices = null_row_indices.intersection(
+                            data.index[sample_ids[: self._min_sampled_from_batch]]
+                            + shift
+                        )
+
+                # Find the common null indices between the columns
+                if first_col_flag:
+                    null_rows = null_row_indices
+                    null_in_row_count = null_row_indices
+                    first_col_flag = False
+                else:
+                    null_rows = null_rows.intersection(null_row_indices)
+                    null_in_row_count = null_in_row_count.union(null_row_indices)
+
+                # If sample_ids provided, increment since that means only new data read
+                if sample_ids is not None:
+                    self.row_has_null_count += len(null_in_row_count)
+                    self.row_is_null_count += len(null_rows)
+                else:
+                    self.row_has_null_count = len(null_in_row_count)
+                    self.row_is_null_count = len(null_rows)
 
     def _get_correlation(
         self, clean_samples: dict, batch_properties: dict

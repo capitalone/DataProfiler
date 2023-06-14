@@ -656,7 +656,6 @@ Below is an breakdown of all the options.
       * precision - Finds the precision (significant figures) within the column
 
         * is_enabled - (Boolean) Enables or disables precision
-      
       * sample_ratio - (Float) The ratio of 0 to 1 how much data (identified as floats) to utilize as samples in determining precision
 
       * min - Finds minimum value in a column

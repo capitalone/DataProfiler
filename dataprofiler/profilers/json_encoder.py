@@ -30,6 +30,8 @@ class ProfileEncoder(json.JSONEncoder):
             ),
         ):
             return {"class": type(to_serialize).__name__, "data": to_serialize.__dict__}
+        elif isinstance(to_serialize, set):
+            return list(to_serialize)
         elif isinstance(to_serialize, np.integer):
             return int(to_serialize)
         elif isinstance(to_serialize, np.ndarray):

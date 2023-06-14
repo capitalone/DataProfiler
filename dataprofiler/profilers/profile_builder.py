@@ -1584,7 +1584,7 @@ class StructuredProfiler(BaseProfiler):
             )
         # Check null_count options
         if (
-            self.options.row_statistics.null.is_enabled
+            self.options.row_statistics.null_count.is_enabled
             != other.options.row_statistics.null_count.is_enabled
         ):
             raise ValueError(

@@ -1,3 +1,6 @@
+pass
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import TextOptions
 from dataprofiler.tests.profilers.profiler_options.test_numerical_options import (
     TestNumericalOptions,

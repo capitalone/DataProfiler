@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import IntOptions
 from dataprofiler.tests.profilers.profiler_options.test_numerical_options import (
     TestNumericalOptions,
@@ -28,3 +31,74 @@ class TestIntOptions(TestNumericalOptions):
 
     def test_eq(self):
         super().test_eq()
+
+    def test_json_encode_after_update(self):
+        option = IntOptions()
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "IntOptions",
+                "data": {
+                    "min": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "max": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "mode": {
+                        "class": "ModeOption",
+                        "data": {"top_k_modes": 5, "is_enabled": True},
+                    },
+                    "median": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "sum": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "variance": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "skewness": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "kurtosis": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "median_abs_deviation": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "num_zeros": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "num_negatives": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "histogram_and_quantiles": {
+                        "class": "HistogramOption",
+                        "data": {
+                            "bin_count_or_method": "auto",
+                            "is_enabled": True,
+                        },
+                    },
+                    "bias_correction": {
+                        "class": "BooleanOption",
+                        "data": {"is_enabled": True},
+                    },
+                    "is_enabled": True,
+                },
+            }
+        )
+
+        self.assertEqual(serialized, expected)

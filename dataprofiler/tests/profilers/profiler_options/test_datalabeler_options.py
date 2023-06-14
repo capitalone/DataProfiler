@@ -1,6 +1,8 @@
+pass
 from unittest import mock
 
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import (
     TestBaseInspectorOptions,

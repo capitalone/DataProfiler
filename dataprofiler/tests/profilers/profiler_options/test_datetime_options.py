@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DateTimeOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import (
     TestBaseInspectorOptions,
@@ -28,3 +31,17 @@ class TestDateTimeOptions(TestBaseInspectorOptions):
 
     def test_eq(self):
         super().test_eq()
+
+    def test_json_encode_after_update(self):
+        option = DateTimeOptions()
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "DateTimeOptions",
+                "data": {"is_enabled": True},
+            }
+        )
+
+        self.assertEqual(serialized, expected)

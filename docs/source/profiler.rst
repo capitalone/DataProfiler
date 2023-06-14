@@ -620,7 +620,8 @@ Below is an breakdown of all the options.
 
         options = ProfilerOptions(presets="memory_optimization")
 
-    * default is None
+    * **default is None**
+
   * **structured_options** - Options responsible for all structured data
 
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.

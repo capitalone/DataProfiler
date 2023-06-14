@@ -7,6 +7,7 @@ from .datetime_column_profile import DateTimeColumn
 from .float_column_profile import FloatColumn
 from .int_column_profile import IntColumn
 from .order_column_profile import OrderColumn
+from .text_column_profile import TextColumn
 
 
 def get_column_profiler_class(class_name: str) -> Type[BaseColumnProfiler]:
@@ -27,6 +28,7 @@ def get_column_profiler_class(class_name: str) -> Type[BaseColumnProfiler]:
         IntColumn.__name__: IntColumn,
         DateTimeColumn.__name__: DateTimeColumn,
         OrderColumn.__name__: OrderColumn,
+        TextColumn.__name__: TextColumn,
     }
 
     profile_class: Optional[Type[BaseColumnProfiler]] = profiles.get(class_name)

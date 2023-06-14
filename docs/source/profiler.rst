@@ -596,6 +596,8 @@ Below is an breakdown of all the options.
 
   * **presets** - A pre-configured mapping of a string name to group of options: 
 
+    * **default is None**
+
     * **"complete"**
 
     .. code-block:: python
@@ -620,7 +622,6 @@ Below is an breakdown of all the options.
 
         options = ProfilerOptions(presets="memory_optimization")
 
-    * **default is None**
 
   * **structured_options** - Options responsible for all structured data
 

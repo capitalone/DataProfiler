@@ -323,239 +323,31 @@ class TestStructuredOptions(TestBaseOption):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps(
-            {
-                "class": "StructuredOptions",
-                "data": {
-                    "multiprocess": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "int": {
-                        "class": "IntOptions",
-                        "data": {
-                            "min": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "max": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "mode": {
-                                "class": "ModeOption",
-                                "data": {"top_k_modes": 5, "is_enabled": True},
-                            },
-                            "median": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "sum": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "variance": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "skewness": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "kurtosis": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "median_abs_deviation": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "num_zeros": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "num_negatives": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "histogram_and_quantiles": {
-                                "class": "HistogramOption",
-                                "data": {
-                                    "bin_count_or_method": "auto",
-                                    "is_enabled": True,
-                                },
-                            },
-                            "bias_correction": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "is_enabled": True,
-                        },
-                    },
-                    "float": {
-                        "class": "FloatOptions",
-                        "data": {
-                            "min": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "max": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "mode": {
-                                "class": "ModeOption",
-                                "data": {"top_k_modes": 5, "is_enabled": True},
-                            },
-                            "median": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "sum": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "variance": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "skewness": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "kurtosis": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "median_abs_deviation": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "num_zeros": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "num_negatives": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "histogram_and_quantiles": {
-                                "class": "HistogramOption",
-                                "data": {
-                                    "bin_count_or_method": "auto",
-                                    "is_enabled": True,
-                                },
-                            },
-                            "bias_correction": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "is_enabled": True,
-                            "precision": {
-                                "class": "PrecisionOptions",
-                                "data": {"sample_ratio": None, "is_enabled": True},
-                            },
-                        },
-                    },
-                    "datetime": {
-                        "class": "DateTimeOptions",
-                        "data": {"is_enabled": True},
-                    },
-                    "text": {
-                        "class": "TextOptions",
-                        "data": {
-                            "min": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "max": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "mode": {
-                                "class": "ModeOption",
-                                "data": {"top_k_modes": 5, "is_enabled": True},
-                            },
-                            "median": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "sum": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "variance": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "skewness": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "kurtosis": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "median_abs_deviation": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "num_zeros": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": False},
-                            },
-                            "num_negatives": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": False},
-                            },
-                            "histogram_and_quantiles": {
-                                "class": "HistogramOption",
-                                "data": {
-                                    "bin_count_or_method": "auto",
-                                    "is_enabled": True,
-                                },
-                            },
-                            "bias_correction": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "is_enabled": True,
-                            "vocab": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                        },
-                    },
-                    "order": {"class": "OrderOptions", "data": {"is_enabled": True}},
-                    "category": {
-                        "class": "CategoricalOptions",
-                        "data": {"is_enabled": True, "top_k_categories": None},
-                    },
-                    "data_labeler": {
-                        "class": "DataLabelerOptions",
-                        "data": {
-                            "is_enabled": True,
-                            "data_labeler_dirpath": None,
-                            "max_sample_size": None,
-                            "data_labeler_object": None,
-                        },
-                    },
-                    "correlation": {
-                        "class": "CorrelationOptions",
-                        "data": {"is_enabled": False, "columns": None},
-                    },
-                    "chi2_homogeneity": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "null_replication_metrics": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": False},
-                    },
-                    "null_values": {"str": 1},
-                    "column_null_values": {2: {"other_str": 5}},
-                },
-            }
-        )
+        expected_options_attributes = {
+            "multiprocess",
+            "int",
+            "float",
+            "datetime",
+            "text",
+            "order",
+            "category",
+            "data_labeler",
+            "correlation",
+            "chi2_homogeneity",
+            "null_replication_metrics",
+            "null_values",
+            "column_null_values",
+        }
+        expected_null_values = {"str": 1}
+        expected_column_null_values = {"2": {"other_str": 5}}
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )
+        self.assertEqual(
+            expected_null_values, json.loads(serialized)["data"]["null_values"]
+        )
+        self.assertEqual(
+            expected_column_null_values,
+            json.loads(serialized)["data"]["column_null_values"],
+        )

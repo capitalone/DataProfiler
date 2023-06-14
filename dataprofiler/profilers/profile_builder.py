@@ -2088,13 +2088,11 @@ class StructuredProfiler(BaseProfiler):
 
         # If sample_ids provided, increment since that means only new data read
         if sample_ids is not None:
-            if self.options.row_statistics.null_count.is_enabled:
-                self.row_has_null_count += len(null_in_row_count)
-                self.row_is_null_count += len(null_rows)
+            self.row_has_null_count += len(null_in_row_count)
+            self.row_is_null_count += len(null_rows)
         else:
-            if self.options.row_statistics.null_count.is_enabled:
-                self.row_has_null_count = len(null_in_row_count)
-                self.row_is_null_count = len(null_rows)
+            self.row_has_null_count = len(null_in_row_count)
+            self.row_is_null_count = len(null_rows)
 
     def _get_correlation(
         self, clean_samples: dict, batch_properties: dict

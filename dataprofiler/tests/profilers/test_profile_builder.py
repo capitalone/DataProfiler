@@ -233,7 +233,6 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type
         )
-        self.assertTrue(merged_profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
         self.assertEqual(7, merged_profile.total_samples)
@@ -3603,7 +3602,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
         profile = dp.StructuredProfiler(data, options=profiler_options)
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(2, profile.row_has_null_count)
         self.assertEqual(0.25, profile._get_row_has_null_ratio())
         self.assertEqual(2, profile.row_is_null_count)
@@ -3612,7 +3610,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         file_path = os.path.join(test_root_path, "data", "csv/iris-with-null-rows.csv")
         data = pd.read_csv(file_path)
         profile = dp.StructuredProfiler(data, options=profiler_options)
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(13, profile.row_has_null_count)
         self.assertEqual(13 / 24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
@@ -3704,7 +3701,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             # rows sampled are [5, 6], [13, 14] (0 index)
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
-            self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
             self.assertEqual(2, profile.row_has_null_count)
             self.assertEqual(0.5, profile._get_row_has_null_ratio())
             self.assertEqual(2, profile.row_is_null_count)
@@ -3737,7 +3733,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         # The only null in those rows in second column in that subset are 5, 7
         # Therefore only 2 rows have null according to row_has_null_count
         self.assertEqual(0, profile.row_is_null_count)
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(2, profile.row_has_null_count)
         # Accordingly, make sure ratio of null rows accounts for the fact that
         # Only 5 total rows were sampled (5 in col 1, 9 in col 2)
@@ -3778,7 +3773,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         profile = dp.StructuredProfiler(
             data1, min_true_samples=2, samples_per_update=2, options=opts
         )
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(3, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
@@ -3788,7 +3782,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertSetEqual({0, 2}, profile._profile[1].null_types_index["nan"])
 
         profile.update_profile(data2, min_true_samples=2, sample_size=2)
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(7, profile.row_has_null_count)
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(0.875, profile._get_row_has_null_ratio())
@@ -3810,7 +3803,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             }
         )
         profile = dp.StructuredProfiler(data1, options=opts)
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(3, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
@@ -3820,7 +3812,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertSetEqual({0, 2}, profile._profile[1].null_types_index["nan"])
 
         profile.update_profile(data2)
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(7, profile.row_has_null_count)
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(0.875, profile._get_row_has_null_ratio())
@@ -3835,7 +3826,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # Test that update with emtpy data doesn't change stats
         profile.update_profile(pd.DataFrame([]))
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(7, profile.row_has_null_count)
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(0.875, profile._get_row_has_null_ratio())
@@ -3850,7 +3840,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # Test one row update
         profile.update_profile(pd.DataFrame([[1, None]]))
-        self.assertTrue(profile.options.row_statistics.null_count.is_enabled)
         self.assertEqual(8, profile.row_has_null_count)
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(8 / 9, profile._get_row_has_null_ratio())

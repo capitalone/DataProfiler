@@ -1606,13 +1606,7 @@ class ProfilerOptions(BaseOption):
 
     def _memory_optimization_presets(self) -> None:
         self.set({"structured_options.row_statistics.is_enabled": False})
-        self.set({"structured_options.multiprocess.is_enabled": False})
-        self.set({"structured_options.data_labeler.is_enabled": False})
-        self.set({"structured_options.datetime.is_enabled": False})
-        self.set({"structured_options.order.is_enabled": False})
-        self.set({"structured_options.chi2_homogeneity.is_enabled": False})
         self.set({"structured_options.null_replication_metrics.is_enabled": False})
-        self.set({"unstructured_options.data_labeler.is_enabled": False})
         self.set(
             {
                 (

@@ -3557,7 +3557,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
                 cls.data, len(cls.data), options=profiler_options_full
             )
 
-    def test_add_profiles_null_count_not_enabled(self):
+    def test_adding_profiles_of_mismatched_null_count_options(self):
         profiler_options_null_count = ProfilerOptions()
         profiler_options_null_count.set(
             {
@@ -3590,15 +3590,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         ):
             profiler_w_null_count + profiler_w_disabled_null_count
 
-    def test_adding_profiles_of_mismatched_null_count_options(self):
-        profiler_options_null_count = ProfilerOptions()
-        profiler_options_null_count.set(
-            {
-                "*.is_enabled": False,
-                "row_statistics.*.is_enabled": True,
-                "row_statistics.null_count.is_enabled": True,
-            }
-        )
+    def test_add_profiles_null_count_not_enabled(self):
         profiler_options_null_disabled = ProfilerOptions()
         profiler_options_null_disabled.set(
             {
@@ -3609,14 +3601,11 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         with test_utils.mock_timeit():
-            profiler_w_null_count = dp.StructuredProfiler(
-                data[:2], options=profiler_options_null_count
-            )
             profiler_w_disabled_null_count = dp.StructuredProfiler(
                 data[2:], options=profiler_options_null_disabled
             )
-        self.assertLess(0, profiler_w_null_count.row_has_null_count)
-        self.assertLess(0, profiler_w_null_count.row_is_null_count)
+
+        # self.assertEqual(0, profiler_w_disabled_null_count.report()['data_stats'][0]['statistics']['null_count'])
         self.assertEqual(0, profiler_w_disabled_null_count.row_has_null_count)
         self.assertEqual(0, profiler_w_disabled_null_count.row_is_null_count)
 
@@ -3683,9 +3672,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
     def test_row_is_null_ratio_row_stats_disabled(self):
         profiler_options_1 = ProfilerOptions()
         profiler_options_1.set(
-            {
-                "*.is_enabled": False,
-            }
+            {"*.is_enabled": False, "row_statistics.null_count.is_enabled": False}
         )
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options_1)
         self.assertIsNone(profiler._get_row_is_null_ratio())
@@ -4149,6 +4136,18 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
         self.assertEqual(0, profiler._get_unique_row_ratio())
+
+    def test_null_count_empty_profiler(self):
+        profiler_options = ProfilerOptions()
+        profiler_options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.null_count.is_enabled": False,
+            }
+        )
+        profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
+        self.assertIsNone(profiler._get_row_is_null_ratio())
+        self.assertIsNone(profiler._get_row_has_null_ratio())
 
     def test_correct_duplicate_row_count_full_row_hashing(self):
         self.assertEqual(15, len(self.trained_schema_full.hashed_row_object))

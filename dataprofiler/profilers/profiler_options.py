@@ -1574,7 +1574,7 @@ class ProfilerOptions(BaseOption):
         :vartype unstructured_options: UnstructuredOptions
         :ivar presets: A pre-configured mapping of a string name to group of options:
             "complete", "data_types", "numeric_stats_disabled",
-            and "large_data". Default: None
+            and "lower_memory_sketching". Default: None
         :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()

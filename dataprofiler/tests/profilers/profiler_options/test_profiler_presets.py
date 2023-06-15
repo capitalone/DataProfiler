@@ -56,4 +56,3 @@ class TestProfilerPresets(unittest.TestCase):
         expected_error = "The preset entered is not a valid preset."
         with self.assertRaisesRegex(ValueError, expected_error):
             ProfilerOptions(presets="failing_preset")
-

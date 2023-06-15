@@ -1574,7 +1574,7 @@ class ProfilerOptions(BaseOption):
         :vartype unstructured_options: UnstructuredOptions
         :ivar presets: A pre-configured mapping of a string name to group of options:
             "complete", "data_types", "numeric_stats_disabled",
-            and "memory_optimization". Default: None
+            and "large_data". Default: None
         :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
@@ -1587,8 +1587,8 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
-            elif self.presets == "memory_optimization":
-                self._memory_optimization_presets()
+            elif self.presets == "large_data":
+                self._large_data_presets()
             else:
                 raise ValueError("The preset entered is not a valid preset.")
 
@@ -1604,7 +1604,7 @@ class ProfilerOptions(BaseOption):
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
 
-    def _memory_optimization_presets(self) -> None:
+    def _large_data_presets(self) -> None:
         self.set({"structured_options.row_statistics.is_enabled": False})
         self.set({"structured_options.null_replication_metrics.is_enabled": False})
         self.set(

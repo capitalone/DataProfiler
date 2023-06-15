@@ -3590,7 +3590,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         ):
             profiler_w_null_count + profiler_w_disabled_null_count
 
-    def test_add_profiles_null_count_not_enabled(self):
+    def test_profile_null_count_not_enabled(self):
         profiler_options_null_disabled = ProfilerOptions()
         profiler_options_null_disabled.set(
             {

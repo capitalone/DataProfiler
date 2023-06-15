@@ -1621,7 +1621,9 @@ class ProfilerOptions(BaseOption):
                 ): 5000
             }
         )
-        self.set({"structured_options.category.stop_condition_unique_value_ratio": 0.5})
+        self.set(
+            {("structured_options.category" ".stop_condition_unique_value_ratio"): 0.5}
+        )
 
     def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """
@@ -1632,10 +1634,12 @@ class ProfilerOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        set_of_presets = {"complete", 
-                        "data_types", 
-                        "numeric_stats_disabled", 
-                        "memory_optimization"}
+        set_of_presets = {
+            "complete",
+            "data_types",
+            "numeric_stats_disabled",
+            "memory_optimization",
+        }
 
         if not isinstance(variable_path, str):
             raise ValueError("The variable path must be a string.")
@@ -1664,7 +1668,7 @@ class ProfilerOptions(BaseOption):
         )
 
         if self.presets is not None and self.presets not in set_of_presets:
-            raise ValueError("The preset entered is not a valid preset.")            
+            raise ValueError("The preset entered is not a valid preset.")
 
         return errors
 

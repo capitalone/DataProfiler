@@ -616,11 +616,11 @@ Below is an breakdown of all the options.
 
         options = ProfilerOptions(presets="numeric_stats_disabled")
 
-    * **"memory_optimization"**
+    * **"lower_memory_sketching"**
 
     .. code-block:: python
 
-        options = ProfilerOptions(presets="memory_optimization")
+        options = ProfilerOptions(presets="lower_memory_sketching")
 
   * **structured_options** - Options responsible for all structured data
 

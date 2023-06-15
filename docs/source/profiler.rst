@@ -803,7 +803,11 @@ Below is an breakdown of all the options.
       * is_enabled - (Boolean) Enables or disables performing correlation profiling
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
-      * unique_count - (Boolean) Option to enable/disable functionalities for unique row count
+      * unique_count - (Boolean) Option to enable/disable functionalities from UniqueCountOptions
+        * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
+        * hll - (Dict) Options for alternative method of gathering unique row count
+          * seed - (Int) Used to set HLL hashing function
+          * register_count - (Int) Number of registers is equal to 2^register_count
       * null_count - (Boolean) Option to enable/disable functionalities for row_has_null_ratio and row_is_null_ratio
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 

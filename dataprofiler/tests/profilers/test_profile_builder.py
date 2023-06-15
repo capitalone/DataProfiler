@@ -3605,7 +3605,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
                 data[2:], options=profiler_options_null_disabled
             )
 
-        # self.assertEqual(0, profiler_w_disabled_null_count.report()['data_stats'][0]['statistics']['null_count'])
         self.assertEqual(0, profiler_w_disabled_null_count.row_has_null_count)
         self.assertEqual(0, profiler_w_disabled_null_count.row_is_null_count)
 

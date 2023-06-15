@@ -34,16 +34,11 @@ class TestProfilerPresets(unittest.TestCase):
         self.assertTrue(options.structured_options.category.is_enabled)
         self.assertTrue(options.structured_options.order.is_enabled)
 
-    def test_profiler_preset_memory_optimization(self, *mocks):
-        options = ProfilerOptions(presets="memory_optimization")
-        self.assertFalse(options.structured_options.row_statistics.is_enabled)
-        self.assertFalse(options.structured_options.multiprocess.is_enabled)
-        self.assertFalse(options.structured_options.data_labeler.is_enabled)
-        self.assertFalse(options.structured_options.datetime.is_enabled)
-        self.assertFalse(options.structured_options.order.is_enabled)
-        self.assertFalse(options.structured_options.chi2_homogeneity.is_enabled)
-        self.assertFalse(options.structured_options.null_replication_metrics.is_enabled)
-        self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
+    def test_profiler_preset_lower_memory_sketching(self, *mocks):
+        options = ProfilerOptions(presets="lower_memory_sketching")
+        self.assertEqual(
+            options.structured_options.row_statistics.unique_count.hashing_method, "hll"
+        )
         self.assertEqual(
             options.structured_options.category.max_sample_size_to_check_stop_condition,
             5000,

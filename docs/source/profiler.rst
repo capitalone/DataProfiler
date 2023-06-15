@@ -713,7 +713,6 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
-
       * median_abs_deviation - Finds median absolute deviation of all values in a column
 
         * is_enabled - (Boolean) Enables or disables median absolute deviation

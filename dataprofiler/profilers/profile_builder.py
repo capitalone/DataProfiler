@@ -1978,7 +1978,7 @@ class StructuredProfiler(BaseProfiler):
         """Return whether row is null ratio."""
         if (
             not self.options.row_statistics.is_enabled
-            or not self.options.row_statistics.is_enabled
+            or not self.options.row_statistics.null_count.is_enabled
         ):
             return None
 
@@ -1990,7 +1990,7 @@ class StructuredProfiler(BaseProfiler):
         """Return whether row has null ratio."""
         if (
             not self.options.row_statistics.is_enabled
-            or not self.options.row_statistics.is_enabled
+            or not self.options.row_statistics.null_count.is_enabled
         ):
             return None
 

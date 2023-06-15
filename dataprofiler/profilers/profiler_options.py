@@ -1587,8 +1587,8 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
-            elif self.presets == "large_data":
-                self._large_data_presets()
+            elif self.presets == "lower_memory_sketching":
+                self._lower_memory_sketching_presets()
             else:
                 raise ValueError("The preset entered is not a valid preset.")
 
@@ -1604,9 +1604,8 @@ class ProfilerOptions(BaseOption):
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
 
-    def _large_data_presets(self) -> None:
-        self.set({"structured_options.row_statistics.is_enabled": False})
-        self.set({"structured_options.null_replication_metrics.is_enabled": False})
+    def _lower_memory_sketching_presets(self) -> None:
+        self.set({"row_statistics.unique_count.hashing_method": "hll"})
         self.set(
             {
                 (

@@ -418,7 +418,7 @@ class TestDataLabelerColumnProfilerNoMock(unittest.TestCase):
                     "times": {},
                     "thread_safe": False,
                     "_max_sample_size": 1000,
-                    "data_labeler": "structured_model",
+                    "data_labeler": {"from_library": "structured_model"},
                     "_reverse_label_mapping": None,
                     "_possible_data_labels": None,
                     "_rank_distribution": None,
@@ -455,7 +455,7 @@ class TestDataLabelerColumnProfilerNoMock(unittest.TestCase):
                     "times": {"data_labeler_predict": 3.0},
                     "thread_safe": False,
                     "_max_sample_size": 1000,
-                    "data_labeler": "structured_model",
+                    "data_labeler": {"from_library": "structured_model"},
                     "_reverse_label_mapping": {
                         "1": "UNKNOWN",
                         "2": "ADDRESS",

@@ -627,6 +627,9 @@ Below is an breakdown of all the options.
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
 
       * is_enabled - (Boolean) Enables or disables multiprocessing
+      
+    * **sampling_ratio** - A percentage, as a decimal, ranging from greater than 0 to less than or equal to 1 indicating how much input data to sample. Default value set to 0.2.
+    
     * **int** - Options for the integer columns
 
       * is_enabled - (Boolean) Enables or disables the integer operations

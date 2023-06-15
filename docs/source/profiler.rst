@@ -803,6 +803,8 @@ Below is an breakdown of all the options.
       * is_enabled - (Boolean) Enables or disables performing correlation profiling
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
+      * unique_count - (Boolean) Option to enable/disable functionalities for unique row count
+      * null_count - (Boolean) Option to enable/disable functionalities for row_has_null_ratio and row_is_null_ratio
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.

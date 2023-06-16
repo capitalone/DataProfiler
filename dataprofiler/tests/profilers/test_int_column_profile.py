@@ -1311,7 +1311,7 @@ class TestIntColumn(unittest.TestCase):
         # Actual deserialization
 
         # Build expected IntColumn
-        df_int = pd.Series([1, 2, 5, 7, 4, 3, 2, 7, 8, 9])
+        df_int = pd.Series([-1, 2, 5, 7, 4, 3, 2, 0, 0, 9])
         expected_profile = IntColumn(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -1338,5 +1338,5 @@ class TestIntColumn(unittest.TestCase):
         deserialized.update(df_int)
 
         assert deserialized.sample_size == 12
-        assert deserialized.mean == sum([1, 2, 5, 7, 4, 3, 2, 7, 8, 9, 4, 15]) / 12
+        assert deserialized.mean == sum([-1, 2, 5, 7, 4, 3, 2, 0, 0, 9, 4, 15]) / 12
         assert deserialized.max == 15

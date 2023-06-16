@@ -9,7 +9,8 @@ from pandas import DataFrame, Series
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
-from . import BaseColumnProfiler, utils
+from . import utils
+from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import DataLabelerOptions
 
 

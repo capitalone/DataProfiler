@@ -14,6 +14,7 @@ from abc import abstractmethod
 from itertools import islice
 from multiprocessing.pool import Pool
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -30,7 +31,10 @@ import psutil
 import scipy
 from pandas import DataFrame, Series
 
-from dataprofiler import profilers, settings
+from .. import settings
+
+if TYPE_CHECKING:
+    from . import profilers
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:

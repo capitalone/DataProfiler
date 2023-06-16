@@ -14,6 +14,7 @@ from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn
 from .float_column_profile import FloatColumn
 from .int_column_profile import IntColumn
+from .json_decoder import load_column_profile
 from .order_column_profile import OrderColumn
 from .profiler_options import BaseOption, StructuredOptions, UnstructuredOptions
 from .text_column_profile import TextColumn
@@ -219,6 +220,34 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
         for profile_type in single_process_list:
             self._profiles[profile_type].update(df_series)
         return self
+
+    @classmethod
+    def load_from_dict(cls, data) -> BaseCompiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Compiler with attributes populated.
+        :rtype: BaseCompiler
+        """
+        compiler = cls()
+
+        for attr, value in data.items():
+            if "_profiles" in attr:
+                for col_type, profile_as_dict in value.items():
+                    value[col_type] = load_column_profile(profile_as_dict)
+                # since needs to be in the same order, use _profilers to enforce
+                value = OrderedDict(
+                    {
+                        k.type: value[k.type]
+                        for k in compiler._profilers
+                        if k.type in value
+                    }
+                )
+            setattr(compiler, attr, value)
+        return compiler
 
 
 class ColumnPrimitiveTypeProfileCompiler(

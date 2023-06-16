@@ -8,7 +8,8 @@ from typing import cast
 import datasketches
 from pandas import DataFrame, Series
 
-from . import BaseColumnProfiler, utils
+from . import utils
+from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 
 

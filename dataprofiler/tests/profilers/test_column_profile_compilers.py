@@ -14,6 +14,8 @@ from dataprofiler.profilers.profiler_options import (
     UnstructuredOptions,
 )
 
+from . import utils as test_utils
+
 
 class TestBaseProfileCompilerClass(unittest.TestCase):
     def test_cannot_instantiate(self):
@@ -482,6 +484,54 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2, options)
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+    def test_json_encode(self):
+
+        compiler = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler()
+
+        serialized = json.dumps(compiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "ColumnPrimitiveTypeProfileCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {},
+                },
+            }
+        )
+        self.assertEqual(expected, serialized)
+
+    def test_json_encode_after_update(self):
+
+        data = pd.Series(["-2", "-1", "1", "2"], name="test")
+        with test_utils.mock_timeit():
+            compiler = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data)
+
+        with mock.patch.object(compiler._profiles["datetime"], "__dict__", {}):
+            with mock.patch.object(compiler._profiles["int"], "__dict__", {}):
+                with mock.patch.object(compiler._profiles["float"], "__dict__", {}):
+                    with mock.patch.object(compiler._profiles["text"], "__dict__", {}):
+                        serialized = json.dumps(compiler, cls=ProfileEncoder)
+
+        # pop the data inside primitive column profiler as we just want to make
+        # sure generally it is serializing, decode will validate true replication
+
+        expected = json.dumps(
+            {
+                "class": "ColumnPrimitiveTypeProfileCompiler",
+                "data": {
+                    "name": "test",
+                    "_profiles": {
+                        "datetime": {"class": "DateTimeColumn", "data": {}},
+                        "int": {"class": "IntColumn", "data": {}},
+                        "float": {"class": "FloatColumn", "data": {}},
+                        "text": {"class": "TextColumn", "data": {}},
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

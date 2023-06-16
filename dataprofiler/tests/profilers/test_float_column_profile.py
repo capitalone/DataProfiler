@@ -1830,7 +1830,7 @@ class TestFloatColumn(unittest.TestCase):
                 },
             }
         )
-        self.assertEqual(serialized, expected)
+        self.assertEqual(expected, serialized)
 
     @mock.patch("time.time", return_value=0.0)
     def test_json_encode_after_update(self, time):
@@ -1956,7 +1956,7 @@ class TestFloatColumn(unittest.TestCase):
             }
         )
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(expected, serialized)
 
     def test_json_decode(self):
         fake_profile_name = None

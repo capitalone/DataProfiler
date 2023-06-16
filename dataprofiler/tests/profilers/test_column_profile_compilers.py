@@ -14,6 +14,8 @@ from dataprofiler.profilers.profiler_options import (
     UnstructuredOptions,
 )
 
+from . import utils as test_utils
+
 
 class TestBaseProfileCompilerClass(unittest.TestCase):
     def test_cannot_instantiate(self):
@@ -84,6 +86,179 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertEqual(3, merged_compiler._profiles["test"])
         self.assertEqual("compiler1", merged_compiler.name)
 
+    def test_compiler_stats_diff(self):
+        data1 = pd.Series(["1", "9", "9"])
+        data2 = pd.Series(["10", "9", "9", "9"])
+        options = StructuredOptions()
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        expected_diff = {
+            "order": ["ascending", "descending"],
+            "categorical": "unchanged",
+            "statistics": {
+                "unique_count": "unchanged",
+                "unique_ratio": 0.16666666666666663,
+                "categories": [["1"], ["9"], ["10"]],
+                "gini_impurity": 0.06944444444444448,
+                "unalikeability": 0.16666666666666663,
+                "categorical_count": {"9": -1, "1": [1, None], "10": [None, 1]},
+                "chi2-test": {
+                    "chi2-statistic": 2.1,
+                    "df": 2,
+                    "p-value": 0.3499377491111554,
+                },
+            },
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabled categorical column in one compiler
+        options.category.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        expected_diff = {"order": ["ascending", "descending"]}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling categorical profile in both compilers
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
+        expected_diff = {"order": ["ascending", "descending"]}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling everything
+        options.order.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+    )
+    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
+        # Initialize dummy data
+        data = pd.Series([])
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        # Mock out the data_label, avg_predictions, and label_representation
+        # properties
+        with mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile"
+            ".DataLabelerColumn.data_label"
+        ), mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile."
+            "DataLabelerColumn.avg_predictions"
+        ), mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile."
+            "DataLabelerColumn.label_representation"
+        ):
+            compiler1._profiles["data_labeler"].sample_size = 20
+            compiler1._profiles["data_labeler"].data_label = "a"
+            compiler1._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.0,
+                "c": 0.75,
+            }
+            compiler1._profiles["data_labeler"].label_representation = {
+                "a": 0.15,
+                "b": 0.01,
+                "c": 0.84,
+            }
+
+            compiler2._profiles["data_labeler"].sample_size = 20
+            compiler2._profiles["data_labeler"].data_label = "b"
+            compiler2._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.70,
+                "c": 0.05,
+            }
+            compiler2._profiles["data_labeler"].label_representation = {
+                "a": 0.99,
+                "b": 0.01,
+                "c": 0.0,
+            }
+
+            expected_diff = {
+                "statistics": {
+                    "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
+                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
+                },
+                "data_label": [["a"], [], ["b"]],
+            }
+            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling one datalabeler profile for compiler diff
+        options = StructuredOptions()
+        options.data_labeler.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling both datalabeler profiles for compiler diff
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+    @mock.patch.multiple(col_pro_compilers.BaseCompiler, __abstractmethods__=set())
+    def test_no_profilers_error(self):
+        with self.assertRaises(NotImplementedError) as e:
+            col_pro_compilers.BaseCompiler()
+        self.assertEqual("Must add profilers.", str(e.exception))
+
+    @mock.patch.multiple(
+        col_pro_compilers.BaseCompiler, __abstractmethods__=set(), _profilers="mock"
+    )
+    def test_no_options_error(self):
+        with self.assertRaisesRegex(
+            NotImplementedError, "Must set the expected OptionClass."
+        ):
+            col_pro_compilers.BaseCompiler()
+
+    def test_update_match_are_abstract(self):
+        self.assertCountEqual(
+            {"report"}, col_pro_compilers.BaseCompiler.__abstractmethods__
+        )
+
+    @mock.patch.multiple(BaseColumnProfiler, __abstractmethods__=set())
+    def test_json_encode(self):
+        with mock.patch.multiple(
+            col_pro_compilers.BaseCompiler,
+            __abstractmethods__=set(),
+            _profilers=[BaseColumnProfiler],
+            _option_class=BaseOption,
+        ):
+            profile = col_pro_compilers.BaseCompiler()
+
+        base_column_profiler = BaseColumnProfiler(name="test")
+        with mock.patch.object(
+            profile, "_profiles", {"BaseColumn": base_column_profiler}
+        ):
+            serialized = json.dumps(profile, cls=ProfileEncoder)
+
+        dict_of_base_column_profiler = json.loads(
+            json.dumps(base_column_profiler, cls=ProfileEncoder)
+        )
+        expected = json.dumps(
+            {
+                "class": "BaseCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {
+                        "BaseColumn": dict_of_base_column_profiler,
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
+
+
+class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
     def test_primitive_compiler_report(self):
         structured_options = StructuredOptions()
         data1 = pd.Series(["2.6", "-1.8"])
@@ -310,143 +485,53 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
-    def test_compiler_stats_diff(self):
-        data1 = pd.Series(["1", "9", "9"])
-        data2 = pd.Series(["10", "9", "9", "9"])
-        options = StructuredOptions()
+    def test_json_encode(self):
 
-        # Test normal diff
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
-        expected_diff = {
-            "order": ["ascending", "descending"],
-            "categorical": "unchanged",
-            "statistics": {
-                "unique_count": "unchanged",
-                "unique_ratio": 0.16666666666666663,
-                "categories": [["1"], ["9"], ["10"]],
-                "gini_impurity": 0.06944444444444448,
-                "unalikeability": 0.16666666666666663,
-                "categorical_count": {"9": -1, "1": [1, None], "10": [None, 1]},
-                "chi2-test": {
-                    "chi2-statistic": 2.1,
-                    "df": 2,
-                    "p-value": 0.3499377491111554,
+        compiler = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler()
+
+        serialized = json.dumps(compiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "ColumnPrimitiveTypeProfileCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {},
                 },
-            },
-        }
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabled categorical column in one compiler
-        options.category.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
-        expected_diff = {"order": ["ascending", "descending"]}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling categorical profile in both compilers
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
-        expected_diff = {"order": ["ascending", "descending"]}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling everything
-        options.order.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
-    @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
-    )
-    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
-        # Initialize dummy data
-        data = pd.Series([])
-
-        # Test normal diff
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
-        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
-
-        # Mock out the data_label, avg_predictions, and label_representation
-        # properties
-        with mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile"
-            ".DataLabelerColumn.data_label"
-        ), mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile."
-            "DataLabelerColumn.avg_predictions"
-        ), mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile."
-            "DataLabelerColumn.label_representation"
-        ):
-            compiler1._profiles["data_labeler"].sample_size = 20
-            compiler1._profiles["data_labeler"].data_label = "a"
-            compiler1._profiles["data_labeler"].avg_predictions = {
-                "a": 0.25,
-                "b": 0.0,
-                "c": 0.75,
             }
-            compiler1._profiles["data_labeler"].label_representation = {
-                "a": 0.15,
-                "b": 0.01,
-                "c": 0.84,
-            }
-
-            compiler2._profiles["data_labeler"].sample_size = 20
-            compiler2._profiles["data_labeler"].data_label = "b"
-            compiler2._profiles["data_labeler"].avg_predictions = {
-                "a": 0.25,
-                "b": 0.70,
-                "c": 0.05,
-            }
-            compiler2._profiles["data_labeler"].label_representation = {
-                "a": 0.99,
-                "b": 0.01,
-                "c": 0.0,
-            }
-
-            expected_diff = {
-                "statistics": {
-                    "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
-                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
-                },
-                "data_label": [["a"], [], ["b"]],
-            }
-            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling one datalabeler profile for compiler diff
-        options = StructuredOptions()
-        options.data_labeler.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling both datalabeler profiles for compiler diff
-        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-    @mock.patch.multiple(col_pro_compilers.BaseCompiler, __abstractmethods__=set())
-    def test_no_profilers_error(self):
-        with self.assertRaises(NotImplementedError) as e:
-            col_pro_compilers.BaseCompiler()
-        self.assertEqual("Must add profilers.", str(e.exception))
-
-    @mock.patch.multiple(
-        col_pro_compilers.BaseCompiler, __abstractmethods__=set(), _profilers="mock"
-    )
-    def test_no_options_error(self):
-        with self.assertRaisesRegex(
-            NotImplementedError, "Must set the expected OptionClass."
-        ):
-            col_pro_compilers.BaseCompiler()
-
-    def test_update_match_are_abstract(self):
-        self.assertCountEqual(
-            {"report"}, col_pro_compilers.BaseCompiler.__abstractmethods__
         )
+        self.assertEqual(expected, serialized)
+
+    def test_json_encode_after_update(self):
+
+        data = pd.Series(["-2", "-1", "1", "2"], name="test")
+        with test_utils.mock_timeit():
+            compiler = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data)
+
+        with mock.patch.object(compiler._profiles["datetime"], "__dict__", {}):
+            with mock.patch.object(compiler._profiles["int"], "__dict__", {}):
+                with mock.patch.object(compiler._profiles["float"], "__dict__", {}):
+                    with mock.patch.object(compiler._profiles["text"], "__dict__", {}):
+                        serialized = json.dumps(compiler, cls=ProfileEncoder)
+
+        # pop the data inside primitive column profiler as we just want to make
+        # sure generally it is serializing, decode will validate true replication
+
+        expected = json.dumps(
+            {
+                "class": "ColumnPrimitiveTypeProfileCompiler",
+                "data": {
+                    "name": "test",
+                    "_profiles": {
+                        "datetime": {"class": "DateTimeColumn", "data": {}},
+                        "int": {"class": "IntColumn", "data": {}},
+                        "float": {"class": "FloatColumn", "data": {}},
+                        "text": {"class": "TextColumn", "data": {}},
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
 
     @mock.patch.multiple(BaseColumnProfiler, __abstractmethods__=set())
     def test_json_encode(self):

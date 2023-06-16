@@ -1972,9 +1972,7 @@ class TestFloatColumn(unittest.TestCase):
         # Actual deserialization
 
         # Build expected FloatColumn
-        df_float = pd.Series([1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 7.0, 8.0, 9.0]).apply(
-            str
-        )
+        df_float = pd.Series([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]).apply(str)
         expected_profile = FloatColumn(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -1998,6 +1996,6 @@ class TestFloatColumn(unittest.TestCase):
         assert deserialized.sample_size == 12
         assert (
             deserialized.mean
-            == sum([1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 7.0, 8.0, 9.0, 4, 15]) / 12
+            == sum([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0, 4, 15]) / 12
         )
         assert deserialized.max == 15

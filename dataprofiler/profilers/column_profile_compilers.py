@@ -48,6 +48,7 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
         if self._option_class is None:
             raise NotImplementedError("Must set the expected OptionClass.")
 
+        self.name = None
         self._profiles: dict = OrderedDict()
         if df_series is not None:
             self.name = df_series.name

@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from . import base_column_profilers, numerical_column_stats
+from . import base_column_profilers, column_profile_compilers, numerical_column_stats
 
 
 class ProfileEncoder(json.JSONEncoder):
@@ -24,6 +24,7 @@ class ProfileEncoder(json.JSONEncoder):
             (
                 base_column_profilers.BaseColumnProfiler,
                 numerical_column_stats.NumericStatsMixin,
+                column_profile_compilers.BaseCompiler,
             ),
         ):
             return {"class": type(to_serialize).__name__, "data": to_serialize.__dict__}

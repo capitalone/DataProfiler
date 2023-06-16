@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest import mock
 
@@ -5,6 +6,8 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import column_profile_compilers as col_pro_compilers
+from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import (
     BaseOption,
     StructuredOptions,
@@ -444,6 +447,39 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertCountEqual(
             {"report"}, col_pro_compilers.BaseCompiler.__abstractmethods__
         )
+
+    @mock.patch.multiple(BaseColumnProfiler, __abstractmethods__=set())
+    def test_json_encode(self):
+        with mock.patch.multiple(
+            col_pro_compilers.BaseCompiler,
+            __abstractmethods__=set(),
+            _profilers=[BaseColumnProfiler],
+            _option_class=BaseOption,
+        ):
+            profile = col_pro_compilers.BaseCompiler()
+
+        base_column_profiler = BaseColumnProfiler(name="test")
+        with mock.patch.object(
+            profile, "_profiles", {"BaseColumn": base_column_profiler}
+        ):
+            serialized = json.dumps(profile, cls=ProfileEncoder)
+
+        dict_of_base_column_profiler = json.loads(
+            json.dumps(base_column_profiler, cls=ProfileEncoder)
+        )
+        expected = json.dumps(
+            {
+                "class": "BaseCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {
+                        "BaseColumn": dict_of_base_column_profiler,
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

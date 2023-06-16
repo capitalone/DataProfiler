@@ -35,11 +35,12 @@ mock_label_mapping = {
 }
 
 
-def mock_open(filename, *args):
+def mock_open(filename, *args, **kwargs):
     if filename.find("model_parameters") >= 0:
         return StringIO(json.dumps(mock_model_parameters))
     elif filename.find("label_mapping") >= 0:
         return StringIO(json.dumps(mock_label_mapping))
+    return StringIO()
 
 
 def setup_save_mock_open(mock_open):
@@ -391,10 +392,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         self.assertCountEqual(threshold_output, expected_threshold_output)
 
     @mock.patch("tensorflow.keras.Model.save", return_value=None)
-    @mock.patch("tensorflow.keras.models.load_model", return_value=None)
-    @mock.patch(
-        "dataprofiler.labelers.character_level_cnn_model.callable", return_value=True
-    )
+    @mock.patch("tensorflow.keras.models.load_model", return_value=mock.Mock())
     @mock.patch("builtins.open")
     def test_save(self, mock_open, *mocks):
         # setup mock
@@ -430,11 +428,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         StringIO.close(mock_file)
 
     @mock.patch("tensorflow.keras.Model.save", return_value=None)
-    @mock.patch("tensorflow.keras.models.load_model", return_value=None)
+    @mock.patch("tensorflow.keras.models.load_model", return_value=mock.Mock())
     @mock.patch("builtins.open", side_effect=mock_open)
-    @mock.patch(
-        "dataprofiler.labelers.character_level_cnn_model.callable", return_value=True
-    )
     def test_load(self, *mocks):
         dir = os.path.join(_resource_labeler_dir, "unstructured_model/")
         loaded_model = CharacterLevelCnnModel.load_from_disk(dir)

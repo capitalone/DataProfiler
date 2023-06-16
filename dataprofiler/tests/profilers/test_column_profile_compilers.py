@@ -575,6 +575,7 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
         assert (
             deserialized.report().get("statistics", {}).get("mean")
             == sum([-2, -1, 1, 2, 4, 15]) / 6
+        )
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

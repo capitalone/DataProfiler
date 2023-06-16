@@ -484,7 +484,7 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
         # Test disabling all columns in all compilers
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2, options)
         expected_diff = {}
-        # self.assertDictEqual(expected_diff, compiler1.diff(compiler2))/
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
     def test_json_encode(self):
 
@@ -575,7 +575,6 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
         assert (
             deserialized.report().get("statistics", {}).get("mean")
             == sum([-2, -1, 1, 2, 4, 15]) / 6
-        )
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

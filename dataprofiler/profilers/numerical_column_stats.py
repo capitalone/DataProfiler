@@ -403,7 +403,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         if self.num_zeros is not None:
             self.num_zeros = np.int64(self.num_zeros)
         if self.num_negatives is not None:
-            self.num_negatives = np.int64(self.num_zeros)
+            self.num_negatives = np.int64(self.num_negatives)
         if not np.isnan(self._biased_variance):
             self._biased_variance = np.float64(self._biased_variance)
         if not np.isnan(self._biased_variance):

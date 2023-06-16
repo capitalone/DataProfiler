@@ -183,8 +183,9 @@ def assert_profiles_equal(actual, expected):
     actual_dict = actual.__dict__ if not isinstance(actual, dict) else actual
     expected_dict = expected.__dict__ if not isinstance(expected, dict) else expected
 
-    assert len(actual_dict.keys()) == len(expected_dict.keys())
-    assert actual_dict.keys() == expected_dict.keys()
+    assert (
+        actual_dict.keys() == expected_dict.keys()
+    ), f"{actual_dict.keys()} != {expected_dict.keys()}"
 
     for key in expected_dict.keys():
         actual_value = actual_dict.get(key, None)
@@ -201,7 +202,7 @@ def assert_profiles_equal(actual, expected):
         elif isinstance(actual_value, dict):
             assert_profiles_equal(actual_value, expected_value)
         elif isinstance(actual_value, numbers.Number):
-            np.testing.assert_equal(actual_value, expected_value)
+            np.testing.assert_equal(actual_value, expected_value, f"{key}")
         elif isinstance(actual_value, np.ndarray):
             np.testing.assert_array_equal(actual_value, expected_value)
         else:

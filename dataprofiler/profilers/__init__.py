@@ -2,7 +2,11 @@
 from . import json_decoder
 from .base_column_profilers import BaseColumnProfiler
 from .categorical_column_profile import CategoricalColumn
-from .column_profile_compilers import BaseCompiler, ColumnPrimitiveTypeProfileCompiler
+from .column_profile_compilers import (
+    BaseCompiler,
+    ColumnPrimitiveTypeProfileCompiler,
+    ColumnStatsProfileCompiler,
+)
 from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn
 from .float_column_profile import FloatColumn
@@ -27,4 +31,5 @@ json_decoder._profiles = {
 
 json_decoder._compilers = {
     ColumnPrimitiveTypeProfileCompiler.__name__: ColumnPrimitiveTypeProfileCompiler,
+    ColumnStatsProfileCompiler.__name__: ColumnStatsProfileCompiler,
 }

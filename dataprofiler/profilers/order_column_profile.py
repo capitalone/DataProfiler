@@ -4,6 +4,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Protocol, TypeVar
 
+import numpy as np
 from pandas import DataFrame, Series
 
 from . import utils
@@ -302,7 +303,14 @@ class OrderColumn(BaseColumnProfiler):
         :rtype: CategoricalColumn
         """
         # This is an ambiguous call to super classes.
-        return super().load_from_dict(data)
+        profile = super().load_from_dict(data)
+        try:
+            profile._first_value = np.float64(profile._first_value)
+            profile._last_value = np.float64(profile._last_value)
+        except ValueError:
+            profile._first_value = data["_first_value"]
+            profile._last_value = data["_last_value"]
+        return profile
 
     @property
     def profile(self) -> dict:

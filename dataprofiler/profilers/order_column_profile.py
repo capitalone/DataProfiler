@@ -305,8 +305,9 @@ class OrderColumn(BaseColumnProfiler):
         # This is an ambiguous call to super classes.
         profile = super().load_from_dict(data)
         try:
-            profile._first_value = np.float64(profile._first_value)
-            profile._last_value = np.float64(profile._last_value)
+            if profile.sample_size:
+                profile._first_value = np.float64(profile._first_value)
+                profile._last_value = np.float64(profile._last_value)
         except ValueError:
             profile._first_value = data["_first_value"]
             profile._last_value = data["_last_value"]

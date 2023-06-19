@@ -87,53 +87,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertEqual(3, merged_compiler._profiles["test"])
         self.assertEqual("compiler1", merged_compiler.name)
 
-    def test_compiler_stats_diff(self):
-        data1 = pd.Series(["1", "9", "9"])
-        data2 = pd.Series(["10", "9", "9", "9"])
-        options = StructuredOptions()
-
-        # Test normal diff
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
-        expected_diff = {
-            "order": ["ascending", "descending"],
-            "categorical": "unchanged",
-            "statistics": {
-                "unique_count": "unchanged",
-                "unique_ratio": 0.16666666666666663,
-                "categories": [["1"], ["9"], ["10"]],
-                "gini_impurity": 0.06944444444444448,
-                "unalikeability": 0.16666666666666663,
-                "categorical_count": {"9": -1, "1": [1, None], "10": [None, 1]},
-                "chi2-test": {
-                    "chi2-statistic": 2.1,
-                    "df": 2,
-                    "p-value": 0.3499377491111554,
-                },
-            },
-        }
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabled categorical column in one compiler
-        options.category.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
-        expected_diff = {"order": ["ascending", "descending"]}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling categorical profile in both compilers
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
-        expected_diff = {"order": ["ascending", "descending"]}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling everything
-        options.order.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
-        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
@@ -576,6 +529,76 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
             deserialized.report().get("statistics", {}).get("mean")
             == sum([-2, -1, 1, 2, 4, 15]) / 6
         )
+
+
+class TestColumnStatsProfileCompiler(unittest.TestCase):
+    def test_primitive_compiler_report(self):
+        structured_options = StructuredOptions()
+        structured_options.category.is_enabled = False
+        data1 = pd.Series(["2.6", "-1.8", "-2.3"])
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(
+            data1, structured_options
+        )
+        report = compiler1.report(remove_disabled_flag=True)
+        self.assertNotIn("categorical", report)
+        self.assertIn("order", report)
+
+        structured_options = StructuredOptions()
+        structured_options.order.is_enabled = False
+        data1 = pd.Series(["2.6", "-1.8", "-2.3"])
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(
+            data1, structured_options
+        )
+        report = compiler1.report(remove_disabled_flag=False)
+        self.assertIn("categorical", report)
+        self.assertNotIn("order", report)
+
+    def test_compiler_stats_diff(self):
+        data1 = pd.Series(["1", "9", "9"])
+        data2 = pd.Series(["10", "9", "9", "9"])
+        options = StructuredOptions()
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        expected_diff = {
+            "order": ["ascending", "descending"],
+            "categorical": "unchanged",
+            "statistics": {
+                "unique_count": "unchanged",
+                "unique_ratio": 0.16666666666666663,
+                "categories": [["1"], ["9"], ["10"]],
+                "gini_impurity": 0.06944444444444448,
+                "unalikeability": 0.16666666666666663,
+                "categorical_count": {"9": -1, "1": [1, None], "10": [None, 1]},
+                "chi2-test": {
+                    "chi2-statistic": 2.1,
+                    "df": 2,
+                    "p-value": 0.3499377491111554,
+                },
+            },
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabled categorical column in one compiler
+        options.category.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        expected_diff = {"order": ["ascending", "descending"]}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling categorical profile in both compilers
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
+        expected_diff = {"order": ["ascending", "descending"]}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling everything
+        options.order.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

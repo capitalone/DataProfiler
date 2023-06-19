@@ -659,6 +659,9 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * median_abs_deviation - Finds median absolute deviation of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables median absolute deviation
       * num_zeros - Finds the count of zeros in a column
 
         * is_enabled - (Boolean) Enables or disables num_zeros
@@ -710,6 +713,9 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * median_abs_deviation - Finds median absolute deviation of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables median absolute deviation
       * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
       * num_zeros - Finds the count of zeros in a column
 
@@ -760,6 +766,9 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * median_abs_deviation - Finds median absolute deviation of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables median absolute deviation
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction

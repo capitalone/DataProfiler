@@ -812,7 +812,8 @@ Below is an breakdown of all the options.
       * is_enabled - (Boolean) Enables or disables performing correlation profiling
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
-      * unique_count - (Boolean) Option to enable/disable functionalities from UniqueCountOptions
+      * unique_count - (UniqueCountOptions) Option to enable/disable functionalities from UniqueCountOptions
+        * is_enabled - (Bool) Enables or disables options for unique row count
         * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
         * hll - (HyperLogLogOptions) Options for alternative method of estimating unique row count (activated when `hll` is the selected hashing_method)
           * seed - (Int) Used to set HLL hashing function seed

@@ -15,14 +15,16 @@ class TestCorrelationOptions(TestBaseInspectorOptions):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
+        expected_class = "CorrelationOptions"
         expected_options_attributes = {"is_enabled", "columns"}
         expected_is_enabled = option.is_enabled
         expected_columns = option.columns
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )
-        self.assertEqual(
-            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
-        )
-        self.assertEqual(expected_columns, json.loads(serialized)["data"]["columns"])
+        self.assertEqual(expected_is_enabled, actual_option_json["data"]["is_enabled"])
+        self.assertEqual(expected_columns, actual_option_json["data"]["columns"])

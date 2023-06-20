@@ -124,16 +124,18 @@ class TestPrecisionOptions(TestBooleanOption):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
+        expected_class = "PrecisionOptions"
         expected_options_attributes = {"is_enabled", "sample_ratio"}
         expected_is_enabled = option.is_enabled
         expected_sample_ratio = option.sample_ratio
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )
+        self.assertEqual(expected_is_enabled, actual_option_json["data"]["is_enabled"])
         self.assertEqual(
-            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
-        )
-        self.assertEqual(
-            expected_sample_ratio, json.loads(serialized)["data"]["sample_ratio"]
+            expected_sample_ratio, actual_option_json["data"]["sample_ratio"]
         )

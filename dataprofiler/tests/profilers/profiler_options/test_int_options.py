@@ -37,6 +37,7 @@ class TestIntOptions(TestNumericalOptions):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
+        expected_class = "IntOptions"
         expected_options_attributes = {
             "is_enabled",
             "min",
@@ -54,6 +55,9 @@ class TestIntOptions(TestNumericalOptions):
             "bias_correction",
         }
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )

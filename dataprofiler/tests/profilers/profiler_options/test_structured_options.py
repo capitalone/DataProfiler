@@ -323,6 +323,7 @@ class TestStructuredOptions(TestBaseOption):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
+        expected_class = "StructuredOptions"
         expected_options_attributes = {
             "multiprocess",
             "int",
@@ -341,13 +342,16 @@ class TestStructuredOptions(TestBaseOption):
         expected_null_values = {"str": 1}
         expected_column_null_values = {"2": {"other_str": 5}}
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )
         self.assertEqual(
-            expected_null_values, json.loads(serialized)["data"]["null_values"]
+            expected_null_values, actual_option_json["data"]["null_values"]
         )
         self.assertEqual(
             expected_column_null_values,
-            json.loads(serialized)["data"]["column_null_values"],
+            actual_option_json["data"]["column_null_values"],
         )

@@ -184,6 +184,7 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
+        expected_class = "DataLabelerOptions"
         expected_options_attributes = {
             "is_enabled",
             "data_labeler_dirpath",
@@ -192,10 +193,13 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         }
         expected_data_labeler_object = {"from_library": "test_loc"}
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )
         self.assertEqual(
             expected_data_labeler_object,
-            json.loads(serialized)["data"]["data_labeler_object"],
+            actual_option_json["data"]["data_labeler_object"],
         )

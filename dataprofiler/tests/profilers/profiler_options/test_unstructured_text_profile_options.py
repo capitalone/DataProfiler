@@ -258,6 +258,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         )
         serialized = json.dumps(option, cls=ProfileEncoder)
 
+        expected_class = "TextProfilerOptions"
         expected_options_attributes = {
             "is_enabled",
             "is_case_sensitive",
@@ -273,22 +274,23 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         expected_top_k_chars = option.top_k_chars
         expected_top_k_words = option.top_k_words
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )
-        self.assertEqual(
-            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
-        )
+        self.assertEqual(expected_is_enabled, actual_option_json["data"]["is_enabled"])
         self.assertEqual(
             expected_is_case_sensitive,
-            json.loads(serialized)["data"]["is_case_sensitive"],
+            actual_option_json["data"]["is_case_sensitive"],
         )
         self.assertEqual(
-            expected_stop_words, set(json.loads(serialized)["data"]["stop_words"])
+            expected_stop_words, set(actual_option_json["data"]["stop_words"])
         )
         self.assertEqual(
-            expected_top_k_chars, json.loads(serialized)["data"]["top_k_chars"]
+            expected_top_k_chars, actual_option_json["data"]["top_k_chars"]
         )
         self.assertEqual(
-            expected_top_k_words, json.loads(serialized)["data"]["top_k_words"]
+            expected_top_k_words, actual_option_json["data"]["top_k_words"]
         )

@@ -509,6 +509,8 @@ class TestProfilerOptions(unittest.TestCase):
         option = ProfilerOptions(presets="complete")
 
         serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected_class = "ProfilerOptions"
         expected_options_attributes = {
             "structured_options",
             "unstructured_options",
@@ -516,10 +518,13 @@ class TestProfilerOptions(unittest.TestCase):
         }
         expected_presets = option.presets
 
+        actual_option_json = json.loads(serialized)
+
+        self.assertEqual(expected_class, actual_option_json["class"])
         self.assertEqual(
-            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+            expected_options_attributes, set(actual_option_json["data"].keys())
         )
-        self.assertEqual(expected_presets, json.loads(serialized)["data"]["presets"])
+        self.assertEqual(expected_presets, actual_option_json["data"]["presets"])
 
 
 @mock.patch(

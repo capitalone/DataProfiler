@@ -872,6 +872,8 @@ class CategoricalOptions(BaseInspectorOptions):
         top_k_categories: int = None,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
+        cms_confidence: float | None = None,
+        cms_relative_error: float | None = None,
     ) -> None:
         """
         Initialize options for the Categorical Column.
@@ -886,6 +888,10 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar stop_condition_unique_value_ratio: The highest ratio of unique
             values to dataset size that is to be considered a categorical type
         :vartype stop_condition_unique_value_ratio: [None, float]
+        :ivar cms_confidence: TODO: BLAH BLAH eg. confidence = 1 - failure probability
+        :vartype cms_confidence: [None, float]
+        :ivar cms_relative_error: TODO: BLAH BLAH
+        :vartype cms_relative_error: [None, float]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -893,6 +899,8 @@ class CategoricalOptions(BaseInspectorOptions):
             max_sample_size_to_check_stop_condition
         )
         self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
+        self.cms_confidence = cms_confidence
+        self.cms_relative_error = cms_relative_error
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -938,6 +946,26 @@ class CategoricalOptions(BaseInspectorOptions):
                 "Both, {}.max_sample_size_to_check_stop_condition and "
                 "{}.stop_condition_unique_value_ratio, options either need to be "
                 "set or not set.".format(variable_path, variable_path)
+            )
+
+        if self.cms_confidence is not None and (
+            not isinstance(self.cms_confidence, float)
+            or self.cms_confidence < 0
+            or self.cms_confidence > 1.0
+        ):
+            errors.append(
+                "{}.cms_confidence must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms_relative_error is not None and (
+            not isinstance(self.cms_relative_error, float)
+            or self.cms_relative_error < 0
+            or self.cms_relative_error > 1.0
+        ):
+            errors.append(
+                "{}.cms_relative_error must be either None"
+                " or a float between 0 and 1".format(variable_path)
             )
 
         return errors

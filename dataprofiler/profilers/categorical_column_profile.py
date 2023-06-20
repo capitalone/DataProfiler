@@ -5,6 +5,7 @@ from collections import defaultdict
 from operator import itemgetter
 from typing import cast
 
+from datasketches import count_min_sketch
 from pandas import DataFrame, Series
 
 from . import BaseColumnProfiler, utils
@@ -60,6 +61,8 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             self.max_sample_size_to_check_stop_condition = (
                 options.max_sample_size_to_check_stop_condition
             )
+            self._cms_confidence = options.cms_confidence
+            self._cms_relative_error = options.cms_relative_error
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -345,7 +348,16 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        category_count = df_series.value_counts(dropna=False).to_dict()
+        if self._cms_confidence:
+            category_count = defaultdict(int)
+            num_hashes = count_min_sketch.suggest_num_hashes(self._cms_confidence)
+            num_buckets = count_min_sketch.suggest_num_buckets(self._cms_relative_error)
+            cm = count_min_sketch(num_hashes, num_buckets)
+            for i in df_series:
+                cm.update(i)
+                category_count[i] = cm.get_estimate(i)
+        else:
+            category_count = df_series.value_counts(dropna=False).to_dict()
         self._categories = utils.add_nested_dictionaries(
             self._categories, category_count
         )

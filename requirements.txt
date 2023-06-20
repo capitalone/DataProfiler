@@ -15,3 +15,4 @@ requests>=2.28.1
 networkx>=2.5.1
 typing-extensions>=3.10.0.2
 HLL>=2.0.3
+datasketches>=4.1.0

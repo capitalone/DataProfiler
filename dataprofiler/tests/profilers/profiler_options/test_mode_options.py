@@ -8,7 +8,7 @@ from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
 
 
 class TestCategoricalOptions(TestBooleanOption):
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = ModeOption(is_enabled=False, max_k_modes=5)
 
         serialized = json.dumps(option, cls=ProfileEncoder)

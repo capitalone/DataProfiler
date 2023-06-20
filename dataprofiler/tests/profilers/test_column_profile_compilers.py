@@ -87,77 +87,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertEqual(3, merged_compiler._profiles["test"])
         self.assertEqual("compiler1", merged_compiler.name)
 
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
-    @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
-    )
-    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
-        # Initialize dummy data
-        data = pd.Series([])
-
-        # Test normal diff
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
-        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
-
-        # Mock out the data_label, avg_predictions, and label_representation
-        # properties
-        with mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile"
-            ".DataLabelerColumn.data_label"
-        ), mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile."
-            "DataLabelerColumn.avg_predictions"
-        ), mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile."
-            "DataLabelerColumn.label_representation"
-        ):
-            compiler1._profiles["data_labeler"].sample_size = 20
-            compiler1._profiles["data_labeler"].data_label = "a"
-            compiler1._profiles["data_labeler"].avg_predictions = {
-                "a": 0.25,
-                "b": 0.0,
-                "c": 0.75,
-            }
-            compiler1._profiles["data_labeler"].label_representation = {
-                "a": 0.15,
-                "b": 0.01,
-                "c": 0.84,
-            }
-
-            compiler2._profiles["data_labeler"].sample_size = 20
-            compiler2._profiles["data_labeler"].data_label = "b"
-            compiler2._profiles["data_labeler"].avg_predictions = {
-                "a": 0.25,
-                "b": 0.70,
-                "c": 0.05,
-            }
-            compiler2._profiles["data_labeler"].label_representation = {
-                "a": 0.99,
-                "b": 0.01,
-                "c": 0.0,
-            }
-
-            expected_diff = {
-                "statistics": {
-                    "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
-                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
-                },
-                "data_label": [["a"], [], ["b"]],
-            }
-            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling one datalabeler profile for compiler diff
-        options = StructuredOptions()
-        options.data_labeler.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling both datalabeler profiles for compiler diff
-        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
     @mock.patch.multiple(col_pro_compilers.BaseCompiler, __abstractmethods__=set())
     def test_no_profilers_error(self):
         with self.assertRaises(NotImplementedError) as e:
@@ -532,7 +461,7 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
 
 
 class TestColumnStatsProfileCompiler(unittest.TestCase):
-    def test_primitive_compiler_report(self):
+    def test_column_stats_profile_compiler_report(self):
         structured_options = StructuredOptions()
         structured_options.category.is_enabled = False
         data1 = pd.Series(["2.6", "-1.8", "-2.3"])
@@ -553,7 +482,7 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
         self.assertIn("categorical", report)
         self.assertNotIn("order", report)
 
-    def test_compiler_stats_diff(self):
+    def test_column_stats_profile_compiler_stats_diff(self):
         data1 = pd.Series(["1", "9", "9"])
         data2 = pd.Series(["10", "9", "9", "9"])
         options = StructuredOptions()
@@ -678,6 +607,75 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
         deserialized.update_profile(df_float)
         assert deserialized.report().get("order", None) == "random"
         assert deserialized.report().get("categorical", None) == False
+
+
+class TestColumnDataLabelerCompiler(unittest.TestCase):
+    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
+        # Initialize dummy data
+        data = pd.Series([])
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        # Mock out the data_label, avg_predictions, and label_representation
+        # properties
+        with mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile"
+            ".DataLabelerColumn.data_label"
+        ), mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile."
+            "DataLabelerColumn.avg_predictions"
+        ), mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile."
+            "DataLabelerColumn.label_representation"
+        ):
+            compiler1._profiles["data_labeler"].sample_size = 20
+            compiler1._profiles["data_labeler"].data_label = "a"
+            compiler1._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.0,
+                "c": 0.75,
+            }
+            compiler1._profiles["data_labeler"].label_representation = {
+                "a": 0.15,
+                "b": 0.01,
+                "c": 0.84,
+            }
+
+            compiler2._profiles["data_labeler"].sample_size = 20
+            compiler2._profiles["data_labeler"].data_label = "b"
+            compiler2._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.70,
+                "c": 0.05,
+            }
+            compiler2._profiles["data_labeler"].label_representation = {
+                "a": 0.99,
+                "b": 0.01,
+                "c": 0.0,
+            }
+
+            expected_diff = {
+                "statistics": {
+                    "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
+                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
+                },
+                "data_label": [["a"], [], ["b"]],
+            }
+            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling one datalabeler profile for compiler diff
+        options = StructuredOptions()
+        options.data_labeler.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling both datalabeler profiles for compiler diff
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

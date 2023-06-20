@@ -73,6 +73,55 @@ class CategoricalColumn(BaseColumnProfiler):
         )
         return merged_profile
 
+    @property
+    def gini_impurity(self) -> float | None:
+        """
+        Return Gini Impurity.
+
+        Gini Impurity is a way to calculate
+        likelihood of an incorrect classification of a new instance of
+        a random variable.
+
+        G = Σ(i=1; J): P(i) * (1 - P(i)), where i is the category classes.
+        We are traversing through categories and calculating with the column
+
+        :return: None or Gini Impurity probability
+        """
+        if self.sample_size == 0:
+            return None
+        gini_sum: float = 0
+        for i in self._categories:
+            gini_sum += (self._categories[i] / self.sample_size) * (
+                1 - (self._categories[i] / self.sample_size)
+            )
+        return gini_sum
+
+    @property
+    def unalikeability(self) -> float | None:
+        """
+        Return Unlikeability.
+
+        Unikeability checks for "how often observations differ from one another"
+        Reference: Perry, M. and Kader, G. Variation as Unalikeability.
+        Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
+
+        U = Σ(i=1,n)Σ(j=1,n): (Cij)/(n**2-n)
+        Cij = 1 if i!=j, 0 if i=j
+
+        :return: None or unlikeability probability
+        """
+        if self.sample_size == 0:
+            return None
+        elif self.sample_size == 1:
+            return 0
+        unalike_sum: int = 0
+        for category in self._categories:
+            unalike_sum += (
+                self.sample_size - self._categories[category]
+            ) * self._categories[category]
+        unalike: float = unalike_sum / (self.sample_size**2 - self.sample_size)
+        return unalike
+
     def diff(self, other_profile: CategoricalColumn, options: dict = None) -> dict:
         """
         Find the differences for CategoricalColumns.
@@ -228,6 +277,10 @@ class CategoricalColumn(BaseColumnProfiler):
             is_match = True
         return is_match
 
+    def _get_categories(self, df_series):
+        category_count = df_series.value_counts(dropna=False).to_dict()
+        return category_count
+
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
         self,
@@ -250,7 +303,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        category_count = df_series.value_counts(dropna=False).to_dict()
+        category_count = self._get_categories(df_series)
         self._categories = utils.add_nested_dictionaries(
             self._categories, category_count
         )
@@ -292,52 +345,3 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
-
-    @property
-    def gini_impurity(self) -> float | None:
-        """
-        Return Gini Impurity.
-
-        Gini Impurity is a way to calculate
-        likelihood of an incorrect classification of a new instance of
-        a random variable.
-
-        G = Σ(i=1; J): P(i) * (1 - P(i)), where i is the category classes.
-        We are traversing through categories and calculating with the column
-
-        :return: None or Gini Impurity probability
-        """
-        if self.sample_size == 0:
-            return None
-        gini_sum: float = 0
-        for i in self._categories:
-            gini_sum += (self._categories[i] / self.sample_size) * (
-                1 - (self._categories[i] / self.sample_size)
-            )
-        return gini_sum
-
-    @property
-    def unalikeability(self) -> float | None:
-        """
-        Return Unlikeability.
-
-        Unikeability checks for "how often observations differ from one another"
-        Reference: Perry, M. and Kader, G. Variation as Unalikeability.
-        Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
-
-        U = Σ(i=1,n)Σ(j=1,n): (Cij)/(n**2-n)
-        Cij = 1 if i!=j, 0 if i=j
-
-        :return: None or unlikeability probability
-        """
-        if self.sample_size == 0:
-            return None
-        elif self.sample_size == 1:
-            return 0
-        unalike_sum: int = 0
-        for category in self._categories:
-            unalike_sum += (
-                self.sample_size - self._categories[category]
-            ) * self._categories[category]
-        unalike: float = unalike_sum / (self.sample_size**2 - self.sample_size)
-        return unalike

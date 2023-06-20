@@ -814,7 +814,7 @@ Below is an breakdown of all the options.
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
       * unique_count - (Boolean) Option to enable/disable functionalities from UniqueCountOptions
         * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
-        * hll - (HyperLogLogOptions) Options for alternative method of gathering unique row count (activated when "hll" is the selected hashing_method)
+        * hll - (HyperLogLogOptions) Options for alternative method of gathering unique row count (activated when `hll` is the selected hashing_method)
           * seed - (Int) Used to set HLL hashing function
           * register_count - (Int) Number of registers is equal to 2^register_count
       * null_count - (Boolean) Option to enable/disable functionalities for row_has_null_ratio and row_is_null_ratio

@@ -869,7 +869,7 @@ class CategoricalOptions(BaseInspectorOptions):
     def __init__(
         self,
         is_enabled: bool = True,
-        top_k_categories: int = None,
+        top_k_categories: int = 1,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
         cms_confidence: float | None = None,
@@ -966,6 +966,14 @@ class CategoricalOptions(BaseInspectorOptions):
             errors.append(
                 "{}.cms_relative_error must be either None"
                 " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms_confidence is not None and not isinstance(
+            self.top_k_categories, int
+        ):
+            errors.append(
+                "{}.if using count min sketch, you must pass an"
+                "integer value for top_k_categories".format(variable_path)
             )
 
         return errors

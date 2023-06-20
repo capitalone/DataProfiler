@@ -44,7 +44,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._categories: dict[str, int] = defaultdict(int)
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self._top_k_categories: int | None = None
+        self._top_k_categories: int = 1
 
         # Conditions to stop categorical profiling
         self.max_sample_size_to_check_stop_condition = None
@@ -63,6 +63,17 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             )
             self._cms_confidence = options.cms_confidence
             self._cms_relative_error = options.cms_relative_error
+
+        if self._cms_confidence and self._cms_relative_error:
+            self.num_hashes = count_min_sketch.suggest_num_hashes(self._cms_confidence)
+            self.num_buckets = count_min_sketch.suggest_num_buckets(
+                self._cms_relative_error
+            )
+            self.cm = count_min_sketch(self.num_hashes, self.num_buckets)
+            # FIXME: mypy fails without this condition, even though it is
+            # accounted for in the validate_helper()
+            if self._top_k_categories is None:
+                self._top_k_categories = 10
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -348,22 +359,27 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        if self._cms_confidence:
+        if self.cm:
             category_count = defaultdict(int)
-            num_hashes = count_min_sketch.suggest_num_hashes(self._cms_confidence)
-            num_buckets = count_min_sketch.suggest_num_buckets(self._cms_relative_error)
-            cm = count_min_sketch(num_hashes, num_buckets)
             for i in df_series:
-                cm.update(i)
-                category_count[i] = cm.get_estimate(i)
+                self.cm.update(i)
+                # approximate heavy-hitters
+                if self.cm.get_estimate(i) >= int(
+                    self.sample_size / self._top_k_categories
+                ):
+                    category_count[i] = self.cm.get_estimate(i)
+
+            self._categories = utils.add_nested_dictionaries(
+                self._categories, category_count
+            )
         else:
             category_count = df_series.value_counts(dropna=False).to_dict()
-        self._categories = utils.add_nested_dictionaries(
-            self._categories, category_count
-        )
-        self._update_stop_condition(df_series)
-        if self._stop_condition_is_met:
-            self._categories = {}
+            self._categories = utils.add_nested_dictionaries(
+                self._categories, category_count
+            )
+            self._update_stop_condition(df_series)
+            if self._stop_condition_is_met:
+                self._categories = {}
 
     def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
         """

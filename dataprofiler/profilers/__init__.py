@@ -6,6 +6,7 @@ from .column_profile_compilers import (
     BaseCompiler,
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
+    ColumnDataLabelerCompiler,
 )
 from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn
@@ -32,4 +33,5 @@ json_decoder._profiles = {
 json_decoder._compilers = {
     ColumnPrimitiveTypeProfileCompiler.__name__: ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler.__name__: ColumnStatsProfileCompiler,
+    ColumnDataLabelerCompiler.__name__: ColumnDataLabelerCompiler,
 }

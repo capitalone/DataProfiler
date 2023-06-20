@@ -806,12 +806,19 @@ Below is an breakdown of all the options.
       * data_labeler_dirpath - (String) Directory path to data labeler
       * data_labeler_object - (BaseDataLabeler) Datalabeler to replace 
         the default labeler 
-      * max_sample_size - (Int) The max number of samples for the data 
+      * max_sample_size - (Int) The max number of samples for the data
         labeler
-    * **correlation** - option set for correlation profiling
+    * **correlation** - Option set for correlation profiling
       * is_enabled - (Boolean) Enables or disables performing correlation profiling
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
+      * unique_count - (UniqueCountOptions) Option to enable/disable unique row count calculations
+        * is_enabled - (Bool) Enables or disables options for unique row count
+        * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
+        * hll - (HyperLogLogOptions) Options for alternative method of estimating unique row count (activated when `hll` is the selected hashing_method)
+          * seed - (Int) Used to set HLL hashing function seed
+          * register_count - (Int) Number of registers is equal to 2^register_count
+      * null_count - (Boolean) Option to enable/disable functionalities for row_has_null_ratio and row_is_null_ratio
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.

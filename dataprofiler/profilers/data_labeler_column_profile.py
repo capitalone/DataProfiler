@@ -307,6 +307,33 @@ class DataLabelerColumn(BaseColumnProfiler):
         }
         return profile
 
+    def load_from_dict(self, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: CategoricalColumn
+        """
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        super().load_from_dict(data)
+        if "from_library" in self.data_labeler.keys():
+            self.data_labeler = DataLabeler(
+                labeler_type=self.data_labeler["from_library"],
+            )
+        elif "from_disk" in self.data_labeler.keys():
+            raise NotImplementedError(
+                "Models intialized from disk have not yet been made deserializable"
+            )
+        else:
+            raise ValueError(
+                "Deserialization cannot be done on labelers with "
+                "_default_model_loc not set to known value."
+            )
+
     def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return report.

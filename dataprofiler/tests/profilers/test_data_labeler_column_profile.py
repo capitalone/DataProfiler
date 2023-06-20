@@ -9,6 +9,7 @@ import pandas as pd
 from dataprofiler.labelers import BaseDataLabeler
 from dataprofiler.profilers import utils
 from dataprofiler.profilers.data_labeler_column_profile import DataLabelerColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 
@@ -483,3 +484,12 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         )
 
         self.assertEqual(expected, serialized)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = DataLabelerColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)

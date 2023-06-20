@@ -11,7 +11,7 @@ _profiles: Dict[str, Type["BaseColumnProfiler"]] = {}
 _compilers: Dict[str, Type["col_pro_compilers.BaseCompiler"]] = {}
 
 
-def get_column_profiler_class(class_name: str) -> Type["BaseColumnProfiler"]:
+def get_profile_class(class_name: str) -> Type["BaseColumnProfiler"]:
     """
     Use name of class to return default-constructed version of that class.
 
@@ -69,7 +69,7 @@ def load_column_profile(serialized_json: dict) -> "BaseColumnProfiler":
         JSON
 
     """
-    column_profiler_cls: Type["BaseColumnProfiler"] = get_column_profiler_class(
+    column_profiler_cls: Type["BaseColumnProfiler"] = get_profile_class(
         serialized_json["class"]
     )
     return column_profiler_cls.load_from_dict(serialized_json["data"])

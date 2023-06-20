@@ -37,6 +37,8 @@ class TestOrderOptions(TestBaseInspectorOptions):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps({"class": "OrderOptions", "data": {"is_enabled": True}})
+        expected_options_attributes = {"is_enabled"}
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )

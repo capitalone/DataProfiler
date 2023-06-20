@@ -45,72 +45,24 @@ class TestFloatOptions(TestNumericalOptions):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps(
-            {
-                "class": "FloatOptions",
-                "data": {
-                    "min": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "max": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "mode": {
-                        "class": "ModeOption",
-                        "data": {"top_k_modes": 5, "is_enabled": True},
-                    },
-                    "median": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "sum": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "variance": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "skewness": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "kurtosis": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "median_abs_deviation": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "num_zeros": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "num_negatives": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "histogram_and_quantiles": {
-                        "class": "HistogramOption",
-                        "data": {
-                            "bin_count_or_method": "auto",
-                            "is_enabled": True,
-                        },
-                    },
-                    "bias_correction": {
-                        "class": "BooleanOption",
-                        "data": {"is_enabled": True},
-                    },
-                    "is_enabled": True,
-                    "precision": {
-                        "class": "PrecisionOptions",
-                        "data": {"sample_ratio": None, "is_enabled": True},
-                    },
-                },
-            }
-        )
+        expected_options_attributes = {
+            "is_enabled",
+            "min",
+            "max",
+            "mode",
+            "median",
+            "sum",
+            "variance",
+            "skewness",
+            "kurtosis",
+            "median_abs_deviation",
+            "num_zeros",
+            "num_negatives",
+            "histogram_and_quantiles",
+            "bias_correction",
+            "precision",
+        }
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )

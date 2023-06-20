@@ -256,28 +256,39 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             top_k_chars=5,
             top_k_words=8,
         )
-        serialized_dict = json.loads(json.dumps(option, cls=ProfileEncoder))
+        serialized = json.dumps(option, cls=ProfileEncoder)
 
-        # popping stop_words and comparing as set below since order is random
-        serialized_stop_words = serialized_dict["data"].pop("stop_words")
-
-        serialized = json.dumps(serialized_dict)
-
-        expected = json.dumps(
-            {
-                "class": "TextProfilerOptions",
-                "data": {
-                    "is_enabled": False,
-                    "is_case_sensitive": False,
-                    "top_k_chars": 5,
-                    "top_k_words": 8,
-                    "vocab": {"class": "BooleanOption", "data": {"is_enabled": True}},
-                    "words": {"class": "BooleanOption", "data": {"is_enabled": True}},
-                },
-            }
-        )
-
+        expected_options_attributes = {
+            "is_enabled",
+            "is_case_sensitive",
+            "stop_words",
+            "top_k_chars",
+            "top_k_words",
+            "vocab",
+            "words",
+        }
+        expected_is_enabled = option.is_enabled
+        expected_is_case_sensitive = option.is_case_sensitive
         expected_stop_words = option.stop_words
+        expected_top_k_chars = option.top_k_chars
+        expected_top_k_words = option.top_k_words
 
-        self.assertEqual(serialized, expected)
-        self.assertSetEqual(set(serialized_stop_words), set(expected_stop_words))
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )
+        self.assertEqual(
+            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
+        )
+        self.assertEqual(
+            expected_is_case_sensitive,
+            json.loads(serialized)["data"]["is_case_sensitive"],
+        )
+        self.assertEqual(
+            expected_stop_words, set(json.loads(serialized)["data"]["stop_words"])
+        )
+        self.assertEqual(
+            expected_top_k_chars, json.loads(serialized)["data"]["top_k_chars"]
+        )
+        self.assertEqual(
+            expected_top_k_words, json.loads(serialized)["data"]["top_k_words"]
+        )

@@ -52,15 +52,16 @@ class TestBaseInspectorOptions(TestBooleanOption):
         super().test_eq()
 
     def test_json_encode_after_update(self):
-        option = BaseInspectorOptions()
+        option = BaseInspectorOptions(is_enabled=False)
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps(
-            {
-                "class": "BaseInspectorOptions",
-                "data": {"is_enabled": True},
-            }
-        )
+        expected_options_attributes = {"is_enabled"}
+        expected_is_enabled = option.is_enabled
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )
+        self.assertEqual(
+            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
+        )

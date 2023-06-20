@@ -175,18 +175,21 @@ class TestHistogramOption(TestBooleanOption):
         self.assertEqual(options, options2)
 
     def test_json_encode_after_update(self):
-        option = HistogramOption(bin_count_or_method="doane")
+        option = HistogramOption(is_enabled=False, bin_count_or_method="doane")
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps(
-            {
-                "class": "HistogramOption",
-                "data": {
-                    "bin_count_or_method": "doane",
-                    "is_enabled": True,
-                },
-            }
-        )
+        expected_options_attributes = {"is_enabled", "bin_count_or_method"}
+        expected_is_enabled = option.is_enabled
+        expected_bin_count_or_method = option.bin_count_or_method
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )
+        self.assertEqual(
+            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
+        )
+        self.assertEqual(
+            expected_bin_count_or_method,
+            json.loads(serialized)["data"]["bin_count_or_method"],
+        )

@@ -86,15 +86,21 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
         super().test_eq()
 
     def test_json_encode_after_update(self):
-        option = CategoricalOptions(top_k_categories=5)
+        option = CategoricalOptions(is_enabled=False, top_k_categories=5)
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps(
-            {
-                "class": "CategoricalOptions",
-                "data": {"is_enabled": True, "top_k_categories": 5},
-            }
-        )
+        expected_options_attributes = {"is_enabled", "top_k_categories"}
+        expected_is_enabled = option.is_enabled
+        expected_top_k_categories = option.top_k_categories
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )
+        self.assertEqual(
+            expected_is_enabled, json.loads(serialized)["data"]["is_enabled"]
+        )
+        self.assertEqual(
+            expected_top_k_categories,
+            json.loads(serialized)["data"]["top_k_categories"],
+        )

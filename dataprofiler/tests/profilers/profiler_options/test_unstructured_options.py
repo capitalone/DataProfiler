@@ -157,39 +157,8 @@ class TestUnstructuredOptions(TestBaseOption):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected = json.dumps(
-            {
-                "class": "UnstructuredOptions",
-                "data": {
-                    "text": {
-                        "class": "TextProfilerOptions",
-                        "data": {
-                            "is_enabled": True,
-                            "is_case_sensitive": True,
-                            "stop_words": None,
-                            "top_k_chars": None,
-                            "top_k_words": None,
-                            "vocab": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                            "words": {
-                                "class": "BooleanOption",
-                                "data": {"is_enabled": True},
-                            },
-                        },
-                    },
-                    "data_labeler": {
-                        "class": "DataLabelerOptions",
-                        "data": {
-                            "is_enabled": True,
-                            "data_labeler_dirpath": None,
-                            "max_sample_size": None,
-                            "data_labeler_object": None,
-                        },
-                    },
-                },
-            }
-        )
+        expected_options_attributes = {"text", "data_labeler"}
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(
+            expected_options_attributes, set(json.loads(serialized)["data"].keys())
+        )

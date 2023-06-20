@@ -505,7 +505,7 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.float.precision.sample_ratio = 0.1
         self.assertNotEqual(options, options2)
 
-    def test_json_encode(self):
+    def test_json_encode(self, *mocks):
         option = ProfilerOptions(presets="presets")
 
         serialized = json.dumps(option, cls=ProfileEncoder)

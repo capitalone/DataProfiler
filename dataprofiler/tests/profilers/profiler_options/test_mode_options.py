@@ -7,7 +7,7 @@ from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
 )
 
 
-class TestCategoricalOptions(TestBooleanOption):
+class TestModeOptions(TestBooleanOption):
     def test_json_encode(self):
         option = ModeOption(is_enabled=False, max_k_modes=5)
 

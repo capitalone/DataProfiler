@@ -1,13 +1,27 @@
 """Index profile analysis for individual col within structured profiling."""
 from __future__ import annotations
 
-from typing import cast
+from abc import abstractmethod
+from typing import Protocol, TypeVar
 
+import numpy as np
 from pandas import DataFrame, Series
 
 from . import utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import OrderOptions
+
+
+class Comparable(Protocol):
+    """Protocol for ensuring comparable types, in this case both floats or strings."""
+
+    @abstractmethod
+    def __lt__(self: CT, other: CT) -> bool:
+        """Protocol for ensuring comparable values."""
+        pass
+
+
+CT = TypeVar("CT", bound=Comparable)
 
 
 class OrderColumn(BaseColumnProfiler["OrderColumn"]):
@@ -33,8 +47,8 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
                 "OrderColumn parameter 'options' must be of type" " OrderOptions."
             )
         self.order: str | None = None
-        self._last_value: int | None = None
-        self._first_value: int | None = None
+        self._last_value: float | str | None = None
+        self._first_value: float | str | None = None
         self._piecewise: bool | None = False
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
@@ -42,19 +56,22 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
 
     @staticmethod
     def _is_intersecting(
-        first_value1: int, last_value1: int, first_value2: int, last_value2: int
+        first_value1: CT,
+        last_value1: CT,
+        first_value2: CT,
+        last_value2: CT,
     ) -> bool:
         """
         Check to see if the range of the datasets intersect.
 
         :param first_value1: beginning value of dataset 1
-        :type first_value1: Integer
+        :type first_value1: Float | String
         :param last_value1: last value of dataset 1
-        :type last_value1: Integer
+        :type last_value1: Float | String
         :param first_value2: beginning value of dataset 2
-        :type first_value2: Integer
+        :type first_value2: Float | String
         :param last_value2: last value of dataset 2
-        :type last_value2: Integer
+        :type last_value2: Float | String
         :return: Whether or not there is an intersection
         :rtype: Bool
         """
@@ -78,19 +95,22 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
 
     @staticmethod
     def _is_enveloping(
-        first_value1: int, last_value1: int, first_value2: int, last_value2: int
+        first_value1: CT,
+        last_value1: CT,
+        first_value2: CT,
+        last_value2: CT,
     ) -> bool:
         """
         Check to see if the range of the dataset 1 envelopes dataset 2.
 
         :param first_value1: beginning value of dataset 1
-        :type first_value1: Integer
+        :type first_value1: Float | String
         :param last_value1: last value of dataset 1
-        :type last_value1: Integer
+        :type last_value1: Float | String
         :param first_value2: beginning value of dataset 2
-        :type first_value2: Integer
+        :type first_value2: Float | String
         :param last_value2: last value of dataset 2
-        :type last_value2: Integer
+        :type last_value2: Float | String
         :return: Whether or not there is an intersection
         :rtype: Bool
         """
@@ -109,14 +129,14 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
     def _merge_order(
         self,
         order1: str,
-        first_value1: int,
-        last_value1: int,
+        first_value1: CT,
+        last_value1: CT,
         piecewise1: bool,
         order2: str,
-        first_value2: int,
-        last_value2: int,
+        first_value2: CT,
+        last_value2: CT,
         piecewise2: bool,
-    ) -> tuple[str, int, int, bool]:
+    ) -> tuple[str, CT | None, CT | None, bool]:
         """
         Add the order of two datasets together.
 
@@ -129,15 +149,15 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         :param last_value2: last value of new dataset
         :param piecewise2: new dataset is piecewise or not
         :type order1: String
-        :type first_value1: Integer
-        :type last_value1: Integer
+        :type first_value1: Float | String
+        :type last_value1: Float | String
         :type piecewise1: Boolean
         :type order2: String
-        :type first_value2: Integer
-        :type last_value2: Integer
+        :type first_value2: Float | String
+        :type last_value2: Float | String
         :type piecewise2: Boolean
         :return: order, first_value, last_value, piecewise
-        :rtype: String, Int, Int, Boolean
+        :rtype: String, Float | String, Float | String, Boolean
         """
         # Return either order if one is None
         if not order1:
@@ -157,8 +177,8 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
 
         # Default initialization
         order = "random"
-        first_value: int | None = None
-        last_value: int | None = None
+        first_value: CT | None = None
+        last_value: CT | None = None
 
         if order1 == "random" or order2 == "random":
             order = "random"
@@ -219,7 +239,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         ) or order == "random":
             piecewise = False
 
-        return order, cast(int, first_value), cast(int, last_value), piecewise
+        return order, first_value, last_value, piecewise
 
     def __add__(self, other: OrderColumn) -> OrderColumn:
         """
@@ -283,7 +303,15 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         :rtype: CategoricalColumn
         """
         # This is an ambiguous call to super classes.
-        return super().load_from_dict(data)
+        profile = super().load_from_dict(data)
+        try:
+            if profile.sample_size:
+                profile._first_value = np.float64(profile._first_value)
+                profile._last_value = np.float64(profile._last_value)
+        except ValueError:
+            profile._first_value = data["_first_value"]
+            profile._last_value = data["_last_value"]
+        return profile
 
     @property
     def profile(self) -> dict:

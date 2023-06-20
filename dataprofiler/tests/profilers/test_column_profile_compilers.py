@@ -618,18 +618,8 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             data1, structured_options
         )
         report = compiler1.report(remove_disabled_flag=True)
-        self.assertNotIn("categorical", report)
-        self.assertIn("order", report)
-
-        structured_options = StructuredOptions()
-        structured_options.order.is_enabled = False
-        data1 = pd.Series(["2.6", "-1.8", "-2.3"])
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(
-            data1, structured_options
-        )
-        report = compiler1.report(remove_disabled_flag=False)
-        self.assertIn("categorical", report)
-        self.assertNotIn("order", report)
+        self.assertIn("data_label", report)
+        self.assertIn("statistics", report)
 
     def test_compiler_data_labeler_diff(self):
         # Initialize dummy data
@@ -705,7 +695,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         serialized = json.dumps(compiler, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "class": "ColumnStatsProfileCompiler",
+                "class": "ColumnDataLabelerCompiler",
                 "data": {
                     "name": None,
                     "_profiles": {},

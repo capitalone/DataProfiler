@@ -190,7 +190,7 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
             "max_sample_size",
             "data_labeler_object",
         }
-        expected_data_labeler_object = "test_loc"
+        expected_data_labeler_object = {"from_library": "test_loc"}
 
         self.assertEqual(
             expected_options_attributes, set(json.loads(serialized)["data"].keys())

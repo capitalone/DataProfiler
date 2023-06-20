@@ -42,7 +42,9 @@ class TestOrderOptions(TestBaseInspectorOptions):
 
         actual_option_json = json.loads(serialized)
 
+        self.assertIn("class", actual_option_json)
         self.assertEqual(expected_class, actual_option_json["class"])
+        self.assertIn("data", actual_option_json)
         self.assertEqual(
             expected_options_attributes, set(actual_option_json["data"].keys())
         )

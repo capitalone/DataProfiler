@@ -276,21 +276,28 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
 
         actual_option_json = json.loads(serialized)
 
+        self.assertIn("class", actual_option_json)
         self.assertEqual(expected_class, actual_option_json["class"])
+        self.assertIn("data", actual_option_json)
         self.assertEqual(
             expected_options_attributes, set(actual_option_json["data"].keys())
         )
+        self.assertIn("is_enabled", actual_option_json["data"])
         self.assertEqual(expected_is_enabled, actual_option_json["data"]["is_enabled"])
+        self.assertIn("is_case_sensitive", actual_option_json["data"])
         self.assertEqual(
             expected_is_case_sensitive,
             actual_option_json["data"]["is_case_sensitive"],
         )
+        self.assertIn("stop_words", actual_option_json["data"])
         self.assertEqual(
             expected_stop_words, set(actual_option_json["data"]["stop_words"])
         )
+        self.assertIn("top_k_chars", actual_option_json["data"])
         self.assertEqual(
             expected_top_k_chars, actual_option_json["data"]["top_k_chars"]
         )
+        self.assertIn("top_k_words", actual_option_json["data"])
         self.assertEqual(
             expected_top_k_words, actual_option_json["data"]["top_k_words"]
         )

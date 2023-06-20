@@ -31,7 +31,7 @@ json_decoder._profiles = {
 
 
 json_decoder._compilers = {
+    ColumnDataLabelerCompiler.__name__: ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler.__name__: ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler.__name__: ColumnStatsProfileCompiler,
-    ColumnDataLabelerCompiler.__name__: ColumnDataLabelerCompiler,
 }

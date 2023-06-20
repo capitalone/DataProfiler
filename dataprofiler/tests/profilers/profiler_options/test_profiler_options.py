@@ -506,7 +506,7 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertNotEqual(options, options2)
 
     def test_json_encode(self, *mocks):
-        option = ProfilerOptions(presets="presets")
+        option = ProfilerOptions(presets="complete")
 
         serialized = json.dumps(option, cls=ProfileEncoder)
         expected_options_attributes = {

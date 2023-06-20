@@ -610,7 +610,28 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
 
 
 class TestColumnDataLabelerCompiler(unittest.TestCase):
-    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
+    def test_column_data_labeler_compiler_report(self):
+        structured_options = StructuredOptions()
+        structured_options.category.is_enabled = False
+        data1 = pd.Series(["2.6", "-1.8", "-2.3"])
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(
+            data1, structured_options
+        )
+        report = compiler1.report(remove_disabled_flag=True)
+        self.assertNotIn("categorical", report)
+        self.assertIn("order", report)
+
+        structured_options = StructuredOptions()
+        structured_options.order.is_enabled = False
+        data1 = pd.Series(["2.6", "-1.8", "-2.3"])
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(
+            data1, structured_options
+        )
+        report = compiler1.report(remove_disabled_flag=False)
+        self.assertIn("categorical", report)
+        self.assertNotIn("order", report)
+
+    def test_compiler_data_labeler_diff(self):
         # Initialize dummy data
         data = pd.Series([])
 
@@ -676,6 +697,85 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+    def test_json_encode(self):
+
+        compiler = col_pro_compilers.ColumnDataLabelerCompiler()
+
+        serialized = json.dumps(compiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "ColumnStatsProfileCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {},
+                },
+            }
+        )
+        self.assertEqual(expected, serialized)
+
+    def test_json_encode_after_update(self):
+
+        data = pd.Series(["-2", "-1", "1", "2"], name="test")
+        with test_utils.mock_timeit():
+            compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        with mock.patch.object(
+            compiler._profiles["order"], "__dict__", {"an": "order"}
+        ):
+            with mock.patch.object(
+                compiler._profiles["category"], "__dict__", {"this": "category"}
+            ):
+                serialized = json.dumps(compiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "ColumnDataLabelerCompiler",
+                "data": {
+                    "name": "test",
+                    "_profiles": {
+                        "order": {"class": "OrderColumn", "data": {"an": "order"}},
+                        "category": {
+                            "class": "CategoricalColumn",
+                            "data": {"this": "category"},
+                        },
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
+
+    def test_json_decode(self):
+        expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler()
+        serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
+
+        deserialized = load_compiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(expected_compiler, deserialized)
+
+    def test_json_decode_after_update(self):
+
+        data = pd.Series(["-2", "-1", "1", "15"], name="test")
+        with test_utils.mock_timeit():
+            expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
+        deserialized = load_compiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_compiler)
+        # assert before update
+        assert deserialized.report().get("order", None) == "ascending"
+        assert deserialized.report().get("categorical", None) == True
+
+        df_float = pd.Series(
+            list(range(100))  # make orer random and not categorical
+        ).apply(str)
+
+        # validating update after deserialization with a few small tests
+        deserialized.update_profile(df_float)
+        assert deserialized.report().get("order", None) == "random"
+        assert deserialized.report().get("categorical", None) == False
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

@@ -137,11 +137,15 @@ class TestDataLabeler(unittest.TestCase):
     def test_load_from_library(self, *mocks):
         data_labeler = dp.DataLabeler.load_from_library("structured_model")
         self.assertIsInstance(data_labeler, BaseDataLabeler)
+        # Testing to ensure _default_model_loc is set correctly
+        self.assertEqual("structured_model", data_labeler._default_model_loc)
 
         data_labeler = dp.DataLabeler.load_from_library(
             "structured_model", trainable=True
         )
         self.assertIsInstance(data_labeler, TrainableDataLabeler)
+        # Testing to ensure _default_model_loc is set correctly
+        self.assertEqual("structured_model", data_labeler._default_model_loc)
 
     @mock.patch("tensorflow.keras.models.load_model")
     def test_load_from_disk(self, *mocks):

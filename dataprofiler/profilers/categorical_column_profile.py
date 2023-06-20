@@ -70,10 +70,6 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 self._cms_relative_error
             )
             self.cm = count_min_sketch(self.num_hashes, self.num_buckets)
-            # FIXME: mypy fails without this condition, even though it is
-            # accounted for in the validate_helper()
-            if self._top_k_categories is None:
-                self._top_k_categories = 10
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """

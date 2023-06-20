@@ -307,32 +307,47 @@ class DataLabelerColumn(BaseColumnProfiler):
         }
         return profile
 
-    def load_from_dict(self, data):
+    @classmethod
+    def load_from_dict(cls, data, options: dict | None = None) -> BaseColumnProfiler:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
-        :rtype: CategoricalColumn
+        :rtype: DataLabelerColumn
         """
-        # This is an ambiguous call to super classes.
-        # If load_from_dict is part of both super classes there may be issues
-        super().load_from_dict(data)
-        if "from_library" in self.data_labeler.keys():
-            self.data_labeler = DataLabeler(
-                labeler_type=self.data_labeler["from_library"],
+        opt = DataLabelerOptions()
+        data_labeler_load_attr = data.pop("data_labeler")
+        if "from_library" in data_labeler_load_attr:
+            opt.data_labeler_object = DataLabeler.load_from_library(
+                data_labeler_load_attr["from_library"]
             )
-        elif "from_disk" in self.data_labeler.keys():
+        elif "from_disk" in data_labeler_load_attr:
             raise NotImplementedError(
                 "Models intialized from disk have not yet been made deserializable"
             )
         else:
             raise ValueError(
-                "Deserialization cannot be done on labelers with "
-                "_default_model_loc not set to known value."
+                "Deserialization cannot be done on labelers without "
+                "_default_model_loc set to known value."
             )
+
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        profile = super().load_from_dict(data, options=opt)
+
+        if profile._reverse_label_mapping is not None:
+            profile._reverse_label_mapping = {
+                int(k): v for k, v in profile._reverse_label_mapping.items()
+            }
+        if profile._sum_predictions is not None:
+            profile._sum_predictions = np.array(profile._sum_predictions)
+
+        return profile
 
     def report(self, remove_disabled_flag: bool = False) -> dict:
         """

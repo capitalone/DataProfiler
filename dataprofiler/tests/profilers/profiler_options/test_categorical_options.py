@@ -85,7 +85,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
     def test_eq(self):
         super().test_eq()
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = CategoricalOptions(is_enabled=False, top_k_categories=5)
 
         serialized = json.dumps(option, cls=ProfileEncoder)

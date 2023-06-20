@@ -172,7 +172,7 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         options2.data_labeler_object._model = 7
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = DataLabelerOptions()
 
         with mock.patch(

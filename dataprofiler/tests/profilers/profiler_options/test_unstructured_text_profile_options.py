@@ -248,7 +248,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         options2.words.is_enabled = False
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = TextProfilerOptions(
             is_enabled=False,
             is_case_sensitive=False,

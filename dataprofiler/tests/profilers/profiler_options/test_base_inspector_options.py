@@ -51,7 +51,7 @@ class TestBaseInspectorOptions(TestBooleanOption):
     def test_eq(self):
         super().test_eq()
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = BaseInspectorOptions(is_enabled=False)
 
         serialized = json.dumps(option, cls=ProfileEncoder)

@@ -8,7 +8,7 @@ from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options i
 
 
 class TestCategoricalOptions(TestBaseInspectorOptions):
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = CorrelationOptions(
             is_enabled=False, columns=["name", "age", "location"]
         )

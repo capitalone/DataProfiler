@@ -316,7 +316,7 @@ class TestStructuredOptions(TestBaseOption):
         options2.float.precision.sample_ratio = 0.1
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = StructuredOptions(
             null_values={"str": 1}, column_null_values={2: {"other_str": 5}}
         )

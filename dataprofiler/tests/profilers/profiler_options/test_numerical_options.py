@@ -368,7 +368,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         options2.min.is_enabled = False
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = NumericalOptions()
 
         serialized = json.dumps(option, cls=ProfileEncoder)

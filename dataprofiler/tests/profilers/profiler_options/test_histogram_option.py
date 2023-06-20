@@ -174,7 +174,7 @@ class TestHistogramOption(TestBooleanOption):
         options2.bin_count_or_method = "sturges"
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = HistogramOption(is_enabled=False, bin_count_or_method="doane")
 
         serialized = json.dumps(option, cls=ProfileEncoder)

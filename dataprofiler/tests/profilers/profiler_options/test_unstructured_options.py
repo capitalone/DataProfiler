@@ -152,7 +152,7 @@ class TestUnstructuredOptions(TestBaseOption):
         options2.text.stop_words = ["woah", "stop", "right", "there"]
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = UnstructuredOptions()
 
         serialized = json.dumps(option, cls=ProfileEncoder)

@@ -40,7 +40,7 @@ class TestFloatOptions(TestNumericalOptions):
         options2.precision.is_enabled = False
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = FloatOptions()
 
         serialized = json.dumps(option, cls=ProfileEncoder)

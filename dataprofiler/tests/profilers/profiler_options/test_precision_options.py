@@ -119,7 +119,7 @@ class TestPrecisionOptions(TestBooleanOption):
         options2.sample_ratio = 0.3
         self.assertEqual(options, options2)
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = PrecisionOptions(is_enabled=False, sample_ratio=0.5)
 
         serialized = json.dumps(option, cls=ProfileEncoder)

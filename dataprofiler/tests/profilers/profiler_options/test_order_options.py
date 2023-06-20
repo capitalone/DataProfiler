@@ -32,7 +32,7 @@ class TestOrderOptions(TestBaseInspectorOptions):
     def test_eq(self):
         super().test_eq()
 
-    def test_json_encode_after_update(self):
+    def test_json_encode(self):
         option = OrderOptions()
 
         serialized = json.dumps(option, cls=ProfileEncoder)

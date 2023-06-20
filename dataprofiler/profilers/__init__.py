@@ -4,9 +4,9 @@ from .base_column_profilers import BaseColumnProfiler
 from .categorical_column_profile import CategoricalColumn
 from .column_profile_compilers import (
     BaseCompiler,
+    ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
-    ColumnDataLabelerCompiler,
 )
 from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn

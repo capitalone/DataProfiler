@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from . import base_column_profilers, column_profile_compilers, numerical_column_stats, profiler_options
+from . import (
+    base_column_profilers,
+    column_profile_compilers,
+    numerical_column_stats,
+    profiler_options,
+)
 
 
 class ProfileEncoder(json.JSONEncoder):

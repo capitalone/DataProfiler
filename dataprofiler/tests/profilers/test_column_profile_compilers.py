@@ -715,12 +715,12 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         test_utils.assert_profiles_equal(expected_compiler, deserialized)
 
     def test_json_encode_after_update(self, *mocked_datalabeler):
-        data = pd.Series(["-2", "-1", "1", "2"], name="test")
+        data = pd.Series(["-2", "-1", "1", "2"])
         with test_utils.mock_timeit():
             compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
 
         with mock.patch.object(
-            compiler._profiles["data_labeler"], "__dict__", {"data_label": "INT"}
+            compiler._profiles["data_labeler"], "__dict__", {"data_label": "INTEGER"}
         ):
             serialized = json.dumps(compiler, cls=ProfileEncoder)
 
@@ -728,11 +728,11 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             {
                 "class": "ColumnDataLabelerCompiler",
                 "data": {
-                    "name": "test",
+                    "name": None,
                     "_profiles": {
                         "data_labeler": {
                             "class": "DataLabelerColumn",
-                            "data": {"data_label": "INT"},
+                            "data": {"data_label": "INTEGER"},
                         },
                     },
                 },
@@ -742,7 +742,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         self.assertEqual(expected, serialized)
 
     def test_json_decode_after_update(self, *mocked_datalabeler):
-        data = pd.Series(["-2", "-1", "1", "15"], name="test")
+        data = pd.Series(["-2", "-1", "1", "15"])
         with test_utils.mock_timeit():
             expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
 
@@ -751,15 +751,27 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_compiler)
         # assert before update
-        assert deserialized.report().get("data_label", None) == "INT"
+        assert deserialized.report().get("data_label", None) == "INTEGER"
+        assert (
+            deserialized.report()
+            .get("statistics", None)
+            .get("avg_predictions", None)
+            .get("INTEGER", None)
+            == 1.0
+        )
 
-        df_float = pd.Series(
-            list(range(100))  # make orer random and not categorical
-        ).apply(str)
+        new_data = pd.Series(list(range(100))).apply(str)
 
         # validating update after deserialization with a few small tests
-        deserialized.update_profile(df_float)
-        assert deserialized.report().get("data_label", None) == "INT"
+        deserialized.update_profile(new_data)
+        assert deserialized.report().get("data_label", None) == "INTEGER"
+        assert (
+            deserialized.report()
+            .get("statistics", None)
+            .get("avg_predictions", None)
+            .get("INTEGER", None)
+            == 0.9951923076923077
+        )
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

@@ -28,7 +28,6 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
         mock_DataLabeler.model.num_labels = 2
         mock_DataLabeler.model.requires_zero_mapping = False
-        # mock_instance.load_from_library.return_value = mock_instance
         mock_instance.load_from_library.side_effect = mock_instance
 
         def mock_predict(data, *args, **kwargs):

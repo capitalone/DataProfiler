@@ -11,9 +11,8 @@ from typing import Any, Callable, Generic, TypeVar
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers.profiler_options import BaseInspectorOptions
-
 from . import utils
+from .profiler_options import BaseInspectorOptions, BaseOption
 
 BaseColumnProfilerT = TypeVar("BaseColumnProfilerT", bound="BaseColumnProfiler")
 
@@ -30,7 +29,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
     _SAMPLING_RATIO = 0.20
     _MIN_SAMPLING_COUNT = 500
 
-    def __init__(self, name: str | None) -> None:
+    def __init__(self, name: str | None, options: BaseOption | None = None):
         """
         Initialize base class properties for the subclass.
 
@@ -250,17 +249,27 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @classmethod
-    def load_from_dict(cls, data) -> BaseColumnProfiler:
+    def load_from_dict(
+        cls: type[BaseColumnProfilerT],
+        data: dict[str, Any],
+        options: dict | None = None,
+    ) -> BaseColumnProfilerT:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: BaseColumnProfiler
         """
-        profile = cls(data["name"])
+        if options is None:
+            options = {}
+
+        class_options = options.get(cls.__name__)
+        profile: BaseColumnProfilerT = cls(data["name"], class_options)
 
         time_vals = data.pop("times")
         setattr(profile, "times", defaultdict(float, time_vals))

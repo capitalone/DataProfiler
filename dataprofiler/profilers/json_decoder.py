@@ -69,9 +69,9 @@ def load_column_profile(serialized_json: dict) -> "BaseColumnProfiler":
         JSON
 
     """
-    column_profiler_cls: Type["BaseColumnProfiler"] = get_column_profiler_class(
-        serialized_json["class"]
-    )
+    column_profiler_cls: Type[
+        "BaseColumnProfiler[BaseColumnProfiler]"
+    ] = get_column_profiler_class(serialized_json["class"])
     return column_profiler_cls.load_from_dict(serialized_json["data"])
 
 

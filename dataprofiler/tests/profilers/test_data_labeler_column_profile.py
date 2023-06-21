@@ -9,6 +9,7 @@ import pandas as pd
 from dataprofiler.labelers import BaseDataLabeler
 from dataprofiler.profilers import utils
 from dataprofiler.profilers.data_labeler_column_profile import DataLabelerColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 
@@ -27,6 +28,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
         mock_DataLabeler.model.num_labels = 2
         mock_DataLabeler.model.requires_zero_mapping = False
+        mock_instance.load_from_library.side_effect = mock_instance
 
         def mock_predict(data, *args, **kwargs):
             len_data = len(data)
@@ -483,3 +485,36 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         )
 
         self.assertEqual(expected, serialized)
+
+    def test_json_decode(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+
+        data = pd.Series(["1", "2", "3", "4"], dtype=object)
+        expected = DataLabelerColumn(data.name)
+        expected.data_labeler._default_model_loc = "structured_model"
+        serialized = json.dumps(expected, cls=ProfileEncoder)
+
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected)
+
+    def test_json_decode_after_update(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+        data = pd.Series(["1", "2", "3", "4"], dtype=object)
+        expected = DataLabelerColumn(data.name)
+        expected.data_labeler._default_model_loc = "structured_model"
+        with test_utils.mock_timeit():
+            expected.update(data)
+
+        serialized = json.dumps(expected, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected)
+        update_data = pd.Series(["4", "5", "6", "7"], dtype=object)
+        deserialized.update(update_data)
+
+        assert deserialized.sample_size == 8
+        self.assertDictEqual({"a": 4, "b": 4}, deserialized.rank_distribution)
+        np.testing.assert_array_equal(
+            np.array([4.0, 4.0]), deserialized.sum_predictions
+        )

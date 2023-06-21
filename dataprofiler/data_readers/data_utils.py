@@ -1,13 +1,14 @@
 """Contains functions for data readers."""
 import json
+import os
+import random
 import re
 import urllib
+import warnings
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
-from math import exp, floor, log, log1p
-from random import random, randrange
-from random import shuffle as _shuffle
+from math import floor, log, log1p
 from typing import (
     Any,
     Dict,
@@ -27,6 +28,8 @@ import pyarrow.parquet as pq
 import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
+
+from dataprofiler import settings
 
 from .. import dp_logging
 from .._typing import JSONType, Url
@@ -271,12 +274,10 @@ def read_json(
         raise ValueError("No JSON data could be read from these data.")
     return lines
 
-def reservoir(
-        file: TextIOWrapper,
-        sample_nrows: int
-) -> list:
+
+def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     """
-    Helper function that implements the mathematical logic of Reservoir sampling
+    Implement the mathematical logic of Reservoir sampling.
 
     :param file: wrapper of the opened csv file
     :type file: TextIOWrapper
@@ -304,6 +305,8 @@ def reservoir(
     # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     # SOFTWARE.
+    # https://gist.github.com/oscarbenjamin/4c1b977181f34414a425f68589e895d1
+
     iterator = iter(file)
     values = list(islice(iterator, sample_nrows))
 
@@ -312,61 +315,71 @@ def reservoir(
 
     kinv = 1 / sample_nrows
     W = 1.0
+    rng = random.Random(x=settings._seed)
+    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
+        seed = os.environ.get("DATAPROFILER_SEED")
+        try:
+            rng = random.Random(int(seed))
+        except ValueError:
+            warnings.warn("Seed should be an integer", RuntimeWarning)
+
     while True:
-        W *= random() ** kinv
+        W *= rng.random() ** kinv
         # random() < 1.0 but random() ** kinv might not be
         # W == 1.0 implies "infinite" skips
         if W == 1.0:
             break
         # skip is geometrically distributed with parameter W
-        skip = floor( log(random())/log1p(-W) )
+        skip = floor(log(rng.random()) / log1p(-W))
         try:
-            newval = next(islice(iterator, skip, skip+1))
+            newval = next(islice(iterator, skip, skip + 1))
         except StopIteration:
             break
         # Append new, replace old with dummy, and keep track of order
-        remove_index = randrange(k)
+        remove_index = rng.randrange(sample_nrows)
         values[indices[remove_index]] = None
         indices[remove_index] = len(values)
         values.append(newval)
 
     values = [values[indices[i]] for i in irange]
-    _shuffle(values)
     return values
 
 
-def rsample(
-        file_path: Union[str, TextIOWrapper],
-        args: dict
-) -> pd.DataFrame:
+def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> pd.DataFrame:
     """
-    Implement Reservoir Sampling to sample n rows out of a total of M rows in the csv file.
-    This allows sampling without loading the entire file in memory.
+    Implement Reservoir Sampling to sample n rows out of a total of M rows.
+
     :param file_path: path of the csv file to be read in
-    :type file: TextIOWrapper or string
+    :type file: TextIOWrapper
     :param args: options to read the csv file
     :type args: dict
     """
-
-    headers = []
-    header = args['header']
-    if not header:
+    head = None
+    header = args["header"]
+    if header is None:
         result = reservoir(file_path, sample_nrows)
+        fo = pd.read_csv(
+            StringIO("".join([i if (i[-1] == "\n") else i + "\n" for i in result])),
+            **args
+        )
     else:
-        if type(header) == list:
-            sort_header = sorted(header)
-        for i in range(header):
-        headers.append(next(file_path))
-    result = headers + reservoir(file_path, sample_nrows)
-    df = pd.read_csv(StringIO(''.join(result)))
-    return df
+        for i in range(header + 1):
+            head = next(file_path)
+        result = [head] + reservoir(file_path, sample_nrows)
+        args_copy = args.copy()
+        args_copy["header"] = 0
+        fo = pd.read_csv(
+            StringIO("".join([i if (i[-1] == "\n") else i + "\n" for i in result])),
+            **args_copy
+        )
+    return fo
 
 
 def read_csv_df(
     file_path: Union[str, BytesIO, TextIOWrapper],
     delimiter: Optional[str],
     header: Optional[int],
-    sample_nrows: Optional[int],
+    sample_nrows: Optional[int] = None,
     selected_columns: List[str] = [],
     read_in_string: bool = False,
     encoding: Optional[str] = "utf-8",
@@ -409,6 +422,7 @@ def read_csv_df(
 
     # account for py3.6 requirement for pandas, can remove if >= py3.7
     is_buf_wrapped = False
+    # is_buf_open = False
     if isinstance(file_path, BytesIO):
         # a BytesIO stream has to be wrapped in order to properly be detached
         # in 3.6 this avoids read_csv wrapping the stream and closing too early
@@ -416,14 +430,21 @@ def read_csv_df(
         is_buf_wrapped = True
 
     if sample_nrows is not None:
-        data = rsample(file_path, args)
+        if isinstance(file_path, str):
+            with open(file_path, encoding=encoding) as buffered_file_path:
+                fo = rsample(buffered_file_path, sample_nrows, args)
+        else:
+            fo = rsample(file_path, sample_nrows, args)
     else:
-        data = pd.read_csv(file_path, **args)
+        fo = pd.read_csv(file_path, **args)
+    data = fo.read()
 
     # if the buffer was wrapped, detach it before returning
     if is_buf_wrapped:
         file_path = cast(TextIOWrapper, file_path)
         file_path.detach()
+
+    fo.close()
 
     return data
 

@@ -87,7 +87,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._checked_header: bool = "header" in options and self._header != "auto"
         self._default_delimiter: str = ","
         self._default_quotechar: str = '"'
-        self._sample_nrows: Optional[int] = options.gets("sample_nrows", None)
+        self._sample_nrows: Optional[int] = options.get("sample_nrows", None)
 
         if data is not None:
             self._load_data(data)
@@ -118,7 +118,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     @property
     def sample_nrows(self) -> Optional[int]:
-        """Return sample_nrows"""
+        """Return sample_nrows."""
         return self._sample_nrows
 
     @property

@@ -497,12 +497,48 @@ class TestCSVDataClass(unittest.TestCase):
                 input_data_obj.delimiter, input_file["delimiter"], input_file["path"]
             )
 
+    def test_specifying_data_type_when_sampled(self):
+        """
+        Determine if the csv file can be loaded with manual data_type setting
+        """
+        for input_file in self.file_or_buf_list:
+            input_data_obj = Data(
+                input_file["path"], data_type="csv", options={"sample_nrows": 100}
+            )
+            self.assertEqual(input_data_obj.data_type, "csv", input_file["path"])
+            self.assertEqual(
+                input_data_obj.delimiter, input_file["delimiter"], input_file["path"]
+            )
+
     def test_data_formats(self):
         """
         Test the data format options.
         """
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
+            self.assertEqual(input_data_obj.data_type, "csv")
+            self.assertIsInstance(input_data_obj.data, pd.DataFrame)
+
+            input_data_obj.data_format = "records"
+            self.assertIsInstance(input_data_obj.data, list)
+
+            with self.assertRaises(ValueError) as exc:
+                input_data_obj.data_format = "NON_EXISTENT"
+            self.assertEqual(
+                str(exc.exception),
+                "The data format must be one of the following: "
+                + "['dataframe', 'records']",
+            )
+
+    def test_data_formats_when_sampled(self):
+        """
+        Test the data format options.
+        """
+        for input_file in self.file_or_buf_list:
+            try:
+                input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
+            except:
+                print(input_file["path"])
             self.assertEqual(input_data_obj.data_type, "csv")
             self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -544,6 +580,29 @@ class TestCSVDataClass(unittest.TestCase):
                     import pandas as pd
 
                     self.assertIsInstance(data, pd.DataFrame)
+                elif data_format in ["records", "json"]:
+                    self.assertIsInstance(data, list)
+                    self.assertIsInstance(data[0], str)
+
+    def test_allowed_data_formats_when_sampled(self):
+        """
+        Determine if the csv file data_formats can be used
+        """
+        for input_file in self.file_or_buf_list:
+            input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
+            for data_format in list(input_data_obj._data_formats.keys()):
+                input_data_obj.data_format = data_format
+                self.assertEqual(
+                    input_data_obj.data_format, data_format, msg=input_file["path"]
+                )
+                try:
+                    data = input_data_obj.data
+                except:
+                    print(input_file["path"])
+                if data_format == "dataframe":
+                    import pandas as pd
+
+                    self.assertIsInstance(data, pd.DataFrame, msg=input_file["path"])
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)
@@ -600,6 +659,63 @@ class TestCSVDataClass(unittest.TestCase):
 
         # set header 1
         options = dict(header=1)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(1, csv_data.header)
+        self.assertEqual("1", first_value)
+
+    def test_set_header_with_sample(self):
+        test_dir = os.path.join(test_root_path, "data")
+        filename = "csv/sparse-first-and-last-column-two-headers.txt"
+        filename = os.path.join(test_dir, filename)
+
+        # set bad header setting
+        options = dict(header=-2, sample_nrows=100)
+        with self.assertRaisesRegex(
+            ValueError,
+            "`header` must be one of following: auto, "
+            "none for no header, or a non-negative "
+            "integer for the row that represents the "
+            r"header \(0 based index\)",
+        ):
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+
+        # set bad header setting
+        options = dict(header="abcdef", sample_nrows=100)
+        with self.assertRaisesRegex(
+            ValueError,
+            "`header` must be one of following: auto, "
+            "none for no header, or a non-negative "
+            "integer for the row that represents the "
+            r"header \(0 based index\)",
+        ):
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+
+        # set header auto
+        options = dict(header="auto", sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(1, csv_data.header)
+        self.assertEqual("1", first_value)
+
+        # set header None (no header)
+        options = dict(header=None, sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertIsNone(csv_data.header)  # should be None
+        self.assertEqual("COUNT", first_value)
+
+        # set header 0
+        options = dict(header=0, sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(0, csv_data.header)
+        self.assertEqual("CONTAR", first_value)
+
+        # set header 1
+        options = dict(header=1, sample_nrows=100)
         csv_data = CSVData(filename, options=options)
         first_value = csv_data.data.loc[0][0]
         self.assertEqual(1, csv_data.header)
@@ -723,16 +839,20 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
             self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
 
-    def test_len_sampled_data(self, sample_nrows=100):
+    def test_len_sampled_data(self):
         """
         Validate that length called on CSVData is appropriately determining the
         length value.
         """
 
         for input_file in self.file_or_buf_list:
-            data = Data(input_file["path"], sample_nrows=100)
-            self.assertEqual(100, len(data), msg=input_file["path"])
-            self.assertEqual(100, data.length, msg=input_file["path"])
+            data = Data(input_file["path"], options={"sample_nrows": 100})
+            self.assertEqual(
+                min(100, input_file["count"]), len(data), msg=input_file["path"]
+            )
+            self.assertEqual(
+                min(100, input_file["count"]), data.length, msg=input_file["path"]
+            )
 
     def test_is_structured(self):
         # Default construction

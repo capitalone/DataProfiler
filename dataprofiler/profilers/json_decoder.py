@@ -3,12 +3,14 @@ from typing import TYPE_CHECKING, Dict, Optional, Type
 
 if TYPE_CHECKING:
     from .base_column_profilers import BaseColumnProfiler
+    from .profiler_options import BaseOption
     from .profilers import column_profile_compilers as col_pro_compilers
 
 
 # default, but set in the local __init__ to avoid circular imports
 _profiles: Dict[str, Type["BaseColumnProfiler"]] = {}
 _compilers: Dict[str, Type["col_pro_compilers.BaseCompiler"]] = {}
+_options: Dict[str, Type["BaseOption"]] = {}
 
 
 def get_column_profiler_class(class_name: str) -> Type["BaseColumnProfiler"]:
@@ -45,6 +47,24 @@ def get_compiler_class(class_name: str) -> Type["col_pro_compilers.BaseCompiler"
     if compiler_class is None:
         raise ValueError(f"Invalid compiler class {class_name} " f"failed to load.")
     return compiler_class
+
+
+def get_option_class(class_name: str) -> Type["BaseOption"]:
+    """
+    Use name of class to return default-constructed version of that class.
+
+    Raises ValueError if class_name is not name of a subclass of
+        BaseOptions.
+
+    :param class_name: name of BaseOptions subclass retrieved by
+        calling type(instance).__name__
+    :type class_name: str representing name of class
+    :return: subclass of BaseOptions object
+    """
+    options_class: Optional[Type["BaseOption"]] = _options.get(class_name)
+    if options_class is None:
+        raise ValueError(f"Invalid option class {class_name} " f"failed to load.")
+    return options_class
 
 
 def load_column_profile(serialized_json: dict) -> "BaseColumnProfiler":
@@ -89,7 +109,7 @@ def load_compiler(serialized_json: dict) -> "col_pro_compilers.BaseCompiler":
             }
         }
 
-    :param serialized_json: JSON representation of column profiler that was
+    :param serialized_json: JSON representation of profile compiler that was
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
@@ -101,3 +121,29 @@ def load_compiler(serialized_json: dict) -> "col_pro_compilers.BaseCompiler":
         serialized_json["class"]
     )
     return column_profiler_cls.load_from_dict(serialized_json["data"])
+
+
+def load_option(serialized_json: dict) -> "BaseOption":
+    """
+    Construct subclass of BaseOption given a serialized JSON.
+
+    Expected format of serialized_json (see json_encoder):
+        {
+            "class": <str name of class that was serialized>
+            "data": {
+                <attr1>: <value1>
+                <attr2>: <value2>
+                ...
+            }
+        }
+
+    :param serialized_json: JSON representation of option that was
+        serialized using the custom encoder in profilers.json_encoder
+    :type serialized_json: a dict that was created by calling json.loads on
+        a JSON representation using the custom encoder
+    :return: subclass of BaseOption that has been deserialized from
+        JSON
+
+    """
+    option_cls: Type["BaseOption"] = get_compiler_class(serialized_json["class"])
+    return option_cls.load_from_dict(serialized_json["data"])

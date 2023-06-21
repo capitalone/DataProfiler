@@ -138,6 +138,24 @@ class BaseOption:
             return errors
         return None
 
+    @classmethod
+    def load_from_dict(cls, data) -> BaseOption:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
+        """
+        profile = cls()
+
+        for attr, value in data.items():
+            setattr(profile, attr, value)
+
+        return profile
+
     def __eq__(self, other: object) -> bool:
         """
         Determine equality by ensuring equality of all attributes.

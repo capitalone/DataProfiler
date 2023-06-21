@@ -4,6 +4,7 @@ from .base_column_profilers import BaseColumnProfiler
 from .categorical_column_profile import CategoricalColumn
 from .column_profile_compilers import (
     BaseCompiler,
+    ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
 )
@@ -30,6 +31,7 @@ json_decoder._profiles = {
 
 
 json_decoder._compilers = {
+    ColumnDataLabelerCompiler.__name__: ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler.__name__: ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler.__name__: ColumnStatsProfileCompiler,
 }

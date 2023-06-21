@@ -1,4 +1,5 @@
 import json
+from unittest import mock
 
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BooleanOption, UnstructuredOptions
@@ -157,14 +158,18 @@ class TestUnstructuredOptions(TestBaseOption):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected_class = "UnstructuredOptions"
-        expected_options_attributes = {"text", "data_labeler"}
+        expected = {
+            "class": "UnstructuredOptions",
+            "data": {
+                "text": {
+                    "class": "TextProfilerOptions",
+                    "data": mock.ANY,
+                },
+                "data_labeler": {
+                    "class": "DataLabelerOptions",
+                    "data": mock.ANY,
+                },
+            },
+        }
 
-        actual_option_json = json.loads(serialized)
-
-        self.assertIn("class", actual_option_json)
-        self.assertEqual(expected_class, actual_option_json["class"])
-        self.assertIn("data", actual_option_json)
-        self.assertEqual(
-            expected_options_attributes, set(actual_option_json["data"].keys())
-        )
+        self.assertDictEqual(expected, json.loads(serialized))

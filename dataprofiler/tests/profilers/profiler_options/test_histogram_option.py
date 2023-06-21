@@ -179,23 +179,12 @@ class TestHistogramOption(TestBooleanOption):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected_class = "HistogramOption"
-        expected_options_attributes = {"is_enabled", "bin_count_or_method"}
-        expected_is_enabled = option.is_enabled
-        expected_bin_count_or_method = option.bin_count_or_method
+        expected = {
+            "class": "HistogramOption",
+            "data": {
+                "bin_count_or_method": "doane",
+                "is_enabled": False,
+            },
+        }
 
-        actual_option_json = json.loads(serialized)
-
-        self.assertIn("class", actual_option_json)
-        self.assertEqual(expected_class, actual_option_json["class"])
-        self.assertIn("data", actual_option_json)
-        self.assertEqual(
-            expected_options_attributes, set(actual_option_json["data"].keys())
-        )
-        self.assertIn("is_enabled", actual_option_json["data"])
-        self.assertEqual(expected_is_enabled, actual_option_json["data"]["is_enabled"])
-        self.assertIn("bin_count_or_method", actual_option_json["data"])
-        self.assertEqual(
-            expected_bin_count_or_method,
-            actual_option_json["data"]["bin_count_or_method"],
-        )
+        self.assertDictEqual(expected, json.loads(serialized))

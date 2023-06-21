@@ -1,5 +1,6 @@
 pass
 import json
+from unittest import mock
 
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import TextOptions
@@ -79,30 +80,67 @@ class TestTextOptions(TestNumericalOptions):
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected_class = "TextOptions"
-        expected_options_attributes = {
-            "is_enabled",
-            "min",
-            "max",
-            "mode",
-            "median",
-            "sum",
-            "variance",
-            "skewness",
-            "kurtosis",
-            "median_abs_deviation",
-            "num_zeros",
-            "num_negatives",
-            "histogram_and_quantiles",
-            "bias_correction",
-            "vocab",
+        expected = {
+            "class": "TextOptions",
+            "data": {
+                "min": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "max": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "mode": {
+                    "class": "ModeOption",
+                    "data": mock.ANY,
+                },
+                "median": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "sum": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "variance": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "skewness": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "kurtosis": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "median_abs_deviation": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "num_zeros": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": False},
+                },
+                "num_negatives": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": False},
+                },
+                "histogram_and_quantiles": {
+                    "class": "HistogramOption",
+                    "data": mock.ANY,
+                },
+                "bias_correction": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "is_enabled": True,
+                "vocab": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+            },
         }
 
-        actual_option_json = json.loads(serialized)
-
-        self.assertIn("class", actual_option_json)
-        self.assertEqual(expected_class, actual_option_json["class"])
-        self.assertIn("data", actual_option_json)
-        self.assertEqual(
-            expected_options_attributes, set(actual_option_json["data"].keys())
-        )
+        self.assertDictEqual(expected, json.loads(serialized))

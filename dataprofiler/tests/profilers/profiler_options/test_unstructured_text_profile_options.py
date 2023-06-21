@@ -252,52 +252,24 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         option = TextProfilerOptions(
             is_enabled=False,
             is_case_sensitive=False,
-            stop_words={"ab", "aa", "aba", "aa"},
+            stop_words=["ab", "aa", "aba"],
             top_k_chars=5,
             top_k_words=8,
         )
+
         serialized = json.dumps(option, cls=ProfileEncoder)
 
-        expected_class = "TextProfilerOptions"
-        expected_options_attributes = {
-            "is_enabled",
-            "is_case_sensitive",
-            "stop_words",
-            "top_k_chars",
-            "top_k_words",
-            "vocab",
-            "words",
+        expected = {
+            "class": "TextProfilerOptions",
+            "data": {
+                "is_enabled": False,
+                "is_case_sensitive": False,
+                "top_k_chars": 5,
+                "top_k_words": 8,
+                "stop_words": ["ab", "aa", "aba"],
+                "vocab": {"class": "BooleanOption", "data": {"is_enabled": True}},
+                "words": {"class": "BooleanOption", "data": {"is_enabled": True}},
+            },
         }
-        expected_is_enabled = option.is_enabled
-        expected_is_case_sensitive = option.is_case_sensitive
-        expected_stop_words = option.stop_words
-        expected_top_k_chars = option.top_k_chars
-        expected_top_k_words = option.top_k_words
 
-        actual_option_json = json.loads(serialized)
-
-        self.assertIn("class", actual_option_json)
-        self.assertEqual(expected_class, actual_option_json["class"])
-        self.assertIn("data", actual_option_json)
-        self.assertEqual(
-            expected_options_attributes, set(actual_option_json["data"].keys())
-        )
-        self.assertIn("is_enabled", actual_option_json["data"])
-        self.assertEqual(expected_is_enabled, actual_option_json["data"]["is_enabled"])
-        self.assertIn("is_case_sensitive", actual_option_json["data"])
-        self.assertEqual(
-            expected_is_case_sensitive,
-            actual_option_json["data"]["is_case_sensitive"],
-        )
-        self.assertIn("stop_words", actual_option_json["data"])
-        self.assertEqual(
-            expected_stop_words, set(actual_option_json["data"]["stop_words"])
-        )
-        self.assertIn("top_k_chars", actual_option_json["data"])
-        self.assertEqual(
-            expected_top_k_chars, actual_option_json["data"]["top_k_chars"]
-        )
-        self.assertIn("top_k_words", actual_option_json["data"])
-        self.assertEqual(
-            expected_top_k_words, actual_option_json["data"]["top_k_words"]
-        )
+        self.assertDictEqual(expected, json.loads(serialized))

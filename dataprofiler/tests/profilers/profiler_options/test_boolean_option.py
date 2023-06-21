@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BooleanOption
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
@@ -87,3 +90,15 @@ class TestBooleanOption(TestBaseOption):
         self.assertNotEqual(options, options2)
         options2.is_enabled = False
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = BooleanOption(is_enabled=False)
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "BooleanOption",
+            "data": {"is_enabled": False},
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

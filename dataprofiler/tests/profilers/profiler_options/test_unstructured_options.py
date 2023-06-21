@@ -1,3 +1,7 @@
+import json
+from unittest import mock
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BooleanOption, UnstructuredOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
@@ -148,3 +152,24 @@ class TestUnstructuredOptions(TestBaseOption):
         self.assertNotEqual(options, options2)
         options2.text.stop_words = ["woah", "stop", "right", "there"]
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = UnstructuredOptions()
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "UnstructuredOptions",
+            "data": {
+                "text": {
+                    "class": "TextProfilerOptions",
+                    "data": mock.ANY,
+                },
+                "data_labeler": {
+                    "class": "DataLabelerOptions",
+                    "data": mock.ANY,
+                },
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

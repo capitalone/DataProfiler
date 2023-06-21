@@ -1028,6 +1028,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_categories": defaultdict(int),
                     "_CategoricalColumn__calculations": dict(),
                     "_top_k_categories": None,
+                    "_heavy_hitters_threshold": None,
                     "max_sample_size_to_check_stop_condition": None,
                     "stop_condition_unique_value_ratio": None,
                     "_stop_condition_is_met": False,
@@ -1076,6 +1077,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_categories": {"c": 5, "b": 4, "a": 3},
                     "_CategoricalColumn__calculations": {},
                     "_top_k_categories": None,
+                    "_heavy_hitters_threshold": None,
                     "max_sample_size_to_check_stop_condition": None,
                     "stop_condition_unique_value_ratio": None,
                     "_stop_condition_is_met": False,
@@ -1127,6 +1129,43 @@ class TestCategoricalColumn(unittest.TestCase):
         deserialized = decode_column_profiler(serialized)
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_cms_heavy_hitters_threshold(self):
+
+        df_categorical = pd.Series(
+            [
+                "a",
+                "a",
+                "a",
+                "a",
+                "a",
+                "b",
+                "b",
+                "b",
+                "b",
+                "b",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+            ]
+        )
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.heavy_hitters_threshold = 2
+
+        profile = CategoricalColumn("test_name", options)
+        profile.update(df_categorical)
+
+        self.assertEqual(1, len(profile.categories))
 
 
 class TestCategoricalSentence(unittest.TestCase):

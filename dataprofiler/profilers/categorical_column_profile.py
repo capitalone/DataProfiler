@@ -45,6 +45,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
         self._top_k_categories: int | None = None
+        self._heavy_hitters_threshold: int | None = None
 
         # Conditions to stop categorical profiling
         self.max_sample_size_to_check_stop_condition = None
@@ -66,6 +67,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             self._cms_relative_error = options.cms_relative_error
 
             if options.cms:
+                self._heavy_hitters_threshold = options.heavy_hitters_threshold
                 self.num_hashes = count_min_sketch.suggest_num_hashes(
                     options.cms_confidence
                 )
@@ -359,14 +361,16 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: None
         """
         if self.cms is not None:
-            if self._top_k_categories is None:
-                raise ValueError("when using CMS, top_k must be an integer")
+            if self._heavy_hitters_threshold is None:
+                raise ValueError(
+                    "when using CMS, heavy_hitters_threshold must be an integer"
+                )
             category_count = defaultdict(int)
             for i in df_series:
                 self.cms.update(i)
                 # approximate heavy-hitters
                 if self.cms.get_estimate(i) >= int(
-                    self.sample_size / self._top_k_categories
+                    len(df_series) / self._heavy_hitters_threshold
                 ):
                     category_count[i] = self.cms.get_estimate(i)
 

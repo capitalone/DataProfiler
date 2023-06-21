@@ -872,8 +872,9 @@ class CategoricalOptions(BaseInspectorOptions):
         top_k_categories: int | None = None,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
-        cms_confidence: float | None = None,
-        cms_relative_error: float | None = None,
+        cms: bool = False,
+        cms_confidence: float | None = 0.95,
+        cms_relative_error: float | None = 0.01,
     ) -> None:
         """
         Initialize options for the Categorical Column.
@@ -888,9 +889,13 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar stop_condition_unique_value_ratio: The highest ratio of unique
             values to dataset size that is to be considered a categorical type
         :vartype stop_condition_unique_value_ratio: [None, float]
-        :ivar cms_confidence: TODO: BLAH BLAH eg. confidence = 1 - failure probability
+        :ivar cms: boolean option for using count min sketch
+        :vartype cms: bool
+        :ivar cms_confidence: defines the number of hashes used in CMS.
+            eg. confidence = 1 - failure probability, default 0.95
         :vartype cms_confidence: [None, float]
-        :ivar cms_relative_error: TODO: BLAH BLAH
+        :ivar cms_relative_error: defines the number of buckets used in CMS,
+            default 0.01
         :vartype cms_relative_error: [None, float]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
@@ -899,6 +904,7 @@ class CategoricalOptions(BaseInspectorOptions):
             max_sample_size_to_check_stop_condition
         )
         self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
+        self.cms = cms
         self.cms_confidence = cms_confidence
         self.cms_relative_error = cms_relative_error
 
@@ -968,9 +974,7 @@ class CategoricalOptions(BaseInspectorOptions):
                 " or a float between 0 and 1".format(variable_path)
             )
 
-        if self.cms_confidence is not None and not isinstance(
-            self.top_k_categories, int
-        ):
+        if self.cms and not isinstance(self.top_k_categories, int):
             errors.append(
                 "{}.if using count min sketch, you must pass an"
                 "integer value for top_k_categories".format(variable_path)

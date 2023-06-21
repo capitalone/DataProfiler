@@ -53,7 +53,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         self._stopped_at_unique_ratio: float | None = None
         self._stopped_at_unique_count: int | None = None
-        self.cm = None
+        self.cms = None
         if options:
             self._top_k_categories = options.top_k_categories
             self.stop_condition_unique_value_ratio = (
@@ -65,14 +65,14 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             self._cms_confidence = options.cms_confidence
             self._cms_relative_error = options.cms_relative_error
 
-            if self._cms_confidence and self._cms_relative_error:
+            if options.cms:
                 self.num_hashes = count_min_sketch.suggest_num_hashes(
-                    self._cms_confidence
+                    options.cms_confidence
                 )
                 self.num_buckets = count_min_sketch.suggest_num_buckets(
-                    self._cms_relative_error
+                    options.cms_relative_error
                 )
-                self.cm = count_min_sketch(self.num_hashes, self.num_buckets)
+                self.cms = count_min_sketch(self.num_hashes, self.num_buckets)
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -358,17 +358,17 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        if self.cm is not None:
+        if self.cms is not None:
             if self._top_k_categories is None:
                 raise ValueError("when using CMS, top_k must be an integer")
             category_count = defaultdict(int)
             for i in df_series:
-                self.cm.update(i)
+                self.cms.update(i)
                 # approximate heavy-hitters
-                if self.cm.get_estimate(i) >= int(
+                if self.cms.get_estimate(i) >= int(
                     self.sample_size / self._top_k_categories
                 ):
-                    category_count[i] = self.cm.get_estimate(i)
+                    category_count[i] = self.cms.get_estimate(i)
 
             self._categories = utils.add_nested_dictionaries(
                 self._categories, category_count

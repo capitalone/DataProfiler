@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING, Dict, Optional, Type
 
 if TYPE_CHECKING:
     from .base_column_profilers import BaseColumnProfiler
+    from .column_profile_compilers import BaseCompiler
     from .profiler_options import BaseOption
-    from .profilers import column_profile_compilers as col_pro_compilers
 
 
 # default, but set in the local __init__ to avoid circular imports
 _profiles: Dict[str, Type["BaseColumnProfiler"]] = {}
-_compilers: Dict[str, Type["col_pro_compilers.BaseCompiler"]] = {}
+_compilers: Dict[str, Type["BaseCompiler"]] = {}
 _options: Dict[str, Type["BaseOption"]] = {}
 
 
@@ -31,7 +31,7 @@ def get_column_profiler_class(class_name: str) -> Type["BaseColumnProfiler"]:
     return profile_class
 
 
-def get_compiler_class(class_name: str) -> Type["col_pro_compilers.BaseCompiler"]:
+def get_compiler_class(class_name: str) -> Type["BaseCompiler"]:
     """
     Use name of class to return default-constructed version of that class.
 
@@ -43,7 +43,7 @@ def get_compiler_class(class_name: str) -> Type["col_pro_compilers.BaseCompiler"
     :type class_name: str representing name of class
     :return: subclass of BaseCompiler object
     """
-    compiler_class: Optional[Type["BaseColumnProfiler"]] = _compilers.get(class_name)
+    compiler_class: Optional[Type["BaseCompiler"]] = _compilers.get(class_name)
     if compiler_class is None:
         raise ValueError(f"Invalid compiler class {class_name} " f"failed to load.")
     return compiler_class
@@ -95,7 +95,7 @@ def load_column_profile(serialized_json: dict) -> "BaseColumnProfiler":
     return column_profiler_cls.load_from_dict(serialized_json["data"])
 
 
-def load_compiler(serialized_json: dict) -> "col_pro_compilers.BaseCompiler":
+def load_compiler(serialized_json: dict) -> "BaseCompiler":
     """
     Construct subclass of BaseCompiler given a serialized JSON.
 
@@ -117,7 +117,7 @@ def load_compiler(serialized_json: dict) -> "col_pro_compilers.BaseCompiler":
         JSON
 
     """
-    column_profiler_cls: Type["col_pro_compilers.BaseCompiler"] = get_compiler_class(
+    column_profiler_cls: Type["BaseCompiler"] = get_compiler_class(
         serialized_json["class"]
     )
     return column_profiler_cls.load_from_dict(serialized_json["data"])
@@ -145,5 +145,5 @@ def load_option(serialized_json: dict) -> "BaseOption":
         JSON
 
     """
-    option_cls: Type["BaseOption"] = get_compiler_class(serialized_json["class"])
+    option_cls: Type["BaseOption"] = get_option_class(serialized_json["class"])
     return option_cls.load_from_dict(serialized_json["data"])

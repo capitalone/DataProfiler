@@ -1,13 +1,10 @@
 import json
 
-from dataprofiler.profilers.json_decoder import load_option
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BooleanOption
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
 )
-
-from .. import utils as test_utils
 
 
 class TestBooleanOption(TestBaseOption):
@@ -105,11 +102,3 @@ class TestBooleanOption(TestBaseOption):
         }
 
         self.assertDictEqual(expected, json.loads(serialized))
-
-    def test_json_decode(self):
-        expected_profile = BooleanOption()
-
-        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = load_option(json.loads(serialized))
-
-        test_utils.assert_profiles_equal(deserialized, expected_profile)

@@ -5,6 +5,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
+from dataprofiler.labelers import BaseDataLabeler
 from dataprofiler.profilers import column_profile_compilers as col_pro_compilers
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.json_decoder import load_compiler
@@ -609,11 +610,20 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
         assert deserialized.report().get("categorical", None) == False
 
 
-@mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
 @mock.patch(
-    "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+    "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+    spec=BaseDataLabeler,
 )
 class TestColumnDataLabelerCompiler(unittest.TestCase):
+    @staticmethod
+    def _setup_data_labeler_mock(mock_instance):
+        mock_DataLabeler = mock_instance.return_value
+        mock_DataLabeler.label_mapping = {"a": 0, "b": 1}
+        mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
+        mock_DataLabeler.model.num_labels = 2
+        mock_DataLabeler.model.requires_zero_mapping = False
+        mock_instance.load_from_library.side_effect = mock_instance
+
     def test_column_data_labeler_compiler_report(self, *mocked_datalabeler):
         structured_options = StructuredOptions()
         data1 = pd.Series(["2.6", "-1.8", "-2.3"])
@@ -742,7 +752,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         self.assertEqual(expected, serialized)
 
     def test_json_decode_after_update(self, *mocked_datalabeler):
-        data = pd.Series(["-2", "-1", "1", "15"])
+        data = pd.Series(["-2", "-1", "1", "15"], name="test")
         with test_utils.mock_timeit():
             expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
 

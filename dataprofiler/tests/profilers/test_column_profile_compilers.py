@@ -622,9 +622,25 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
         mock_DataLabeler.model.num_labels = 2
         mock_DataLabeler.model.requires_zero_mapping = False
+        mock_DataLabeler._default_model_loc = "structured_model"
+
         mock_instance.load_from_library.side_effect = mock_instance
 
-    def test_column_data_labeler_compiler_report(self, *mocked_datalabeler):
+        def mock_predict(data, *args, **kwargs):
+            len_data = len(data)
+            output = [[1, 0], [0, 1]] * (len_data // 2)
+            if len_data % 2:
+                output += [[1, 0]]
+            conf = np.array(output)
+            if mock_DataLabeler.model.requires_zero_mapping:
+                conf = np.concatenate([[[0]] * len_data, conf], axis=1)
+            pred = np.argmax(conf, axis=1)
+            return {"pred": pred, "conf": conf}
+
+        mock_DataLabeler.predict.side_effect = mock_predict
+
+    def test_column_data_labeler_compiler_report(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
         structured_options = StructuredOptions()
         data1 = pd.Series(["2.6", "-1.8", "-2.3"])
         compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(
@@ -724,7 +740,9 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(expected_compiler, deserialized)
 
-    def test_json_encode_after_update(self, *mocked_datalabeler):
+    def test_json_encode_after_update(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+
         data = pd.Series(["-2", "-1", "1", "2"])
         with test_utils.mock_timeit():
             compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
@@ -751,7 +769,11 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         self.assertEqual(expected, serialized)
 
-    def test_json_decode_after_update(self, *mocked_datalabeler):
+    def test_json_decode_after_update(self, mock_instance):
+
+        self._setup_data_labeler_mock(mock_instance)
+        mock_instance._default_model_loc = "structured_model"
+
         data = pd.Series(["-2", "-1", "1", "15"], name="test")
         with test_utils.mock_timeit():
             expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
@@ -761,12 +783,17 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_compiler)
         # assert before update
-        assert deserialized.report().get("data_label", None) == "INTEGER"
+        assert deserialized.report().get("data_label", None) == "a|b"
         assert (
-            deserialized.report()
-            .get("statistics", None)
-            .get("avg_predictions", None)
-            .get("INTEGER", None)
+            sum(
+                [
+                    v
+                    for k, v in deserialized.report()
+                    .get("statistics", None)
+                    .get("avg_predictions", None)
+                    .items()
+                ]
+            )
             == 1.0
         )
 
@@ -774,13 +801,18 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         # validating update after deserialization with a few small tests
         deserialized.update_profile(new_data)
-        assert deserialized.report().get("data_label", None) == "INTEGER"
+        assert deserialized.report().get("data_label", None) == "a|b"
         assert (
-            deserialized.report()
-            .get("statistics", None)
-            .get("avg_predictions", None)
-            .get("INTEGER", None)
-            == 0.9951923076923077
+            sum(
+                [
+                    v
+                    for k, v in deserialized.report()
+                    .get("statistics", None)
+                    .get("avg_predictions", None)
+                    .items()
+                ]
+            )
+            == 1.0
         )
 
 

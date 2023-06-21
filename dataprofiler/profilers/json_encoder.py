@@ -1,11 +1,17 @@
 """Contains ProfilerEncoder class."""
+
 import json
 
 import numpy as np
 import pandas as pd
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from . import base_column_profilers, column_profile_compilers, numerical_column_stats
+from . import (
+    base_column_profilers,
+    column_profile_compilers,
+    numerical_column_stats,
+    profiler_options,
+)
 
 
 class ProfileEncoder(json.JSONEncoder):
@@ -25,9 +31,12 @@ class ProfileEncoder(json.JSONEncoder):
                 base_column_profilers.BaseColumnProfiler,
                 numerical_column_stats.NumericStatsMixin,
                 column_profile_compilers.BaseCompiler,
+                profiler_options.BaseOption,
             ),
         ):
             return {"class": type(to_serialize).__name__, "data": to_serialize.__dict__}
+        elif isinstance(to_serialize, set):
+            return list(to_serialize)
         elif isinstance(to_serialize, np.integer):
             return int(to_serialize)
         elif isinstance(to_serialize, np.ndarray):
@@ -47,4 +56,5 @@ class ProfileEncoder(json.JSONEncoder):
 
         elif callable(to_serialize):
             return to_serialize.__name__
+
         return json.JSONEncoder.default(self, to_serialize)

@@ -5,6 +5,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
+from dataprofiler.labelers import BaseDataLabeler
 from dataprofiler.profilers import column_profile_compilers as col_pro_compilers
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.json_decoder import load_compiler
@@ -86,77 +87,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         merged_compiler = compiler1 + compiler2
         self.assertEqual(3, merged_compiler._profiles["test"])
         self.assertEqual("compiler1", merged_compiler.name)
-
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
-    @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
-    )
-    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
-        # Initialize dummy data
-        data = pd.Series([])
-
-        # Test normal diff
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
-        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
-
-        # Mock out the data_label, avg_predictions, and label_representation
-        # properties
-        with mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile"
-            ".DataLabelerColumn.data_label"
-        ), mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile."
-            "DataLabelerColumn.avg_predictions"
-        ), mock.patch(
-            "dataprofiler.profilers.data_labeler_column_profile."
-            "DataLabelerColumn.label_representation"
-        ):
-            compiler1._profiles["data_labeler"].sample_size = 20
-            compiler1._profiles["data_labeler"].data_label = "a"
-            compiler1._profiles["data_labeler"].avg_predictions = {
-                "a": 0.25,
-                "b": 0.0,
-                "c": 0.75,
-            }
-            compiler1._profiles["data_labeler"].label_representation = {
-                "a": 0.15,
-                "b": 0.01,
-                "c": 0.84,
-            }
-
-            compiler2._profiles["data_labeler"].sample_size = 20
-            compiler2._profiles["data_labeler"].data_label = "b"
-            compiler2._profiles["data_labeler"].avg_predictions = {
-                "a": 0.25,
-                "b": 0.70,
-                "c": 0.05,
-            }
-            compiler2._profiles["data_labeler"].label_representation = {
-                "a": 0.99,
-                "b": 0.01,
-                "c": 0.0,
-            }
-
-            expected_diff = {
-                "statistics": {
-                    "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
-                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
-                },
-                "data_label": [["a"], [], ["b"]],
-            }
-            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling one datalabeler profile for compiler diff
-        options = StructuredOptions()
-        options.data_labeler.is_enabled = False
-        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
-        # Test disabling both datalabeler profiles for compiler diff
-        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
-        expected_diff = {}
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
     @mock.patch.multiple(col_pro_compilers.BaseCompiler, __abstractmethods__=set())
     def test_no_profilers_error(self):
@@ -532,7 +462,7 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
 
 
 class TestColumnStatsProfileCompiler(unittest.TestCase):
-    def test_primitive_compiler_report(self):
+    def test_column_stats_profile_compiler_report(self):
         structured_options = StructuredOptions()
         structured_options.category.is_enabled = False
         data1 = pd.Series(["2.6", "-1.8", "-2.3"])
@@ -553,7 +483,7 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
         self.assertIn("categorical", report)
         self.assertNotIn("order", report)
 
-    def test_compiler_stats_diff(self):
+    def test_column_stats_profile_compiler_stats_diff(self):
         data1 = pd.Series(["1", "9", "9"])
         data2 = pd.Series(["10", "9", "9", "9"])
         options = StructuredOptions()
@@ -678,6 +608,212 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
         deserialized.update_profile(df_float)
         assert deserialized.report().get("order", None) == "random"
         assert deserialized.report().get("categorical", None) == False
+
+
+@mock.patch(
+    "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+    spec=BaseDataLabeler,
+)
+class TestColumnDataLabelerCompiler(unittest.TestCase):
+    @staticmethod
+    def _setup_data_labeler_mock(mock_instance):
+        mock_DataLabeler = mock_instance.return_value
+        mock_DataLabeler.label_mapping = {"a": 0, "b": 1}
+        mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
+        mock_DataLabeler.model.num_labels = 2
+        mock_DataLabeler.model.requires_zero_mapping = False
+        mock_DataLabeler._default_model_loc = "structured_model"
+
+        mock_instance.load_from_library.side_effect = mock_instance
+
+        def mock_predict(data, *args, **kwargs):
+            len_data = len(data)
+            output = [[1, 0], [0, 1]] * (len_data // 2)
+            if len_data % 2:
+                output += [[1, 0]]
+            conf = np.array(output)
+            if mock_DataLabeler.model.requires_zero_mapping:
+                conf = np.concatenate([[[0]] * len_data, conf], axis=1)
+            pred = np.argmax(conf, axis=1)
+            return {"pred": pred, "conf": conf}
+
+        mock_DataLabeler.predict.side_effect = mock_predict
+
+    def test_column_data_labeler_compiler_report(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+        structured_options = StructuredOptions()
+        data1 = pd.Series(["2.6", "-1.8", "-2.3"])
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(
+            data1, structured_options
+        )
+        report = compiler1.report(remove_disabled_flag=True)
+        self.assertIn("data_label", report)
+        self.assertIn("statistics", report)
+
+    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
+        # Initialize dummy data
+        data = pd.Series([])
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        # Mock out the data_label, avg_predictions, and label_representation
+        # properties
+        with mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile"
+            ".DataLabelerColumn.data_label"
+        ), mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile."
+            "DataLabelerColumn.avg_predictions"
+        ), mock.patch(
+            "dataprofiler.profilers.data_labeler_column_profile."
+            "DataLabelerColumn.label_representation"
+        ):
+            compiler1._profiles["data_labeler"].sample_size = 20
+            compiler1._profiles["data_labeler"].data_label = "a"
+            compiler1._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.0,
+                "c": 0.75,
+            }
+            compiler1._profiles["data_labeler"].label_representation = {
+                "a": 0.15,
+                "b": 0.01,
+                "c": 0.84,
+            }
+
+            compiler2._profiles["data_labeler"].sample_size = 20
+            compiler2._profiles["data_labeler"].data_label = "b"
+            compiler2._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.70,
+                "c": 0.05,
+            }
+            compiler2._profiles["data_labeler"].label_representation = {
+                "a": 0.99,
+                "b": 0.01,
+                "c": 0.0,
+            }
+
+            expected_diff = {
+                "statistics": {
+                    "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
+                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
+                },
+                "data_label": [["a"], [], ["b"]],
+            }
+            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling one datalabeler profile for compiler diff
+        options = StructuredOptions()
+        options.data_labeler.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling both datalabeler profiles for compiler diff
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+    def test_json_encode(self, *mocked_datalabeler):
+        compiler = col_pro_compilers.ColumnDataLabelerCompiler()
+
+        serialized = json.dumps(compiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "ColumnDataLabelerCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {},
+                },
+            }
+        )
+        self.assertEqual(expected, serialized)
+
+    def test_json_decode(self, *mocked_datalabeler):
+        expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler()
+        serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
+
+        deserialized = load_compiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(expected_compiler, deserialized)
+
+    def test_json_encode_after_update(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+
+        data = pd.Series(["-2", "-1", "1", "2"])
+        with test_utils.mock_timeit():
+            compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        with mock.patch.object(
+            compiler._profiles["data_labeler"], "__dict__", {"data_label": "INTEGER"}
+        ):
+            serialized = json.dumps(compiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "ColumnDataLabelerCompiler",
+                "data": {
+                    "name": None,
+                    "_profiles": {
+                        "data_labeler": {
+                            "class": "DataLabelerColumn",
+                            "data": {"data_label": "INTEGER"},
+                        },
+                    },
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
+
+    def test_json_decode_after_update(self, mock_instance):
+
+        self._setup_data_labeler_mock(mock_instance)
+        mock_instance._default_model_loc = "structured_model"
+
+        data = pd.Series(["-2", "-1", "1", "15"], name="test")
+        with test_utils.mock_timeit():
+            expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
+        deserialized = load_compiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_compiler)
+        # assert before update
+        assert deserialized.report().get("data_label", None) == "a|b"
+        assert (
+            sum(
+                [
+                    v
+                    for k, v in deserialized.report()
+                    .get("statistics", None)
+                    .get("avg_predictions", None)
+                    .items()
+                ]
+            )
+            == 1.0
+        )
+
+        new_data = pd.Series(list(range(100))).apply(str)
+
+        # validating update after deserialization with a few small tests
+        deserialized.update_profile(new_data)
+        assert deserialized.report().get("data_label", None) == "a|b"
+        assert (
+            sum(
+                [
+                    v
+                    for k, v in deserialized.report()
+                    .get("statistics", None)
+                    .get("avg_predictions", None)
+                    .items()
+                ]
+            )
+            == 1.0
+        )
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

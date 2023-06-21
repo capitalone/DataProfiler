@@ -50,6 +50,29 @@ class TestCategoricalColumn(unittest.TestCase):
         }
         self.assertCountEqual(categories, profile.categories)
 
+    def test_cms_correct_categorical_model_string(self):
+        options = CategoricalOptions()
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.1
+        options.top_k_categories = 5
+        dataset = self.aws_dataset["host"].dropna()
+        profile = CategoricalColumn(dataset.name, options)
+        profile.update(dataset)
+        self.assertEqual(1.0, profile.is_match)
+        self.assertEqual(2997, profile.sample_size)
+        categories = {
+            "groucho-oregon",
+            "groucho-us-east",
+            "groucho-singapore",
+            "groucho-tokyo",
+            "groucho-sa",
+            "zeppo-norcal",
+            "groucho-norcal",
+            "groucho-eu",
+            "groucho-sydney",
+        }
+        self.assertCountEqual(categories, profile.categories)
+
     def test_stop_condition_is_met_initially(self):
         dataset = pd.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
         profile = CategoricalColumn("test dataset")
@@ -107,6 +130,178 @@ class TestCategoricalColumn(unittest.TestCase):
             profile.update(dataset)
             expected = defaultdict(float, {"categories": 2.0})
             self.assertEqual(expected, profile.profile["times"])
+
+        options = CategoricalOptions()
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.1
+        options.top_k_categories = 5
+
+    def test_cms_mixed_categorical_col_integer_string(self):
+        options = CategoricalOptions()
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.1
+        options.top_k_categories = 5
+        dataset = self.aws_dataset["localeabbr"].dropna()
+        profile = CategoricalColumn(dataset.name, options)
+        profile.update(dataset)
+
+        categories = {
+            "36",
+            "OR",
+            "IL",
+            "41",
+            "51",
+            "13",
+            "21",
+            "WA",
+            "11",
+            "CA",
+            "37",
+            "TX",
+            "10",
+            "SPE",
+            "34",
+            "32",
+            "35",
+            "23",
+            "NM",
+            "NV",
+            "33",
+            "44",
+            "22",
+            "GR",
+            "15",
+            "MI",
+            "43",
+            "FL",
+            "TA",
+            "KY",
+            "SP",
+            "SE",
+            "AZ",
+            "42",
+            "NJ",
+            "DC",
+            "77",
+            "50",
+            "NGR",
+            "31",
+            "DIF",
+            "61",
+            "45",
+            "NY",
+            "MH",
+            "ALT",
+            "CH",
+            "NSW",
+            "MS",
+            "81",
+            "GP",
+            "KU",
+            "14",
+            "53",
+            "64",
+            "AP",
+            "38",
+            "IRK",
+            "CL",
+            "TXG",
+            "LUA",
+            "ANT",
+            "PA",
+            "QC",
+            "RS",
+            "MO",
+            "C",
+            "MOW",
+            "ENG",
+            "ON",
+            "CE",
+            "TN",
+            "PI",
+            "VLG",
+            "DL",
+            "VL",
+            "GE",
+            "WP",
+            "GO",
+            "BS",
+            "KEM",
+            "MA",
+            "BEL",
+            "LB",
+            "CU",
+            "EC",
+            "PB",
+            "RIX",
+            "B",
+            "RJ",
+            "VA",
+            "7",
+            "SL",
+            "BE",
+            "47",
+            "RM",
+            "BIH",
+            "SD",
+            "OH",
+            "PR",
+            "M",
+            "SN",
+            "COR",
+            "63",
+            "E",
+            "BD",
+            "VI",
+            "SAM",
+            "BA",
+            "WY",
+            "62",
+            "4",
+            "PER",
+            "WKO",
+            "KYA",
+            "6",
+            "MN",
+            "SA",
+            "8",
+            "CO",
+            "IS",
+            "RIS",
+            "FS",
+            "IN",
+            "LIV",
+            "IA",
+            "24",
+            "VIC",
+            "27",
+            "16",
+            "PK",
+            "WB",
+            "NH",
+            "DAS",
+            "CT",
+            "CN",
+            "BIR",
+            "NVS",
+            "MG",
+            "3",
+            "PH",
+            "TO",
+            "1",
+            "HE",
+            "VGG",
+            "BU",
+            "AB",
+            "NIZ",
+            "92",
+            "46",
+            "MZ",
+            "FR",
+        }
+
+        self.assertEqual(2120, profile.sample_size)
+        self.assertCountEqual(categories, profile.categories)
 
     def test_mixed_categorical_col_integer_string(self):
         dataset = self.aws_dataset["localeabbr"].dropna()
@@ -843,7 +1038,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
-                    "cm": None,
+                    "cms": None,
                 },
             }
         )
@@ -891,7 +1086,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
-                    "cm": None,
+                    "cms": None,
                 },
             }
         )

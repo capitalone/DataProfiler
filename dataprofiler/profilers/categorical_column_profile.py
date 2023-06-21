@@ -44,7 +44,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._categories: dict[str, int] = defaultdict(int)
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self._top_k_categories: int | None = 0
+        self._top_k_categories: int | None = None
 
         # Conditions to stop categorical profiling
         self.max_sample_size_to_check_stop_condition = None

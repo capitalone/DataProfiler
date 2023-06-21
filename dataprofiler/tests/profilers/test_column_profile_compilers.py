@@ -774,7 +774,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         self._setup_data_labeler_mock(mock_instance)
         mock_instance._default_model_loc = "structured_model"
 
-        data = pd.Series(["-2", "-1", "1", "15"], name="test")
+        data = pd.Series(["2", "-1", "1", "2"], name="test")
         with test_utils.mock_timeit():
             expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
 
@@ -785,34 +785,38 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         # assert before update
         assert deserialized.report().get("data_label", None) == "a|b"
         assert (
-            sum(
-                [
-                    v
-                    for k, v in deserialized.report()
-                    .get("statistics", None)
-                    .get("avg_predictions", None)
-                    .items()
-                ]
-            )
-            == 1.0
+            deserialized.report()
+            .get("statistics", None)
+            .get("data_label_representation", None)
+            .get("a", None)
+            == 0.5
+        )
+        assert (
+            deserialized.report()
+            .get("statistics", None)
+            .get("data_label_representation", None)
+            .get("b", None)
+            == 0.5
         )
 
-        new_data = pd.Series(list(range(100))).apply(str)
+        new_data = pd.Series([100]).apply(str)
 
         # validating update after deserialization with a few small tests
         deserialized.update_profile(new_data)
         assert deserialized.report().get("data_label", None) == "a|b"
         assert (
-            sum(
-                [
-                    v
-                    for k, v in deserialized.report()
-                    .get("statistics", None)
-                    .get("avg_predictions", None)
-                    .items()
-                ]
-            )
-            == 1.0
+            deserialized.report()
+            .get("statistics", None)
+            .get("data_label_representation", None)
+            .get("a", None)
+            == 0.6
+        )
+        assert (
+            deserialized.report()
+            .get("statistics", None)
+            .get("data_label_representation", None)
+            .get("b", None)
+            == 0.4
         )
 
 

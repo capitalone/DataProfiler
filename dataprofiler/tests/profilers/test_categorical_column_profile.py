@@ -843,6 +843,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
+                    "cm": None,
                 },
             }
         )
@@ -890,6 +891,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
+                    "cm": None,
                 },
             }
         )

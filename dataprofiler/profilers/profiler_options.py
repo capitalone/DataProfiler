@@ -869,7 +869,7 @@ class CategoricalOptions(BaseInspectorOptions):
     def __init__(
         self,
         is_enabled: bool = True,
-        top_k_categories: int = 1,
+        top_k_categories: int | None = None,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
         cms_confidence: float | None = None,

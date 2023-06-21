@@ -44,7 +44,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._categories: dict[str, int] = defaultdict(int)
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self._top_k_categories: int = 1
+        self._top_k_categories: int | None = 0
 
         # Conditions to stop categorical profiling
         self.max_sample_size_to_check_stop_condition = None
@@ -53,6 +53,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         self._stopped_at_unique_ratio: float | None = None
         self._stopped_at_unique_count: int | None = None
+        self.cm = None
         if options:
             self._top_k_categories = options.top_k_categories
             self.stop_condition_unique_value_ratio = (
@@ -64,12 +65,14 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             self._cms_confidence = options.cms_confidence
             self._cms_relative_error = options.cms_relative_error
 
-        if self._cms_confidence and self._cms_relative_error:
-            self.num_hashes = count_min_sketch.suggest_num_hashes(self._cms_confidence)
-            self.num_buckets = count_min_sketch.suggest_num_buckets(
-                self._cms_relative_error
-            )
-            self.cm = count_min_sketch(self.num_hashes, self.num_buckets)
+            if self._cms_confidence and self._cms_relative_error:
+                self.num_hashes = count_min_sketch.suggest_num_hashes(
+                    self._cms_confidence
+                )
+                self.num_buckets = count_min_sketch.suggest_num_buckets(
+                    self._cms_relative_error
+                )
+                self.cm = count_min_sketch(self.num_hashes, self.num_buckets)
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -355,7 +358,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        if self.cm:
+        if self.cm is not None:
+            if self._top_k_categories is None:
+                raise ValueError("when using CMS, top_k must be an integer")
             category_count = defaultdict(int)
             for i in df_series:
                 self.cm.update(i)

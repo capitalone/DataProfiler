@@ -131,11 +131,6 @@ class TestCategoricalColumn(unittest.TestCase):
             expected = defaultdict(float, {"categories": 2.0})
             self.assertEqual(expected, profile.profile["times"])
 
-        options = CategoricalOptions()
-        options.cms_confidence = 0.95
-        options.cms_relative_error = 0.1
-        options.top_k_categories = 5
-
     def test_cms_mixed_categorical_col_integer_string(self):
         options = CategoricalOptions()
         options.cms_confidence = 0.95

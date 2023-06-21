@@ -11,7 +11,7 @@ from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 
 
-class CategoricalColumn(BaseColumnProfiler):
+class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
     """
     Categorical column profile subclass of BaseColumnProfiler.
 

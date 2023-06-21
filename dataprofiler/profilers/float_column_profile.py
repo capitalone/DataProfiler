@@ -13,7 +13,9 @@ from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import FloatOptions
 
 
-class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ignore
+class FloatColumn(
+    NumericStatsMixin["FloatColumn"], BaseColumnPrimitiveTypeProfiler["FloatColumn"]
+):
     """
     Float column profile mixin with numerical stats.
 

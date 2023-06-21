@@ -13,7 +13,7 @@ from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnPr
 from .profiler_options import DateTimeOptions
 
 
-class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
+class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
     """
     Datetime column profile subclass of BaseColumnProfiler.
 

@@ -241,8 +241,8 @@ class ModeOption(BooleanOption):
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
-        :ivar top_k_modes: the max number of modes to return, if applicable
-        :vartype top_k_modes: int
+        :ivar max_k_modes: the max number of modes to return, if applicable
+        :vartype max_k_modes: int
         """
         self.top_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)

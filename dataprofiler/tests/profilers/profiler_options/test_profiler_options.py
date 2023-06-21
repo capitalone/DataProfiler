@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest import mock
 
@@ -6,6 +7,7 @@ import pandas as pd
 
 from dataprofiler import Data, Profiler, ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import FloatOptions, IntOptions
 
 
@@ -502,6 +504,28 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertNotEqual(options, options2)
         options.structured_options.float.precision.sample_ratio = 0.1
         self.assertNotEqual(options, options2)
+
+    def test_json_encode(self, *mocks):
+        option = ProfilerOptions(presets="complete")
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "ProfilerOptions",
+            "data": {
+                "structured_options": {
+                    "class": "StructuredOptions",
+                    "data": mock.ANY,
+                },
+                "unstructured_options": {
+                    "class": "UnstructuredOptions",
+                    "data": mock.ANY,
+                },
+                "presets": "complete",
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))
 
 
 @mock.patch(

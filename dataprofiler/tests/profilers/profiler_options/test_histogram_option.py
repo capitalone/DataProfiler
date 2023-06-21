@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import HistogramOption
 
 from .test_boolean_option import TestBooleanOption
@@ -170,3 +173,18 @@ class TestHistogramOption(TestBooleanOption):
         self.assertNotEqual(options, options2)
         options2.bin_count_or_method = "sturges"
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = HistogramOption(is_enabled=False, bin_count_or_method="doane")
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "HistogramOption",
+            "data": {
+                "bin_count_or_method": "doane",
+                "is_enabled": False,
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

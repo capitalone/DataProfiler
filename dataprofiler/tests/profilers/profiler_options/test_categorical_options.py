@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import CategoricalOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import (
     TestBaseInspectorOptions,
@@ -81,3 +84,15 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
 
     def test_eq(self):
         super().test_eq()
+
+    def test_json_encode(self):
+        option = CategoricalOptions(is_enabled=False, top_k_categories=5)
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "CategoricalOptions",
+            "data": {"is_enabled": False, "top_k_categories": 5},
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

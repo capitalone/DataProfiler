@@ -13,7 +13,7 @@ from . import BaseColumnProfiler, utils
 from .profiler_options import DataLabelerOptions
 
 
-class DataLabelerColumn(BaseColumnProfiler):
+class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
     """Sublass of BaseColumnProfiler for profiling data labeler col."""
 
     type = "data_labeler"
@@ -326,6 +326,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         appropriate output formats
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         differences = super().diff(other_profile, options)
 
         self_labels = None

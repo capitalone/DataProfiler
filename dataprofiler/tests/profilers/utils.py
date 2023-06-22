@@ -1,3 +1,4 @@
+import numbers
 import os
 import random
 import shutil
@@ -6,6 +7,8 @@ from unittest import mock
 import numpy as np
 
 import dataprofiler as dp
+from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
+from dataprofiler.profilers.profile_builder import BaseProfiler
 
 
 def set_seed(seed=None):
@@ -161,3 +164,39 @@ def mock_timeit(*args, **kwargs):
 
     counter = increment_counter()
     return mock.patch("time.time", side_effect=lambda: next(counter))
+
+
+def assert_profiles_equal(profile1, profile2):
+    """
+    Checks if two profile objects are equal.
+
+    profiles are instances of BaseProfiler or BaseColumnProfiler. Throws
+        exception if not equal
+
+    :param profile_1: profile to compare to profile2
+    :type profile_1: instance of BaseProfiler or BaseColumnProfiler
+    :param profile_2: profile to compare to profile1
+    :type profile_2: instance of BaseProfiler or BaseColumnProfiler
+    """
+    profile1_dict = profile1.__dict__
+    profile2_dict = profile2.__dict__
+
+    if len(profile1_dict) != len(profile2_dict):
+        raise ValueError(
+            f"number of attributes on profile1 ({len(profile1_dict)}) != profile2 ({len(profile2_dict)})"
+        )
+
+    for attr1, value1 in profile1_dict.items():
+        if attr1 not in profile2_dict:
+            raise ValueError(f"Profile attributes unmatched {attr1}")
+
+        value2 = profile2_dict[attr1]
+        if not (isinstance(value2, type(value1)) or isinstance(value1, type(value2))):
+            raise ValueError(f"Profile value types unmatched: {value1} != {value2}")
+
+        if isinstance(value1, (BaseProfiler, BaseColumnProfiler)):
+            assert_profiles_equal(value1, value2)
+        elif isinstance(value1, numbers.Number):
+            np.testing.assert_equal(value1, value2)
+        elif value1 != value2:
+            raise ValueError(f"Profile values unmatched: {value1} != {value2}")

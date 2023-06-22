@@ -37,7 +37,7 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 class BaseDataProcessor(metaclass=abc.ABCMeta):
     """Abstract Data processing class."""
 
-    processor_type: str = None  # type: ignore[assignment]
+    processor_type: str  # override this
     __subclasses: dict[str, type[BaseDataProcessor]] = {}
 
     def __init__(self, **parameters: Any) -> None:

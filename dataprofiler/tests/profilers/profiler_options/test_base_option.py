@@ -1,7 +1,8 @@
 import json
 import unittest
 
-from dataprofiler.profilers.json_decoder import load_option
+pass
+
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BaseOption
 from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
@@ -63,11 +64,15 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
         options2 = self.get_options()
         self.assertEqual(options, options2)
 
-    def test_json_decode(self):
-        expected_options = self.get_options()
-        if type(expected_options) == BaseOption:
-            return
-        serialized = json.dumps(expected_options, cls=ProfileEncoder)
-        deserialized = load_option(json.loads(serialized))
+    def test_json_encode(self):
+        option = self.get_options()
 
-        test_utils.assert_profiles_equal(deserialized, expected_options)
+        serialized = json.dumps(option, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "BaseOption",
+                "data": {},
+            }
+        )
+
+        self.assertEqual(expected, serialized)

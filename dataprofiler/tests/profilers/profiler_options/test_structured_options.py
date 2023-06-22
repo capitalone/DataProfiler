@@ -4,12 +4,15 @@ from unittest import mock
 
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import StructuredOptions
+from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
+    JSONDecodeTestMixin,
+)
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
 )
 
 
-class TestStructuredOptions(TestBaseOption):
+class TestStructuredOptions(TestBaseOption, JSONDecodeTestMixin):
 
     option_class = StructuredOptions
     other_keys = ["null_values", "column_null_values"]

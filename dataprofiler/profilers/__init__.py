@@ -82,6 +82,11 @@ json_decoder._options = {
     ProfilerOptions.__name__: ProfilerOptions,
 }
 
+json_decoder._profilers = {
+    StructuredProfiler.__name__: StructuredProfiler,
+    UnstructuredProfiler.__name__: UnstructuredProfiler,
+}
+
 json_decoder._structured_col_profiler = {
     StructuredColProfiler.__name__: StructuredColProfiler,
 }

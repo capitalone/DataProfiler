@@ -34,6 +34,7 @@ class ProfileEncoder(json.JSONEncoder):
                 column_profile_compilers.BaseCompiler,
                 profiler_options.BaseOption,
                 profile_builder.BaseProfiler,
+                profile_builder.StructuredColProfiler
             ),
         ):
             return {"class": type(to_serialize).__name__, "data": to_serialize.__dict__}

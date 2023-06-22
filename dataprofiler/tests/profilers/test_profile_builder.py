@@ -34,6 +34,7 @@ from dataprofiler.profilers.profiler_options import (
     StructuredOptions,
     UnstructuredOptions,
 )
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 
 from . import utils as test_utils
 
@@ -1506,6 +1507,16 @@ class TestStructuredProfiler(unittest.TestCase):
             save_report = test_utils.clean_report(save_profile.report())
             load_report = test_utils.clean_report(load_profile.report())
             np.testing.assert_equal(save_report, load_report)
+
+    def test_save_and_load_serialized(self):
+        data = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        options = ProfilerOptions()
+        options.set({"correlation.is_enabled": True})
+        save_profile = dp.StructuredProfiler(data)
+        with open('serialized_profile.json', 'w') as fp:
+            json.dump(save_profile, fp, cls=ProfileEncoder, indent=4)
+        load_profile = dp.StructuredProfiler.load("serialized_profile.json")
+        test_utils.assert_profiles_equal(load_profile, save_profile)
 
     def test_save_and_load_no_labeler(self):
         # Create Data and UnstructuredProfiler objects

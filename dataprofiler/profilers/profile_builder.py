@@ -34,7 +34,7 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
-from .json_decoder import load_compiler, load_profiler, load_structured_col_profiler
+from .json_decoder import load_compiler, load_profiler, load_structured_col_profiler, load_option
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
@@ -870,13 +870,15 @@ class BaseProfiler:
         :return: Profiler with attributes populated.
         :rtype: BaseCompiler
         """
-        profiler = cls()
+        profiler = cls(None)
 
         for attr, value in data.items():
             if "times" in attr:
                 setattr(profiler, "times", defaultdict(float, value))
             if "_profiles" in attr:
                 value = load_compiler(value)
+            if "options" in attr:
+                value = load_option(value)
             setattr(profiler, attr, value)
         return profiler
 

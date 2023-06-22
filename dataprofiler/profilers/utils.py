@@ -65,12 +65,12 @@ class KeyDict(collections.defaultdict):
         return key
 
 
-def _combine_unique_sets(a: list, b: list) -> list:
+def _combine_unique_sets(a: list | set, b: list | set) -> list:
     """
     Unify two lists.
 
-    :type a: list
-    :type b: list
+    :type a: Union [list, set]
+    :type b: Union[list, set]
     :rtype: list
     """
     combined_list: set = set()

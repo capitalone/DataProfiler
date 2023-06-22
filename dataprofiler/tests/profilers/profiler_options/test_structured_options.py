@@ -21,6 +21,7 @@ class TestStructuredOptions(TestBaseOption):
         "multiprocess",
         "correlation",
         "chi2_homogeneity",
+        "row_statistics",
     ]
     keys = boolean_keys + other_keys
 
@@ -91,6 +92,10 @@ class TestStructuredOptions(TestBaseOption):
             option.set({"column_null_values": test_dict})
             self.assertEqual(test_dict, option.column_null_values)
 
+        for test_val in [0.2, 1]:
+            option.set({"sampling_ratio": test_val})
+            self.assertEqual(test_val, option.sampling_ratio)
+
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
         # should return a list of errors
@@ -137,6 +142,7 @@ class TestStructuredOptions(TestBaseOption):
         option.multiprocess = StructuredOptions()
         option.correlation = StructuredOptions()
         option.chi2_homogeneity = StructuredOptions()
+        option.row_statistics = StructuredOptions()
 
         expected_error = set()
         for key in self.boolean_keys:
@@ -147,6 +153,8 @@ class TestStructuredOptions(TestBaseOption):
                 ckey = "Categorical"
             elif key == "datetime":
                 ckey = "DateTime"
+            elif key == "row_statistics":
+                ckey = "RowStatistics"
             if key == "multiprocess" or key == "chi2_homogeneity":
                 expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
@@ -201,6 +209,7 @@ class TestStructuredOptions(TestBaseOption):
         option.multiprocess = StructuredOptions()
         option.correlation = StructuredOptions()
         option.chi2_homogeneity = StructuredOptions()
+        option.row_statistics = StructuredOptions()
 
         expected_error = set()
         for key in self.boolean_keys:
@@ -211,6 +220,8 @@ class TestStructuredOptions(TestBaseOption):
                 ckey = "Categorical"
             elif key == "datetime":
                 ckey = "DateTime"
+            elif key == "row_statistics":
+                ckey = "RowStatistics"
             if key == "multiprocess" or key == "chi2_homogeneity":
                 expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
@@ -275,6 +286,32 @@ class TestStructuredOptions(TestBaseOption):
         # Test None works for option set
         option.set({"column_null_values": None})
         self.assertEqual([], option._validate_helper())
+
+        expected_error_type = [f"{optpth}.sampling_ratio must be a float or an integer"]
+        expected_error_value = [
+            "{}.sampling_ratio must be greater than 0.0 and less than or equal to 1.0".format(
+                optpth
+            )
+        ]
+        expected_error_none_value = [f"{optpth}.sampling_ratio may not be None"]
+        # Test ratio is None
+        option.set({"sampling_ratio": None})
+        self.assertEqual(expected_error_none_value, option._validate_helper())
+        # Test ratio is not a float
+        option.set({"sampling_ratio": "1"})
+        self.assertEqual(expected_error_type, option._validate_helper())
+        # Test ratio is greater than upper bound
+        option.set({"sampling_ratio": 2.5})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is greater than upper bound, int
+        option.set({"sampling_ratio": 3})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is lesser than lower bound
+        option.set({"sampling_ratio": -2.5})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is lesser than lower bound, int
+        option.set({"sampling_ratio": -5})
+        self.assertEqual(expected_error_value, option._validate_helper())
 
     def test_enabled_profilers(self):
         options = self.get_options()

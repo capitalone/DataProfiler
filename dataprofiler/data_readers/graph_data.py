@@ -252,7 +252,7 @@ class GraphData(BaseData):
             )
 
         data_as_pd = data_utils.read_csv_df(
-            cast(str, self.input_file_path),
+            self.input_file_path,
             self._delimiter,
             cast(Optional[int], self._header),
             selected_columns=[],

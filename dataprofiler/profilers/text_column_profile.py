@@ -12,7 +12,9 @@ from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import TextOptions
 
 
-class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ignore
+class TextColumn(
+    NumericStatsMixin["TextColumn"], BaseColumnPrimitiveTypeProfiler["TextColumn"]
+):
     """
     Text column profile subclass of BaseColumnProfiler.
 
@@ -56,8 +58,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
                 "'TextColumn' and '{}'".format(other.__class__.__name__)
             )
         merged_profile = TextColumn(None)
-        NumericStatsMixin._add_helper(merged_profile, self, other)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
+        NumericStatsMixin._add_helper(merged_profile, self, other)
         self._merge_calculations(
             merged_profile.__calculations, self.__calculations, other.__calculations
         )
@@ -105,7 +107,9 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
         :return: the text columns differences
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         differences = NumericStatsMixin.diff(self, other_profile, options)
+
         del differences["psi"]
         vocab_diff = utils.find_diff_of_lists_and_sets(self.vocab, other_profile.vocab)
         differences["vocab"] = vocab_diff
@@ -144,7 +148,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
         :type subset_properties: dict
         :return: None
         """
-        data_flat = list(itertools.chain(*data))
+        data_flat = set(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:

@@ -1,4 +1,4 @@
-"""Contains class that saves and loads speradsheet data."""
+"""Contains class that saves and loads spreadsheet data."""
 import csv
 import random
 import re
@@ -580,11 +580,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 self._quotechar = quotechar
 
             if self._header == "auto":
-                self._header = cast(
-                    int,
-                    self._guess_header_row(
-                        data_as_str, self._delimiter, self._quotechar
-                    ),
+                self._header = self._guess_header_row(
+                    data_as_str, self._delimiter, self._quotechar
                 )
                 self._checked_header = True
 
@@ -612,7 +609,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             self.sample_nrows,
             self.selected_columns,
             read_in_string=True,
-            encoding=cast(str, self.file_encoding),
+            encoding=self.file_encoding,
         )
 
     def _get_data_as_records(self, data: pd.DataFrame) -> List[str]:
@@ -770,4 +767,4 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
         super().reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)  # type: ignore
+        CSVData.__init__(self, self.input_file_path, data, options)

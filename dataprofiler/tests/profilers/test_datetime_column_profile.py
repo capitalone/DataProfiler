@@ -439,19 +439,22 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "name": "0",
-                "col_index": np.nan,
-                "sample_size": 0,
-                "metadata": dict(),
-                "times": defaultdict(),
-                "thread_safe": True,
-                "match_count": 0,
-                "date_formats": [],
-                "min": None,
-                "max": None,
-                "_dt_obj_min": None,
-                "_dt_obj_max": None,
-                "_DateTimeColumn__calculations": dict(),
+                "class": "DateTimeColumn",
+                "data": {
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(),
+                    "thread_safe": True,
+                    "match_count": 0,
+                    "date_formats": [],
+                    "min": None,
+                    "max": None,
+                    "_dt_obj_min": None,
+                    "_dt_obj_max": None,
+                    "_DateTimeColumn__calculations": dict(),
+                },
             }
         )
 
@@ -477,19 +480,22 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         expected = json.dumps(
             {
-                "name": "0",
-                "col_index": np.nan,
-                "sample_size": 6,
-                "metadata": dict(),
-                "times": defaultdict(float, {"datetime": 0.0}),
-                "thread_safe": True,
-                "match_count": 3,
-                "date_formats": expected_date_formats,
-                "min": "03/10/13 15:43",
-                "max": "Mar 11, 2013",
-                "_dt_obj_min": "2013-03-10T15:43:00",
-                "_dt_obj_max": "2013-03-11T00:00:00",
-                "_DateTimeColumn__calculations": dict(),
+                "class": "DateTimeColumn",
+                "data": {
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 6,
+                    "metadata": dict(),
+                    "times": defaultdict(float, {"datetime": 0.0}),
+                    "thread_safe": True,
+                    "match_count": 3,
+                    "date_formats": expected_date_formats,
+                    "min": "03/10/13 15:43",
+                    "max": "Mar 11, 2013",
+                    "_dt_obj_min": "2013-03-10T15:43:00",
+                    "_dt_obj_max": "2013-03-11T00:00:00",
+                    "_DateTimeColumn__calculations": dict(),
+                },
             }
         )
 

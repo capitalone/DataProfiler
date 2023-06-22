@@ -9,7 +9,9 @@ from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import IntOptions
 
 
-class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ignore
+class IntColumn(
+    NumericStatsMixin["IntColumn"], BaseColumnPrimitiveTypeProfiler["IntColumn"]
+):
     """
     Integer column profile mixin with of numerical stats.
 

@@ -30,6 +30,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertFalse(profile.options.properties[column].is_enabled)
             elif column == "null_values" or column == "column_null_values":
                 self.assertIsNone(profile.options.properties[column])
+            elif column == "sampling_ratio":
+                self.assertEqual(profile.options.properties[column], 0.2)
             else:
                 self.assertTrue(profile.options.properties[column].is_enabled)
 
@@ -146,6 +148,7 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.order.is_enabled = False
         options.structured_options.category.is_enabled = False
         options.structured_options.chi2_homogeneity.is_enabled = False
+        options.structured_options.row_statistics.is_enabled = False
         options.structured_options.data_labeler.is_enabled = False
         profile = Profiler(self.data, options=options)
         for col_profiler in profile.profile:

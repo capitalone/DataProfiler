@@ -346,7 +346,7 @@ class NumericalOptions(BaseInspectorOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -563,7 +563,7 @@ class IntOptions(NumericalOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -660,7 +660,7 @@ class FloatOptions(NumericalOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -716,7 +716,7 @@ class TextOptions(NumericalOptions):
         :ivar kurtosis: boolean option to enable/disable kurtosis
         :vartype kurtosis: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -866,7 +866,13 @@ class OrderOptions(BaseInspectorOptions):
 class CategoricalOptions(BaseInspectorOptions):
     """For configuring options Categorical Column."""
 
-    def __init__(self, is_enabled: bool = True, top_k_categories: int = None) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        top_k_categories: int = None,
+        max_sample_size_to_check_stop_condition: int | None = None,
+        stop_condition_unique_value_ratio: float | None = None,
+    ) -> None:
         """
         Initialize options for the Categorical Column.
 
@@ -874,9 +880,19 @@ class CategoricalOptions(BaseInspectorOptions):
         :vartype is_enabled: bool
         :ivar top_k_categories: number of categories to be displayed when called
         :vartype top_k_categories: [None, int]
+        :ivar max_sample_size_to_check_stop_condition: The maximum sample size
+            before categorical stop conditions are checked
+        :vartype max_sample_size_to_check_stop_condition: [None, int]
+        :ivar stop_condition_unique_value_ratio: The highest ratio of unique
+            values to dataset size that is to be considered a categorical type
+        :vartype stop_condition_unique_value_ratio: [None, float]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
+        self.max_sample_size_to_check_stop_condition = (
+            max_sample_size_to_check_stop_condition
+        )
+        self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -895,6 +911,35 @@ class CategoricalOptions(BaseInspectorOptions):
                 "{}.top_k_categories must be either None"
                 " or a positive integer".format(variable_path)
             )
+
+        if self.max_sample_size_to_check_stop_condition is not None and (
+            not isinstance(self.max_sample_size_to_check_stop_condition, int)
+            or self.max_sample_size_to_check_stop_condition < 0
+        ):
+            errors.append(
+                "{}.max_sample_size_to_check_stop_condition must be either None"
+                " or a non-negative integer".format(variable_path)
+            )
+
+        if self.stop_condition_unique_value_ratio is not None and (
+            not isinstance(self.stop_condition_unique_value_ratio, float)
+            or self.stop_condition_unique_value_ratio < 0
+            or self.stop_condition_unique_value_ratio > 1.0
+        ):
+            errors.append(
+                "{}.stop_condition_unique_value_ratio must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if (self.max_sample_size_to_check_stop_condition is None) ^ (
+            self.stop_condition_unique_value_ratio is None
+        ):
+            errors.append(
+                "Both, {}.max_sample_size_to_check_stop_condition and "
+                "{}.stop_condition_unique_value_ratio, options either need to be "
+                "set or not set.".format(variable_path, variable_path)
+            )
+
         return errors
 
 
@@ -935,6 +980,124 @@ class CorrelationOptions(BaseInspectorOptions):
                 "with at least two elements.".format(variable_path)
             )
         return errors
+
+
+class HyperLogLogOptions(BaseOption):
+    """Options for alternative method of gathering unique row count."""
+
+    def __init__(self, seed: int = 0, register_count: int = 15) -> None:
+        """
+        Initialize options for the hyperloglog method of gathering unique row count.
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        :ivar seed: seed used to set HLL hashing function
+        :vartype seed: int
+        :ivar register_count: number of registers is equal to 2^register_count
+        :vartype register_count: int
+        """
+        self.seed = seed
+        self.register_count = register_count
+
+    def _validate_helper(self, variable_path: str = "HyperLogLogOptions") -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = []
+
+        if not isinstance(self.register_count, int):
+            errors.append(f"{variable_path}.register_count must be an integer.")
+        elif self.register_count <= 0:
+            errors.append(f"{variable_path}.register_count must be greater than 0.")
+        if not isinstance(self.seed, int):
+            errors.append(f"{variable_path}.seed must be an integer.")
+
+        if isinstance(self.register_count, int) and self.register_count >= 20:
+            warnings.warn(
+                f"{variable_path}.register_count is greater than or equal "
+                "to 20, so the row hashing object is greater than 5 MB."
+            )
+
+        return errors
+
+
+class UniqueCountOptions(BooleanOption):
+    """For configuring options for unique row count."""
+
+    def __init__(self, is_enabled: bool = True, hashing_method: str = "full") -> None:
+        """
+        Initialize options for unique row counts.
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        :ivar hashing_method: property to specify row hashing method ("full" | "hll")
+        :vartype hashing_method: str
+        """
+        BooleanOption.__init__(self, is_enabled=is_enabled)
+        self.hashing_method = hashing_method
+        self.hll = HyperLogLogOptions()
+
+    def _validate_helper(self, variable_path: str = "UniqueCountOptions") -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if not isinstance(self.hashing_method, str):
+            errors.append(f"{variable_path}.full_hashing must be a String.")
+        if isinstance(self.hashing_method, str) and self.hashing_method not in [
+            "full",
+            "hll",
+        ]:
+            errors.append(f"{variable_path}.hashing_method must be 'full' or 'hll'.")
+        if not isinstance(self.hll, HyperLogLogOptions):
+            errors.append(f"{variable_path}.hll_hashing must be a HyperLogLogOptions.")
+
+        errors += self.hll._validate_helper(variable_path + ".hll")
+        return errors
+
+
+class RowStatisticsOptions(BooleanOption):
+    """For configuring options for row statistics."""
+
+    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
+        """
+        Initialize options for row statistics.
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        """
+        BooleanOption.__init__(self, is_enabled=is_enabled)
+        self.unique_count = UniqueCountOptions(is_enabled=unique_count)
+
+    def _validate_helper(
+        self, variable_path: str = "RowStatisticsOptions"
+    ) -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+        if not isinstance(self.unique_count, UniqueCountOptions):
+            errors.append(
+                f"{variable_path}.full_hashing must be an UniqueCountOptions."
+            )
+        errors += self.unique_count._validate_helper(variable_path + ".unique_counts")
+        return super()._validate_helper(variable_path)
 
 
 class DataLabelerOptions(BaseInspectorOptions):
@@ -1133,6 +1296,7 @@ class StructuredOptions(BaseOption):
         self,
         null_values: dict[str, re.RegexFlag | int] = None,
         column_null_values: dict[int, dict[str, re.RegexFlag | int]] = None,
+        sampling_ratio: float = 0.2,
     ) -> None:
         """
         Construct the StructuredOptions object with default values.
@@ -1159,11 +1323,16 @@ class StructuredOptions(BaseOption):
         :vartype correlation: CorrelationOptions
         :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
         :vartype chi2_homogeneity: BooleanOption()
+        :ivar row_statistics: option set for row statistics calculations
+        :vartype row_statistics: BooleanOption()
         :ivar null_replication_metrics: option set for metrics
             calculation for replicating nan vals
         :vartype null_replication_metrics: BooleanOptions
         :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict]
+        :ivar sampling_ratio: What ratio of the input data to sample.
+            Float value > 0 and <= 1
+        :vartype sampling_ratio: Union[None, float]
         """
         # Option variables
         self.multiprocess = BooleanOption()
@@ -1177,9 +1346,11 @@ class StructuredOptions(BaseOption):
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
         self.null_replication_metrics = BooleanOption(is_enabled=False)
+        self.row_statistics = RowStatisticsOptions()
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
+        self.sampling_ratio = sampling_ratio
 
     @property
     def enabled_profiles(self) -> list[str]:
@@ -1189,6 +1360,7 @@ class StructuredOptions(BaseOption):
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
+        properties.pop("sampling_ratio")
         for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
@@ -1220,12 +1392,14 @@ class StructuredOptions(BaseOption):
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
+                ("row_statistics", RowStatisticsOptions),
                 ("null_replication_metrics", BooleanOption),
             ]
         )
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
+        properties.pop("sampling_ratio")
         for column in properties:
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append(
@@ -1272,6 +1446,31 @@ class StructuredOptions(BaseOption):
                 "that map to dictionaries that contains keys "
                 "of type str and values == 0 or are instances of "
                 "a re.RegexFlag".format(variable_path)
+            )
+
+        if self.sampling_ratio is None:
+            errors.append(f"{variable_path}.sampling_ratio may not be None")
+
+        if (
+            self.sampling_ratio is not None
+            and not isinstance(self.sampling_ratio, float)
+            and not isinstance(self.sampling_ratio, int)
+        ):
+            errors.append(
+                f"{variable_path}.sampling_ratio must be a float or an integer"
+            )
+
+        if (
+            self.sampling_ratio is not None
+            and (
+                isinstance(self.sampling_ratio, float)
+                or isinstance(self.sampling_ratio, int)
+            )
+            and not (0.0 < self.sampling_ratio <= 1.0)
+        ):
+            errors.append(
+                "{}.sampling_ratio must be greater than 0.0 "
+                "and less than or equal to 1.0".format(variable_path)
             )
 
         if (
@@ -1357,6 +1556,9 @@ class ProfilerOptions(BaseOption):
         :vartype structured_options: StructuredOptions
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
+        :ivar presets: A pre-configured mapping of a string name to group of options:
+            "complete", "data_types", and "numeric_stats_disabled". Default: None
+        :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()

@@ -49,16 +49,14 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     def _register_subclass(cls) -> None:
         """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
-            cls._BaseDataProcessor__subclasses[  # type: ignore
-                cls.__name__.lower()
-            ] = cls
+            cls.__subclasses[cls.__name__.lower()] = cls
 
     @classmethod
-    def get_class(cls: type[Processor], class_name: str) -> type[Processor] | None:
+    def get_class(
+        cls: type[BaseDataProcessor], class_name: str
+    ) -> type[BaseDataProcessor] | None:
         """Get class of BaseDataProcessor object."""
-        return cls._BaseDataProcessor__subclasses.get(  # type: ignore
-            class_name.lower(), None
-        )
+        return cls.__subclasses.get(class_name.lower(), None)
 
     def __eq__(self, other: object) -> bool:
         """

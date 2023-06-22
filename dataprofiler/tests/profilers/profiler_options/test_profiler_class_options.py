@@ -1,10 +1,17 @@
+import json
+from unittest import mock
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import ProfilerOptions
+from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
+    JSONDecodeTestMixin,
+)
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
 )
 
 
-class TestProfilerOptions(TestBaseOption):
+class TestProfilerOptions(TestBaseOption, JSONDecodeTestMixin):
 
     option_class = ProfilerOptions
     keys = ["structured_options", "unstructured_options"]
@@ -156,3 +163,25 @@ class TestProfilerOptions(TestBaseOption):
         with self.assertRaisesRegex(ValueError, "\n".join(expected_error)):
             option.validate()
         self.assertListEqual(expected_error, option.validate(raise_error=False))
+
+    def test_json_encode(self):
+        option = ProfilerOptions(presets="complete")
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "ProfilerOptions",
+            "data": {
+                "structured_options": {
+                    "class": "StructuredOptions",
+                    "data": mock.ANY,
+                },
+                "unstructured_options": {
+                    "class": "UnstructuredOptions",
+                    "data": mock.ANY,
+                },
+                "presets": "complete",
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

@@ -34,7 +34,7 @@ from pandas import DataFrame, Series
 from .. import settings
 
 if TYPE_CHECKING:
-    from . import profilers
+    from . import profile_builder
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
@@ -780,9 +780,9 @@ def chunk(lst: list, size: int) -> Iterator[tuple]:
 
 
 def merge(
-    top_profile: profilers.profile_builder.BaseProfiler,
-    other_profile: profilers.profile_builder.BaseProfiler = None,
-) -> profilers.profile_builder.BaseProfiler:
+    top_profile: profile_builder.BaseProfiler,
+    other_profile: profile_builder.BaseProfiler = None,
+) -> profile_builder.BaseProfiler:
     """
     Merge two Profiles.
 
@@ -799,9 +799,9 @@ def merge(
 
 
 def merge_profile_list(
-    list_of_profiles: list[profilers.profile_builder.BaseProfiler],
+    list_of_profiles: list[profile_builder.BaseProfiler],
     pool_count: int = 5,
-) -> profilers.profile_builder.BaseProfiler:
+) -> profile_builder.BaseProfiler:
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group

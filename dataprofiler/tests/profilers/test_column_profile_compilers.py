@@ -784,40 +784,18 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         test_utils.assert_profiles_equal(deserialized, expected_compiler)
         # assert before update
         assert deserialized.report().get("data_label", None) == "a|b"
-        assert (
-            deserialized.report()
-            .get("statistics", None)
-            .get("data_label_representation", None)
-            .get("a", None)
-            == 0.5
-        )
-        assert (
-            deserialized.report()
-            .get("statistics", None)
-            .get("data_label_representation", None)
-            .get("b", None)
-            == 0.5
-        )
+        assert deserialized.report().get("statistics", {}).get(
+            "data_label_representation", None
+        ) == {"a": 0.5, "b": 0.5}
 
         new_data = pd.Series(["100"])
 
         # validating update after deserialization with a few small tests
         deserialized.update_profile(new_data)
         assert deserialized.report().get("data_label", None) == "a|b"
-        assert (
-            deserialized.report()
-            .get("statistics", None)
-            .get("data_label_representation", None)
-            .get("a", None)
-            == 0.6
-        )
-        assert (
-            deserialized.report()
-            .get("statistics", None)
-            .get("data_label_representation", None)
-            .get("b", None)
-            == 0.4
-        )
+        assert deserialized.report().get("statistics", {}).get(
+            "data_label_representation", None
+        ) == {"a": 0.6, "b": 0.4}
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

@@ -28,9 +28,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
-from dataprofiler import settings
-
-from .. import dp_logging
+from .. import dp_logging, settings
 from .._typing import JSONType, Url
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 

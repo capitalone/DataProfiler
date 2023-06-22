@@ -1,6 +1,7 @@
 """Contains abstract classes from which labeler classes will inherit."""
 from __future__ import annotations
 
+import importlib.resources
 import json
 import os
 import sys
@@ -9,7 +10,6 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 
 from dataprofiler._typing import DataArray
 
@@ -17,7 +17,7 @@ from .. import data_readers
 from . import data_processing
 from .base_model import BaseModel
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
 
 
 class BaseDataLabeler:

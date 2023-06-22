@@ -1,12 +1,12 @@
+import importlib
 import os
 import unittest
 
 import numpy as np
-import pkg_resources
 
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 
 class TestRegexDataLabeler(unittest.TestCase):

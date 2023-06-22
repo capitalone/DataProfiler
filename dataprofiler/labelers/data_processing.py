@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import abc
 import copy
+import importlib.resources
 import inspect
 import json
 import math
@@ -15,9 +16,8 @@ from typing import Any, Generator, Iterable, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
-import pkg_resources
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")
 

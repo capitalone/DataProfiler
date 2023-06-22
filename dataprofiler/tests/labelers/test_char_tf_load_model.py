@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import unittest
@@ -6,13 +7,12 @@ from unittest import mock
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 import tensorflow as tf
 
 from dataprofiler.labelers.char_load_tf_model import CharLoadTFModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+_resource_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 
 mock_model_parameters = {

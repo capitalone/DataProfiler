@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import unittest
@@ -5,12 +6,11 @@ from io import StringIO
 from unittest import mock
 
 import numpy as np
-import pkg_resources
 
 from dataprofiler.labelers.regex_model import RegexModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+_resource_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 
 mock_model_parameters = {

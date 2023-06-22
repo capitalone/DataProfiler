@@ -5,12 +5,8 @@ if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
 
     from .base_column_profilers import BaseColumnProfiler
-<<<<<<< HEAD
-    from .profiler_options import BaseOption
-=======
     from .profile_builder import BaseProfiler
->>>>>>> 72d6d25 (update)
-    from .profilers import column_profile_compilers as col_pro_compilers
+    from .profiler_options import BaseOption
 
 
 # default, but set in the local __init__ to avoid circular imports
@@ -76,9 +72,10 @@ def get_option_class(class_name: str) -> Type["BaseOption"]:
     return options_class
 
 
-def get_profiler_class(class_name: str) -> Type["pro_builder.BaseProfiler"]:
+def get_profiler_class(class_name: str) -> Type["BaseProfiler"]:
     """
     Use name of class to return default-constructed version of that class.
+
     Raises ValueError if class_name is not name of a subclass of
         BaseProfiler.
     :param class_name: name of BaseProfiler subclass retrieved by
@@ -174,9 +171,10 @@ def load_option(serialized_json: dict) -> "BaseOption":
     return option_cls.load_from_dict(serialized_json["data"])
 
 
-def load_profiler(serialized_json: dict) -> "pro_builder.BaseProfiler":
+def load_profiler(serialized_json: dict) -> "BaseProfiler":
     """
     Construct subclass of BaseProfiler given a serialized JSON.
+
     Expected format of serialized_json (see json_encoder):
         {
             "class": <str name of class that was serialized>

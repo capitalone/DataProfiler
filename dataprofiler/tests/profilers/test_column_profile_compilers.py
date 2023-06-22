@@ -799,7 +799,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             == 0.5
         )
 
-        new_data = pd.Series([100]).apply(str)
+        new_data = pd.Series(["100"])
 
         # validating update after deserialization with a few small tests
         deserialized.update_profile(new_data)

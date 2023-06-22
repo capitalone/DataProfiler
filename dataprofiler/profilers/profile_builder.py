@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import copy
+import json
 import logging
+
+pass
 import pickle
 import random
 import re
@@ -31,6 +34,7 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
+from .json_decoder import load_compiler, load_profiler, load_structured_col_profiler
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
@@ -379,6 +383,25 @@ class StructuredColProfiler:
                 report[key] = None  # type: ignore
 
         return report
+
+    @classmethod
+    def load_from_dict(cls, data) -> StructuredColProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredColProfiler
+        """
+        profile = cls()
+        for attr, value in data.items():
+            if attr == "profiles":
+                for profile_key, profile_value in value.items():
+                    value[profile_key] = load_compiler(profile_value)
+            setattr(profile, attr, value)
+        return profile
 
     @property
     def profile(self) -> dict:
@@ -837,42 +860,25 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load_from_dict(
-        cls: type[BaseProfilerT],
-        data: dict[str, Any],
-        options: dict | None = None,
-    ) -> BaseProfilerT:
+    def load_from_dict(cls, data) -> BaseProfiler:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
 
         :return: Profiler with attributes populated.
-        :rtype: BaseColumnProfiler
+        :rtype: BaseCompiler
         """
-        if options is None:
-            options = {}
-
-        class_options = options.get(cls.__name__)
-        profile: BaseProfilerT = cls(data["name"], class_options)
-
-        time_vals = data.pop("times")
-        setattr(profile, "times", defaultdict(float, time_vals))
+        profiler = cls()
 
         for attr, value in data.items():
-            if "__calculations" in attr:
-                for metric, function in value.items():
-                    if not hasattr(profile, function):
-                        raise AttributeError(
-                            f"Object {type(profile)} has no attribute {function}."
-                        )
-                    value[metric] = getattr(profile, function).__func__
-            setattr(profile, attr, value)
-
-        return profile
+            if "times" in attr:
+                setattr(profiler, "times", defaultdict(float, value))
+            if "_profiles" in attr:
+                value = load_compiler(value)
+            setattr(profiler, attr, value)
+        return profiler
 
     def _update_profile_from_chunk(
         self,
@@ -1106,18 +1112,25 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath_or_object: str) -> BaseProfiler:
         """
         Load profiler from disk.
 
-        :param filepath: Path of file to load from
-        :type filepath: String
+        :param filepath_or_object: Path of file to load from
+        :type filepath_or_object: String
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
         """
+        try:
+            return load_profiler(json.loads(filepath_or_object))
+        except:
+            if filepath_or_object.split(".")[-1] != "pkl":
+                with open(filepath_or_object) as fp:
+                    return load_profiler(json.load(fp))
+
         # Load profile from disk
-        with open(filepath, "rb") as infile:
+        with open(filepath_or_object, "rb") as infile:
             data: dict = pickle.load(infile)
 
         # remove profiler class if it exists
@@ -1346,6 +1359,19 @@ class UnstructuredProfiler(BaseProfiler):
         )
         report["data_stats"] = self._profile.report(remove_disabled_flag)
         return _prepare_report(report, output_format, omit_keys)
+
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: UnstructuredProfiler
+        """
+        return super().load_from_dict(data)
 
     @utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(
@@ -1918,6 +1944,32 @@ class StructuredProfiler(BaseProfiler):
                 ] = self._null_replication_metrics[i]
 
         return _prepare_report(report, output_format, omit_keys)
+
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredProfiler
+        """
+        chi2_matrix = data.pop("chi2_matrix")
+        correlation_matrix = data.pop("correlation_matrix")
+        _profile = data.pop("_profile")
+
+        for idx, idx_profile in enumerate(_profile):
+            _profile[idx] = load_structured_col_profiler(idx_profile)
+
+        profile = super().load_from_dict(data)
+
+        setattr(profile, "chi2_matrix", np.array(chi2_matrix))
+        setattr(profile, "correlation_matrix", np.array(correlation_matrix))
+        setattr(profile, "_profile", _profile)
+
+        return profile
 
     def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""

@@ -13,6 +13,9 @@ from dataprofiler.profilers.json_decoder import load_option
 from ..labelers.base_data_labeler import BaseDataLabeler
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
+BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
+NumericalOptionsT = TypeVar("NumericalOptionsT", bound="NumericalOptions")
+BaseInspectorOptionsT = TypeVar("BaseInspectorOptionsT", bound="BaseInspectorOptions")
 
 
 class BaseOption(Generic[BaseOptionT]):
@@ -175,9 +178,6 @@ class BaseOption(Generic[BaseOptionT]):
         return self.__dict__ == other.__dict__
 
 
-BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
-
-
 class BooleanOption(BaseOption[BooleanOptionT]):
     """For setting Boolean options."""
 
@@ -296,9 +296,6 @@ class ModeOption(BooleanOption["ModeOption"]):
         return errors
 
 
-BaseInspectorOptionsT = TypeVar("BaseInspectorOptionsT", bound="BaseInspectorOptions")
-
-
 class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
     """For setting Base options."""
 
@@ -346,9 +343,6 @@ class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
         elif isinstance(option_prop, BooleanOption):
             is_enabled = option_prop.is_enabled
         return is_enabled
-
-
-NumericalOptionsT = TypeVar("NumericalOptionsT", bound="NumericalOptions")
 
 
 class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):

@@ -321,7 +321,6 @@ class TestStructuredOptions(TestBaseOption, JSONDecodeTestMixin):
         self.assertEqual(options, options2)
 
     def test_json_encode(self):
-        self.maxDiff = None
         option = StructuredOptions(
             null_values={"str": 1}, column_null_values={2: {"other_str": 5}}
         )

@@ -3560,16 +3560,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
             1: ["nan", "None", "null", None, ""],
         }
 
-        # Although I know the point of this ticket was to use the data initialized in setUpClass,
-        # this function does not work properly, and cannot be made to work properly, with that data,
-        # so I think we should keep the original data for this function. The reason for this
-        # is that there are four types of null values in the 'test_dict' dataset, but just one
-        # type of null value in the setUpClass dataset. A major part of this test is verifying
-        # that multiple kinds of null values can be detected, so the setUpClass data
-        # is inappropriate.
-
-        # test_dict = self.data
-
         test_dataset = pd.DataFrame(data=test_dict)
         profiler_options = ProfilerOptions()
         profiler_options.set(
@@ -3602,8 +3592,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
 
     def test_correct_null_row_counts(self):
-        # file_path = os.path.join(test_root_path, "data", "csv/empty_rows.txt")
-        # data = pd.read_csv(file_path)
         data = self.data
 
         profiler_options = ProfilerOptions()
@@ -3618,21 +3606,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile.row_is_null_count)
         self.assertEqual(0, profile._get_row_is_null_ratio())
-
-        # I commented out these lines of code, because they are a second
-        # test of the functions tested in the last four lines of code.
-        # Since we intend to use only the setUpClass data, there is no
-        # reason to keep these in, or test those functions a second time.
-
-        # file_path = os.path.join(test_root_path, "data", "csv/iris-with-null-rows.csv")
-        # data = pd.read_csv(file_path)
-        # data = self.data
-
-        # profile = dp.StructuredProfiler(data, options=profiler_options)
-        # self.assertEqual(13, profile.row_has_null_count)
-        # self.assertEqual(13 / 24, profile._get_row_has_null_ratio())
-        # self.assertEqual(3, profile.row_is_null_count)
-        # self.assertEqual(3 / 24, profile._get_row_is_null_ratio())
 
     def test_row_is_null_ratio_row_stats_disabled(self):
         profiler_options_1 = ProfilerOptions()
@@ -3665,7 +3638,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
                 "row_statistics.is_enabled": True,
             }
         )
-        # data = dp.Data(filename_null_in_file)
+
         data = self.data
 
         profile = dp.StructuredProfiler(data, options=profiler_options)
@@ -3685,17 +3658,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         )
 
     def test_correct_total_sample_size_and_counts_and_mutability(self):
-        # data = [
-        #     ["test1", 1.0],
-        #     ["test2", 2.0],
-        #     ["test3", 3.0],
-        #     [None, None],
-        #     ["test5", 5.0],
-        #     ["test6", 6.0],
-        #     [None, None],
-        #     ["test7", 7.0],
-        # ]
-        # data = pd.DataFrame(data, columns=["NAME", "VALUE"])
         data = self.data
 
         profiler_options = ProfilerOptions()
@@ -3743,12 +3705,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
                 "row_statistics.is_enabled": True,
             }
         )
-        # data = pd.DataFrame(
-        #     {
-        #         "full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        #         "sparse": [1, None, 3, None, 5, None, 7, None, 9],
-        #     }
-        # )
+
         data = pd.DataFrame(self.data)
 
         data1 = data[0:10]
@@ -3768,13 +3725,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         # Only 5 total rows were sampled (5 in col 1, 9 in col 2)
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(0.6, profile._get_row_has_null_ratio())
-
-        # data2 = pd.DataFrame(
-        #     {
-        #         "sparse": [1, None, 3, None, 5, None, 7, None],
-        #         "sparser": [1, None, None, None, None, None, None, 8],
-        #     }
-        # )
 
         profile2 = dp.StructuredProfiler(
             data2, samples_per_update=2, min_true_samples=2, options=opts
@@ -3811,8 +3761,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(1.0, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(2, profile._min_sampled_from_batch)
-        # self.assertSetEqual({}, profile._profile[0].null_types_index)
-        # self.assertSetEqual({}, profile._profile[1].null_types_index)
         self.assertEqual({}, profile._profile[0].null_types_index)
         self.assertEqual({}, profile._profile[1].null_types_index)
 
@@ -3822,12 +3770,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(2, profile._min_sampled_from_batch)
-        # self.assertSetEqual(
-        #     {2, 3, 4, 6, 7}, profile._profile[0].null_types_index["nan"]
-        # )
-        # self.assertSetEqual(
-        #     {0, 2, 4, 5, 6}, profile._profile[1].null_types_index["nan"]
-        # )
 
         self.assertEqual(
             {36, 38, 24, 26, 28}, profile._profile[2].null_types_index["nan"]
@@ -3848,8 +3790,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(10, profile._min_sampled_from_batch)
-        # self.assertSetEqual({20, 22, 24, 26, 28}, profile._profile[2].null_types_index["nan"])
-        # self.assertSetEqual({}, profile._profile[1].null_types_index)
         self.assertEqual(
             {20, 22, 24, 26, 28}, profile._profile[2].null_types_index["nan"]
         )
@@ -3861,12 +3801,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.47368421052631576, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(9, profile._min_sampled_from_batch)
-        # self.assertSetEqual(
-        #     {2, 3, 4, 6, 7}, profile._profile[0].null_types_index["nan"]
-        # )
-        # self.assertSetEqual(
-        #     {0, 2, 4, 5, 6}, profile._profile[1].null_types_index["nan"]
-        # )
         self.assertEqual(
             {32, 34, 36, 38, 20, 22, 24, 26, 28},
             profile._profile[2].null_types_index["nan"],
@@ -3880,12 +3814,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.47368421052631576, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(9, profile._min_sampled_from_batch)
-        # self.assertSetEqual(
-        #     {2, 3, 4, 6, 7}, profile._profile[0].null_types_index["nan"]
-        # )
-        # self.assertSetEqual(
-        #     {0, 2, 4, 5, 6}, profile._profile[1].null_types_index["nan"]
-        # )
         self.assertEqual(
             {32, 34, 36, 38, 20, 22, 24, 26, 28},
             profile._profile[2].null_types_index["nan"],
@@ -3893,7 +3821,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual({}, profile._profile[1].null_types_index)
 
         # Test one row update
-        # profile.update_profile(pd.DataFrame([['apple',5,2.0]]))
         profile.update_profile(
             pd.DataFrame({"names": ["jeremy"], "numbers": [4], "tf_null": [None]})
         )
@@ -3903,12 +3830,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(0.5, profile._get_row_has_null_ratio())
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(1, profile._min_sampled_from_batch)
-        # self.assertSetEqual(
-        #     {2, 3, 4, 6, 7}, profile._profile[0].null_types_index["nan"]
-        # )
-        # self.assertSetEqual(
-        #     {0, 2, 4, 5, 6}, profile._profile[1].null_types_index["nan"]
-        # )
         self.assertEqual(
             {32, 34, 36, 38, 20, 22, 24, 26, 28},
             profile._profile[2].null_types_index["nan"],
@@ -3917,7 +3838,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # Weird pandas behavior makes this None since this column will be
         # recognized as object, not float64
-        # self.assertSetEqual({}, profile._profile[2].null_types_index["None"])
         self.assertEqual({0}, profile._profile[2].null_types_index["None"])
 
         # Tests row stats disabled
@@ -3934,9 +3854,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
     def test_list_data_with_hll(self):
 
-        # data = pd.DataFrame(
-        #     {"a": [1, 1, 4, 4, 3, 1, None], "b": [1, None, 3, 4, 4, None, 1]}
-        # )
         data = pd.DataFrame(self.data)
 
         # test hll_row_hashing
@@ -3955,7 +3872,6 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         self.assertEqual(15, profiler.hashed_row_object.cardinality())
 
     def test_add_profilers_row_statistics_options(self):
-        # data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         data = pd.DataFrame(self.data)
 
         default_options = ProfilerOptions()

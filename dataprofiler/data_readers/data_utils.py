@@ -4,7 +4,6 @@ import os
 import random
 import re
 import urllib
-import warnings
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
@@ -318,10 +317,8 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     rng = random.Random(x=settings._seed)
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
         seed = os.environ.get("DATAPROFILER_SEED")
-        try:
+        if seed:
             rng = random.Random(int(seed))
-        except ValueError:
-            warnings.warn("Seed should be an integer", RuntimeWarning)
 
     while True:
         W *= rng.random() ** kinv
@@ -337,7 +334,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
             break
         # Append new, replace old with dummy, and keep track of order
         remove_index = rng.randrange(sample_nrows)
-        values[indices[remove_index]] = None
+        values[indices[remove_index]] = str(None)
         indices[remove_index] = len(values)
         values.append(newval)
 

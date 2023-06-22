@@ -2,12 +2,15 @@ import json
 
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BooleanOption
+from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
+    JSONDecodeTestMixin,
+)
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
 )
 
 
-class TestBooleanOption(TestBaseOption):
+class TestBooleanOption(TestBaseOption, JSONDecodeTestMixin):
 
     option_class = BooleanOption
     keys = []

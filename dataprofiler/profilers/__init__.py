@@ -15,6 +15,26 @@ from .int_column_profile import IntColumn
 from .numerical_column_stats import NumericStatsMixin
 from .order_column_profile import OrderColumn
 from .profile_builder import Profiler, StructuredProfiler, UnstructuredProfiler
+from .profiler_options import (
+    BaseInspectorOptions,
+    BooleanOption,
+    CategoricalOptions,
+    CorrelationOptions,
+    DataLabelerOptions,
+    DateTimeOptions,
+    FloatOptions,
+    HistogramOption,
+    IntOptions,
+    ModeOption,
+    NumericalOptions,
+    OrderOptions,
+    PrecisionOptions,
+    ProfilerOptions,
+    StructuredOptions,
+    TextOptions,
+    TextProfilerOptions,
+    UnstructuredOptions,
+)
 from .text_column_profile import TextColumn
 from .unstructured_labeler_profile import UnstructuredLabelerProfile
 
@@ -34,4 +54,25 @@ json_decoder._compilers = {
     ColumnDataLabelerCompiler.__name__: ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler.__name__: ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler.__name__: ColumnStatsProfileCompiler,
+}
+
+json_decoder._options = {
+    BooleanOption.__name__: BooleanOption,
+    HistogramOption.__name__: HistogramOption,
+    ModeOption.__name__: ModeOption,
+    BaseInspectorOptions.__name__: BaseInspectorOptions,
+    NumericalOptions.__name__: NumericalOptions,
+    IntOptions.__name__: IntOptions,
+    PrecisionOptions.__name__: PrecisionOptions,
+    FloatOptions.__name__: FloatOptions,
+    TextOptions.__name__: TextOptions,
+    DateTimeOptions.__name__: DateTimeOptions,
+    OrderOptions.__name__: OrderOptions,
+    CategoricalOptions.__name__: CategoricalOptions,
+    CorrelationOptions.__name__: CorrelationOptions,
+    DataLabelerOptions.__name__: DataLabelerOptions,
+    TextProfilerOptions.__name__: TextProfilerOptions,
+    StructuredOptions.__name__: StructuredOptions,
+    UnstructuredOptions.__name__: UnstructuredOptions,
+    ProfilerOptions.__name__: ProfilerOptions,
 }

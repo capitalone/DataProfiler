@@ -6,12 +6,19 @@ import abc
 import copy
 import re
 import warnings
-from typing import Any
+from typing import Any, Generic, TypeVar
+
+from dataprofiler.profilers.json_decoder import load_option
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
+BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
+BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
+NumericalOptionsT = TypeVar("NumericalOptionsT", bound="NumericalOptions")
+BaseInspectorOptionsT = TypeVar("BaseInspectorOptionsT", bound="BaseInspectorOptions")
 
-class BaseOption:
+
+class BaseOption(Generic[BaseOptionT]):
     """For configuring options."""
 
     @property
@@ -139,6 +146,26 @@ class BaseOption:
             return errors
         return None
 
+    @classmethod
+    def load_from_dict(cls, data) -> BaseOption:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
+        """
+        profile = cls()
+
+        for attr, value in data.items():
+            if isinstance(value, dict) and "class" in value:
+                value = load_option(value)
+            setattr(profile, attr, value)
+
+        return profile
+
     def __eq__(self, other: object) -> bool:
         """
         Determine equality by ensuring equality of all attributes.
@@ -151,7 +178,7 @@ class BaseOption:
         return self.__dict__ == other.__dict__
 
 
-class BooleanOption(BaseOption):
+class BooleanOption(BaseOption[BooleanOptionT]):
     """For setting Boolean options."""
 
     def __init__(self, is_enabled: bool = True) -> None:
@@ -181,7 +208,7 @@ class BooleanOption(BaseOption):
         return errors
 
 
-class HistogramOption(BooleanOption):
+class HistogramOption(BooleanOption["HistogramOption"]):
     """For setting histogram options."""
 
     def __init__(
@@ -234,7 +261,7 @@ class HistogramOption(BooleanOption):
         return errors
 
 
-class ModeOption(BooleanOption):
+class ModeOption(BooleanOption["ModeOption"]):
     """For setting mode estimation options."""
 
     def __init__(self, is_enabled: bool = True, max_k_modes: int = 5) -> None:
@@ -269,7 +296,7 @@ class ModeOption(BooleanOption):
         return errors
 
 
-class BaseInspectorOptions(BooleanOption):
+class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
     """For setting Base options."""
 
     def __init__(self, is_enabled: bool = True) -> None:
@@ -318,7 +345,7 @@ class BaseInspectorOptions(BooleanOption):
         return is_enabled
 
 
-class NumericalOptions(BaseInspectorOptions):
+class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
     """For configuring options for Numerican Stats Mixin."""
 
     def __init__(self) -> None:
@@ -356,20 +383,20 @@ class NumericalOptions(BaseInspectorOptions):
             stats
         :vartype is_numeric_stats_enabled: bool
         """
-        self.min = BooleanOption(is_enabled=True)
-        self.max = BooleanOption(is_enabled=True)
-        self.mode = ModeOption(is_enabled=True)
-        self.median = BooleanOption(is_enabled=True)
-        self.sum = BooleanOption(is_enabled=True)
-        self.variance = BooleanOption(is_enabled=True)
-        self.skewness = BooleanOption(is_enabled=True)
-        self.kurtosis = BooleanOption(is_enabled=True)
-        self.median_abs_deviation = BooleanOption(is_enabled=True)
-        self.num_zeros = BooleanOption(is_enabled=True)
-        self.num_negatives = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = HistogramOption()
+        self.min: BooleanOption = BooleanOption(is_enabled=True)
+        self.max: BooleanOption = BooleanOption(is_enabled=True)
+        self.mode: ModeOption = ModeOption(is_enabled=True)
+        self.median: BooleanOption = BooleanOption(is_enabled=True)
+        self.sum: BooleanOption = BooleanOption(is_enabled=True)
+        self.variance: BooleanOption = BooleanOption(is_enabled=True)
+        self.skewness: BooleanOption = BooleanOption(is_enabled=True)
+        self.kurtosis: BooleanOption = BooleanOption(is_enabled=True)
+        self.median_abs_deviation: BooleanOption = BooleanOption(is_enabled=True)
+        self.num_zeros: BooleanOption = BooleanOption(is_enabled=True)
+        self.num_negatives: BooleanOption = BooleanOption(is_enabled=True)
+        self.histogram_and_quantiles: HistogramOption = HistogramOption()
         # By default, we correct for bias
-        self.bias_correction = BooleanOption(is_enabled=True)
+        self.bias_correction: BooleanOption = BooleanOption(is_enabled=True)
         BaseInspectorOptions.__init__(self)
 
     @property
@@ -535,7 +562,7 @@ class NumericalOptions(BaseInspectorOptions):
         return errors
 
 
-class IntOptions(NumericalOptions):
+class IntOptions(NumericalOptions["IntOptions"]):
     """For configuring options for Int Column."""
 
     def __init__(self) -> None:
@@ -587,7 +614,7 @@ class IntOptions(NumericalOptions):
         return super()._validate_helper(variable_path)
 
 
-class PrecisionOptions(BooleanOption):
+class PrecisionOptions(BooleanOption["PrecisionOptions"]):
     """For configuring options for precision."""
 
     def __init__(self, is_enabled: bool = True, sample_ratio: float = None) -> None:
@@ -632,7 +659,7 @@ class PrecisionOptions(BooleanOption):
         return errors
 
 
-class FloatOptions(NumericalOptions):
+class FloatOptions(NumericalOptions["FloatOptions"]):
     """For configuring options for Float Column."""
 
     def __init__(self) -> None:
@@ -689,7 +716,7 @@ class FloatOptions(NumericalOptions):
         return errors
 
 
-class TextOptions(NumericalOptions):
+class TextOptions(NumericalOptions["TextOptions"]):
     """For configuring options for Text Column."""
 
     def __init__(self) -> None:
@@ -730,9 +757,9 @@ class TextOptions(NumericalOptions):
         :vartype is_numeric_stats_enabled: bool
         """
         NumericalOptions.__init__(self)
-        self.vocab = BooleanOption(is_enabled=True)
-        self.num_zeros = BooleanOption(is_enabled=False)
-        self.num_negatives = BooleanOption(is_enabled=False)
+        self.vocab: BooleanOption = BooleanOption(is_enabled=True)
+        self.num_zeros: BooleanOption = BooleanOption(is_enabled=False)
+        self.num_negatives: BooleanOption = BooleanOption(is_enabled=False)
 
     def _validate_helper(self, variable_path: str = "TextOptions") -> list[str]:
         """
@@ -816,7 +843,7 @@ class TextOptions(NumericalOptions):
         self.histogram_and_quantiles.is_enabled = value
 
 
-class DateTimeOptions(BaseInspectorOptions):
+class DateTimeOptions(BaseInspectorOptions["DateTimeOptions"]):
     """For configuring options for Datetime Column."""
 
     def __init__(self) -> None:
@@ -840,7 +867,7 @@ class DateTimeOptions(BaseInspectorOptions):
         return super()._validate_helper(variable_path)
 
 
-class OrderOptions(BaseInspectorOptions):
+class OrderOptions(BaseInspectorOptions["OrderOptions"]):
     """For configuring options for Order Column."""
 
     def __init__(self) -> None:
@@ -864,7 +891,7 @@ class OrderOptions(BaseInspectorOptions):
         return super()._validate_helper(variable_path)
 
 
-class CategoricalOptions(BaseInspectorOptions):
+class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
     """For configuring options Categorical Column."""
 
     def __init__(
@@ -989,7 +1016,7 @@ class CategoricalOptions(BaseInspectorOptions):
         return errors
 
 
-class CorrelationOptions(BaseInspectorOptions):
+class CorrelationOptions(BaseInspectorOptions["CorrelationOptions"]):
     """For configuring options for Correlation between Columns."""
 
     def __init__(self, is_enabled: bool = False, columns: list[str] = None) -> None:
@@ -1161,7 +1188,7 @@ class RowStatisticsOptions(BooleanOption):
         return super()._validate_helper(variable_path)
 
 
-class DataLabelerOptions(BaseInspectorOptions):
+class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
     """For configuring options for Data Labeler Column."""
 
     def __init__(self) -> None:
@@ -1258,7 +1285,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         return errors
 
 
-class TextProfilerOptions(BaseInspectorOptions):
+class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
     """For configuring options for text profiler."""
 
     def __init__(
@@ -1292,8 +1319,8 @@ class TextProfilerOptions(BaseInspectorOptions):
         self.stop_words = stop_words
         self.top_k_chars = top_k_chars
         self.top_k_words = top_k_words
-        self.vocab = BooleanOption(is_enabled=True)
-        self.words = BooleanOption(is_enabled=True)
+        self.vocab: BooleanOption = BooleanOption(is_enabled=True)
+        self.words: BooleanOption = BooleanOption(is_enabled=True)
 
     def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> list[str]:
         """
@@ -1350,7 +1377,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         return errors
 
 
-class StructuredOptions(BaseOption):
+class StructuredOptions(BaseOption["StructuredOptions"]):
     """For configuring options for structured profiler."""
 
     def __init__(
@@ -1548,7 +1575,7 @@ class StructuredOptions(BaseOption):
         return errors
 
 
-class UnstructuredOptions(BaseOption):
+class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
     """For configuring options for unstructured profiler."""
 
     def __init__(self) -> None:
@@ -1606,7 +1633,7 @@ class UnstructuredOptions(BaseOption):
         return errors
 
 
-class ProfilerOptions(BaseOption):
+class ProfilerOptions(BaseOption["ProfilerOptions"]):
     """For configuring options for profiler."""
 
     def __init__(self, presets: str = None) -> None:

@@ -1,13 +1,16 @@
+import json
 import unittest
 
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BaseOption
 from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
     AbstractTestOptions,
 )
 
+from .. import utils as test_utils
+
 
 class TestBaseOption(AbstractTestOptions, unittest.TestCase):
-
     option_class = BaseOption
 
     def test_init(self):
@@ -58,3 +61,16 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
         self.assertEqual(options, options)
         options2 = self.get_options()
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = self.get_options()
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "BaseOption",
+                "data": {},
+            }
+        )
+
+        self.assertEqual(expected, serialized)

@@ -1,4 +1,10 @@
+import json
+
+from dataprofiler.profilers.json_decoder import load_option
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BaseOption
+
+from .. import utils as test_utils
 
 
 class AbstractTestOptions:
@@ -46,3 +52,13 @@ class AbstractTestOptions:
 
     def test_validate(self):
         raise NotImplementedError
+
+
+class JSONDecodeTestMixin:
+    def test_json_decode(self):
+        expected_options = self.get_options()
+
+        serialized = json.dumps(expected_options, cls=ProfileEncoder)
+        deserialized = load_option(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_options)

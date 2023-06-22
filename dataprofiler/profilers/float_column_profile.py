@@ -168,7 +168,7 @@ class FloatColumn(
         :type data: dict[string, Any]
 
         :return: Profiler with attributes populated.
-        :rtype: CategoricalColumn
+        :rtype: FloatColumn
         """
         # This is an ambiguous call to super classes.
         # If load_from_dict is part of both super classes there may be issues

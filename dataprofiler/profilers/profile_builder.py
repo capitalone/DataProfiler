@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, List, Optional, cast
+from typing import Any, Generator, List, Optional, TypeVar, cast
 
 import networkx as nx
 import numpy as np
@@ -37,6 +37,8 @@ from .profiler_options import (
     StructuredOptions,
     UnstructuredOptions,
 )
+
+BaseProfilerT = TypeVar("BaseProfilerT", bound="BaseProfiler")
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -833,6 +835,44 @@ class BaseProfiler:
         :rtype: dict
         """
         raise NotImplementedError()
+
+    @classmethod
+    def load_from_dict(
+        cls: type[BaseProfilerT],
+        data: dict[str, Any],
+        options: dict | None = None,
+    ) -> BaseProfilerT:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
+        """
+        if options is None:
+            options = {}
+
+        class_options = options.get(cls.__name__)
+        profile: BaseProfilerT = cls(data["name"], class_options)
+
+        time_vals = data.pop("times")
+        setattr(profile, "times", defaultdict(float, time_vals))
+
+        for attr, value in data.items():
+            if "__calculations" in attr:
+                for metric, function in value.items():
+                    if not hasattr(profile, function):
+                        raise AttributeError(
+                            f"Object {type(profile)} has no attribute {function}."
+                        )
+                    value[metric] = getattr(profile, function).__func__
+            setattr(profile, attr, value)
+
+        return profile
 
     def _update_profile_from_chunk(
         self,

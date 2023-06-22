@@ -5,13 +5,16 @@ if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
 
     from .base_column_profilers import BaseColumnProfiler
+<<<<<<< HEAD
     from .profiler_options import BaseOption
+=======
+    from .profile_builder import BaseProfiler
+>>>>>>> 72d6d25 (update)
     from .profilers import column_profile_compilers as col_pro_compilers
-    from .profilers import profiler_builder as pro_builder
 
 
 # default, but set in the local __init__ to avoid circular imports
-_profilers: Dict[str, Type["pro_builder.BaseProfiler"]] = {}
+_profilers: Dict[str, Type["BaseProfiler"]] = {}
 _profiles: Dict[str, Type["BaseColumnProfiler"]] = {}
 _compilers: Dict[str, Type["col_pro_compiler.BaseCompiler"]] = {}
 _options: Dict[str, Type["BaseOption"]] = {}
@@ -83,9 +86,7 @@ def get_profiler_class(class_name: str) -> Type["pro_builder.BaseProfiler"]:
     :type class_name: str representing name of class
     :return: subclass of BaseProfiler object
     """
-    profiler_class: Optional[Type["pro_builder.BaseProfiler"]] = _profilers.get(
-        class_name
-    )
+    profiler_class: Optional[Type["BaseProfiler"]] = _profilers.get(class_name)
     if profiler_class is None:
         raise ValueError(f"Invalid compiler class {class_name} " f"failed to load.")
     return profiler_class
@@ -192,7 +193,5 @@ def load_profiler(serialized_json: dict) -> "pro_builder.BaseProfiler":
     :return: subclass of BaseCompiler that has been deserialized from
         JSON
     """
-    profiler_cls: Type["pro_builder.BaseProfiler"] = get_profiler_class(
-        serialized_json["class"]
-    )
+    profiler_cls: Type["BaseProfiler"] = get_profiler_class(serialized_json["class"])
     return profiler_cls.load_from_dict(serialized_json["data"])

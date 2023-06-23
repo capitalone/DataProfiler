@@ -105,14 +105,14 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             merged_profile.__calculations, self.__calculations, other.__calculations
         )
 
-        if self.cms:
+        if self.cms and other.cms:
             # decode prior to use
             self.cms = datasketches.count_min_sketch.deserialize(
                 base64.b64decode(bytes(self.cms, "utf-8"))
             )
-            # other.cms = datasketches.count_min_sketch.deserialize(
-            #     base64.b64decode(bytes(other.cms, "utf-8"))
-            # )
+            other.cms = datasketches.count_min_sketch.deserialize(
+                base64.b64decode(bytes(other.cms, "utf-8"))
+            )
             merged_profile.cms, merged_profile._categories = self._merge_categories_cms(
                 self.cms,
                 self._categories,

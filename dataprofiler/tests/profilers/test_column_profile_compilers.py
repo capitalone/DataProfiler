@@ -797,9 +797,9 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             "data_label_representation", None
         ) == {"a": 0.6, "b": 0.4}
 
-    def test_json_decode_with_options(self, mock_instance):
-        self._setup_data_labeler_mock(mock_instance)
-        mock_instance._default_model_loc = "structured_model"
+    def test_json_decode_with_options(self, mock_DataLabeler_cls):
+        self._setup_data_labeler_mock(mock_DataLabeler_cls)
+        mock_DataLabeler_cls._default_model_loc = "structured_model"
 
         data = pd.Series(["2", "-1", "1", "2"], name="test")
         with test_utils.mock_timeit():
@@ -807,24 +807,29 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
 
+        # create a new labeler ot load instead of from_library
         new_mock_data_labeler = mock.Mock(spec=BaseDataLabeler)
         new_mock_data_labeler.name = "new fake data labeler"
         new_mock_data_labeler._default_model_loc = "my/fake/path"
-        mock_instance.load_from_library.return_value = new_mock_data_labeler
-        mock_instance.load_from_library.side_effect = None
-        options = {"DataLabelerColumn": {"from_library": new_mock_data_labeler}}
+        options = {
+            "DataLabelerColumn": {
+                "from_library": {"structured_model": new_mock_data_labeler}
+            }
+        }
 
+        mock_DataLabeler_cls.reset_mock()  # set to 0 calls as option should override
         deserialized = load_compiler(json.loads(serialized), options)
 
-        # ensure doesn't change original, but options update deserialized
+        # ensure doesn't change original, but options updates deserialized labeler
         assert (
             expected_compiler._profiles.get("data_labeler", mock.Mock()).data_labeler
-            == mock_instance.return_value
+            == mock_DataLabeler_cls.return_value
         )
         assert (
             deserialized._profiles.get("data_labeler", mock.Mock()).data_labeler
             == new_mock_data_labeler
         )
+        mock_DataLabeler_cls.assert_not_called()
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

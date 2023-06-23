@@ -498,6 +498,22 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected)
 
+        # test decode with options to override load labeler
+        # create a new labeler ot load instead of from_library
+        new_mock_data_labeler = mock.Mock(spec=BaseDataLabeler)
+        new_mock_data_labeler.name = "new fake data labeler"
+        new_mock_data_labeler._default_model_loc = "my/fake/path"
+        options = {
+            "DataLabelerColumn": {
+                "from_library": {"structured_model": new_mock_data_labeler}
+            }
+        }
+
+        mock_instance.reset_mock()  # set to 0 calls as option should override
+        deserialized = load_column_profile(json.loads(serialized), options)
+        assert deserialized.data_labeler == new_mock_data_labeler
+        mock_instance.assert_not_called()
+
     def test_json_decode_after_update(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
         data = pd.Series(["1", "2", "3", "4"], dtype=object)

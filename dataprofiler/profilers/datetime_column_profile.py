@@ -132,12 +132,14 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
         return self.profile
 
     @classmethod
-    def load_from_dict(cls, data):
+    def load_from_dict(cls, data, options: dict | None = None):
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: DateTimeColumn

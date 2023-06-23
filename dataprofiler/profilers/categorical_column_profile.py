@@ -318,7 +318,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         return self.profile
 
     @classmethod
-    def load_from_dict(cls, data):
+    def load_from_dict(cls, data: dict, options: dict | None = None):
         """
         Parse attribute from json dictionary into self.
 

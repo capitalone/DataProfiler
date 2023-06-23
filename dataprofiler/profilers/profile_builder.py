@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, List, Optional, cast
+from typing import Any, Generator, List, Optional, TypeVar, cast
 
 import networkx as nx
 import numpy as np
@@ -31,12 +31,15 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
+from .json_decoder import load_compiler, load_option
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
     StructuredOptions,
     UnstructuredOptions,
 )
+
+BaseProfilerT = TypeVar("BaseProfilerT", bound="BaseProfiler")
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -377,6 +380,27 @@ class StructuredColProfiler:
                 report[key] = None  # type: ignore
 
         return report
+
+    @classmethod
+    def load_from_dict(cls, data) -> StructuredColProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredColProfiler
+        """
+        profile = cls()
+        for attr, value in data.items():
+            if attr == "profiles":
+                for profile_key, profile_value in value.items():
+                    value[profile_key] = load_compiler(profile_value)
+            if "options" in attr:
+                value = load_option(value)
+            setattr(profile, attr, value)
+        return profile
 
     @property
     def profile(self) -> dict:
@@ -1066,18 +1090,18 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath_or_object: str) -> BaseProfiler:
         """
         Load profiler from disk.
 
-        :param filepath: Path of file to load from
-        :type filepath: String
+        :param filepath_or_object: Path of file to load from
+        :type filepath_or_object: String
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
-        :rtype: BaseProfiler
+        :rtype: BaseProfilera
         """
         # Load profile from disk
-        with open(filepath, "rb") as infile:
+        with open(filepath_or_object, "rb") as infile:
             data: dict = pickle.load(infile)
 
         # remove profiler class if it exists

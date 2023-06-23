@@ -14,7 +14,12 @@ from .float_column_profile import FloatColumn
 from .int_column_profile import IntColumn
 from .numerical_column_stats import NumericStatsMixin
 from .order_column_profile import OrderColumn
-from .profile_builder import Profiler, StructuredProfiler, UnstructuredProfiler
+from .profile_builder import (
+    Profiler,
+    StructuredColProfiler,
+    StructuredProfiler,
+    UnstructuredProfiler,
+)
 from .profiler_options import (
     BaseInspectorOptions,
     BooleanOption,
@@ -75,4 +80,8 @@ json_decoder._options = {
     StructuredOptions.__name__: StructuredOptions,
     UnstructuredOptions.__name__: UnstructuredOptions,
     ProfilerOptions.__name__: ProfilerOptions,
+}
+
+json_decoder._structured_col_profiler = {
+    StructuredColProfiler.__name__: StructuredColProfiler,
 }

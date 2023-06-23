@@ -315,7 +315,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     rng = random.Random(x=settings._seed)
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
         seed = os.environ.get("DATAPROFILER_SEED")
-        if seed:
+        if isinstance(seed, int):
             rng = random.Random(int(seed))
 
     while True:
@@ -340,33 +340,27 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     return values
 
 
-def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> pd.DataFrame:
+def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> StringIO:
     """
     Implement Reservoir Sampling to sample n rows out of a total of M rows.
 
     :param file_path: path of the csv file to be read in
-    :type file: TextIOWrapper
+    :type file_path: TextIOWrapper
+    :param sample_nrows: number of rows being sampled
+    :type sample_nrows: int
     :param args: options to read the csv file
     :type args: dict
     """
-    head = None
     header = args["header"]
-    if header is None:
-        result = reservoir(file_path, sample_nrows)
-        fo = pd.read_csv(
-            StringIO("".join([i if (i[-1] == "\n") else i + "\n" for i in result])),
-            **args
-        )
-    else:
-        for i in range(header + 1):
-            head = next(file_path)
-        result = [head] + reservoir(file_path, sample_nrows)
-        args_copy = args.copy()
-        args_copy["header"] = 0
-        fo = pd.read_csv(
-            StringIO("".join([i if (i[-1] == "\n") else i + "\n" for i in result])),
-            **args_copy
-        )
+    result = []
+
+    if header is not None:
+        result = [[next(file_path) for i in range(header + 1)][-1]]
+        args["header"] = 0
+
+    result += reservoir(file_path, sample_nrows)
+
+    fo = StringIO("".join([i if (i[-1] == "\n") else i + "\n" for i in result]))
     return fo
 
 
@@ -415,30 +409,32 @@ def read_csv_df(
     if len(selected_columns) > 0:
         args["usecols"] = selected_columns
 
+    # if already TextIOWrapper
+    file_data = file_path
+
     # account for py3.6 requirement for pandas, can remove if >= py3.7
     is_buf_wrapped = False
-    # is_buf_open = False
+    is_file_open = False
     if isinstance(file_path, BytesIO):
         # a BytesIO stream has to be wrapped in order to properly be detached
         # in 3.6 this avoids read_csv wrapping the stream and closing too early
         file_path = TextIOWrapper(file_path, encoding=encoding)
         is_buf_wrapped = True
+    elif isinstance(file_path, str):
+        file_path = open(file_path, encoding=encoding)
+        is_file_open = True
 
-    if sample_nrows is not None:
-        if isinstance(file_path, str):
-            with open(file_path, encoding=encoding) as buffered_file_path:
-                fo = rsample(buffered_file_path, sample_nrows, args)
-        else:
-            fo = rsample(file_path, sample_nrows, args)
-    else:
-        fo = pd.read_csv(file_path, **args)
+    if sample_nrows:
+        file_data = rsample(file_path, sample_nrows, args)
+    fo = pd.read_csv(file_data, **args)
     data = fo.read()
 
     # if the buffer was wrapped, detach it before returning
     if is_buf_wrapped:
         file_path = cast(TextIOWrapper, file_path)
         file_path.detach()
-
+    elif is_file_open:
+        file_path.close()
     fo.close()
 
     return data

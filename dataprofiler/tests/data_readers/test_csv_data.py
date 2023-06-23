@@ -595,13 +595,8 @@ class TestCSVDataClass(unittest.TestCase):
                 self.assertEqual(
                     input_data_obj.data_format, data_format, msg=input_file["path"]
                 )
-                try:
-                    data = input_data_obj.data
-                except:
-                    print(input_file["path"])
+                data = input_data_obj.data
                 if data_format == "dataframe":
-                    import pandas as pd
-
                     self.assertIsInstance(data, pd.DataFrame, msg=input_file["path"])
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)

@@ -401,6 +401,8 @@ class StructuredColProfiler:
                     value[profile_key] = load_compiler(profile_value, options)
             if attr == "options" and value is not None:
                 value = load_option(value, options)
+            if attr == "_null_values":
+                value = {k: profile._null_values[k] for k, v in value.items()}
             setattr(profile, attr, value)
         return profile
 
@@ -859,6 +861,30 @@ class BaseProfiler:
         :rtype: dict
         """
         raise NotImplementedError()
+
+    @classmethod
+    def load_from_dict(cls, data) -> BaseProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseCompiler
+        """
+        profiler = cls(None)
+
+        for attr, value in data.items():
+            if "times" == attr:
+                setattr(profiler, "times", defaultdict(float, value))
+            if "_profiles" == attr:
+                value = load_compiler(value)
+            if "options" == attr:
+                value = load_option(value)
+
+            setattr(profiler, attr, value)
+        return profiler
 
     def _update_profile_from_chunk(
         self,

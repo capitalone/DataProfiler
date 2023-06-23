@@ -2968,7 +2968,6 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         assert deserialized.profile["statistics"]["max"] == 15
         assert deserialized.profile["statistics"]["min"] == -1.5
 
-
 @mock.patch(
     "dataprofiler.profilers.profile_builder.UnstructuredCompiler",
     spec=UnstructuredCompiler,

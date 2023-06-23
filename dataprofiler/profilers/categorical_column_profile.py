@@ -1,11 +1,12 @@
 """Contains class for categorical column profiler."""
 from __future__ import annotations
 
+import base64
 from collections import defaultdict
 from operator import itemgetter
 from typing import cast
 
-from datasketches import count_min_sketch
+import datasketches
 from pandas import DataFrame, Series
 
 from . import BaseColumnProfiler, utils
@@ -45,7 +46,6 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
         self._top_k_categories: int | None = None
-        self._heavy_hitters_threshold: int | None = None
 
         # Conditions to stop categorical profiling
         self.max_sample_size_to_check_stop_condition = None
@@ -54,7 +54,11 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         self._stopped_at_unique_ratio: float | None = None
         self._stopped_at_unique_count: int | None = None
-        self.cms = None
+
+        self._heavy_hitters_threshold: int | None = None
+        self.num_hashes: int | None = None
+        self.num_buckets: int | None = None
+        self.cms: datasketches.countminsketch | None = None
         if options:
             self._top_k_categories = options.top_k_categories
             self.stop_condition_unique_value_ratio = (
@@ -63,18 +67,20 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             self.max_sample_size_to_check_stop_condition = (
                 options.max_sample_size_to_check_stop_condition
             )
-            self._cms_confidence = options.cms_confidence
-            self._cms_relative_error = options.cms_relative_error
 
             if options.cms:
                 self._heavy_hitters_threshold = options.heavy_hitters_threshold
-                self.num_hashes = count_min_sketch.suggest_num_hashes(
+                self.num_hashes = datasketches.count_min_sketch.suggest_num_hashes(
                     options.cms_confidence
                 )
-                self.num_buckets = count_min_sketch.suggest_num_buckets(
+                self.num_buckets = datasketches.count_min_sketch.suggest_num_buckets(
                     options.cms_relative_error
                 )
-                self.cms = count_min_sketch(self.num_hashes, self.num_buckets)
+                self.cms = base64.b64encode(
+                    datasketches.count_min_sketch(
+                        self.num_hashes, self.num_buckets
+                    ).serialize()
+                ).decode("utf-8")
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -98,6 +104,28 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._merge_calculations(
             merged_profile.__calculations, self.__calculations, other.__calculations
         )
+
+        if self.cms:
+            # decode prior to use
+            self.cms = datasketches.count_min_sketch.deserialize(
+                base64.b64decode(bytes(self.cms, "utf-8"))
+            )
+            # other.cms = datasketches.count_min_sketch.deserialize(
+            #     base64.b64decode(bytes(other.cms, "utf-8"))
+            # )
+            merged_profile.cms, merged_profile._categories = self._merge_categories_cms(
+                self.cms,
+                self._categories,
+                self.sample_size,
+                {},
+                other.cms,
+                other._categories,
+                other.sample_size,
+            )
+            merged_profile.cms = base64.b64encode(
+                merged_profile.cms.serialize()
+            ).decode("utf-8")
+
         # If both profiles have not met stop condition
         if not (self._stop_condition_is_met or other._stop_condition_is_met):
             merged_profile._categories = utils.add_nested_dictionaries(
@@ -339,6 +367,75 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             self._stopped_at_unique_count = merged_unique_count
 
     @BaseColumnProfiler._timeit(name="categories")
+    def _get_categories_cms(self, df_series, len_df):
+        """Return count min sketch and heavy hitters for both the batch and stream case.
+
+        :param df_series: Series currently being processed by categorical profiler
+        :type df_series: Series
+        :return: cms, heavy_hitter_dict, missing_heavy_hitter_dict
+        """
+        cms = datasketches.count_min_sketch(self.num_hashes, self.num_buckets)
+        heavy_hitter_dict = defaultdict(int)
+        missing_heavy_hitter_dict = defaultdict(int)
+        for i, value in enumerate(df_series):
+            cms.update(value)
+            i_count = cms.get_estimate(value)
+            i_total_count = i_count + self.cms.get_estimate(value)
+            # approximate heavy-hitters
+            if i_count >= int(len_df / self._heavy_hitters_threshold):
+                heavy_hitter_dict[value] = i_count
+                missing_heavy_hitter_dict.pop(value, None)
+            elif i_total_count >= int(
+                (self.sample_size + len_df) / self._heavy_hitters_threshold
+            ):
+                missing_heavy_hitter_dict[value] = i_total_count
+                heavy_hitter_dict.pop(value, None)
+
+        return cms, heavy_hitter_dict, missing_heavy_hitter_dict
+
+    @BaseColumnProfiler._timeit(name="categories")
+    def _merge_categories_cms(
+        self,
+        cms1,
+        heavy_hitter_dict1,
+        len1,
+        missing_heavy_hitter_dict,
+        cms2,
+        heavy_hitter_dict2,
+        len2,
+    ):
+        """Return the aggregate count min sketch and approximate histogram (categories).
+
+        :param cms1: count min sketch
+        :type cms1: datasketches.countminsketch
+        :param cms2: count min sketch
+        :type cms2: datasketches.countminsketch
+        :param heavy_hitter_dict1: Heavy Hitters category count
+        :type heavy_hitter_dict1: Dict
+        :param heavy_hitter_dict2: Heavy Hitters category count
+        :type heavy_hitter_dict2: Dict
+        :param missing_heavy_hitter_dict2: Heavy Hitters category count
+        considering two batches are two chunks of a data stream
+        :type missing_heavy_hitter_dict2: Dict
+        :param len1: number of samples in batch 1
+        :type len1: int
+        :param len2: number of samples in batch 2
+        :type len2: int
+        :return: cms1, categories
+        """
+        cms2.merge(cms1)
+        categories = utils.add_nested_dictionaries(
+            heavy_hitter_dict2, heavy_hitter_dict1
+        )
+        categories.update(missing_heavy_hitter_dict)
+
+        total_samples = len1 + len2
+        for cat in list(categories):
+            if categories[cat] < (total_samples / self._heavy_hitters_threshold):
+                categories.pop(cat)
+        return cms2, categories
+
+    @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
         self,
         df_series: DataFrame,
@@ -365,18 +462,29 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 raise ValueError(
                     "when using CMS, heavy_hitters_threshold must be an integer"
                 )
-            category_count = defaultdict(int)
-            for i in df_series:
-                self.cms.update(i)
-                # approximate heavy-hitters
-                if self.cms.get_estimate(i) >= int(
-                    len(df_series) / self._heavy_hitters_threshold
-                ):
-                    category_count[i] = self.cms.get_estimate(i)
-
-            self._categories = utils.add_nested_dictionaries(
-                self._categories, category_count
+            # decode prior to use
+            self.cms = datasketches.count_min_sketch.deserialize(
+                base64.b64decode(bytes(self.cms, "utf-8"))
             )
+            len_df = len(df_series)
+            (
+                cms,
+                heavy_hitter_dict,
+                missing_heavy_hitter_dict,
+            ) = self._get_categories_cms(df_series, len_df)
+
+            self.cms, self._categories = self._merge_categories_cms(
+                cms,
+                heavy_hitter_dict,
+                len_df,
+                missing_heavy_hitter_dict,
+                self.cms,
+                self._categories,
+                self.sample_size,
+            )
+            # re-encode for serialization
+            self.cms = base64.b64encode(self.cms.serialize()).decode("utf-8")
+
         else:
             category_count = df_series.value_counts(dropna=False).to_dict()
             self._categories = utils.add_nested_dictionaries(

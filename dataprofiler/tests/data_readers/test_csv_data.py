@@ -498,12 +498,48 @@ class TestCSVDataClass(unittest.TestCase):
                 input_data_obj.delimiter, input_file["delimiter"], input_file["path"]
             )
 
+    def test_specifying_data_type_when_sampled(self):
+        """
+        Determine if the csv file can be loaded with manual data_type setting
+        """
+        for input_file in self.file_or_buf_list:
+            input_data_obj = Data(
+                input_file["path"], data_type="csv", options={"sample_nrows": 100}
+            )
+            self.assertEqual(input_data_obj.data_type, "csv", input_file["path"])
+            self.assertEqual(
+                input_data_obj.delimiter, input_file["delimiter"], input_file["path"]
+            )
+
     def test_data_formats(self):
         """
         Test the data format options.
         """
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
+            self.assertEqual(input_data_obj.data_type, "csv")
+            self.assertIsInstance(input_data_obj.data, pd.DataFrame)
+
+            input_data_obj.data_format = "records"
+            self.assertIsInstance(input_data_obj.data, list)
+
+            with self.assertRaises(ValueError) as exc:
+                input_data_obj.data_format = "NON_EXISTENT"
+            self.assertEqual(
+                str(exc.exception),
+                "The data format must be one of the following: "
+                + "['dataframe', 'records']",
+            )
+
+    def test_data_formats_when_sampled(self):
+        """
+        Test the data format options.
+        """
+        for input_file in self.file_or_buf_list:
+            try:
+                input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
+            except:
+                print(input_file["path"])
             self.assertEqual(input_data_obj.data_type, "csv")
             self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -543,6 +579,29 @@ class TestCSVDataClass(unittest.TestCase):
                 data = input_data_obj.data
                 if data_format == "dataframe":
                     self.assertIsInstance(data, pd.DataFrame)
+                elif data_format in ["records", "json"]:
+                    self.assertIsInstance(data, list)
+                    self.assertIsInstance(data[0], str)
+
+    def test_allowed_data_formats_when_sampled(self):
+        """
+        Determine if the csv file data_formats can be used
+        """
+        for input_file in self.file_or_buf_list:
+            input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
+            for data_format in list(input_data_obj._data_formats.keys()):
+                input_data_obj.data_format = data_format
+                self.assertEqual(
+                    input_data_obj.data_format, data_format, msg=input_file["path"]
+                )
+                try:
+                    data = input_data_obj.data
+                except:
+                    print(input_file["path"])
+                if data_format == "dataframe":
+                    import pandas as pd
+
+                    self.assertIsInstance(data, pd.DataFrame, msg=input_file["path"])
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)

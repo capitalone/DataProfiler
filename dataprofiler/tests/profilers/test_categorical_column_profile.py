@@ -1012,7 +1012,13 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(100, profile.max_sample_size_to_check_stop_condition)
 
     def test_json_encode(self):
-        profile = CategoricalColumn("0")
+        options = CategoricalOptions()
+        options.top_k_categories = 5
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.heavy_hitters_threshold = 2
+        profile = CategoricalColumn("0", options)
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
@@ -1027,14 +1033,16 @@ class TestCategoricalColumn(unittest.TestCase):
                     "thread_safe": True,
                     "_categories": defaultdict(int),
                     "_CategoricalColumn__calculations": dict(),
-                    "_top_k_categories": None,
-                    "_heavy_hitters_threshold": None,
+                    "_top_k_categories": 5,
                     "max_sample_size_to_check_stop_condition": None,
                     "stop_condition_unique_value_ratio": None,
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
-                    "cms": None,
+                    "_heavy_hitters_threshold": 2,
+                    "num_hashes": 3,
+                    "num_buckets": 272,
+                    "cms": "AgESAQAAAAAQAQAAA8yTAA==",
                 },
             }
         )
@@ -1077,12 +1085,14 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_categories": {"c": 5, "b": 4, "a": 3},
                     "_CategoricalColumn__calculations": {},
                     "_top_k_categories": None,
-                    "_heavy_hitters_threshold": None,
                     "max_sample_size_to_check_stop_condition": None,
                     "stop_condition_unique_value_ratio": None,
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
+                    "_heavy_hitters_threshold": None,
+                    "num_hashes": None,
+                    "num_buckets": None,
                     "cms": None,
                 },
             }
@@ -1166,6 +1176,56 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_categorical)
 
         self.assertEqual(1, len(profile.categories))
+        self.assertTrue(profile.sample_size >= 10)
+
+    def test_cms_update_hybrid_batch_stream(self):
+        dataset = pd.Series(["a"] * 4 + ["b"] * 12 + ["c"] * 14)
+        dataset1 = pd.Series(["a"] * 9 + ["b"] * 11 + ["c"] * 9 + ["d"] * 1)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.heavy_hitters_threshold = 3
+
+        profile = CategoricalColumn("test_name", options)
+        profile.update(dataset)
+        profile.update(dataset1)
+        expected_categories = ["b", "c"]
+
+        self.assertEqual(profile.sample_size, len(dataset) + len(dataset1))
+
+        self.assertTrue(profile._categories["c"] >= 23)
+
+        self.assertCountEqual(expected_categories, profile.categories)
+
+        self.assertTrue(profile._categories["b"] >= 23)
+
+    def test_cms_profile_merge_via_add(self):
+
+        dataset = pd.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
+        dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
+
+        expected_categories = ["b", "c"]
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.heavy_hitters_threshold = 3
+
+        profile1 = CategoricalColumn("test_name", options)
+        profile1.update(dataset)
+        profile2 = CategoricalColumn("test_name", options)
+        profile2.update(dataset1)
+
+        # Add profiles
+        profile3 = profile1 + profile2
+        self.assertCountEqual(expected_categories, profile3.categories)
+        self.assertEqual(
+            profile3.sample_size, profile1.sample_size + profile2.sample_size
+        )
+        self.assertTrue(profile3._categories["b"] == 22)
+        self.assertTrue(profile3._categories["c"] == 14)
 
 
 class TestCategoricalSentence(unittest.TestCase):

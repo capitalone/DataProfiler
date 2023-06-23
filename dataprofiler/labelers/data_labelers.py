@@ -18,12 +18,12 @@ if sys.version_info >= (3, 9):
         raise ImportError("The 'importlib.resources' package is not available.")
 
 else:
-    import importlib
+    import importlib_resources
 
 if sys.version_info >= (3, 9):
     default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
 else:
-    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+    default_labeler_dir = importlib_resources.files("resources").joinpath("labelers")
 
 
 def train_structured_labeler(

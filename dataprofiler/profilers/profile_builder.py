@@ -862,30 +862,6 @@ class BaseProfiler:
         """
         raise NotImplementedError()
 
-    @classmethod
-    def load_from_dict(cls, data) -> BaseProfiler:
-        """
-        Parse attribute from json dictionary into self.
-
-        :param data: dictionary with attributes and values.
-        :type data: dict[string, Any]
-
-        :return: Profiler with attributes populated.
-        :rtype: BaseCompiler
-        """
-        profiler = cls(None)
-
-        for attr, value in data.items():
-            if "times" == attr:
-                setattr(profiler, "times", defaultdict(float, value))
-            if "_profiles" == attr:
-                value = load_compiler(value)
-            if "options" == attr:
-                value = load_option(value)
-
-            setattr(profiler, attr, value)
-        return profiler
-
     def _update_profile_from_chunk(
         self,
         data: pd.Series | pd.DataFrame | list,

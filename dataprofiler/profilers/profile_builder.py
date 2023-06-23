@@ -31,7 +31,7 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
-from .json_decoder import load_compiler, load_option
+from .json_decoder import load_compiler, load_option, load_structured_col_profiler
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
@@ -1934,6 +1934,37 @@ class StructuredProfiler(BaseProfiler):
                 ] = self._null_replication_metrics[i]
 
         return _prepare_report(report, output_format, omit_keys)
+
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredProfiler
+        """
+        chi2_matrix = data.pop("chi2_matrix")
+        correlation_matrix = data.pop("correlation_matrix")
+        _profile = data.pop("_profile")
+
+        for idx, idx_profile in enumerate(_profile):
+            _profile[idx] = load_structured_col_profiler(idx_profile)
+
+        profile = super().load_from_dict(data)
+
+        profile.times = defaultdict(float, profile.times)
+        profile._col_name_to_idx = defaultdict(list, profile._col_name_to_idx)
+        if chi2_matrix is not None:
+            setattr(profile, "chi2_matrix", np.array(chi2_matrix))
+        if correlation_matrix is not None:
+            setattr(profile, "correlation_matrix", np.array(correlation_matrix))
+        if _profile:
+            setattr(profile, "_profile", _profile)
+
+        return profile
 
     def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""

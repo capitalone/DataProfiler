@@ -11,6 +11,7 @@ from typing import Generic, TypeVar
 from dataprofiler.profilers.json_decoder import load_option
 
 from ..labelers.base_data_labeler import BaseDataLabeler
+from ..labelers.data_labelers import DataLabeler
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
 BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
@@ -345,6 +346,26 @@ class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
         elif isinstance(option_prop, BooleanOption):
             is_enabled = option_prop.is_enabled
         return is_enabled
+
+    @classmethod
+    def load_from_dict(cls, data) -> BaseOption:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
+        """
+        profile = cls()
+
+        for attr, value in data.items():
+            if isinstance(value, dict) and "class" in value:
+                value = load_option(value)
+            setattr(profile, attr, value)
+
+        return profile
 
 
 class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
@@ -1062,6 +1083,35 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         elif self.max_sample_size is not None and self.max_sample_size <= 0:
             errors.append(f"{variable_path}.max_sample_size must be greater than 0.")
         return errors
+
+    @classmethod
+    def load_from_dict(cls, data) -> BaseOption:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseOption
+        """
+        data_labeler_load_attr = data.pop("data_labeler_object")
+        if "from_library" in data_labeler_load_attr:
+            data_labeler_object = DataLabeler.load_from_library(
+                data_labeler_load_attr["from_library"]
+            )
+        elif "from_disk" in data_labeler_load_attr:
+            raise NotImplementedError(
+                "Models initialized from disk have not yet been made deserializable"
+            )
+        else:
+            raise ValueError(
+                "Deserialization cannot be done on labelers without "
+                "_default_model_loc set to known value."
+            )
+        profile = super().load_from_dict(data)
+        profile.data_labeler_object = data_labeler_object
+        return profile
 
 
 class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):

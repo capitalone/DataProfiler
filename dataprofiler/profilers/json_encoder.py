@@ -33,6 +33,7 @@ class ProfileEncoder(json.JSONEncoder):
                 numerical_column_stats.NumericStatsMixin,
                 column_profile_compilers.BaseCompiler,
                 profiler_options.BaseOption,
+                profile_builder.BaseProfiler,
                 profile_builder.StructuredColProfiler,
             ),
         ):

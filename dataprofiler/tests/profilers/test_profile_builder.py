@@ -22,6 +22,7 @@ from dataprofiler.profilers.column_profile_compilers import (
 from dataprofiler.profilers.graph_profiler import GraphProfiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 from dataprofiler.profilers.json_decoder import load_structured_col_profiler
+from dataprofiler.profilers.json_decoder import load_profiler
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import (
     Profiler,
@@ -2153,6 +2154,53 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_equal(
             ["1", "2"], sorted(report["data_stats"][1]["samples"])
         )
+
+    def test_json_decode(self, *mocks):
+        fake_profile_name = None
+        expected_profile = StructuredProfiler(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        fake_profile_name = None
+        df_structured = pd.DataFrame(
+            [
+                [-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0],
+                ["a", "b", "c", "c", "a", "b", "b", "c", "c", "a"],
+            ]
+        ).apply(str)
+        expected_profile = StructuredProfiler(fake_profile_name)
+
+        with test_utils.mock_timeit():
+            expected_profile.update_profile(df_structured)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_structured = pd.Series(
+            [
+                [
+                    4.0,  # add existing
+                    15.0,  # add new
+                ],
+                ["c", "f"],
+            ]
+        ).apply(str)
+
+        # validating update after deserialization
+        deserialized.update_profile(df_structured)
+
+        assert deserialized.sample_size == 12
+        assert (
+            deserialized.mean
+            == sum([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0, 4, 15]) / 12
+        )
+        assert deserialized.max == 15
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

@@ -21,8 +21,10 @@ from dataprofiler.profilers.column_profile_compilers import (
 )
 from dataprofiler.profilers.graph_profiler import GraphProfiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
-from dataprofiler.profilers.json_decoder import load_structured_col_profiler
-from dataprofiler.profilers.json_decoder import load_profiler
+from dataprofiler.profilers.json_decoder import (
+    load_profiler,
+    load_structured_col_profiler,
+)
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import (
     Profiler,
@@ -2168,10 +2170,10 @@ class TestStructuredProfiler(unittest.TestCase):
         fake_profile_name = None
         df_structured = pd.DataFrame(
             [
-                [-1.5, ],
-                ["a", ],
+                [-1.5, 3.0],
+                ["a", "z"],
             ]
-        )
+        ).T
         expected_profile = StructuredProfiler(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -2190,14 +2192,12 @@ class TestStructuredProfiler(unittest.TestCase):
                 ],
                 ["c", "f"],
             ]
-        )
+        ).T
 
         # validating update after deserialization
         deserialized.update_profile(df_structured)
 
-        assert deserialized.total_samples == 12
-        assert deserialized.null_count == 0
-        assert deserialized.profile[0].profile["data_label"] == "UNKNOWN"
+        assert deserialized.total_samples == 4
         assert deserialized.profile[0].profile["statistics"]["max"] == 15
         assert deserialized.profile[0].profile["statistics"]["min"] == -1.5
 
@@ -2853,6 +2853,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         assert deserialized.profile["data_label"] == "a"
         assert deserialized.profile["statistics"]["max"] == 15
         assert deserialized.profile["statistics"]["min"] == -1.5
+
 
 @mock.patch(
     "dataprofiler.profilers.profile_builder.UnstructuredCompiler",

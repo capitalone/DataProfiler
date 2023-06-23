@@ -388,6 +388,8 @@ class StructuredColProfiler:
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading structured column profiler
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: StructuredColProfiler
@@ -397,8 +399,8 @@ class StructuredColProfiler:
             if attr == "profiles":
                 for profile_key, profile_value in value.items():
                     value[profile_key] = load_compiler(profile_value, options)
-            if attr == "options":
-                value = load_option(value)
+            if attr == "options" and value is not None:
+                value = load_option(value, options)
             setattr(profile, attr, value)
         return profile
 

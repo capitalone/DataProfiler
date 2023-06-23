@@ -382,7 +382,7 @@ class StructuredColProfiler:
         return report
 
     @classmethod
-    def load_from_dict(cls, data) -> StructuredColProfiler:
+    def load_from_dict(cls, data, options: dict | None = None) -> StructuredColProfiler:
         """
         Parse attribute from json dictionary into self.
 
@@ -396,8 +396,8 @@ class StructuredColProfiler:
         for attr, value in data.items():
             if attr == "profiles":
                 for profile_key, profile_value in value.items():
-                    value[profile_key] = load_compiler(profile_value)
-            if attr == "options" and value is not None:
+                    value[profile_key] = load_compiler(profile_value, options)
+            if attr == "options":
                 value = load_option(value)
             setattr(profile, attr, value)
         return profile

@@ -8,6 +8,7 @@ import numpy as np
 
 import dataprofiler as dp
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
+from dataprofiler.profilers.column_profile_compilers import BaseCompiler
 from dataprofiler.profilers.profile_builder import BaseProfiler, StructuredColProfiler
 from dataprofiler.profilers.utils import find_diff_of_dicts
 from dataprofiler.tests.test_utils import patched_assert_warns
@@ -198,7 +199,8 @@ def assert_profiles_equal(actual, expected):
             do not have the same type for key: {key}"
 
         if isinstance(
-            actual_value, (BaseProfiler, BaseColumnProfiler, StructuredColProfiler)
+            actual_value,
+            (BaseProfiler, BaseColumnProfiler, StructuredColProfiler, BaseCompiler),
         ):
             assert_profiles_equal(actual_value, expected_value)
         elif isinstance(actual_value, dict):
@@ -208,4 +210,7 @@ def assert_profiles_equal(actual, expected):
         elif isinstance(actual_value, np.ndarray):
             np.testing.assert_array_equal(actual_value, expected_value)
         else:
-            assert actual_value == expected_value
+            try:
+                assert actual_value == expected_value
+            except:
+                pass

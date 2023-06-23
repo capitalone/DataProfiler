@@ -2627,6 +2627,32 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
+    def test_json_decode_after_update(self):
+        # Actual deserialization
+
+        # Build expected FloatColumn
+        df_float = pd.Series([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]).apply(str)
+        expected_profile = StructuredColProfiler(df_float)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_structured_col_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_float = pd.Series(
+            [
+                "4.0",  # add existing
+                "15.0",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update_profile(df_float)
+
+        assert deserialized.sample_size == 12
+        assert deserialized.null_count == 0
+        assert deserialized.profile["data_label"] == "ORDINAL"
+
 
 @mock.patch(
     "dataprofiler.profilers.profile_builder.UnstructuredCompiler",

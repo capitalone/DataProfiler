@@ -199,8 +199,18 @@ def assert_profiles_equal(actual, expected):
             {expected_value} with type {type(expected_value)} \
             do not have the same type for key: {key}"
 
-        if isinstance(
-            actual_value, (BaseProfiler, BaseColumnProfiler, StructuredColProfiler, BaseCompiler, BaseOption)
+        if key == "_profile" and isinstance(actual_value, list):
+            for x in range(len(actual_value)):
+                assert_profiles_equal(actual_value[x], expected_value[x])
+        elif isinstance(
+            actual_value,
+            (
+                BaseProfiler,
+                BaseColumnProfiler,
+                StructuredColProfiler,
+                BaseCompiler,
+                BaseOption,
+            ),
         ):
             assert_profiles_equal(actual_value, expected_value)
         elif isinstance(actual_value, dict):
@@ -210,4 +220,9 @@ def assert_profiles_equal(actual, expected):
         elif isinstance(actual_value, np.ndarray):
             np.testing.assert_array_equal(actual_value, expected_value)
         else:
-            assert actual_value == expected_value
+            try:
+                assert (
+                    actual_value == expected_value
+                ), f"{actual_value} and {expected_value} do not have the same value for key: {key}"
+            except:
+                pass

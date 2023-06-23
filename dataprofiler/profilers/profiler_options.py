@@ -348,12 +348,18 @@ class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
         return is_enabled
 
     @classmethod
-    def load_from_dict(cls, data) -> BaseOption:
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ) -> BaseOption:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: BaseColumnProfiler
@@ -1085,7 +1091,11 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         return errors
 
     @classmethod
-    def load_from_dict(cls, data) -> BaseOption:
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ) -> BaseOption:
         """
         Parse attribute from json dictionary into self.
 
@@ -1097,18 +1107,19 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         """
         data_labeler_load_attr = data.pop("data_labeler_object")
         if "from_library" in data_labeler_load_attr:
-            data_labeler_object = DataLabeler.load_from_library(
-                data_labeler_load_attr["from_library"]
+            data_labeler_object = (
+                (
+                    options.get(cls.__name__, {})
+                    .get("from_library", {})
+                    .get(data_labeler_load_attr["from_library"])
+                )
+                if options is not None
+                else None
             )
-        elif "from_disk" in data_labeler_load_attr:
-            raise NotImplementedError(
-                "Models initialized from disk have not yet been made deserializable"
-            )
-        else:
-            raise ValueError(
-                "Deserialization cannot be done on labelers without "
-                "_default_model_loc set to known value."
-            )
+            if data_labeler_object is None:
+                data_labeler_object = DataLabeler.load_from_library(
+                    data_labeler_load_attr["from_library"]
+                )
         profile = super().load_from_dict(data)
         profile.data_labeler_object = data_labeler_object
         return profile

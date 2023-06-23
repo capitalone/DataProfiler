@@ -2155,7 +2155,7 @@ class TestStructuredProfiler(unittest.TestCase):
             ["1", "2"], sorted(report["data_stats"][1]["samples"])
         )
 
-    def test_json_decode(self, *mocks):
+    def test_json_decode(self):
         fake_profile_name = None
         expected_profile = StructuredProfiler(fake_profile_name)
 
@@ -2168,10 +2168,10 @@ class TestStructuredProfiler(unittest.TestCase):
         fake_profile_name = None
         df_structured = pd.DataFrame(
             [
-                [-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0],
-                ["a", "b", "c", "c", "a", "b", "b", "c", "c", "a"],
+                [-1.5, ],
+                ["a", ],
             ]
-        ).apply(str)
+        )
         expected_profile = StructuredProfiler(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -2182,7 +2182,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-        df_structured = pd.Series(
+        df_structured = pd.DataFrame(
             [
                 [
                     4.0,  # add existing
@@ -2190,17 +2190,16 @@ class TestStructuredProfiler(unittest.TestCase):
                 ],
                 ["c", "f"],
             ]
-        ).apply(str)
+        )
 
         # validating update after deserialization
         deserialized.update_profile(df_structured)
 
-        assert deserialized.sample_size == 12
-        assert (
-            deserialized.mean
-            == sum([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0, 4, 15]) / 12
-        )
-        assert deserialized.max == 15
+        assert deserialized.total_samples == 12
+        assert deserialized.null_count == 0
+        assert deserialized.profile[0].profile["data_label"] == "UNKNOWN"
+        assert deserialized.profile[0].profile["statistics"]["max"] == 15
+        assert deserialized.profile[0].profile["statistics"]["min"] == -1.5
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

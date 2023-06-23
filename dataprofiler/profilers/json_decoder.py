@@ -7,12 +7,13 @@ if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
 
     from .base_column_profilers import BaseColumnProfiler
-    from .profile_builder import StructuredColProfiler
+    from .profile_builder import StructuredColProfiler, StructuredProfiler
     from .profiler_options import BaseOption
 
 
 # default, but set in the local __init__ to avoid circular imports
 _profiles: dict[str, type[BaseColumnProfiler]] = {}
+_profilers: dict[str, type[StructuredProfiler]] = {}
 _compilers: dict[str, type[col_pro_compiler.BaseCompiler]] = {}
 _options: dict[str, type[BaseOption]] = {}
 _structured_col_profiler: dict[str, type[StructuredColProfiler]] = {}
@@ -88,7 +89,6 @@ def get_profiler_class(class_name: str) -> type["BaseProfiler"]:
     if profiler_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
     return profiler_class
-
 
 
 def get_structured_col_profiler_class(class_name: str) -> type[StructuredColProfiler]:

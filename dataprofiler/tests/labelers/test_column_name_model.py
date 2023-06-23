@@ -12,7 +12,16 @@ import dataprofiler as dp
 from dataprofiler.labelers.column_name_model import ColumnNameModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+import importlib.resources
+
+import pkg_resources
+
+if sys.version_info >= (3, 9):
+    _resource_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+
+else:
+    _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+
 
 mock_model_parameters = {
     "true_positive_dict": [

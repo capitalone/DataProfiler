@@ -1,8 +1,9 @@
-import importlib
+pass
 import json
 import os
 import random
 import re
+import sys
 import unittest
 from io import StringIO
 from unittest import mock
@@ -224,9 +225,19 @@ class TestBaseDataProcessor(unittest.TestCase):
         BaseDataProcessor.load_from_library("default")
 
         # assert called with proper load_processor dirpath
-        default_labeler_dir = importlib.resources.files("resources").joinpath(
-            "labelers"
-        )
+        import importlib.resources
+
+        import pkg_resources
+
+        if sys.version_info >= (3, 9):
+            default_labeler_dir = (
+                str(importlib.resources.files("resources")) + "/labelers"
+            )
+
+        else:
+            default_labeler_dir = pkg_resources.resource_filename(
+                "resources", "labelers"
+            )
         mocked_load.assert_called_with(os.path.join(default_labeler_dir, "default"))
 
     @mock.patch("builtins.open")

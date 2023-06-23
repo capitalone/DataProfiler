@@ -10,6 +10,7 @@ from . import (
     base_column_profilers,
     column_profile_compilers,
     numerical_column_stats,
+    profile_builder,
     profiler_options,
 )
 
@@ -32,6 +33,7 @@ class ProfileEncoder(json.JSONEncoder):
                 numerical_column_stats.NumericStatsMixin,
                 column_profile_compilers.BaseCompiler,
                 profiler_options.BaseOption,
+                profile_builder.StructuredColProfiler,
             ),
         ):
             return {"class": type(to_serialize).__name__, "data": to_serialize.__dict__}

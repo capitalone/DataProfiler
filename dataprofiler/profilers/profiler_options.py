@@ -147,12 +147,14 @@ class BaseOption(Generic[BaseOptionT]):
         return None
 
     @classmethod
-    def load_from_dict(cls, data) -> BaseOption:
+    def load_from_dict(cls, data, options: dict | None = None) -> BaseOption:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading options params from dictionary
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: BaseColumnProfiler

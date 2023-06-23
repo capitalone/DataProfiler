@@ -47,8 +47,8 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
                 "OrderColumn parameter 'options' must be of type" " OrderOptions."
             )
         self.order: str | None = None
-        self._last_value: float | str | None = None
-        self._first_value: float | str | None = None
+        self._last_value: np.float64 | float | str | None = None
+        self._first_value: np.float64 | float | str | None = None
         self._piecewise: bool | None = False
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
@@ -292,12 +292,14 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         return self.profile
 
     @classmethod
-    def load_from_dict(cls, data):
+    def load_from_dict(cls, data, options: dict | None = None):
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: CategoricalColumn

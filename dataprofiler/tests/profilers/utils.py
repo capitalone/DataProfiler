@@ -210,7 +210,4 @@ def assert_profiles_equal(actual, expected):
         elif isinstance(actual_value, np.ndarray):
             np.testing.assert_array_equal(actual_value, expected_value)
         else:
-            try:
-                assert actual_value == expected_value
-            except:
-                pass
+            assert actual_value == expected_value

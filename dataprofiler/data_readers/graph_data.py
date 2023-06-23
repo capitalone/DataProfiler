@@ -255,7 +255,7 @@ class GraphData(BaseData):
             self.input_file_path,
             self._delimiter,
             cast(Optional[int], self._header),
-            [],
+            selected_columns=[],
             read_in_string=True,
             encoding=self.file_encoding,
         )

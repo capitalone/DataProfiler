@@ -87,6 +87,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._checked_header: bool = "header" in options and self._header != "auto"
         self._default_delimiter: str = ","
         self._default_quotechar: str = '"'
+        self._sample_nrows: Optional[int] = options.get("sample_nrows", None)
 
         if data is not None:
             self._load_data(data)
@@ -114,6 +115,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     def header(self) -> Optional[Union[str, int]]:
         """Return header."""
         return self._header
+
+    @property
+    def sample_nrows(self) -> Optional[int]:
+        """Return sample_nrows."""
+        return self._sample_nrows
 
     @property
     def is_structured(self) -> bool:
@@ -168,6 +174,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 raise ValueError(
                     "'record_samples_per_line' must be an int " "more than 0"
                 )
+        if "sample_nrows" in options:
+            value = options["sample_nrows"]
+            if not isinstance(value, int) or value < 0:
+                raise ValueError("'sample_nrows' must be an int more than 0")
         return options
 
     @staticmethod
@@ -549,6 +559,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             data_buffered,
             self.delimiter,
             cast(Optional[int], self.header),
+            self.sample_nrows,
             self.selected_columns,
             read_in_string=True,
         )
@@ -595,6 +606,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             input_file_path,
             self.delimiter,
             cast(Optional[int], self.header),
+            self.sample_nrows,
             self.selected_columns,
             read_in_string=True,
             encoding=self.file_encoding,

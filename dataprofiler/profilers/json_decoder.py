@@ -1,5 +1,7 @@
 """Contains methods to decode components of a Profiler."""
-from typing import TYPE_CHECKING, Dict, Optional, Type
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
@@ -9,12 +11,12 @@ if TYPE_CHECKING:
 
 
 # default, but set in the local __init__ to avoid circular imports
-_profiles: Dict[str, Type["BaseColumnProfiler"]] = {}
-_compilers: Dict[str, Type["col_pro_compiler.BaseCompiler"]] = {}
-_options: Dict[str, Type["BaseOption"]] = {}
+_profiles: dict[str, type[BaseColumnProfiler]] = {}
+_compilers: dict[str, type[col_pro_compiler.BaseCompiler]] = {}
+_options: dict[str, type[BaseOption]] = {}
 
 
-def get_column_profiler_class(class_name: str) -> Type["BaseColumnProfiler"]:
+def get_column_profiler_class(class_name: str) -> type[BaseColumnProfiler]:
     """
     Use name of class to return default-constructed version of that class.
 
@@ -26,13 +28,13 @@ def get_column_profiler_class(class_name: str) -> Type["BaseColumnProfiler"]:
     :type class_name: str representing name of class
     :return: subclass of BaseColumnProfiler object
     """
-    profile_class: Optional[Type["BaseColumnProfiler"]] = _profiles.get(class_name)
+    profile_class: type[BaseColumnProfiler] | None = _profiles.get(class_name)
     if profile_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
     return profile_class
 
 
-def get_compiler_class(class_name: str) -> Type["col_pro_compiler.BaseCompiler"]:
+def get_compiler_class(class_name: str) -> type[col_pro_compiler.BaseCompiler]:
     """
     Use name of class to return default-constructed version of that class.
 
@@ -44,7 +46,7 @@ def get_compiler_class(class_name: str) -> Type["col_pro_compiler.BaseCompiler"]
     :type class_name: str representing name of class
     :return: subclass of BaseCompiler object
     """
-    compiler_class: Optional[Type["col_pro_compiler.BaseCompiler"]] = _compilers.get(
+    compiler_class: type[col_pro_compiler.BaseCompiler] | None = _compilers.get(
         class_name
     )
     if compiler_class is None:
@@ -52,7 +54,7 @@ def get_compiler_class(class_name: str) -> Type["col_pro_compiler.BaseCompiler"]
     return compiler_class
 
 
-def get_option_class(class_name: str) -> Type["BaseOption"]:
+def get_option_class(class_name: str) -> type[BaseOption]:
     """
     Use name of class to return default-constructed version of that class.
 
@@ -64,13 +66,15 @@ def get_option_class(class_name: str) -> Type["BaseOption"]:
     :type class_name: str representing name of class
     :return: subclass of BaseOptions object
     """
-    options_class: Optional[Type["BaseOption"]] = _options.get(class_name)
+    options_class: type[BaseOption] | None = _options.get(class_name)
     if options_class is None:
         raise ValueError(f"Invalid option class {class_name} " f"failed to load.")
     return options_class
 
 
-def load_column_profile(serialized_json: dict) -> "BaseColumnProfiler":
+def load_column_profile(
+    serialized_json: dict, options: dict | None = None
+) -> BaseColumnProfiler:
     """
     Construct subclass of BaseColumnProfiler given a serialized JSON.
 
@@ -88,17 +92,22 @@ def load_column_profile(serialized_json: dict) -> "BaseColumnProfiler":
         # serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
+    :param options: options for loading column profiler params from dictionary
+    :type options: Dict | None
+
     :return: subclass of BaseColumnProfiler that has been deserialized from
         JSON
 
     """
-    column_profiler_cls: Type[
-        "BaseColumnProfiler[BaseColumnProfiler]"
+    column_profiler_cls: type[
+        BaseColumnProfiler[BaseColumnProfiler]
     ] = get_column_profiler_class(serialized_json["class"])
-    return column_profiler_cls.load_from_dict(serialized_json["data"])
+    return column_profiler_cls.load_from_dict(serialized_json["data"], options)
 
 
-def load_compiler(serialized_json: dict) -> "col_pro_compiler.BaseCompiler":
+def load_compiler(
+    serialized_json: dict, options: dict | None = None
+) -> col_pro_compiler.BaseCompiler:
     """
     Construct subclass of BaseCompiler given a serialized JSON.
 
@@ -116,17 +125,19 @@ def load_compiler(serialized_json: dict) -> "col_pro_compiler.BaseCompiler":
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
+    :param options: options for loading column compiler params from dictionary
+    :type options: Dict | None
     :return: subclass of BaseCompiler that has been deserialized from
         JSON
 
     """
-    column_profiler_cls: Type["col_pro_compiler.BaseCompiler"] = get_compiler_class(
+    column_profiler_cls: type[col_pro_compiler.BaseCompiler] = get_compiler_class(
         serialized_json["class"]
     )
-    return column_profiler_cls.load_from_dict(serialized_json["data"])
+    return column_profiler_cls.load_from_dict(serialized_json["data"], options)
 
 
-def load_option(serialized_json: dict) -> "BaseOption":
+def load_option(serialized_json: dict, options: dict | None = None) -> BaseOption:
     """
     Construct subclass of BaseOption given a serialized JSON.
 
@@ -144,9 +155,11 @@ def load_option(serialized_json: dict) -> "BaseOption":
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
+    :param options: options for loading column profiler params from dictionary
+    :type options: Dict | None
     :return: subclass of BaseOption that has been deserialized from
         JSON
 
     """
-    option_cls: Type["BaseOption"] = get_option_class(serialized_json["class"])
-    return option_cls.load_from_dict(serialized_json["data"])
+    option_cls: type[BaseOption] = get_option_class(serialized_json["class"])
+    return option_cls.load_from_dict(serialized_json["data"], options)

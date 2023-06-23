@@ -323,9 +323,20 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         opt = DataLabelerOptions()
         data_labeler_load_attr = data.pop("data_labeler")
         if "from_library" in data_labeler_load_attr:
-            opt.data_labeler_object = DataLabeler.load_from_library(
-                data_labeler_load_attr["from_library"]
+            data_labeler_object = (
+                (
+                    options.get(cls.__name__, {})
+                    .get("from_library", {})
+                    .get(data_labeler_load_attr["from_library"])
+                )
+                if options is not None
+                else None
             )
+            if data_labeler_object is None:
+                data_labeler_object = DataLabeler.load_from_library(
+                    data_labeler_load_attr["from_library"]
+                )
+            opt.data_labeler_object = data_labeler_object
         elif "from_disk" in data_labeler_load_attr:
             raise NotImplementedError(
                 "Models intialized from disk have not yet been made deserializable"

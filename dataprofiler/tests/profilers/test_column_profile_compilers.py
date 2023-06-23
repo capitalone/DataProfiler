@@ -803,7 +803,8 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         data = pd.Series(["2", "-1", "1", "2"], name="test")
         with test_utils.mock_timeit():
-            expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
+            expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler(
+                data)
 
         serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
 
@@ -822,12 +823,14 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         # ensure doesn't change original, but options updates deserialized labeler
         assert (
-            expected_compiler._profiles.get("data_labeler", mock.Mock()).data_labeler
-            == mock_DataLabeler_cls.return_value
+                expected_compiler._profiles.get("data_labeler",
+                                                mock.Mock()).data_labeler
+                == mock_DataLabeler_cls.return_value
         )
         assert (
-            deserialized._profiles.get("data_labeler", mock.Mock()).data_labeler
-            == new_mock_data_labeler
+                deserialized._profiles.get("data_labeler",
+                                           mock.Mock()).data_labeler
+                == new_mock_data_labeler
         )
         mock_DataLabeler_cls.assert_not_called()
 

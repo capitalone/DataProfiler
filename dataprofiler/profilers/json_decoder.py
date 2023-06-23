@@ -185,7 +185,7 @@ def load_option(serialized_json: dict, options: dict | None = None) -> BaseOptio
 
     """
     option_cls: type[BaseOption] = get_option_class(serialized_json["class"])
-    return option_cls.load_from_dict(serialized_json["data"])
+    return option_cls.load_from_dict(serialized_json["data"], options)
 
 
 def load_structured_col_profiler(serialized_json: dict) -> StructuredColProfiler:

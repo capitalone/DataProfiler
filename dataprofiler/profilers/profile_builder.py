@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, List, Optional, cast
+from typing import Any, Generator, List, Optional, TypeVar, cast
 
 import networkx as nx
 import numpy as np
@@ -31,12 +31,15 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
+from .json_decoder import load_compiler, load_option
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
     StructuredOptions,
     UnstructuredOptions,
 )
+
+BaseProfilerT = TypeVar("BaseProfilerT", bound="BaseProfiler")
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -377,6 +380,31 @@ class StructuredColProfiler:
                 report[key] = None  # type: ignore
 
         return report
+
+    @classmethod
+    def load_from_dict(cls, data, options: dict | None = None) -> StructuredColProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading structured column profiler
+        :type options: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredColProfiler
+        """
+        profile = cls()
+        for attr, value in data.items():
+            if attr == "profiles":
+                for profile_key, profile_value in value.items():
+                    value[profile_key] = load_compiler(profile_value, options)
+            if attr == "options" and value is not None:
+                value = load_option(value, options)
+            if attr == "_null_values":
+                value = {k: profile._null_values[k] for k, v in value.items()}
+            setattr(profile, attr, value)
+        return profile
 
     @property
     def profile(self) -> dict:

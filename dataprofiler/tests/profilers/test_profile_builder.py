@@ -20,6 +20,8 @@ from dataprofiler.profilers.column_profile_compilers import (
 )
 from dataprofiler.profilers.graph_profiler import GraphProfiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
+from dataprofiler.profilers.json_decoder import load_structured_col_profiler
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import (
     Profiler,
     StructuredColProfiler,
@@ -2615,6 +2617,43 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         }
 
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))
+
+    def test_json_decode(self, *mocks):
+        fake_profile_name = None
+        expected_profile = StructuredColProfiler(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_structured_col_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        # Actual deserialization
+
+        # Build expected FloatColumn
+        df_float = pd.Series([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]).apply(str)
+        expected_profile = StructuredColProfiler(df_float)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_structured_col_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_float = pd.Series(
+            [
+                "4.0",  # add existing
+                "15.0",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update_profile(df_float)
+
+        assert deserialized.sample_size == 12
+        assert deserialized.null_count == 0
+        assert deserialized.profile["data_label"] == "ORDINAL"
+        assert deserialized.profile["statistics"]["max"] == 15
+        assert deserialized.profile["statistics"]["min"] == -1.5
 
 
 @mock.patch(

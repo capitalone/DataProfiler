@@ -20,6 +20,8 @@ from dataprofiler.profilers.column_profile_compilers import (
 )
 from dataprofiler.profilers.graph_profiler import GraphProfiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
+from dataprofiler.profilers.json_decoder import load_structured_col_profiler
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import (
     Profiler,
     StructuredColProfiler,
@@ -2615,6 +2617,15 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         }
 
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))
+
+    def test_json_decode(self, *mocks):
+        fake_profile_name = None
+        expected_profile = StructuredColProfiler(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_structured_col_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
 
 
 @mock.patch(

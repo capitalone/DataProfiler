@@ -397,7 +397,7 @@ class StructuredColProfiler:
             if attr == "profiles":
                 for profile_key, profile_value in value.items():
                     value[profile_key] = load_compiler(profile_value)
-            if "options" in attr:
+            if attr == "options" and value is not None:
                 value = load_option(value)
             setattr(profile, attr, value)
         return profile
@@ -1090,18 +1090,18 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath_or_object: str) -> BaseProfiler:
+    def load(cls, filepath: str) -> BaseProfiler:
         """
         Load profiler from disk.
 
-        :param filepath_or_object: Path of file to load from
-        :type filepath_or_object: String
+        :param filepath: Path of file to load from
+        :type filepath: String
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
-        :rtype: BaseProfilera
+        :rtype: BaseProfiler
         """
         # Load profile from disk
-        with open(filepath_or_object, "rb") as infile:
+        with open(filepath, "rb") as infile:
             data: dict = pickle.load(infile)
 
         # remove profiler class if it exists

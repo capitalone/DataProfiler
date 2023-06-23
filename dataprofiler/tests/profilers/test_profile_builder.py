@@ -2652,6 +2652,8 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         assert deserialized.sample_size == 12
         assert deserialized.null_count == 0
         assert deserialized.profile["data_label"] == "ORDINAL"
+        assert deserialized.profile["statistics"]["max"] == 15
+        assert deserialized.profile["statistics"]["min"] == -1.5
 
 
 @mock.patch(

@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import abc
 import copy
-import importlib.resources
 import inspect
 import json
 import math
 import os
 import random
+import sys
 import types
 import warnings
 from collections import Counter
@@ -17,7 +17,19 @@ from typing import Any, Generator, Iterable, TypeVar, cast
 import numpy as np
 import numpy.typing as npt
 
-default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+if sys.version_info >= (3, 9):
+    try:
+        import importlib.resources
+    except ImportError:
+        raise ImportError("The 'importlib.resources' package is not available.")
+
+else:
+    import importlib
+
+if sys.version_info >= (3, 9):
+    default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+else:
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")
 

@@ -1123,18 +1123,18 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath_or_object: str) -> BaseProfiler:
         """
         Load profiler from disk.
 
-        :param filepath: Path of file to load from
-        :type filepath: String
+        :param filepath_or_object: Path of file to load from
+        :type filepath_or_object: String
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
-        :rtype: BaseProfiler
+        :rtype: BaseProfilera
         """
         # Load profile from disk
-        with open(filepath, "rb") as infile:
+        with open(filepath_or_object, "rb") as infile:
             data: dict = pickle.load(infile)
 
         # remove profiler class if it exists

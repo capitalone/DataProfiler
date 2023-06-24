@@ -128,11 +128,6 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         for param in kwargs:
             self._parameters[param] = kwargs[param]
 
-    @abc.abstractmethod
-    def process(self, *args: Any) -> Any:
-        """Process data."""
-        raise NotImplementedError()
-
     @classmethod
     def load_from_disk(cls: type[Processor], dirpath: str) -> Processor:
         """Load data processor from a given path on disk."""
@@ -169,13 +164,15 @@ class BaseDataPreprocessor(BaseDataProcessor):
         super().__init__(**parameters)
 
     @abc.abstractmethod
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
         label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
-    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None] | tuple[
+        np.ndarray, np.ndarray
+    ] | np.ndarray:
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -191,7 +188,7 @@ class BaseDataPostprocessor(BaseDataProcessor):
         super().__init__(**parameters)
 
     @abc.abstractmethod
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -240,7 +237,7 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
         )
         print(help_str)
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -668,7 +665,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         if batch_data["samples"]:
             yield batch_data
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -836,7 +833,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         if errors:
             raise ValueError("\n".join(errors))
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -1269,7 +1266,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
         return results
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -1439,7 +1436,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
         return text, entities
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -1800,7 +1797,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
         return results
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -2022,7 +2019,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                 pred, axis=1, ord=1, keepdims=True
             )
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -2160,7 +2157,7 @@ class StructRegexPostProcessor(
         ) as fp:
             json.dump(params, fp)
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -2253,7 +2250,7 @@ class ColumnNameModelPostprocessor(
         )
         print(help_str)
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,

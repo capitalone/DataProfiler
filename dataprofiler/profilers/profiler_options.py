@@ -875,7 +875,7 @@ class CategoricalOptions(BaseInspectorOptions):
         cms: bool = False,
         cms_confidence: float | None = 0.95,
         cms_relative_error: float | None = 0.01,
-        heavy_hitters_threshold: int | None = None,
+        cms_max_num_heavy_hitters: int | None = 5000,
     ) -> None:
         """
         Initialize options for the Categorical Column.
@@ -898,9 +898,9 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar cms_relative_error: defines the number of buckets used in CMS,
             default 0.01
         :vartype cms_relative_error: [None, float]
-        :ivar heavy_hitters_threshold: minimum proportion of total count for CMS
+        :ivar cms_max_num_heavy_hitters: minimum proportion of total count for CMS
             to store a distinct category.
-        :vartype heavy_hitters_threshold: [None, int]
+        :vartype cms_max_num_heavy_hitters: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -911,7 +911,7 @@ class CategoricalOptions(BaseInspectorOptions):
         self.cms = cms
         self.cms_confidence = cms_confidence
         self.cms_relative_error = cms_relative_error
-        self.heavy_hitters_threshold = heavy_hitters_threshold
+        self.cms_max_num_heavy_hitters = cms_max_num_heavy_hitters
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -979,10 +979,10 @@ class CategoricalOptions(BaseInspectorOptions):
                 " or a float between 0 and 1".format(variable_path)
             )
 
-        if self.cms and not isinstance(self.heavy_hitters_threshold, int):
+        if self.cms and not isinstance(self.cms_max_num_heavy_hitters, int):
             errors.append(
                 "{}.if using count min sketch, you must pass an"
-                "integer value for heavy_hitters_threshold".format(variable_path)
+                "integer value for cms_max_num_heavy_hitters".format(variable_path)
             )
 
         return errors

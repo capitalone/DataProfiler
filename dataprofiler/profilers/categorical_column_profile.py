@@ -1,7 +1,6 @@
 """Contains class for categorical column profiler."""
 from __future__ import annotations
 
-import base64
 from collections import defaultdict
 from operator import itemgetter
 from typing import cast
@@ -55,9 +54,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._stopped_at_unique_ratio: float | None = None
         self._stopped_at_unique_count: int | None = None
 
-        self._heavy_hitters_threshold: int | None = None
-        self.num_hashes: int | None = None
-        self.num_buckets: int | None = None
+        self._cms_max_num_heavy_hitters: int | None = None
+        self.cms_num_hashes: int | None = None
+        self.cms_num_buckets: int | None = None
         self.cms: datasketches.countminsketch | None = None
         if options:
             self._top_k_categories = options.top_k_categories
@@ -69,18 +68,18 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             )
 
             if options.cms:
-                self._heavy_hitters_threshold = options.heavy_hitters_threshold
-                self.num_hashes = datasketches.count_min_sketch.suggest_num_hashes(
+                self._cms_max_num_heavy_hitters = options.cms_max_num_heavy_hitters
+                self.cms_num_hashes = datasketches.count_min_sketch.suggest_num_hashes(
                     options.cms_confidence
                 )
-                self.num_buckets = datasketches.count_min_sketch.suggest_num_buckets(
-                    options.cms_relative_error
+                self.cms_num_buckets = (
+                    datasketches.count_min_sketch.suggest_num_buckets(
+                        options.cms_relative_error
+                    )
                 )
-                self.cms = base64.b64encode(
-                    datasketches.count_min_sketch(
-                        self.num_hashes, self.num_buckets
-                    ).serialize()
-                ).decode("utf-8")
+                self.cms = datasketches.count_min_sketch(
+                    self.cms_num_hashes, self.cms_num_buckets
+                )
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -106,13 +105,18 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         )
 
         if self.cms and other.cms:
-            # decode prior to use
-            self.cms = datasketches.count_min_sketch.deserialize(
-                base64.b64decode(bytes(self.cms, "utf-8"))
-            )
-            other.cms = datasketches.count_min_sketch.deserialize(
-                base64.b64decode(bytes(other.cms, "utf-8"))
-            )
+            # re-collecting the estimates of non intersecting categories before
+            # re-applying heavy-hitters to the aggregate profile.
+            missing_in_profile_1 = [
+                k for k in other._categories.keys() if k not in self._categories.keys()
+            ]
+            for k in missing_in_profile_1:
+                self._categories[k] = self.cms.get_estimate(k)
+            missing_in_profile_2 = [
+                k for k in self._categories.keys() if k not in other._categories.keys()
+            ]
+            for k in missing_in_profile_2:
+                other._categories[k] = other.cms.get_estimate(k)
             merged_profile.cms, merged_profile._categories = self._merge_categories_cms(
                 self.cms,
                 self._categories,
@@ -122,57 +126,64 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 other._categories,
                 other.sample_size,
             )
-            merged_profile.cms = base64.b64encode(
-                merged_profile.cms.serialize()
-            ).decode("utf-8")
 
-        # If both profiles have not met stop condition
-        if not (self._stop_condition_is_met or other._stop_condition_is_met):
-            merged_profile._categories = utils.add_nested_dictionaries(
-                self._categories, other._categories
-            )
+        elif not self.cms and not other.cms:
+            # If both profiles have not met stop condition
+            if not (self._stop_condition_is_met or other._stop_condition_is_met):
+                merged_profile._categories = utils.add_nested_dictionaries(
+                    self._categories, other._categories
+                )
 
-            # Transfer stop condition variables of 1st profile object to merged profile
-            # if they are not None else set to 2nd profile
-            profile1_product = self.sample_size * self.unique_ratio
-            profile2_product = other.sample_size * other.unique_ratio
-            if profile1_product < profile2_product:
-                merged_profile.max_sample_size_to_check_stop_condition = (
-                    self.max_sample_size_to_check_stop_condition
-                )
-                merged_profile.stop_condition_unique_value_ratio = (
-                    self.stop_condition_unique_value_ratio
-                )
+                # Transfer stop condition variables of 1st profile object to
+                # merged profileif they are not None else set to 2nd profile
+                profile1_product = self.sample_size * self.unique_ratio
+                profile2_product = other.sample_size * other.unique_ratio
+                if profile1_product < profile2_product:
+                    merged_profile.max_sample_size_to_check_stop_condition = (
+                        self.max_sample_size_to_check_stop_condition
+                    )
+                    merged_profile.stop_condition_unique_value_ratio = (
+                        self.stop_condition_unique_value_ratio
+                    )
+                else:
+                    merged_profile.stop_condition_unique_value_ratio = (
+                        other.stop_condition_unique_value_ratio
+                    )
+                    merged_profile.max_sample_size_to_check_stop_condition = (
+                        other.max_sample_size_to_check_stop_condition
+                    )
+
+                # Check merged profile w/ stop condition
+                if merged_profile._check_stop_condition_is_met(
+                    merged_profile.sample_size, merged_profile.unique_ratio
+                ):
+                    merged_profile._stopped_at_unique_ratio = (
+                        merged_profile.unique_ratio
+                    )
+                    merged_profile._stopped_at_unique_count = (
+                        merged_profile.unique_count
+                    )
+                    merged_profile._categories = {}
+                    merged_profile._stop_condition_is_met = True
+
             else:
-                merged_profile.stop_condition_unique_value_ratio = (
-                    other.stop_condition_unique_value_ratio
-                )
-                merged_profile.max_sample_size_to_check_stop_condition = (
-                    other.max_sample_size_to_check_stop_condition
-                )
+                if self.sample_size > other.sample_size:
+                    merged_profile._stopped_at_unique_ratio = self.unique_ratio
+                    merged_profile._stopped_at_unique_count = self.unique_count
+                    merged_profile.sample_size = self.sample_size
+                else:
+                    merged_profile._stopped_at_unique_ratio = other.unique_ratio
+                    merged_profile._stopped_at_unique_count = other.unique_count
+                    merged_profile.sample_size = other.sample_size
 
-            # Check merged profile w/ stop condition
-            if merged_profile._check_stop_condition_is_met(
-                merged_profile.sample_size, merged_profile.unique_ratio
-            ):
-                merged_profile._stopped_at_unique_ratio = merged_profile.unique_ratio
-                merged_profile._stopped_at_unique_count = merged_profile.unique_count
+                # If either profile has hit stop condition, remove categories dict
                 merged_profile._categories = {}
                 merged_profile._stop_condition_is_met = True
 
         else:
-            if self.sample_size > other.sample_size:
-                merged_profile._stopped_at_unique_ratio = self.unique_ratio
-                merged_profile._stopped_at_unique_count = self.unique_count
-                merged_profile.sample_size = self.sample_size
-            else:
-                merged_profile._stopped_at_unique_ratio = other.unique_ratio
-                merged_profile._stopped_at_unique_count = other.unique_count
-                merged_profile.sample_size = other.sample_size
-
-            # If either profile has hit stop condition, remove categories dict
-            merged_profile._categories = {}
-            merged_profile._stop_condition_is_met = True
+            raise Exception(
+                "Unable to add two profiles is only one is using count min sketch."
+            )
 
         return merged_profile
 
@@ -374,7 +385,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type df_series: Series
         :return: cms, heavy_hitter_dict, missing_heavy_hitter_dict
         """
-        cms = datasketches.count_min_sketch(self.num_hashes, self.num_buckets)
+        cms = datasketches.count_min_sketch(self.cms_num_hashes, self.cms_num_buckets)
         heavy_hitter_dict = defaultdict(int)
         missing_heavy_hitter_dict = defaultdict(int)
         for i, value in enumerate(df_series):
@@ -382,11 +393,11 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             i_count = cms.get_estimate(value)
             i_total_count = i_count + self.cms.get_estimate(value)
             # approximate heavy-hitters
-            if i_count >= int(len_df / self._heavy_hitters_threshold):
+            if i_count >= int(len_df / self._cms_max_num_heavy_hitters):
                 heavy_hitter_dict[value] = i_count
                 missing_heavy_hitter_dict.pop(value, None)
             elif i_total_count >= int(
-                (self.sample_size + len_df) / self._heavy_hitters_threshold
+                (self.sample_size + len_df) / self._cms_max_num_heavy_hitters
             ):
                 missing_heavy_hitter_dict[value] = i_total_count
                 heavy_hitter_dict.pop(value, None)
@@ -423,17 +434,34 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type len2: int
         :return: cms1, categories
         """
-        cms2.merge(cms1)
+        try:
+            cms3 = datasketches.count_min_sketch(
+                self.cms_num_hashes, self.cms_num_buckets
+            )
+            cms3.merge(cms1)
+            cms3.merge(cms2)
+        except ValueError as err:
+            raise err(
+                """Incompatible sketch configuration. When merging two sketches,
+                they must have the same number of buckets and hashes,
+                which are defined by cms_confidence and cms_relative_error options,
+                respectively."""
+            )
+
         categories = utils.add_nested_dictionaries(
             heavy_hitter_dict2, heavy_hitter_dict1
         )
+        # This is a catch all for edge cases where batch heavy hitters under estimates
+        # frequencies compared to treated as a sequence of batches as part of
+        # the same stream.
         categories.update(missing_heavy_hitter_dict)
 
         total_samples = len1 + len2
+        print(total_samples)
         for cat in list(categories):
-            if categories[cat] < (total_samples / self._heavy_hitters_threshold):
+            if categories[cat] < (total_samples / self._cms_max_num_heavy_hitters):
                 categories.pop(cat)
-        return cms2, categories
+        return cms3, categories
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
@@ -458,14 +486,10 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: None
         """
         if self.cms is not None:
-            if self._heavy_hitters_threshold is None:
+            if self._cms_max_num_heavy_hitters is None:
                 raise ValueError(
-                    "when using CMS, heavy_hitters_threshold must be an integer"
+                    "when using CMS, cms_max_num_heavy_hitters must be an integer"
                 )
-            # decode prior to use
-            self.cms = datasketches.count_min_sketch.deserialize(
-                base64.b64decode(bytes(self.cms, "utf-8"))
-            )
             len_df = len(df_series)
             (
                 cms,
@@ -482,9 +506,6 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 self._categories,
                 self.sample_size,
             )
-            # re-encode for serialization
-            self.cms = base64.b64encode(self.cms.serialize()).decode("utf-8")
-
         else:
             category_count = df_series.value_counts(dropna=False).to_dict()
             self._categories = utils.add_nested_dictionaries(

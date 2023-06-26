@@ -125,6 +125,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 other.cms,
                 other._categories,
                 other.sample_size,
+                other._cms_max_num_heavy_hitters,
             )
 
         elif not self.cms and not other.cms:
@@ -414,6 +415,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         cms2,
         heavy_hitter_dict2,
         len2,
+        other_max_num_heavy_hitters,
     ):
         """Return the aggregate count min sketch and approximate histogram (categories).
 
@@ -456,10 +458,16 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         # the same stream.
         categories.update(missing_heavy_hitter_dict)
 
+        if other_max_num_heavy_hitters:
+            heavy_hitters = min(
+                self._cms_max_num_heavy_hitters, other_max_num_heavy_hitters
+            )
+        else:
+            heavy_hitters = self._cms_max_num_heavy_hitters
+
         total_samples = len1 + len2
-        print(total_samples)
         for cat in list(categories):
-            if categories[cat] < (total_samples / self._cms_max_num_heavy_hitters):
+            if categories[cat] < (total_samples / heavy_hitters):
                 categories.pop(cat)
         return cms3, categories
 
@@ -505,6 +513,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 self.cms,
                 self._categories,
                 self.sample_size,
+                None,
             )
         else:
             category_count = df_series.value_counts(dropna=False).to_dict()

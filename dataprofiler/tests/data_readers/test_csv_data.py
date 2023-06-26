@@ -1,6 +1,7 @@
 import os
 import unittest
 from io import BytesIO, StringIO, TextIOWrapper
+from itertools import islice
 
 import pandas as pd
 
@@ -664,7 +665,6 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if files with no header are properly determined.
         """
-        from itertools import islice
 
         # add some more files to the list to test the header detection
         # these files have some first lines which are not the header

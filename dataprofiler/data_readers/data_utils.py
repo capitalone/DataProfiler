@@ -409,9 +409,6 @@ def read_csv_df(
     if len(selected_columns) > 0:
         args["usecols"] = selected_columns
 
-    # if already TextIOWrapper
-    file_data = file_path
-
     # account for py3.6 requirement for pandas, can remove if >= py3.7
     is_buf_wrapped = False
     is_file_open = False
@@ -424,6 +421,7 @@ def read_csv_df(
         file_path = open(file_path, encoding=encoding)
         is_file_open = True
 
+    file_data = file_path
     if sample_nrows:
         file_data = rsample(file_path, sample_nrows, args)
     fo = pd.read_csv(file_data, **args)

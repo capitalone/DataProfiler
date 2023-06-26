@@ -19,7 +19,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "cms": False,
                 "cms_confidence": 0.95,
                 "cms_relative_error": 0.01,
-                "cms_max_num_heavy_hitters": None,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -33,7 +33,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "cms": False,
                 "cms_confidence": 0.95,
                 "cms_relative_error": 0.01,
-                "cms_max_num_heavy_hitters": None,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -47,7 +47,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "cms": False,
                 "cms_confidence": 0.95,
                 "cms_relative_error": 0.01,
-                "cms_max_num_heavy_hitters": None,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -61,7 +61,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "cms": False,
                 "cms_confidence": 0.95,
                 "cms_relative_error": 0.01,
-                "cms_max_num_heavy_hitters": None,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -75,7 +75,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "cms": False,
                 "cms_confidence": 0.95,
                 "cms_relative_error": 0.01,
-                "cms_max_num_heavy_hitters": None,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -92,7 +92,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "cms": False,
                 "cms_confidence": 0.95,
                 "cms_relative_error": 0.01,
-                "cms_max_num_heavy_hitters": None,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )

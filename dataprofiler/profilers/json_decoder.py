@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 # default, but set in the local __init__ to avoid circular imports
 _profiles: dict[str, type[BaseColumnProfiler]] = {}
-_profilers: dict[str, type[StructuredProfiler]] = {}
+_profilers: dict[str, type[BaseProfiler]] = {}
 _compilers: dict[str, type[col_pro_compiler.BaseCompiler]] = {}
 _options: dict[str, type[BaseOption]] = {}
 _structured_col_profiler: dict[str, type[StructuredColProfiler]] = {}

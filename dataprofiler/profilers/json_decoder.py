@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
 
     from .base_column_profilers import BaseColumnProfiler
-    from .profile_builder import BaseProfiler, StructuredColProfiler, StructuredProfiler
+    from .profile_builder import BaseProfiler, StructuredColProfiler
     from .profiler_options import BaseOption
 
 

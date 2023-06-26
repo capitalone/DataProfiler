@@ -1956,9 +1956,6 @@ class StructuredProfiler(BaseProfiler):
         chi2_matrix = data.pop("chi2_matrix")
         correlation_matrix = data.pop("correlation_matrix")
 
-        for idx, profile in enumerate(_profile):
-            _profile[idx] = load_structured_col_profiler(profile)
-
         structured_profiler = super().load_from_dict(data)
 
         structured_profiler.times = defaultdict(float, structured_profiler.times)
@@ -1979,8 +1976,6 @@ class StructuredProfiler(BaseProfiler):
             setattr(
                 structured_profiler, "correlation_matrix", np.array(correlation_matrix)
             )
-        if _profile:
-            setattr(structured_profiler, "_profile", _profile)
 
         return structured_profiler
 

@@ -1956,29 +1956,33 @@ class StructuredProfiler(BaseProfiler):
         correlation_matrix = data.pop("correlation_matrix")
         _profile = data.pop("_profile")
 
-        for idx, idx_profile in enumerate(_profile):
-            _profile[idx] = load_structured_col_profiler(idx_profile)
+        for idx, profile in enumerate(_profile):
+            _profile[idx] = load_structured_col_profiler(profile)
 
-        profile = super().load_from_dict(data)
+        structured_profiler = super().load_from_dict(data)
 
-        profile.times = defaultdict(float, profile.times)
-        if isinstance(profile, StructuredProfiler):
-            profile._col_name_to_idx = {
-                int(k): v for k, v in profile._col_name_to_idx.items()
+        structured_profiler.times = defaultdict(float, structured_profiler.times)
+        if isinstance(structured_profiler, StructuredProfiler):
+            structured_profiler._col_name_to_idx = {
+                int(k): v for k, v in structured_profiler._col_name_to_idx.items()
             }
-            profile._col_name_to_idx = defaultdict(list, profile._col_name_to_idx)
-            profile.hashed_row_dict = {
-                int(k): v for k, v in profile.hashed_row_dict.items()
+            structured_profiler._col_name_to_idx = defaultdict(
+                list, structured_profiler._col_name_to_idx
+            )
+            structured_profiler.hashed_row_dict = {
+                int(k): v for k, v in structured_profiler.hashed_row_dict.items()
             }
 
         if chi2_matrix is not None:
-            setattr(profile, "chi2_matrix", np.array(chi2_matrix))
+            setattr(structured_profiler, "chi2_matrix", np.array(chi2_matrix))
         if correlation_matrix is not None:
-            setattr(profile, "correlation_matrix", np.array(correlation_matrix))
+            setattr(
+                structured_profiler, "correlation_matrix", np.array(correlation_matrix)
+            )
         if _profile:
-            setattr(profile, "_profile", _profile)
+            setattr(structured_profiler, "_profile", _profile)
 
-        return profile
+        return structured_profiler
 
     def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""

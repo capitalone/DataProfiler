@@ -2235,13 +2235,13 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # Checks for specific dict values
         # Chi2 due to floating point
-        serilaized_chi2 = serialized_dict["data"].pop("chi2_matrix")
+        serialized_chi2 = serialized_dict["data"].pop("chi2_matrix")
         expected_chi2 = expected["data"].pop("chi2_matrix")
-        np.testing.assert_array_almost_equal(expected_chi2, serilaized_chi2)
+        np.testing.assert_array_almost_equal(expected_chi2, serialized_chi2)
 
         # hashed_row_dict due to specificity of values
-        serilaized_hashed_row_dict = serialized_dict["data"].pop("hashed_row_dict")
-        self.assertEqual(3, len(serilaized_hashed_row_dict.keys()))
+        serialized_hashed_row_dict = serialized_dict["data"].pop("hashed_row_dict")
+        self.assertEqual(3, len(serialized_hashed_row_dict.keys()))
 
         self.assertDictEqual(expected, serialized_dict)
 

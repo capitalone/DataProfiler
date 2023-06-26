@@ -220,9 +220,6 @@ def assert_profiles_equal(actual, expected):
         elif isinstance(actual_value, np.ndarray):
             np.testing.assert_array_equal(actual_value, expected_value)
         else:
-            try:
-                assert (
-                    actual_value == expected_value
-                ), f"{actual_value} and {expected_value} do not have the same value for key: {key}"
-            except:
-                pass
+            assert (
+                actual_value == expected_value
+            ), f"{actual_value} and {expected_value} do not have the same value for key: {key}"

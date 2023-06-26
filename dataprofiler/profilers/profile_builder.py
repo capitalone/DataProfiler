@@ -1936,7 +1936,11 @@ class StructuredProfiler(BaseProfiler):
         return _prepare_report(report, output_format, omit_keys)
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None,):
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ):
         """
         Parse attribute from json dictionary into self.
 
@@ -1958,13 +1962,14 @@ class StructuredProfiler(BaseProfiler):
         profile = super().load_from_dict(data)
 
         profile.times = defaultdict(float, profile.times)
-        profile._col_name_to_idx = {
-            int(k): v for k, v in profile._col_name_to_idx.items()
-        }
-        profile._col_name_to_idx = defaultdict(list, profile._col_name_to_idx)
-        profile.hashed_row_dict = {
-            int(k): v for k, v in profile.hashed_row_dict.items()
-        }
+        if isinstance(profile, StructuredProfiler):
+            profile._col_name_to_idx = {
+                int(k): v for k, v in profile._col_name_to_idx.items()
+            }
+            profile._col_name_to_idx = defaultdict(list, profile._col_name_to_idx)
+            profile.hashed_row_dict = {
+                int(k): v for k, v in profile.hashed_row_dict.items()
+            }
 
         if chi2_matrix is not None:
             setattr(profile, "chi2_matrix", np.array(chi2_matrix))

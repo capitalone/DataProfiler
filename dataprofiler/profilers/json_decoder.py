@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
 
     from .base_column_profilers import BaseColumnProfiler
-    from .profile_builder import StructuredColProfiler, StructuredProfiler
+    from .profile_builder import BaseProfiler, StructuredColProfiler, StructuredProfiler
     from .profiler_options import BaseOption
 
 
@@ -75,17 +75,19 @@ def get_option_class(class_name: str) -> type[BaseOption]:
     return options_class
 
 
-def get_profiler_class(class_name: str) -> type["BaseProfiler"]:
+def get_profiler_class(class_name: str) -> type[BaseProfiler]:
     """
     Use name of class to return default-constructed version of that class.
+
     Raises ValueError if class_name is not name of a subclass of
         BaseProfiler.
+
     :param class_name: name of BaseProfiler subclass retrieved by
         calling type(instance).__name__
     :type class_name: str representing name of class
     :return: subclass of BaseProfiler object
     """
-    profiler_class: type["BaseProfiler"] | None = _profilers.get(class_name)
+    profiler_class: type[BaseProfiler] | None = _profilers.get(class_name)
     if profiler_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
     return profiler_class
@@ -205,9 +207,10 @@ def load_option(serialized_json: dict, options: dict | None = None) -> BaseOptio
     return option_cls.load_from_dict(serialized_json["data"], options)
 
 
-def load_profiler(serialized_json: dict) -> "BaseProfiler":
+def load_profiler(serialized_json: dict) -> BaseProfiler:
     """
     Construct subclass of BaseProfiler given a serialized JSON.
+
     Expected format of serialized_json (see json_encoder):
         {
             "class": <str name of class that was serialized>
@@ -225,7 +228,7 @@ def load_profiler(serialized_json: dict) -> "BaseProfiler":
     :return: subclass of BaseCompiler that has been deserialized from
         JSON
     """
-    profiler_cls: type["BaseProfiler"] = get_profiler_class(serialized_json["class"])
+    profiler_cls: type[BaseProfiler] = get_profiler_class(serialized_json["class"])
     return profiler_cls.load_from_dict(serialized_json["data"])
 
 

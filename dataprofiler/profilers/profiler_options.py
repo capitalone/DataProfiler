@@ -1121,7 +1121,8 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
                     data_labeler_load_attr["from_library"]
                 )
         profile = super().load_from_dict(data)
-        profile.data_labeler_object = data_labeler_object
+        if isinstance(profile, DataLabelerOptions):
+            profile.data_labeler_object = data_labeler_object
         return profile
 
 

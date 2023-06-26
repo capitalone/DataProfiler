@@ -362,7 +362,7 @@ class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
         :type options: Dict | None
 
         :return: Profiler with attributes populated.
-        :rtype: BaseColumnProfiler
+        :rtype: BaseOptions
         """
         profile = cls()
 

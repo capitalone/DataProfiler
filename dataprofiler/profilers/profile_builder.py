@@ -16,6 +16,7 @@ from typing import Any, Generator, List, Optional, cast
 import networkx as nx
 import numpy as np
 import pandas as pd
+from HLL import HyperLogLog
 
 from .. import data_readers, dp_logging
 from ..data_readers.data import Data
@@ -1519,7 +1520,7 @@ class StructuredProfiler(BaseProfiler):
         # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
-        self.hashed_row_dict: dict = dict()
+        self.hashed_row_object: HyperLogLog | dict = dict()
         self._profile: list[StructuredColProfiler] = []  # type: ignore[assignment]
         self._col_name_to_idx: dict[str | int, list[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
@@ -1528,6 +1529,12 @@ class StructuredProfiler(BaseProfiler):
         # capitalone/synthetic-data specific metrics
         self._null_replication_metrics: dict = None  # type: ignore[assignment]
 
+        if self.options.row_statistics.unique_count.hashing_method == "hll":
+            self.hashed_row_object = HyperLogLog(
+                p=options.row_statistics.unique_count.hll.register_count,
+                seed=options.row_statistics.unique_count.hll.seed,
+                sparse=False,
+            )
         if data is not None:
             self.update_profile(data)
 
@@ -1557,6 +1564,53 @@ class StructuredProfiler(BaseProfiler):
                 "profiles and cannot be added together."
             )
 
+        # Check row statistics options
+        if (
+            self.options.row_statistics.is_enabled
+            != other.options.row_statistics.is_enabled
+        ):
+            raise ValueError(
+                "Attempting to merge two profiles with row statistics "
+                "option enabled on one profile but not the other."
+            )
+        # Check unique_count options
+        if (
+            self.options.row_statistics.unique_count.is_enabled
+            != other.options.row_statistics.unique_count.is_enabled
+        ):
+            raise ValueError(
+                "Attempting to merge two profiles with unique row "
+                "count option enabled on one profile but not the other."
+            )
+        # Check hashing_method options
+        if (
+            self.options.row_statistics.unique_count.hashing_method
+            != other.options.row_statistics.unique_count.hashing_method
+        ):
+            raise ValueError(
+                "Attempting to merge profiles with different row hashing methods."
+            )
+        # Check hll seed
+        if (
+            self.options.row_statistics.unique_count.hashing_method == "hll"
+            and self.options.row_statistics.unique_count.hll.seed
+            != other.options.row_statistics.unique_count.hll.seed
+        ):
+            raise ValueError(
+                "Attempting to merge profiles whose row hashing "
+                "objects are of different seed."
+            )
+        # Check hll register count
+        if (
+            self.options.row_statistics.unique_count.hashing_method == "hll"
+            and self.options.row_statistics.unique_count.hll.register_count
+            != other.options.row_statistics.unique_count.hll.register_count
+        ):
+            raise ValueError(
+                "Attempting to merge profiles whose row hashing "
+                "objects are of different register count."
+            )
+
     def __add__(  # type: ignore[override]
         self, other: StructuredProfiler
     ) -> StructuredProfiler:
@@ -1575,15 +1629,27 @@ class StructuredProfiler(BaseProfiler):
             self.options.row_statistics.is_enabled
             and other.options.row_statistics.is_enabled
         ):
-
             merged_profile.row_has_null_count = (
                 self.row_has_null_count + other.row_has_null_count
             )
             merged_profile.row_is_null_count = (
                 self.row_is_null_count + other.row_is_null_count
             )
-            merged_profile.hashed_row_dict.update(self.hashed_row_dict)
-            merged_profile.hashed_row_dict.update(other.hashed_row_dict)
+
+            if (
+                self.options.row_statistics.unique_count.is_enabled
+                and other.options.row_statistics.unique_count.is_enabled
+            ):
+                if isinstance(self.hashed_row_object, dict) and isinstance(
+                    other.hashed_row_object, dict
+                ):
+                    merged_profile.hashed_row_object.update(self.hashed_row_object)
+                    merged_profile.hashed_row_object.update(other.hashed_row_object)
+                elif isinstance(self.hashed_row_object, HyperLogLog) and isinstance(
+                    other.hashed_row_object, HyperLogLog
+                ):
+                    self.hashed_row_object.merge(other.hashed_row_object),
+                    merged_profile.hashed_row_object = self.hashed_row_object
 
         self_to_other_idx = self._get_and_validate_schema_mapping(
             self._col_name_to_idx, other._col_name_to_idx
@@ -1673,7 +1739,7 @@ class StructuredProfiler(BaseProfiler):
                 ),
                 "duplicate_row_count": utils.find_diff_of_numbers(
                     self._get_duplicate_row_count(),
-                    other_profile._get_row_is_null_ratio(),
+                    other_profile._get_duplicate_row_count(),
                 ),
                 "correlation_matrix": utils.find_diff_of_matrices(
                     self.correlation_matrix, other_profile.correlation_matrix
@@ -1884,27 +1950,54 @@ class StructuredProfiler(BaseProfiler):
 
         return _prepare_report(report, output_format, omit_keys)
 
-    def _get_unique_row_ratio(self) -> float:
+    def _get_unique_row_ratio(self) -> float | None:
         """Return unique row ratio."""
+        if (
+            not self.options.row_statistics.is_enabled
+            or not self.options.row_statistics.unique_count.is_enabled
+        ):
+            return None
+
         if self.total_samples:
-            return len(self.hashed_row_dict) / self.total_samples
+            if isinstance(self.hashed_row_object, dict):
+                return len(self.hashed_row_object) / self.total_samples
+            elif isinstance(self.hashed_row_object, HyperLogLog):
+                return int(self.hashed_row_object.cardinality()) / self.total_samples
         return 0
 
-    def _get_row_is_null_ratio(self) -> float:
+    def _get_row_is_null_ratio(self) -> float | None:
         """Return whether row is null ratio."""
+        if not self.options.row_statistics.is_enabled:
+            return None
+
         if self._min_col_samples_used:
             return self.row_is_null_count / self._min_col_samples_used
         return 0
 
-    def _get_row_has_null_ratio(self) -> float:
+    def _get_row_has_null_ratio(self) -> float | None:
         """Return whether row has null ratio."""
+        if not self.options.row_statistics.is_enabled:
+            return None
+
         if self._min_col_samples_used:
             return self.row_has_null_count / self._min_col_samples_used
         return 0
 
-    def _get_duplicate_row_count(self) -> int:
-        """Retun dup row count."""
-        return self.total_samples - len(self.hashed_row_dict)
+    def _get_duplicate_row_count(self) -> int | None:
+        """Return dup row count."""
+        if (
+            not self.options.row_statistics.is_enabled
+            or not self.options.row_statistics.unique_count.is_enabled
+        ):
+            return None
+
+        if isinstance(self.hashed_row_object, dict):
+            return self.total_samples - len(self.hashed_row_object)
+        elif isinstance(self.hashed_row_object, HyperLogLog):
+            return max(
+                0, self.total_samples - int(self.hashed_row_object.cardinality())
+            )
+        return 0
 
     @utils.method_timeit(name="row_stats")
     def _update_row_statistics(
@@ -1927,17 +2020,35 @@ class StructuredProfiler(BaseProfiler):
                 "Cannot calculate row statistics on data that is" "not a DataFrame"
             )
 
-        self.total_samples += len(data)
-        try:
-            self.hashed_row_dict.update(
-                dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
-            )
-        except TypeError:
-            self.hashed_row_dict.update(
-                dict.fromkeys(
-                    pd.util.hash_pandas_object(data.astype(str), index=False), True
-                )
-            )
+        if self.options.row_statistics.unique_count.is_enabled:
+            if isinstance(self.hashed_row_object, dict):
+                try:
+                    self.hashed_row_object.update(
+                        dict.fromkeys(
+                            pd.util.hash_pandas_object(data, index=False), True
+                        )
+                    )
+                except TypeError:
+                    self.hashed_row_object.update(
+                        dict.fromkeys(
+                            pd.util.hash_pandas_object(data.astype(str), index=False),
+                            True,
+                        )
+                    )
+            elif isinstance(self.hashed_row_object, HyperLogLog):
+                batch_size = 2048
+
+                for batch_ind in range(len(data) // batch_size + 1):
+                    start_ind = batch_ind * batch_size
+                    if start_ind >= len(data):
+                        break
+                    end_ind = (batch_ind + 1) * batch_size
+                    for record in (
+                        data[start_ind : min(end_ind, len(data))]
+                        .to_json(orient="records", lines=True)
+                        .splitlines()
+                    ):
+                        self.hashed_row_object.add(record)
 
         # Calculate Null Column Count
         null_rows = set()
@@ -2706,6 +2817,9 @@ class StructuredProfiler(BaseProfiler):
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()
 
+        # Update total samples between correlation and row stats functionality
+        self.total_samples += len(data)
+
         if self.options.row_statistics.is_enabled:
             # Only pass along sample ids if necessary
             samples_for_row_stats = None
@@ -2732,7 +2846,7 @@ class StructuredProfiler(BaseProfiler):
             "file_type": self.file_type,
             "row_has_null_count": self.row_has_null_count,
             "row_is_null_count": self.row_is_null_count,
-            "hashed_row_dict": self.hashed_row_dict,
+            "hashed_row_object": self.hashed_row_object,
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "options": self.options,

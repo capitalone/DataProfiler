@@ -986,7 +986,7 @@ class CorrelationOptions(BaseInspectorOptions):
 class HyperLogLogOptions(BaseOption):
     """Options for alternative method of gathering unique row count."""
 
-    def __init__(self, seed: int = 0, register_count: int = 10) -> None:
+    def __init__(self, seed: int = 0, register_count: int = 15) -> None:
         """
         Initialize options for the hyperloglog method of gathering unique row count.
 
@@ -1017,6 +1017,13 @@ class HyperLogLogOptions(BaseOption):
             errors.append(f"{variable_path}.register_count must be greater than 0.")
         if not isinstance(self.seed, int):
             errors.append(f"{variable_path}.seed must be an integer.")
+
+        if isinstance(self.register_count, int) and self.register_count >= 20:
+            warnings.warn(
+                f"{variable_path}.register_count is greater than or equal "
+                "to 20, so the row hashing object is greater than 5 MB."
+            )
+
         return errors
 
 

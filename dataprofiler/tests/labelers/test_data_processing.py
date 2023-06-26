@@ -195,6 +195,7 @@ class TestBaseDataProcessor(unittest.TestCase):
         with mock.patch(
             "dataprofiler.labelers.data_processing." "BaseDataProcessor.processor_type",
             new_callable=mock.PropertyMock(return_value="test"),
+            create=True,
         ):
             mocked_processor = BaseDataProcessor.load_from_disk("test/path")
 

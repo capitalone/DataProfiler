@@ -13,6 +13,7 @@ import pandas as pd
 
 import dataprofiler as dp
 from dataprofiler import StructuredDataLabeler, UnstructuredDataLabeler
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 from dataprofiler.profilers.column_profile_compilers import (
     ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler,
@@ -2618,7 +2619,124 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))
 
-    def test_json_decode(self, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_encode(self, mocked_datalabeler, *mocks):
+        col_profiler = StructuredColProfiler()
+
+        serialized = json.dumps(col_profiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "StructuredColProfiler",
+                "data": {
+                    "name": None,
+                    "options": None,
+                    "_min_sample_size": 5000,
+                    "_sampling_ratio": 0.2,
+                    "_min_true_samples": 0,
+                    "sample_size": 0,
+                    "sample": [],
+                    "null_count": 0,
+                    "null_types": [],
+                    "null_types_index": {},
+                    "_min_id": None,
+                    "_max_id": None,
+                    "_index_shift": None,
+                    "_last_batch_size": None,
+                    "profiles": {},
+                    "_null_values": {
+                        "": 0,
+                        "nan": 2,
+                        "none": 2,
+                        "null": 2,
+                        "  *": 0,
+                        "--*": 0,
+                        "__*": 0,
+                    },
+                },
+            }
+        )
+        self.assertEqual(expected, serialized)
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_encode_after_update(self, mock_DataLabeler, *mocks):
+        mock_labeler = mock_DataLabeler.return_value
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.model.num_labels = 2
+        mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
+        mock_DataLabeler.load_from_library.return_value = mock_labeler
+
+        data = pd.Series(["-2", "Nan", "1", "2"], name="test")
+        # update mock for 4 values
+        mock_labeler.predict.return_value = {"pred": [], "conf": np.zeros((4, 2))}
+        with test_utils.mock_timeit():
+            col_profiler = StructuredColProfiler(data)
+
+        serialized = json.dumps(col_profiler, cls=ProfileEncoder)
+
+        expected = {
+            "class": "StructuredColProfiler",
+            "data": {
+                "name": "test",
+                "options": mock.ANY,
+                "_min_sample_size": 5000,
+                "_sampling_ratio": 0.2,
+                "_min_true_samples": 0,
+                "sample_size": 4,
+                "sample": ["1", "2", "-2"],
+                "null_count": 1,
+                "null_types": ["Nan"],
+                "null_types_index": {
+                    "Nan": [
+                        1,
+                    ]
+                },
+                "_min_id": 0,
+                "_max_id": 3,
+                "_index_shift": None,
+                "_last_batch_size": 4,
+                "_null_values": {
+                    "": 0,
+                    "nan": 2,
+                    "none": 2,
+                    "null": 2,
+                    "  *": 0,
+                    "--*": 0,
+                    "__*": 0,
+                },
+                "profiles": {
+                    "data_type_profile": {
+                        "class": "ColumnPrimitiveTypeProfileCompiler",
+                        "data": mock.ANY,
+                    },
+                    "data_stats_profile": {
+                        "class": "ColumnStatsProfileCompiler",
+                        "data": mock.ANY,
+                    },
+                    "data_label_profile": {
+                        "class": "ColumnDataLabelerCompiler",
+                        "data": mock.ANY,
+                    },
+                },
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, mock_DataLabeler, *mocks):
+        mock_labeler = mock.Mock(spec=BaseDataLabeler)
+        mock_labeler._default_model_loc = "test"
+        mock_DataLabeler.load_from_library = mock_labeler
+
         fake_profile_name = None
         expected_profile = StructuredColProfiler(fake_profile_name)
 
@@ -2627,31 +2745,65 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-    def test_json_decode_after_update(self):
-        # Actual deserialization
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(self, mock_DataLabeler, *mocks):
+        mock_labeler = mock_DataLabeler.return_value
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.model.num_labels = 2
+        mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
+        mock_DataLabeler.load_from_library.return_value = mock_labeler
 
-        # Build expected FloatColumn
-        df_float = pd.Series([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]).apply(str)
+        # Build expected StructuredColProfiler
+        df_float = pd.Series([-1.5, None, 5.0, 7.0, 4.0, 3.0, "NaN", 0, 0, 9.0]).apply(
+            str
+        )
+        # update mock for 10 values
+        mock_labeler.predict.return_value = {"pred": [], "conf": np.zeros((10, 2))}
+
         expected_profile = StructuredColProfiler(df_float)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
         deserialized = load_structured_col_profiler(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
+        assert deserialized.null_count == 2
+        assert deserialized.null_types_index == {
+            "None": {
+                1,
+            },
+            "NaN": {
+                6,
+            },
+        }
 
         df_float = pd.Series(
             [
-                "4.0",  # add existing
+                "NaN",  # add existing
                 "15.0",  # add new
+                "null",  # add new
             ]
         )
+        # update mock for 2 Values
+        mock_labeler.predict.return_value = {"pred": [], "conf": [[1, 1], [0, 0]]}
 
         # validating update after deserialization
         deserialized.update_profile(df_float)
 
-        assert deserialized.sample_size == 12
-        assert deserialized.null_count == 0
-        assert deserialized.profile["data_label"] == "ORDINAL"
+        assert deserialized.sample_size == 13
+        assert deserialized.null_count == 4
+        assert deserialized.null_types_index == {
+            "None": {
+                1,
+            },
+            "NaN": {6, 10},
+            "null": {
+                12,
+            },
+        }
+        assert deserialized.profile["data_label"] == "a"
         assert deserialized.profile["statistics"]["max"] == 15
         assert deserialized.profile["statistics"]["min"] == -1.5
 

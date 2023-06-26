@@ -402,7 +402,11 @@ class StructuredColProfiler:
             if attr == "options" and value is not None:
                 value = load_option(value, options)
             if attr == "_null_values":
-                value = {k: profile._null_values[k] for k, v in value.items()}
+                value = {
+                    k: (re.RegexFlag(v) if v != 0 else 0) for k, v in value.items()
+                }
+            if attr == "null_types_index":
+                value = {k: set(v) for k, v in value.items()}
             setattr(profile, attr, value)
         return profile
 

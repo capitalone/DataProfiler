@@ -832,7 +832,6 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         mock_DataLabeler_cls.assert_not_called()
 
 
-
 class TestUnstructuredCompiler(unittest.TestCase):
     @mock.patch("dataprofiler.profilers.unstructured_labeler_profile." "DataLabeler")
     @mock.patch(

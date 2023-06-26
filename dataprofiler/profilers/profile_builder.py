@@ -883,7 +883,8 @@ class BaseProfiler:
             if "times" == attr:
                 setattr(profiler, "times", defaultdict(float, value))
             if "_profiles" == attr:
-                value = load_compiler(value)
+                for idx, profile in enumerate(value):
+                    value[idx] = load_structured_col_profiler(profile)
             if "options" == attr:
                 value = load_option(value)
 

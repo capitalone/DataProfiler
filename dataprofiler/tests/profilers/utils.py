@@ -222,4 +222,4 @@ def assert_profiles_equal(actual, expected):
         else:
             assert (
                 actual_value == expected_value
-            ), f"{actual_value} and {expected_value} do not have the same value for key: {key}"
+            ), f"Actual value of {actual_value} and expected value of {expected_value} do not have the same value for key: {key}"

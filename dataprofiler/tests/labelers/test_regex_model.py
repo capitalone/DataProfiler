@@ -16,7 +16,7 @@ import importlib.resources
 import pkg_resources
 
 if sys.version_info >= (3, 9):
-    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+    _resource_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 else:
     _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

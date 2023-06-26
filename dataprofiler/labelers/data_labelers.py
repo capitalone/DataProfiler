@@ -129,9 +129,14 @@ class DataLabeler:
             )
         if trainable:
             if dirpath is None:
-                dirpath = str(
-                    default_labeler_dir.joinpath(data_labeler._default_model_loc)
-                )
+                if sys.version_info >= (3, 9):
+                    dirpath = str(
+                        default_labeler_dir.joinpath(data_labeler._default_model_loc)
+                    )
+                else:
+                    dirpath = os.path.join(
+                        default_labeler_dir, data_labeler._default_model_loc
+                    )
             return TrainableDataLabeler(dirpath, load_options)
         return data_labeler(dirpath, load_options)
 

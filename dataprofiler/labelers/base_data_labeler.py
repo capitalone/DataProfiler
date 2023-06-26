@@ -55,7 +55,10 @@ class BaseDataLabeler:
         # load default model
         if dirpath or self._default_model_loc:
             if dirpath is None:
-                dirpath = str(default_labeler_dir.joinpath(self._default_model_loc))
+                if sys.version_info >= (3, 9):
+                    dirpath = str(default_labeler_dir.joinpath(self._default_model_loc))
+                else:
+                    dirpath = os.path.join(default_labeler_dir, self._default_model_loc)
             self._load_data_labeler(dirpath, load_options)
 
     def __eq__(self, other: object) -> bool:
@@ -642,7 +645,11 @@ class BaseDataLabeler:
         :return: DataLabeler class
         :rtype: BaseDataLabeler
         """
-        return cls(str(default_labeler_dir.joinpath(name)))
+        if sys.version_info >= (3, 9):
+            return cls(str(default_labeler_dir.joinpath(name)))
+
+        else:
+            return cls(os.path.join(default_labeler_dir, name))
 
     @classmethod
     def load_from_disk(cls, dirpath: str, load_options: dict = None) -> BaseDataLabeler:

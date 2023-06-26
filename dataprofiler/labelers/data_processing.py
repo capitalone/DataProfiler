@@ -150,7 +150,10 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     @classmethod
     def load_from_library(cls, name: str) -> BaseDataProcessor:
         """Load data processor from within the library."""
-        return cls.load_from_disk(str(default_labeler_dir.joinpath(name)))
+        if sys.version_info >= (3, 9):
+            return cls.load_from_disk(str(default_labeler_dir.joinpath(name)))
+        else:
+            return cls.load_from_disk(os.path.join(default_labeler_dir, name))
 
     def _save_processor(self, dirpath: str) -> None:
         """Save data processor."""

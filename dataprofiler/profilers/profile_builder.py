@@ -1954,7 +1954,6 @@ class StructuredProfiler(BaseProfiler):
         """
         chi2_matrix = data.pop("chi2_matrix")
         correlation_matrix = data.pop("correlation_matrix")
-        _profile = data.pop("_profile")
 
         for idx, profile in enumerate(_profile):
             _profile[idx] = load_structured_col_profiler(profile)

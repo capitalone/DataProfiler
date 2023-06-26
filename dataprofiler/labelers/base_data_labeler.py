@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import warnings
+from pathlib import Path
 from typing import cast
 
 import numpy as np
@@ -19,7 +20,8 @@ from . import data_processing
 from .base_model import BaseModel
 
 if sys.version_info >= (3, 9):
-    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+    resource_dir = str(importlib.resources.files("resources"))
+    default_labeler_dir = Path(resource_dir) / "labelers"
 
 else:
     default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

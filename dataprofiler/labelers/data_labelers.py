@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.resources
 import os
 import sys
+from pathlib import Path
 
 import pandas as pd
 import pkg_resources
@@ -14,7 +15,8 @@ from .base_model import BaseModel
 from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
 if sys.version_info >= (3, 9):
-    default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+    resource_dir = str(importlib.resources.files("resources"))
+    default_labeler_dir = Path(resource_dir) / "labelers"
 
 else:
     default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

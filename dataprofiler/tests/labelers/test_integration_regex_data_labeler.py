@@ -1,8 +1,8 @@
-import importlib
 import importlib.resources
 import os
 import sys
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pkg_resources
@@ -10,7 +10,8 @@ import pkg_resources
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
 if sys.version_info >= (3, 9):
-    default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+    resource_dir = str(importlib.resources.files("resources"))
+    default_labeler_dir = Path(resource_dir) / "labelers"
 
 else:
     default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

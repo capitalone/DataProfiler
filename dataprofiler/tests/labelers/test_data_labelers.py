@@ -3,6 +3,7 @@ import os
 import sys
 import unittest
 from io import StringIO
+from pathlib import Path
 from unittest import mock
 
 import numpy as np
@@ -151,10 +152,8 @@ class TestDataLabeler(unittest.TestCase):
         import pkg_resources
 
         if sys.version_info >= (3, 9):
-            default_labeler_dir = (
-                str(importlib.resources.files("resources"))
-                + "/labelers/structured_model"
-            )
+            resource_dir = str(importlib.resources.files("resources"))
+            default_labeler_dir = Path(resource_dir) / "labelers/structured_model"
 
         else:
             default_labeler_dir = pkg_resources.resource_filename(

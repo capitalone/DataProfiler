@@ -13,6 +13,7 @@ import sys
 import types
 import warnings
 from collections import Counter
+from pathlib import Path
 from typing import Any, Generator, Iterable, TypeVar, cast
 
 import numpy as np
@@ -20,7 +21,8 @@ import numpy.typing as npt
 import pkg_resources
 
 if sys.version_info >= (3, 9):
-    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+    resource_dir = str(importlib.resources.files("resources"))
+    default_labeler_dir = Path(resource_dir) / "labelers"
 
 else:
     default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

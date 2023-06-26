@@ -2167,31 +2167,32 @@ class TestStructuredProfiler(unittest.TestCase):
             profile = StructuredProfiler(fake_profile_name)
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
-        expected = json.dumps(
-            {
-                "class": "StructuredProfiler",
-                "data": {
-                    "_profile": [],
-                    "options": mock.ANY,
-                    "encoding": None,
-                    "file_type": None,
-                    "_samples_per_update": None,
-                    "_min_true_samples": 0,
-                    "total_samples": 0,
-                    "times": {},
-                    "_sampling_ratio": 0.2,
-                    "_min_sample_size": 5000,
-                    "row_has_null_count": 0,
-                    "row_is_null_count": 0,
-                    "hashed_row_dict": {},
-                    "_col_name_to_idx": {},
-                    "correlation_matrix": None,
-                    "chi2_matrix": None,
-                    "_null_replication_metrics": None,
-                },
-            }
-        )
-        self.assertEqual(expected, serialized)
+        expected = {
+            "class": "StructuredProfiler",
+            "data": {
+                "_profile": [],
+                "options": mock.ANY,
+                "encoding": None,
+                "file_type": None,
+                "_samples_per_update": None,
+                "_min_true_samples": 0,
+                "total_samples": 0,
+                "times": {},
+                "_sampling_ratio": 0.2,
+                "_min_sample_size": 5000,
+                "row_has_null_count": 0,
+                "row_is_null_count": 0,
+                "hashed_row_dict": {},
+                "_col_name_to_idx": {},
+                "correlation_matrix": None,
+                "chi2_matrix": None,
+                "_null_replication_metrics": None,
+            },
+        }
+
+        serialized_dict = json.loads(serialized)
+
+        self.assertDictEqual(expected, serialized_dict)
 
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
@@ -2246,10 +2247,14 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(expected, serialized_dict)
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        "dataprofiler.profilers.profile_builder.BaseDataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode(self, *mocks):
+    def test_json_decode(self, mock_DataLabeler, *mocks):
+        mock_labeler = mock.Mock(spec=BaseDataLabeler)
+        mock_labeler._default_model_loc = "test"
+        mock_DataLabeler.load_from_library = mock_labeler
+
         fake_profile_name = None
         expected_profile = StructuredProfiler(fake_profile_name)
 
@@ -2259,17 +2264,29 @@ class TestStructuredProfiler(unittest.TestCase):
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        "dataprofiler.profilers.profile_builder.BaseDataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode_after_update(self, *mocks):
+    def test_json_decode_after_update(self, mock_DataLabeler, *mocks):
+        mock_labeler = mock_DataLabeler.return_value
+        mock_labeler._default_model_loc = "structured_model"
+        mock_labeler.model.num_labels = 2
+        mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
+        mock_DataLabeler.load_from_library.return_value = mock_labeler
+
         fake_profile_name = None
         df_structured = pd.DataFrame(
             [
-                [-1.5, 3.0],
+                ["-1.5", "3.0"],
                 ["a", "z"],
             ]
         ).T
+
+        # update mock for 2 confidence values for 2 possible classes
+        mock_labeler.predict.side_effect = lambda *args, **kwargs: {
+            "pred": [],
+            "conf": [[1, 1], [0, 0]],
+        }
         expected_profile = StructuredProfiler(fake_profile_name)
 
         with test_utils.mock_timeit():

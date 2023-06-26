@@ -882,7 +882,7 @@ class BaseProfiler:
         for attr, value in data.items():
             if "times" == attr:
                 setattr(profiler, "times", defaultdict(float, value))
-            if "_profiles" == attr:
+            if "_profile" == attr:
                 for idx, profile in enumerate(value):
                     value[idx] = load_structured_col_profiler(profile)
             if "options" == attr:
@@ -1959,6 +1959,7 @@ class StructuredProfiler(BaseProfiler):
         structured_profiler = super().load_from_dict(data)
 
         structured_profiler.times = defaultdict(float, structured_profiler.times)
+
         if isinstance(structured_profiler, StructuredProfiler):
             structured_profiler._col_name_to_idx = {
                 int(k): v for k, v in structured_profiler._col_name_to_idx.items()

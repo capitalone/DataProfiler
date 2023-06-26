@@ -6,7 +6,6 @@ import json
 import os
 import sys
 import warnings
-from pathlib import Path
 from typing import cast
 
 import numpy as np
@@ -20,8 +19,7 @@ from . import data_processing
 from .base_model import BaseModel
 
 if sys.version_info >= (3, 9):
-    resource_dir = str(importlib.resources.files("resources"))
-    default_labeler_dir = Path(resource_dir) / "labelers"
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 else:
     default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
@@ -57,7 +55,7 @@ class BaseDataLabeler:
         # load default model
         if dirpath or self._default_model_loc:
             if dirpath is None:
-                dirpath = os.path.join(default_labeler_dir, self._default_model_loc)
+                dirpath = str(default_labeler_dir.joinpath(self._default_model_loc))
             self._load_data_labeler(dirpath, load_options)
 
     def __eq__(self, other: object) -> bool:
@@ -644,7 +642,7 @@ class BaseDataLabeler:
         :return: DataLabeler class
         :rtype: BaseDataLabeler
         """
-        return cls(os.path.join(default_labeler_dir, name))
+        return cls(str(default_labeler_dir.joinpath(name)))
 
     @classmethod
     def load_from_disk(cls, dirpath: str, load_options: dict = None) -> BaseDataLabeler:

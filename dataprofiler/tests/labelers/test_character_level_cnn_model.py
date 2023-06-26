@@ -4,7 +4,6 @@ import os
 import sys
 import unittest
 from io import StringIO
-from pathlib import Path
 from unittest import mock
 
 import numpy as np
@@ -19,8 +18,7 @@ import importlib.resources
 import pkg_resources
 
 if sys.version_info >= (3, 9):
-    resource_dir = str(importlib.resources.files("resources"))
-    _resource_labeler_dir = Path(resource_dir) / "labelers"
+    _resource_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 else:
     _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

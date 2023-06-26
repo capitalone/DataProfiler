@@ -1105,8 +1105,12 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         :return: Profiler with attributes populated.
         :rtype: BaseOption
         """
+        data_labeler_object = None
         data_labeler_load_attr = data.pop("data_labeler_object")
-        if "from_library" in data_labeler_load_attr:
+        if (
+            data_labeler_load_attr is not None
+            and "from_library" in data_labeler_load_attr
+        ):
             data_labeler_object = (
                 (
                     options.get(cls.__name__, {})

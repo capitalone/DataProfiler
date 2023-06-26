@@ -225,7 +225,7 @@ def load_profiler(serialized_json: dict) -> BaseProfiler:
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
-    :return: subclass of BaseCompiler that has been deserialized from
+    :return: subclass of BaseProfiler that has been deserialized from
         JSON
     """
     profiler_cls: type[BaseProfiler] = get_profiler_class(serialized_json["class"])

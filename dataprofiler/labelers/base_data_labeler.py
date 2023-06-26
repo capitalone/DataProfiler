@@ -19,7 +19,7 @@ from . import data_processing
 from .base_model import BaseModel
 
 if sys.version_info >= (3, 9):
-    default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 else:
     default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

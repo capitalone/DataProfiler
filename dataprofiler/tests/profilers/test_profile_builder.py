@@ -2157,7 +2157,11 @@ class TestStructuredProfiler(unittest.TestCase):
             ["1", "2"], sorted(report["data_stats"][1]["samples"])
         )
 
-    def test_json_decode(self):
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, *mocks):
         fake_profile_name = None
         expected_profile = StructuredProfiler(fake_profile_name)
 
@@ -2166,7 +2170,11 @@ class TestStructuredProfiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-    def test_json_decode_after_update(self):
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(self, *mocks):
         fake_profile_name = None
         df_structured = pd.DataFrame(
             [

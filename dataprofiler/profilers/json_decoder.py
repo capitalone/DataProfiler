@@ -85,8 +85,15 @@ def get_profiler_class(class_name: str) -> type[BaseProfiler]:
     :param class_name: name of BaseProfiler subclass retrieved by
         calling type(instance).__name__
     :type class_name: str representing name of class
+
+    :raises: NotImplementedError()
+    :raises: ValueError()
+
     :return: subclass of BaseProfiler object
     """
+    if class_name == "UnstructuredProfiler":
+        raise NotImplementedError()
+
     profiler_class: type[BaseProfiler] | None = _profilers.get(class_name)
     if profiler_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")

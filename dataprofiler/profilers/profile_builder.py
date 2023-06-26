@@ -1364,6 +1364,24 @@ class UnstructuredProfiler(BaseProfiler):
         report["data_stats"] = self._profile.report(remove_disabled_flag)
         return _prepare_report(report, output_format, omit_keys)
 
+    @classmethod
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
+
+        :raises: NotImplementedError()
+        """
+        raise NotImplementedError()
+
     @utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(
         self, data: pd.Series, sample_size: int, min_true_samples: int = None

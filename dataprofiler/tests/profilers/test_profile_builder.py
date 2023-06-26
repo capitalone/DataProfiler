@@ -3269,6 +3269,15 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profile = dp.UnstructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
 
+    def test_encode(self, *mocks):
+        profiler = UnstructuredProfiler(None)
+        with self.assertRaises(NotImplementedError):
+            json.dumps(profiler, cls=ProfileEncoder)
+
+    def test_decode(self, *mocks):
+        with self.assertRaises(NotImplementedError):
+            load_profiler({"class": "UnstructuredProfiler", "data": {}})
+
 
 class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod

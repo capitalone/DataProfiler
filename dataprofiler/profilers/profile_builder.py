@@ -875,7 +875,7 @@ class BaseProfiler:
         :type data: dict[string, Any]
 
         :return: Profiler with attributes populated.
-        :rtype: BaseCompiler
+        :rtype: BaseProfiler
         """
         profiler = cls(None)
 

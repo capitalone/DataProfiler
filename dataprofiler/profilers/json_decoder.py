@@ -85,6 +85,9 @@ def get_profiler_class(class_name: str) -> type[BaseProfiler]:
     :param class_name: name of BaseProfiler subclass retrieved by
         calling type(instance).__name__
     :type class_name: str representing name of class
+
+    :raises: ValueError if the profiler class does not exist
+
     :return: subclass of BaseProfiler object
     """
     profiler_class: type[BaseProfiler] | None = _profilers.get(class_name)
@@ -201,6 +204,7 @@ def load_option(serialized_json: dict, options: dict | None = None) -> BaseOptio
     :type options: Dict | None
     :return: subclass of BaseOption that has been deserialized from
         JSON
+
     """
     option_cls: type[BaseOption] = get_option_class(serialized_json["class"])
     return option_cls.load_from_dict(serialized_json["data"], options)

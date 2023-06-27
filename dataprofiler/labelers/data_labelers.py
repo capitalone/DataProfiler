@@ -1,10 +1,12 @@
 """Module to train and choose between structured and unstructured data labelers."""
 from __future__ import annotations
 
+import importlib.resources
 import os
 import sys
 
 import pandas as pd
+import pkg_resources
 
 from .. import data_readers
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
@@ -12,18 +14,10 @@ from .base_model import BaseModel
 from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
 if sys.version_info >= (3, 9):
-    try:
-        import importlib.resources
-    except ImportError:
-        raise ImportError("The 'importlib.resources' package is not available.")
-
-else:
-    import importlib_resources
-
-if sys.version_info >= (3, 9):
     default_labeler_dir = str(importlib.resources.files("resources")) + "/labelers"
+
 else:
-    default_labeler_dir = importlib_resources.files("resources").joinpath("labelers")
+    default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 def train_structured_labeler(

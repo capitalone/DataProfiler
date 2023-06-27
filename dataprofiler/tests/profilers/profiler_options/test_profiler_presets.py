@@ -33,3 +33,8 @@ class TestProfilerPresets(unittest.TestCase):
         self.assertFalse(options.structured_options.null_replication_metrics.is_enabled)
         self.assertTrue(options.structured_options.category.is_enabled)
         self.assertTrue(options.structured_options.order.is_enabled)
+
+    def test_plugin_presets(self, *mocks):
+        test_dict = getPlugins("test_preset")
+        for plugin_preset in test_dict:
+            test_dict[plugin_preset](self, *mocks)

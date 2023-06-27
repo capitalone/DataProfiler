@@ -2,6 +2,7 @@ import importlib.resources
 import json
 import os
 import sys
+import pkg_resources
 import unittest
 from io import StringIO
 from unittest import mock
@@ -147,11 +148,10 @@ class TestDataLabeler(unittest.TestCase):
 
     @mock.patch("tensorflow.keras.models.load_model")
     def test_load_from_disk(self, *mocks):
-        import pkg_resources
 
         if sys.version_info >= (3, 9):
-            default_labeler_dir = importlib.resources.files("resources").joinpath(
-                "labelers/structured_model"
+            default_labeler_dir = str(importlib.resources.files("resources").joinpath(
+                "labelers/structured_model")
             )
 
         else:

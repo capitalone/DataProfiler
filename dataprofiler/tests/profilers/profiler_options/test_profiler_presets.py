@@ -1,11 +1,8 @@
 import unittest
-from collections import defaultdict
 from unittest import mock
 
 from dataprofiler import ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
-from dataprofiler.plugins.__init__ import get_plugins
-from dataprofiler.plugins.decorators import plugin_decorator, plugins_dict
 
 
 @mock.patch(
@@ -36,18 +33,3 @@ class TestProfilerPresets(unittest.TestCase):
         self.assertFalse(options.structured_options.null_replication_metrics.is_enabled)
         self.assertTrue(options.structured_options.category.is_enabled)
         self.assertTrue(options.structured_options.order.is_enabled)
-
-    def test_plugin_presets(self, *mocks):
-        mock_plugin_execution = mock.Mock()
-        with mock.patch.dict(plugins_dict, defaultdict(dict)) as mock_plugin_dict:
-
-            @plugin_decorator(typ="test_preset", name="mock_test")
-            def test_plugin():
-                mock_plugin_execution()
-
-            expected_default_dict = defaultdict(dict)
-            expected_default_dict["test_preset"]["mock_test"] = test_plugin
-            self.assertDictEqual(expected_default_dict, mock_plugin_dict)
-
-            test_get_dict = get_plugins("test_preset")
-            self.assertDictEqual({"mock_test": test_plugin}, test_get_dict)

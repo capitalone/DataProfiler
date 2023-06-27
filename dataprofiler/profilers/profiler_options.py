@@ -349,10 +349,10 @@ class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
 
     @classmethod
     def load_from_dict(
-        cls,
+        cls: type[BaseOptionT],
         data,
         options: dict | None = None,
-    ) -> BaseOption:
+    ) -> BaseOptionT:
         """
         Parse attribute from json dictionary into self.
 
@@ -1095,7 +1095,7 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         cls,
         data,
         options: dict | None = None,
-    ) -> BaseOption:
+    ) -> DataLabelerOptions:
         """
         Parse attribute from json dictionary into self.
 
@@ -1124,10 +1124,9 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
                 data_labeler_object = DataLabeler.load_from_library(
                     data_labeler_load_attr["from_library"]
                 )
-        profile = super().load_from_dict(data)
-        if isinstance(profile, DataLabelerOptions):
-            profile.data_labeler_object = data_labeler_object
-        return profile
+        dl_options = super().load_from_dict(data)
+        dl_options.data_labeler_object = data_labeler_object
+        return dl_options
 
 
 class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):

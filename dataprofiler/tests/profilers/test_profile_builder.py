@@ -3270,6 +3270,25 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profile = dp.UnstructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
 
+    def test_encode(self, *mocks):
+        profiler = UnstructuredProfiler(None)
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler serialization not supported."
+        ):
+            json.dumps(profiler, cls=ProfileEncoder)
+
+    def test_decode(self, *mocks):
+        with self.assertRaisesRegex(
+            ValueError, "Invalid profiler class UnstructuredProfiler failed to load."
+        ):
+            load_profiler({"class": "UnstructuredProfiler", "data": {}})
+
+    def test_load_from_dict(self, *mocks):
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler deserialization not supported."
+        ):
+            UnstructuredProfiler.load_from_dict({}, None)
+
 
 class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod

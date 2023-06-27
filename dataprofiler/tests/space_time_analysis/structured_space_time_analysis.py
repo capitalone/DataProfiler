@@ -1,4 +1,5 @@
 """Contains space and time analysis tests for the Dataprofiler"""
+import concurrent.futures
 import json
 import os
 import random
@@ -65,180 +66,212 @@ def dp_merge_space_analysis(profile: StructuredProfiler, path: str):
     with memray.Tracker(path):
         _ = profile + profile
 
+def run_space_analysis_concurrently(data, sample_sizes, options):
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = []
+        for sample_size in sample_sizes:
+            path = f"./space_analysis/profile_space_analysis_{sample_size}.bin"
+            future1 = executor.submit(dp_profile_space_analysis, data, path, options)
+            futures.append(future1)
 
-def dp_space_time_analysis(
-    rng: Generator,
-    sample_sizes: List,
-    data: pd.DataFrame,
-    path: str = "./time_analysis/structured_profiler_times.json",
-    percent_to_nan: float = 0.0,
-    allow_subsampling: bool = True,
-    options: Optional[Dict] = None,
-    space_analysis=True,
-    time_analysis=True,
-):
-    """
-    Run time analysis for profile and merge functionality
-
-    :param rng: the np rng object used to generate random values
-    :type rng: numpy Generator
-    :param sample_sizes: List of sample sizes of dataset to be analyzed
-    :type sample_sizes: list
-    :param data: DataFrame to be used for time analysis
-    :type data: pandas DataFrame
-    :param path: Path to output json file with all time analysis info
-    :type path: string, optional
-    :param percent_to_nan: Percentage of dataset that needs to be nan values
-    :type percent_to_nan: float, optional
-    :param allow_subsampling: boolean to allow subsampling when running analysis
-    :type allow_subsampling: bool, optional
-    :param options: options for the dataprofiler intialization
-    :type options: Dict, None, optional
-    :param options: options for the dataprofiler intialization
-    :type options: Dict, None, optional
-    :param space_analysis: boolean to turn on or off the space analysis functionality
-    :type space_analysis: bool, optional
-    :param time_analysis: boolean to turn on or off the time analysis functionality
-    :type time_analysis: bool, optional
-    """
-    # [0] allows model to be initialized and added to labeler
-    sample_sizes = [0] + sample_sizes
-    profile_times = []
-    for sample_size in sample_sizes:
-        # setup time dict
-
-        print(f"Evaluating sample size: {sample_size}")
-        replace = False
-        if sample_size > len(data):
-            replace = True
-
-        sample_data = (
-            data.sample(sample_size, replace=replace)
-            .sort_index()
-            .reset_index(drop=True)
-        )
-
-        if percent_to_nan:
-            sample_data = nan_injection(rng, sample_data)
-        if time_analysis:
-            # time profiling
-            start_time = time.time()
-            if allow_subsampling:
-                profiler = dp.Profiler(sample_data, options=options)
-            else:
-                print(f"Length of dataset {len(sample_data)}")
-                profiler = dp.Profiler(
-                    sample_data, samples_per_update=len(sample_data), options=options
-                )
-            total_time = time.time() - start_time
-
-            # get overall time for merging profiles
-            start_time = time.time()
-            try:
-                merged_profile = profiler + profiler
-            except ValueError:
-                pass  # empty profile merge if 0 data
-            merge_time = time.time() - start_time
-
-            # get times for each profile in the columns
-            for profile in profiler.profile:
-                compiler_times = defaultdict(list)
-
-                for compiler_name in profile.profiles:
-                    compiler = profile.profiles[compiler_name]
-                    inspector_times = dict()
-                    for inspector_name in compiler._profiles:
-                        inspector = compiler._profiles[inspector_name]
-                        inspector_times[inspector_name] = inspector.times
-                    compiler_times[compiler_name] = inspector_times
-                column_profile_time = {
-                    "name": profile.name,
-                    "sample_size": sample_size,
-                    "total_time": total_time,
-                    "column": compiler_times,
-                    "merge": merge_time,
-                    "percent_to_nan": percent_to_nan,
-                    "allow_subsampling": allow_subsampling,
-                    "is_data_labeler": options.structured_options.data_labeler.is_enabled,
-                    "is_multiprocessing": options.structured_options.multiprocess.is_enabled,
-                }
-                profile_times += [column_profile_time]
-
-            # add time for for Top-level
-            if sample_size:
-                profile_times += [
-                    {
-                        "name": "StructuredProfiler",
-                        "sample_size": sample_size,
-                        "total_time": total_time,
-                        "column": profiler.times,
-                        "merge": merge_time,
-                        "percent_to_nan": percent_to_nan,
-                        "allow_subsampling": allow_subsampling,
-                        "is_data_labeler": options.structured_options.data_labeler.is_enabled,
-                        "is_multiprocessing": options.structured_options.multiprocess.is_enabled,
-                    }
-                ]
-            time_report_path = os.path.join(
-                os.path.dirname(path), f"time_report_{sample_size}.txt"
-            )
-            if not os.path.exists(os.path.dirname(time_report_path)):
-                os.makedirs(os.path.dirname(time_report_path))
-
-            with open(time_report_path, "a") as f:
-                f.write(f"COMPLETE sample size: {sample_size} \n")
-                print(f"COMPLETE sample size: {sample_size}")
-                f.write(f"Profiled in {total_time} seconds \n")
-                print(f"Profiled in {total_time} seconds")
-                f.write(f"Merge in {merge_time} seconds \n")
-                print(f"Merge in {merge_time} seconds")
-                print()
-                f.close()
-
-        if space_analysis:
-            if not os.path.exists("./space_analysis/"):
-                os.makedirs("./space_analysis/")
-            profile = dp_profile_space_analysis(
-                data=sample_data,
-                path=f"./space_analysis/profile_space_analysis_{sample_size}.bin",
-                options=options,
-            )
+            future2 = executor.submit(dp_merge_space_analysis,
+                     dp_profile_space_analysis(data, path, options),
+                     path=f"./space_analysis/merge_space_analysis_{sample_size}.bin",
+                     )
             print(
                 f"Profile Space Analysis results saved to "
                 f"./space_analysis/profile_space_analysis_{sample_size}.bin"
             )
+
+            futures.append(future2)
+        # Wait for all futures to complete
+        concurrent.futures.wait(futures)
+        
+        for future in futures:
             try:
-                dp_merge_space_analysis(
-                    profile=profile,
-                    path=f"./space_analysis/merge_space_analysis_{sample_size}.bin",
-                )
-                print(
-                    f"Profile Space Analysis results saved to "
-                    f"./space_analysis/profile_space_analysis_{sample_size}.bin"
-                )
-            except ValueError:
-                # empty profile merge if 0 data
-                print(
-                    f"Warning: Profile merge failure on dataset set size {sample_size}"
-                )
-                os.remove(f"./space_analysis/profile_space_analysis_{sample_size}.bin")
+                future.result()
+            except Exception as e:
+                print(f"Error occurred during space analysis: {e}")
+    print("Need for SPEED!!!!!!! blazing fast code")
+    finish = time.perf_counter()
+    print("Finished in time : ", finish)
+            
+            # Get the result of each future if needed
+            # result = future.result()
 
-    # Print dictionary with profile times
-    print("Results Saved")
-    # print(json.dumps(profile_times, indent=4))
+# def dp_space_time_analysis(
+#     rng: Generator,
+#     sample_sizes: List,
+#     data: pd.DataFrame,
+#     path: str = "./time_analysis/structured_profiler_times.json",
+#     percent_to_nan: float = 0.0,
+#     allow_subsampling: bool = True,
+#     options: Optional[Dict] = None,
+#     space_analysis=True,
+#     time_analysis=True,
+# ):
+#     """
+#     Run time analysis for profile and merge functionality
 
-    # only works if columns all have unique names
-    times_table = (
-        pd.json_normalize(profile_times).set_index(["name", "sample_size"]).sort_index()
-    )
+#     :param rng: the np rng object used to generate random values
+#     :type rng: numpy Generator
+#     :param sample_sizes: List of sample sizes of dataset to be analyzed
+#     :type sample_sizes: list
+#     :param data: DataFrame to be used for time analysis
+#     :type data: pandas DataFrame
+#     :param path: Path to output json file with all time analysis info
+#     :type path: string, optional
+#     :param percent_to_nan: Percentage of dataset that needs to be nan values
+#     :type percent_to_nan: float, optional
+#     :param allow_subsampling: boolean to allow subsampling when running analysis
+#     :type allow_subsampling: bool, optional
+#     :param options: options for the dataprofiler intialization
+#     :type options: Dict, None, optional
+#     :param options: options for the dataprofiler intialization
+#     :type options: Dict, None, optional
+#     :param space_analysis: boolean to turn on or off the space analysis functionality
+#     :type space_analysis: bool, optional
+#     :param time_analysis: boolean to turn on or off the time analysis functionality
+#     :type time_analysis: bool, optional
+#     """
+#     # [0] allows model to be initialized and added to labeler
+#     sample_sizes = [0] + sample_sizes
+#     profile_times = []
+#     for sample_size in sample_sizes:
+#         # setup time dict
 
-    # save json and times table
-    if time_analysis:
-        if not os.path.exists(os.path.dirname(path)):
-            os.makedirs(os.path.dirname(path))
-        with open(path, "w") as fp:
-            json.dump(profile_times, fp, indent=4, cls=NumpyEncoder)
-        times_table.to_csv(path)
+#         print(f"Evaluating sample size: {sample_size}")
+#         replace = False
+#         if sample_size > len(data):
+#             replace = True
+
+#         sample_data = (
+#             data.sample(sample_size, replace=replace)
+#             .sort_index()
+#             .reset_index(drop=True)
+#         )
+
+#         if percent_to_nan:
+#             sample_data = nan_injection(rng, sample_data)
+#         if time_analysis:
+#             # time profiling
+#             start_time = time.time()
+#             if allow_subsampling:
+#                 profiler = dp.Profiler(sample_data, options=options)
+#             else:
+#                 print(f"Length of dataset {len(sample_data)}")
+#                 profiler = dp.Profiler(
+#                     sample_data, samples_per_update=len(sample_data), options=options
+#                 )
+#             total_time = time.time() - start_time
+
+#             # get overall time for merging profiles
+#             start_time = time.time()
+#             try:
+#                 merged_profile = profiler + profiler
+#             except ValueError:
+#                 pass  # empty profile merge if 0 data
+#             merge_time = time.time() - start_time
+
+#             # get times for each profile in the columns
+#             for profile in profiler.profile:
+#                 compiler_times = defaultdict(list)
+
+#                 for compiler_name in profile.profiles:
+#                     compiler = profile.profiles[compiler_name]
+#                     inspector_times = dict()
+#                     for inspector_name in compiler._profiles:
+#                         inspector = compiler._profiles[inspector_name]
+#                         inspector_times[inspector_name] = inspector.times
+#                     compiler_times[compiler_name] = inspector_times
+#                 column_profile_time = {
+#                     "name": profile.name,
+#                     "sample_size": sample_size,
+#                     "total_time": total_time,
+#                     "column": compiler_times,
+#                     "merge": merge_time,
+#                     "percent_to_nan": percent_to_nan,
+#                     "allow_subsampling": allow_subsampling,
+#                     "is_data_labeler": options.structured_options.data_labeler.is_enabled,
+#                     "is_multiprocessing": options.structured_options.multiprocess.is_enabled,
+#                 }
+#                 profile_times += [column_profile_time]
+
+#             # add time for for Top-level
+#             if sample_size:
+#                 profile_times += [
+#                     {
+#                         "name": "StructuredProfiler",
+#                         "sample_size": sample_size,
+#                         "total_time": total_time,
+#                         "column": profiler.times,
+#                         "merge": merge_time,
+#                         "percent_to_nan": percent_to_nan,
+#                         "allow_subsampling": allow_subsampling,
+#                         "is_data_labeler": options.structured_options.data_labeler.is_enabled,
+#                         "is_multiprocessing": options.structured_options.multiprocess.is_enabled,
+#                     }
+#                 ]
+#             time_report_path = os.path.join(
+#                 os.path.dirname(path), f"time_report_{sample_size}.txt"
+#             )
+#             if not os.path.exists(os.path.dirname(time_report_path)):
+#                 os.makedirs(os.path.dirname(time_report_path))
+
+#             with open(time_report_path, "a") as f:
+#                 f.write(f"COMPLETE sample size: {sample_size} \n")
+#                 print(f"COMPLETE sample size: {sample_size}")
+#                 f.write(f"Profiled in {total_time} seconds \n")
+#                 print(f"Profiled in {total_time} seconds")
+#                 f.write(f"Merge in {merge_time} seconds \n")
+#                 print(f"Merge in {merge_time} seconds")
+#                 print()
+#                 f.close()
+
+#         if space_analysis:
+#             if not os.path.exists("./space_analysis/"):
+#                 os.makedirs("./space_analysis/")
+#             profile = dp_profile_space_analysis(
+#                 data=sample_data,
+#                 path=f"./space_analysis/profile_space_analysis_{sample_size}.bin",
+#                 options=options,
+#             )
+#             print(
+#                 f"Profile Space Analysis results saved to "
+#                 f"./space_analysis/profile_space_analysis_{sample_size}.bin"
+#             )
+#             try:
+#                 dp_merge_space_analysis(
+#                     profile=profile,
+#                     path=f"./space_analysis/merge_space_analysis_{sample_size}.bin",
+#                 )
+#                 print(
+#                     f"Profile Space Analysis results saved to "
+#                     f"./space_analysis/profile_space_analysis_{sample_size}.bin"
+#                 )
+#             except ValueError:
+#                 # empty profile merge if 0 data
+#                 print(
+#                     f"Warning: Profile merge failure on dataset set size {sample_size}"
+#                 )
+#                 os.remove(f"./space_analysis/profile_space_analysis_{sample_size}.bin")
+
+#     # Print dictionary with profile times
+#     print("Results Saved")
+#     # print(json.dumps(profile_times, indent=4))
+
+#     # only works if columns all have unique names
+#     times_table = (
+#         pd.json_normalize(profile_times).set_index(["name", "sample_size"]).sort_index()
+#     )
+
+#     # save json and times table
+#     if time_analysis:
+#         if not os.path.exists(os.path.dirname(path)):
+#             os.makedirs(os.path.dirname(path))
+#         with open(path, "w") as fp:
+#             json.dump(profile_times, fp, indent=4, cls=NumpyEncoder)
+#         times_table.to_csv(path)
 
 
 if __name__ == "__main__":
@@ -296,14 +329,17 @@ if __name__ == "__main__":
     else:
         _full_dataset = CSVData(_dataset_path, options=dict(encoding="utf-8"))
 
-    dp_space_time_analysis(
-        _rng,
-        SAMPLE_SIZES,
-        _full_dataset,
-        path="./time_analysis/structured_profiler_times.json",
-        percent_to_nan=PERCENT_TO_NAN,
-        options=OPTIONS,
-        allow_subsampling=ALLOW_SUBSAMPLING,
-        time_analysis=TIME_ANALYSIS,
-        space_analysis=SPACE_ANALYSIS,
-    )
+    # dp_space_time_analysis(
+    #     _rng,
+    #     SAMPLE_SIZES,
+    #     _full_dataset,
+    #     path="./time_analysis/structured_profiler_times.json",
+    #     percent_to_nan=PERCENT_TO_NAN,
+    #     options=OPTIONS,
+    #     allow_subsampling=ALLOW_SUBSAMPLING,
+    #     time_analysis=TIME_ANALYSIS,
+    #     space_analysis=SPACE_ANALYSIS,
+    # )
+
+    if SPACE_ANALYSIS:
+        run_space_analysis_concurrently(_full_dataset, SAMPLE_SIZES, OPTIONS)

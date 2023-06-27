@@ -1380,7 +1380,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         :raises: NotImplementedError
         """
-        raise NotImplementedError()
+        raise NotImplementedError("UnstructuredProfiler deserialization not supported.")
 
     @utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(

@@ -30,7 +30,9 @@ class ProfileEncoder(json.JSONEncoder):
         :return: a datatype serializble by json.JSONEncoder
         """
         if isinstance(to_serialize, profile_builder.UnstructuredProfiler):
-            raise NotImplementedError()
+            raise NotImplementedError(
+                "UnstructuredProfiler serialization not supported."
+            )
 
         if isinstance(
             to_serialize,

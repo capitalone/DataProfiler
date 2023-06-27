@@ -135,7 +135,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 )
 
                 # Transfer stop condition variables of 1st profile object to
-                # merged profileif they are not None else set to 2nd profile
+                # merged profile if they are not None else set to 2nd profile
                 profile1_product = self.sample_size * self.unique_ratio
                 profile2_product = other.sample_size * other.unique_ratio
                 if profile1_product < profile2_product:

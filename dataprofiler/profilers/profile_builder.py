@@ -1087,7 +1087,7 @@ class BaseProfiler:
                 data_labeler_profile = profiler._profiles["data_labeler"]
                 data_labeler_profile.data_labeler = data_labeler
 
-    def _save_helper(self, filepath: str | None, data_dict: dict) -> None:
+    def _pkl_save_helper(self, filepath: str | None, data_dict: dict) -> None:
         """
         Save profiler to disk.
 
@@ -1116,7 +1116,7 @@ class BaseProfiler:
         # Restore all data labelers
         self._restore_data_labelers(data_labelers)
 
-    def save(self, filepath: str = None) -> None:
+    def _json_save_helper(self, filepath: str) -> None:
         """
         Save profiler to disk.
 
@@ -1128,6 +1128,16 @@ class BaseProfiler:
             filepath = ""
         with open(filepath, "w") as f:
             json.dump(self, f, cls=ProfileEncoder)
+
+    def save(self, filepath: str = None) -> None:
+        """
+        Save profiler to disk.
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :return: None
+        """
+        raise NotImplementedError()
 
     @classmethod
     def load(cls, filepath: str) -> BaseProfiler:
@@ -1555,9 +1565,9 @@ class UnstructuredProfiler(BaseProfiler):
                 "_profile": self.profile,
                 "times": self.times,
             }
-            self._save_helper(filepath, data_dict)
+            self._pkl_save_helper(filepath, data_dict)
         else:
-            super().save(filepath)
+            self._json_save_helper(filepath)
 
 
 class StructuredProfiler(BaseProfiler):
@@ -2855,9 +2865,9 @@ class StructuredProfiler(BaseProfiler):
                 "_col_name_to_idx": self._col_name_to_idx,
                 "times": self.times,
             }
-            self._save_helper(filepath, data_dict)
+            self._pkl_save_helper(filepath, data_dict)
         else:
-            super().save(filepath)
+            self._json_save_helper(filepath)
 
 
 class Profiler:

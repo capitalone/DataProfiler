@@ -105,19 +105,11 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         )
 
         if self.cms and other.cms:
-            # re-collecting the estimates of non intersecting categories before
-            # re-applying heavy-hitters to the aggregate profile.
-            missing_in_profile_1 = [
-                k for k in other._categories.keys() if k not in self._categories.keys()
-            ]
-            for k in missing_in_profile_1:
-                self._categories[k] = self.cms.get_estimate(k)
-            missing_in_profile_2 = [
-                k for k in self._categories.keys() if k not in other._categories.keys()
-            ]
-            for k in missing_in_profile_2:
-                other._categories[k] = other.cms.get_estimate(k)
-            merged_profile.cms, merged_profile._categories = self._merge_categories_cms(
+            (
+                merged_profile.cms,
+                merged_profile._categories,
+                merged_profile._cms_max_num_heavy_hitters,
+            ) = self._merge_categories_cms(
                 self.cms,
                 self._categories,
                 self.sample_size,
@@ -396,12 +388,12 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             # approximate heavy-hitters
             if i_count >= int(len_df / self._cms_max_num_heavy_hitters):
                 heavy_hitter_dict[value] = i_count
-                missing_heavy_hitter_dict.pop(value, None)
+                # missing_heavy_hitter_dict.pop(value, None)
             elif i_total_count >= int(
                 (self.sample_size + len_df) / self._cms_max_num_heavy_hitters
             ):
                 missing_heavy_hitter_dict[value] = i_total_count
-                heavy_hitter_dict.pop(value, None)
+                # heavy_hitter_dict.pop(value, None)
 
         return cms, heavy_hitter_dict, missing_heavy_hitter_dict
 
@@ -450,26 +442,40 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 respectively."""
             )
 
+        # re-collecting the estimates of non intersecting categories before
+        # re-applying heavy-hitters to the aggregate profile.
+        missing_in_1 = [
+            k for k in heavy_hitter_dict1.keys() if k not in heavy_hitter_dict2.keys()
+        ]
+        for k in missing_in_1:
+            heavy_hitter_dict2[k] = cms2.get_estimate(k)
+        missing_in_2 = [
+            k for k in heavy_hitter_dict2.keys() if k not in heavy_hitter_dict1.keys()
+        ]
+        for k in missing_in_2:
+            heavy_hitter_dict1[k] = cms1.get_estimate(k)
+
         categories = utils.add_nested_dictionaries(
             heavy_hitter_dict2, heavy_hitter_dict1
         )
+
         # This is a catch all for edge cases where batch heavy hitters under estimates
         # frequencies compared to treated as a sequence of batches as part of
         # the same stream.
         categories.update(missing_heavy_hitter_dict)
 
         if other_max_num_heavy_hitters:
-            heavy_hitters = min(
+            max_num_heavy_hitters = min(
                 self._cms_max_num_heavy_hitters, other_max_num_heavy_hitters
             )
         else:
-            heavy_hitters = self._cms_max_num_heavy_hitters
+            max_num_heavy_hitters = self._cms_max_num_heavy_hitters
 
         total_samples = len1 + len2
         for cat in list(categories):
-            if categories[cat] < (total_samples / heavy_hitters):
+            if categories[cat] < (total_samples / max_num_heavy_hitters):
                 categories.pop(cat)
-        return cms3, categories
+        return cms3, categories, max_num_heavy_hitters
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
@@ -505,7 +511,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 missing_heavy_hitter_dict,
             ) = self._get_categories_cms(df_series, len_df)
 
-            self.cms, self._categories = self._merge_categories_cms(
+            self.cms, self._categories, _ = self._merge_categories_cms(
                 cms,
                 heavy_hitter_dict,
                 len_df,

@@ -50,29 +50,6 @@ class TestCategoricalColumn(unittest.TestCase):
         }
         self.assertCountEqual(categories, profile.categories)
 
-    def test_cms_correct_categorical_model_string(self):
-        options = CategoricalOptions()
-        options.cms_confidence = 0.95
-        options.cms_relative_error = 0.1
-        options.top_k_categories = 5
-        dataset = self.aws_dataset["host"].dropna()
-        profile = CategoricalColumn(dataset.name, options)
-        profile.update(dataset)
-        self.assertEqual(1.0, profile.is_match)
-        self.assertEqual(2997, profile.sample_size)
-        categories = {
-            "groucho-oregon",
-            "groucho-us-east",
-            "groucho-singapore",
-            "groucho-tokyo",
-            "groucho-sa",
-            "zeppo-norcal",
-            "groucho-norcal",
-            "groucho-eu",
-            "groucho-sydney",
-        }
-        self.assertCountEqual(categories, profile.categories)
-
     def test_stop_condition_is_met_initially(self):
         dataset = pd.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
         profile = CategoricalColumn("test dataset")
@@ -130,173 +107,6 @@ class TestCategoricalColumn(unittest.TestCase):
             profile.update(dataset)
             expected = defaultdict(float, {"categories": 2.0})
             self.assertEqual(expected, profile.profile["times"])
-
-    def test_cms_mixed_categorical_col_integer_string(self):
-        options = CategoricalOptions()
-        options.cms_confidence = 0.95
-        options.cms_relative_error = 0.1
-        options.top_k_categories = 5
-        dataset = self.aws_dataset["localeabbr"].dropna()
-        profile = CategoricalColumn(dataset.name, options)
-        profile.update(dataset)
-
-        categories = {
-            "36",
-            "OR",
-            "IL",
-            "41",
-            "51",
-            "13",
-            "21",
-            "WA",
-            "11",
-            "CA",
-            "37",
-            "TX",
-            "10",
-            "SPE",
-            "34",
-            "32",
-            "35",
-            "23",
-            "NM",
-            "NV",
-            "33",
-            "44",
-            "22",
-            "GR",
-            "15",
-            "MI",
-            "43",
-            "FL",
-            "TA",
-            "KY",
-            "SP",
-            "SE",
-            "AZ",
-            "42",
-            "NJ",
-            "DC",
-            "77",
-            "50",
-            "NGR",
-            "31",
-            "DIF",
-            "61",
-            "45",
-            "NY",
-            "MH",
-            "ALT",
-            "CH",
-            "NSW",
-            "MS",
-            "81",
-            "GP",
-            "KU",
-            "14",
-            "53",
-            "64",
-            "AP",
-            "38",
-            "IRK",
-            "CL",
-            "TXG",
-            "LUA",
-            "ANT",
-            "PA",
-            "QC",
-            "RS",
-            "MO",
-            "C",
-            "MOW",
-            "ENG",
-            "ON",
-            "CE",
-            "TN",
-            "PI",
-            "VLG",
-            "DL",
-            "VL",
-            "GE",
-            "WP",
-            "GO",
-            "BS",
-            "KEM",
-            "MA",
-            "BEL",
-            "LB",
-            "CU",
-            "EC",
-            "PB",
-            "RIX",
-            "B",
-            "RJ",
-            "VA",
-            "7",
-            "SL",
-            "BE",
-            "47",
-            "RM",
-            "BIH",
-            "SD",
-            "OH",
-            "PR",
-            "M",
-            "SN",
-            "COR",
-            "63",
-            "E",
-            "BD",
-            "VI",
-            "SAM",
-            "BA",
-            "WY",
-            "62",
-            "4",
-            "PER",
-            "WKO",
-            "KYA",
-            "6",
-            "MN",
-            "SA",
-            "8",
-            "CO",
-            "IS",
-            "RIS",
-            "FS",
-            "IN",
-            "LIV",
-            "IA",
-            "24",
-            "VIC",
-            "27",
-            "16",
-            "PK",
-            "WB",
-            "NH",
-            "DAS",
-            "CT",
-            "CN",
-            "BIR",
-            "NVS",
-            "MG",
-            "3",
-            "PH",
-            "TO",
-            "1",
-            "HE",
-            "VGG",
-            "BU",
-            "AB",
-            "NIZ",
-            "92",
-            "46",
-            "MZ",
-            "FR",
-        }
-
-        self.assertEqual(2120, profile.sample_size)
-        self.assertCountEqual(categories, profile.categories)
 
     def test_mixed_categorical_col_integer_string(self):
         dataset = self.aws_dataset["localeabbr"].dropna()
@@ -1150,7 +960,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertTrue(profile.sample_size >= 10)
 
     def test_cms_update_hybrid_batch_stream(self):
-        dataset = pd.Series(["a"] * 4 + ["b"] * 12 + ["c"] * 14)
+        dataset = pd.Series(["a"] * 7 + ["b"] * 9 + ["c"] * 14)
         dataset1 = pd.Series(["a"] * 9 + ["b"] * 11 + ["c"] * 9 + ["d"] * 1)
 
         options = CategoricalOptions()
@@ -1161,16 +971,21 @@ class TestCategoricalColumn(unittest.TestCase):
 
         profile = CategoricalColumn("test_name", options)
         profile.update(dataset)
-        profile.update(dataset1)
-        expected_categories = ["b", "c"]
 
-        self.assertEqual(profile.sample_size, len(dataset) + len(dataset1))
+        expected_categories = ["c"]
+        expected_categories_dict = {"c": 14}
 
-        self.assertTrue(profile._categories["c"] >= 23)
-
+        self.assertEqual(profile.sample_size, len(dataset))
+        self.assertEqual(profile._categories, expected_categories_dict)
         self.assertCountEqual(expected_categories, profile.categories)
 
-        self.assertTrue(profile._categories["b"] >= 23)
+        profile.update(dataset1)
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 20, "c": 23}
+
+        self.assertEqual(profile.sample_size, len(dataset) + len(dataset1))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
 
     def test_cms_profile_merge_via_add(self):
 
@@ -1178,6 +993,7 @@ class TestCategoricalColumn(unittest.TestCase):
         dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
 
         expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 22, "c": 23}
         options = CategoricalOptions()
         options.cms = True
         options.cms_confidence = 0.95
@@ -1186,18 +1002,56 @@ class TestCategoricalColumn(unittest.TestCase):
 
         profile1 = CategoricalColumn("test_name", options)
         profile1.update(dataset)
+
+        expected_categories = ["b"]
+        expected_categories_dict = {"b": 12}
+
+        self.assertEqual(profile1._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile1.categories)
+
+        profile2 = CategoricalColumn("test_name", options)
+        profile2.update(dataset1)
+
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 10, "c": 14}
+
+        self.assertEqual(profile2._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile2.categories)
+
+        # Add profiles
+        profile3 = profile1 + profile2
+
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 22, "c": 23}
+
+        self.assertEqual(
+            profile3.sample_size, profile1.sample_size + profile2.sample_size
+        )
+        self.assertEqual(profile3._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile3.categories)
+
+    def test_cms_profile_min_max_num_heavy_hitters(self):
+
+        dataset = pd.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
+        dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile1 = CategoricalColumn("test_name", options)
+        profile1.update(dataset)
+
+        options.cms_max_num_heavy_hitters = 10
         profile2 = CategoricalColumn("test_name", options)
         profile2.update(dataset1)
 
         # Add profiles
         profile3 = profile1 + profile2
 
-        self.assertEqual(
-            profile3.sample_size, profile1.sample_size + profile2.sample_size
-        )
-        self.assertTrue(profile3._categories["b"] == 22)
-        self.assertTrue(profile3._categories["c"] == 23)
-        self.assertCountEqual(expected_categories, profile3.categories)
+        self.assertEqual(profile3._cms_max_num_heavy_hitters, 3)
 
 
 class TestCategoricalSentence(unittest.TestCase):

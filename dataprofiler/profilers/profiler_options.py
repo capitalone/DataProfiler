@@ -1572,7 +1572,7 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
-            elif self.presets in option_plugins:
+            elif option_plugins is not None and self.presets in option_plugins:
                 option_plugins[self.presets](self)
 
     def _complete_presets(self) -> None:

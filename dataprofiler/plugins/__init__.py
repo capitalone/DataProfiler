@@ -1,30 +1,7 @@
 import importlib
 import os
-from collections import defaultdict
-from typing import Any, DefaultDict, Dict
 
-plugins_dict: DefaultDict[str, Dict[str, Any]] = defaultdict(dict)
-
-
-def plugin_decorator(typ, name):
-    """
-    Populates plugins_dict with decorated plugin functions
-
-    :param typ: Broader classification/type of a plugin
-    :param name: Specific name of a plugin
-    :return: function
-    """
-
-    def __inner_factory_function(fn):
-        """
-        :param fn: Plugin function
-        :return: function
-        """
-        global plugins_dict
-        plugins_dict[typ][name] = fn
-        return fn
-
-    return __inner_factory_function
+from dataprofiler.plugins.decorators import plugin_decorator, plugins_dict
 
 
 def loadPlugins():
@@ -54,6 +31,6 @@ def getPlugins(typ):
     :param typ: Broader classification/type of a plugin
     :return: dict
     """
-    from . import plugins_dict
+    # from . import plugins_dict
 
     return plugins_dict.get(typ)

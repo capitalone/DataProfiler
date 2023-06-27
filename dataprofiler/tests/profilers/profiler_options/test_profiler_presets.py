@@ -3,6 +3,7 @@ from unittest import mock
 
 from dataprofiler import ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
+from dataprofiler.plugins.__init__ import getPlugins
 
 
 @mock.patch(

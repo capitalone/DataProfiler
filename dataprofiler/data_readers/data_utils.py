@@ -320,6 +320,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
         seed = os.environ.get("DATAPROFILER_SEED")
         if seed:
             rng = random.Random(int(seed))
+
     while True:
         W *= rng.random() ** kinv
         # random() < 1.0 but random() ** kinv might not be

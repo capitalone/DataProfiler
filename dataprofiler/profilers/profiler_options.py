@@ -6,7 +6,7 @@ import abc
 import copy
 import re
 import warnings
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, cast
 
 from dataprofiler.profilers.json_decoder import load_option
 
@@ -157,17 +157,17 @@ class BaseOption(Generic[BaseOptionT]):
         :param options: options for loading options params from dictionary
         :type options: Dict | None
 
-        :return: Profiler with attributes populated.
-        :rtype: BaseColumnProfiler
+        :return: Options with attributes populated.
+        :rtype: BaseOption
         """
-        profile = cls()
+        option = cls()
 
         for attr, value in data.items():
             if isinstance(value, dict) and "class" in value:
                 value = load_option(value)
-            setattr(profile, attr, value)
+            setattr(option, attr, value)
 
-        return profile
+        return option
 
     def __eq__(self, other: object) -> bool:
         """
@@ -346,32 +346,6 @@ class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
         elif isinstance(option_prop, BooleanOption):
             is_enabled = option_prop.is_enabled
         return is_enabled
-
-    @classmethod
-    def load_from_dict(
-        cls: type[BaseOptionT],
-        data,
-        options: dict | None = None,
-    ) -> BaseOptionT:
-        """
-        Parse attribute from json dictionary into self.
-
-        :param data: dictionary with attributes and values.
-        :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
-
-        :return: Profiler with attributes populated.
-        :rtype: BaseOptions
-        """
-        profile = cls()
-
-        for attr, value in data.items():
-            if isinstance(value, dict) and "class" in value:
-                value = load_option(value)
-            setattr(profile, attr, value)
-
-        return profile
 
 
 class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
@@ -1124,7 +1098,7 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
                 data_labeler_object = DataLabeler.load_from_library(
                     data_labeler_load_attr["from_library"]
                 )
-        dl_options = super().load_from_dict(data)
+        dl_options = cast(DataLabelerOptions, super().load_from_dict(data))
         dl_options.data_labeler_object = data_labeler_object
         return dl_options
 

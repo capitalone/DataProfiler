@@ -87,6 +87,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
+            self.num_quantiles = options.num_quantiles
             self._median_is_enabled = options.median.is_enabled
             self._median_abs_dev_is_enabled = options.median_abs_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
@@ -382,6 +383,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             skewness=self.np_type_to_type(self.skewness),
             kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
+            num_quantiles=self.num_quantiles,
             quantiles=self.quantiles,
             median_abs_deviation=self.np_type_to_type(self.median_abs_deviation),
             num_zeros=self.np_type_to_type(self.num_zeros),

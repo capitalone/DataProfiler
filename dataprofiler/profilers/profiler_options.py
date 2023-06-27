@@ -381,6 +381,8 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
+        :ivar num_quantiles: boolean option to enable/disable num_quantiles
+        :vartype num_quantiles: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -425,6 +427,7 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
             or self.histogram_and_quantiles.is_enabled
             or self.num_zeros.is_enabled
             or self.num_negatives.is_enabled
+            or self.num_quantiles.is_enabled
         ):
             return True
         return False
@@ -454,6 +457,7 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
         self.num_zeros.is_enabled = value
         self.num_negatives.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
+        self.num_quantiles.is_enabled = value
 
     @property
     def properties(self) -> dict[str, BooleanOption]:
@@ -493,6 +497,7 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
             "bias_correction",
             "num_zeros",
             "num_negatives",
+            "num_quantiles",
         ]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append(f"{variable_path}.{item} must be a BooleanOption.")
@@ -598,6 +603,8 @@ class IntOptions(NumericalOptions["IntOptions"]):
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
+        :ivar num_quantiles: boolean option to enable/disable num_quantiles
+        :vartype num_quantiles: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -695,6 +702,8 @@ class FloatOptions(NumericalOptions["FloatOptions"]):
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
+        :ivar num_quantiles: boolean option to enable/disable num_quantiles
+        :vartype num_quantiles: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -754,6 +763,8 @@ class TextOptions(NumericalOptions["TextOptions"]):
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
+        :ivar num_quantiles: boolean option to enable/disable num_quantiles
+        :vartype num_quantiles: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -817,6 +828,7 @@ class TextOptions(NumericalOptions["TextOptions"]):
             or self.median.is_enabled
             or self.median_abs_deviation.is_enabled
             or self.histogram_and_quantiles.is_enabled
+            or self.num_quantiles.is_enabled
         ):
             return True
         return False
@@ -843,6 +855,7 @@ class TextOptions(NumericalOptions["TextOptions"]):
         self.kurtosis.is_enabled = value
         self.median_abs_deviation.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
+        self.num_quantiles.is_enabled = value
 
 
 class DateTimeOptions(BaseInspectorOptions["DateTimeOptions"]):

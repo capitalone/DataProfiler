@@ -1,6 +1,7 @@
 """Contains abstract classes from which labeler classes will inherit."""
 from __future__ import annotations
 
+import importlib.resources
 import json
 import os
 import sys
@@ -17,7 +18,10 @@ from .. import data_readers
 from . import data_processing
 from .base_model import BaseModel
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+if sys.version_info >= (3, 9):
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+else:
+    default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class BaseDataLabeler:
@@ -50,7 +54,10 @@ class BaseDataLabeler:
         # load default model
         if dirpath or self._default_model_loc:
             if dirpath is None:
-                dirpath = os.path.join(default_labeler_dir, self._default_model_loc)
+                if sys.version_info >= (3, 9):
+                    dirpath = str(default_labeler_dir.joinpath(self._default_model_loc))
+                else:
+                    dirpath = os.path.join(default_labeler_dir, self._default_model_loc)
             self._load_data_labeler(dirpath, load_options)
 
     def __eq__(self, other: object) -> bool:
@@ -637,7 +644,11 @@ class BaseDataLabeler:
         :return: DataLabeler class
         :rtype: BaseDataLabeler
         """
-        return cls(os.path.join(default_labeler_dir, name))
+        if sys.version_info >= (3, 9):
+            return cls(str(default_labeler_dir.joinpath(name)))
+
+        else:
+            return cls(os.path.join(default_labeler_dir, name))
 
     @classmethod
     def load_from_disk(cls, dirpath: str, load_options: dict = None) -> BaseDataLabeler:

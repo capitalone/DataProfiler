@@ -1,3 +1,5 @@
+import importlib.resources
+import sys
 import unittest
 
 import numpy as np
@@ -11,7 +13,11 @@ from dataprofiler.labelers.data_processing import (
     DirectPassPreprocessor,
 )
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+if sys.version_info >= (3, 9):
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+
+else:
+    default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class TestColumnNameDataLabeler(unittest.TestCase):

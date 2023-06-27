@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import abc
 import copy
+import importlib.resources
 import inspect
 import json
 import math
 import os
 import random
+import sys
 import types
 import warnings
 from collections import Counter
@@ -17,7 +19,11 @@ import numpy as np
 import numpy.typing as npt
 import pkg_resources
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+if sys.version_info >= (3, 9):
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+
+else:
+    default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")
 
@@ -144,7 +150,10 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     @classmethod
     def load_from_library(cls, name: str) -> BaseDataProcessor:
         """Load data processor from within the library."""
-        return cls.load_from_disk(os.path.join(default_labeler_dir, name))
+        if sys.version_info >= (3, 9):
+            return cls.load_from_disk(str(default_labeler_dir.joinpath(name)))
+        else:
+            return cls.load_from_disk(os.path.join(default_labeler_dir, name))
 
     def _save_processor(self, dirpath: str) -> None:
         """Save data processor."""

@@ -20,6 +20,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         "median_abs_deviation",
         "num_zeros",
         "num_negatives",
+        "num_quantiles",
         "histogram_and_quantiles",
     ]
     numeric_keys = [
@@ -35,6 +36,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         "histogram_and_quantiles",
         "num_zeros",
         "num_negatives",
+        "num_quantiles",
     ]
 
     def test_init(self):
@@ -122,6 +124,24 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         )
         self.assertEqual([mode_error], options._validate_helper())
         options.set({"mode.top_k_modes": 5})
+
+        # Zero num_quantiles
+        options.set(
+            {"num_quantiles.is_enabled": True, "num_quantiles.num_quantiles": 0}
+        )
+        num_quantiles_error = (
+            "{}.num_quantiles.num_quantiles must be either None"
+            " or a positive integer".format(optpth)
+        )
+        self.assertEqual([num_quantiles_error], options._validate_helper())
+        # Negative num_quantiles
+        options.set({"num_quantiles.num_quantiles": -5})
+        num_quantiles_error = (
+            "{}.num_quantiles.num_quantiles must be either None"
+            " or a positive integer".format(optpth)
+        )
+        self.assertEqual([num_quantiles_error], options._validate_helper())
+        options.set({"num_quantiles.num_quantiles": 1000})
 
         # Disable Sum and Enable Variance
         options.set(

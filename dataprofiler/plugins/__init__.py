@@ -7,7 +7,19 @@ plugins_dict: DefaultDict[str, Dict[str, Any]] = defaultdict(dict)
 
 
 def plugin_decorator(typ, name):
+    """
+    Populates plugins_dict with decorated plugin functions
+
+    :param typ: Broader classification/type of a plugin
+    :param name: Specific name of a plugin
+    :return: function
+    """
+
     def __inner_factory_function(fn):
+        """
+        :param fn: Plugin function
+        :return: function
+        """
         global plugins_dict
         plugins_dict[typ][name] = fn
         return fn
@@ -16,6 +28,12 @@ def plugin_decorator(typ, name):
 
 
 def loadPlugins():
+    """
+    Digs through plugins folder for possible plugins to be imported
+    and consequently added to the plugins_dict if properly decorated
+
+    :return: None
+    """
     plugin_path = os.path.dirname(os.path.abspath(__file__))
     for folder in os.listdir(plugin_path):
         option_path = os.path.join(plugin_path, folder)
@@ -30,6 +48,12 @@ def loadPlugins():
 
 
 def getPlugins(typ):
+    """
+    Fetches a dictionary of plugins of a certain type
+
+    :param typ: Broader classification/type of a plugin
+    :return: dict
+    """
     from . import plugins_dict
 
     return plugins_dict.get(typ)

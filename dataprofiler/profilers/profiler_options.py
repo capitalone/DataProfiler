@@ -870,9 +870,13 @@ class CategoricalOptions(BaseInspectorOptions):
     def __init__(
         self,
         is_enabled: bool = True,
-        top_k_categories: int = None,
+        top_k_categories: int | None = None,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
+        cms: bool = False,
+        cms_confidence: float | None = 0.95,
+        cms_relative_error: float | None = 0.01,
+        cms_max_num_heavy_hitters: int | None = 5000,
     ) -> None:
         """
         Initialize options for the Categorical Column.
@@ -887,6 +891,17 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar stop_condition_unique_value_ratio: The highest ratio of unique
             values to dataset size that is to be considered a categorical type
         :vartype stop_condition_unique_value_ratio: [None, float]
+        :ivar cms: boolean option for using count min sketch
+        :vartype cms: bool
+        :ivar cms_confidence: defines the number of hashes used in CMS.
+            eg. confidence = 1 - failure probability, default 0.95
+        :vartype cms_confidence: [None, float]
+        :ivar cms_relative_error: defines the number of buckets used in CMS,
+            default 0.01
+        :vartype cms_relative_error: [None, float]
+        :ivar cms_max_num_heavy_hitters: value used to define
+        the threshold for minimum frequency required by a category to be counted
+        :vartype cms_max_num_heavy_hitters: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -894,6 +909,10 @@ class CategoricalOptions(BaseInspectorOptions):
             max_sample_size_to_check_stop_condition
         )
         self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
+        self.cms = cms
+        self.cms_confidence = cms_confidence
+        self.cms_relative_error = cms_relative_error
+        self.cms_max_num_heavy_hitters = cms_max_num_heavy_hitters
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -939,6 +958,32 @@ class CategoricalOptions(BaseInspectorOptions):
                 "Both, {}.max_sample_size_to_check_stop_condition and "
                 "{}.stop_condition_unique_value_ratio, options either need to be "
                 "set or not set.".format(variable_path, variable_path)
+            )
+
+        if self.cms_confidence is not None and (
+            not isinstance(self.cms_confidence, float)
+            or self.cms_confidence < 0
+            or self.cms_confidence > 1.0
+        ):
+            errors.append(
+                "{}.cms_confidence must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms_relative_error is not None and (
+            not isinstance(self.cms_relative_error, float)
+            or self.cms_relative_error < 0
+            or self.cms_relative_error > 1.0
+        ):
+            errors.append(
+                "{}.cms_relative_error must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms and not isinstance(self.cms_max_num_heavy_hitters, int):
+            errors.append(
+                "{}.if using count min sketch, you must pass an"
+                "integer value for cms_max_num_heavy_hitters".format(variable_path)
             )
 
         return errors

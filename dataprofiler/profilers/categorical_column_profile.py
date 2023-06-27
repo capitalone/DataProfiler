@@ -384,6 +384,8 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         :param df_series: Series currently being processed by categorical profiler
         :type df_series: Series
+        :param len_df: the total number of samples iin df_series
+        :type len_df: int
         :return: cms, heavy_hitter_dict, missing_heavy_hitter_dict
         """
         cms = datasketches.count_min_sketch(self.cms_num_hashes, self.cms_num_buckets)
@@ -427,14 +429,17 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :type heavy_hitter_dict1: Dict
         :param heavy_hitter_dict2: Heavy Hitters category count
         :type heavy_hitter_dict2: Dict
-        :param missing_heavy_hitter_dict2: Heavy Hitters category count
+        :param missing_heavy_hitter_dict: Heavy Hitters category count
         considering two batches are two chunks of a data stream
-        :type missing_heavy_hitter_dict2: Dict
+        :type missing_heavy_hitter_dict: Dict
         :param len1: number of samples in batch 1
         :type len1: int
         :param len2: number of samples in batch 2
         :type len2: int
-        :return: cms1, categories
+        :param max_num_heavy_hitters: value used to define
+        the threshold for minimum frequency required by a category to be counted
+        :type max_num_heavy_hitters: int
+        :return: cms1, categories, max_num_heavy_hitters
         """
         try:
             cms3 = datasketches.count_min_sketch(

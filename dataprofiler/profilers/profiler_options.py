@@ -898,8 +898,8 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar cms_relative_error: defines the number of buckets used in CMS,
             default 0.01
         :vartype cms_relative_error: [None, float]
-        :ivar cms_max_num_heavy_hitters: minimum proportion of total count for CMS
-            to store a distinct category.
+        :ivar cms_max_num_heavy_hitters: value used to define
+        the threshold for minimum frequency required by a category to be counted
         :vartype cms_max_num_heavy_hitters: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)

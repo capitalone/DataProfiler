@@ -1146,6 +1146,7 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 0,
                     "num_negatives": 0,
+                    "num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
                         "total_loss": 0,
@@ -1187,6 +1188,7 @@ class TestIntColumn(unittest.TestCase):
 
         int_options = IntOptions()
         int_options.histogram_and_quantiles.bin_count_or_method = 5
+        int_options.num_quantiles.num_quantiles = 4
         profiler = IntColumn("0", int_options)
 
         mocked_quantiles = [0.25, 0.50, 0.75]
@@ -1221,6 +1223,7 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 1,
                     "num_negatives": 0,
+                    "num_quantiles": 4,
                     "histogram_selection": None,
                     "user_set_histogram_bin": 5,
                     "bias_correction": True,

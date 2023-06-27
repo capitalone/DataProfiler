@@ -720,6 +720,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler.histogram_selection = "auto"
         num_profiler.histogram_methods["auto"]["histogram"] = mock_profile["histogram"]
         num_profiler.quantiles = mock_profile["quantiles"]
+        num_profiler.num_quantiles = 4
         num_profiler.times = mock_profile["times"]
 
         time_array = [float(i) for i in range(100, 0, -1)]
@@ -1195,6 +1196,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 0,
                     "num_negatives": 0,
+                    "num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
                         "total_loss": 0,

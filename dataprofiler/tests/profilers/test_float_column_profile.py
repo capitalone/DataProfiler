@@ -32,6 +32,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
+        self.assertEqual(profiler.num_quantiles, 1000)
         self.assertEqual(len(profiler.quantiles), 999)
         self.assertIsNone(profiler.data_type_ratio)
 

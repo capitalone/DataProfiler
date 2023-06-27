@@ -593,13 +593,43 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
 Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
-  * **presets** - A pre-configured mapping of a string name to group of options: "complete", "data_types", and "numeric_stats_disabled".
-    By default is None
+
+  * **presets** - A pre-configured mapping of a string name to group of options: 
+
+    * **default is None**
+
+    * **"complete"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="complete")
+
+    * **"data_types"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="data_types") 
+
+    * **"numeric_stats_disabled"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="numeric_stats_disabled")
+
+    * **"lower_memory_sketching"**
+
+    .. code-block:: python
+
+        options = ProfilerOptions(presets="lower_memory_sketching")
+
   * **structured_options** - Options responsible for all structured data
 
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
 
       * is_enabled - (Boolean) Enables or disables multiprocessing
+      
+    * **sampling_ratio** - A percentage, as a decimal, ranging from greater than 0 to less than or equal to 1 indicating how much input data to sample. Default value set to 0.2.
+    
     * **int** - Options for the integer columns
 
       * is_enabled - (Boolean) Enables or disables the integer operations
@@ -629,6 +659,9 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * median_abs_deviation - Finds median absolute deviation of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables median absolute deviation
       * num_zeros - Finds the count of zeros in a column
 
         * is_enabled - (Boolean) Enables or disables num_zeros
@@ -680,6 +713,9 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * median_abs_deviation - Finds median absolute deviation of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables median absolute deviation
       * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
       * num_zeros - Finds the count of zeros in a column
 
@@ -730,6 +766,9 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * median_abs_deviation - Finds median absolute deviation of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables median absolute deviation
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction
@@ -771,12 +810,23 @@ Below is an breakdown of all the options.
       * data_labeler_dirpath - (String) Directory path to data labeler
       * data_labeler_object - (BaseDataLabeler) Datalabeler to replace 
         the default labeler 
-      * max_sample_size - (Int) The max number of samples for the data 
+      * max_sample_size - (Int) The max number of samples for the data
         labeler
-    * **correlation** - option set for correlation profiling
+    * **correlation** - Option set for correlation profiling
       * is_enabled - (Boolean) Enables or disables performing correlation profiling
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
+
+      * unique_count - (UniqueCountOptions) Option to enable/disable unique row count calculations
+
+        * is_enabled - (Bool) Enables or disables options for unique row count
+        * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
+        * hll - (HyperLogLogOptions) Options for alternative method of estimating unique row count (activated when `hll` is the selected hashing_method)
+  
+          * seed - (Int) Used to set HLL hashing function seed
+          * register_count - (Int) Number of registers is equal to 2^register_count
+
+      * null_count - (Boolean) Option to enable/disable functionalities for row_has_null_ratio and row_is_null_ratio
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.

@@ -16,6 +16,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -26,6 +30,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -36,6 +44,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": 2,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -46,6 +58,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": 20,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -56,6 +72,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": 2,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -69,6 +89,29 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": 20,
                 "stop_condition_unique_value_ratio": 2,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
+            },
+            option.properties,
+        )
+        option = self.get_options(
+            cms=True,
+            cms_confidence=0.98,
+            cms_relative_error=0.1,
+            cms_max_num_heavy_hitters=5,
+        )
+        self.assertDictEqual(
+            {
+                "is_enabled": True,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+                "cms": True,
+                "cms_confidence": 0.98,
+                "cms_relative_error": 0.1,
+                "cms_max_num_heavy_hitters": 5,
             },
             option.properties,
         )

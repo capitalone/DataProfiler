@@ -6,6 +6,7 @@ import abc
 import copy
 import re
 import warnings
+from typing import Any
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
@@ -869,9 +870,13 @@ class CategoricalOptions(BaseInspectorOptions):
     def __init__(
         self,
         is_enabled: bool = True,
-        top_k_categories: int = None,
+        top_k_categories: int | None = None,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
+        cms: bool = False,
+        cms_confidence: float | None = 0.95,
+        cms_relative_error: float | None = 0.01,
+        cms_max_num_heavy_hitters: int | None = 5000,
     ) -> None:
         """
         Initialize options for the Categorical Column.
@@ -886,6 +891,17 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar stop_condition_unique_value_ratio: The highest ratio of unique
             values to dataset size that is to be considered a categorical type
         :vartype stop_condition_unique_value_ratio: [None, float]
+        :ivar cms: boolean option for using count min sketch
+        :vartype cms: bool
+        :ivar cms_confidence: defines the number of hashes used in CMS.
+            eg. confidence = 1 - failure probability, default 0.95
+        :vartype cms_confidence: [None, float]
+        :ivar cms_relative_error: defines the number of buckets used in CMS,
+            default 0.01
+        :vartype cms_relative_error: [None, float]
+        :ivar cms_max_num_heavy_hitters: value used to define
+        the threshold for minimum frequency required by a category to be counted
+        :vartype cms_max_num_heavy_hitters: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -893,6 +909,10 @@ class CategoricalOptions(BaseInspectorOptions):
             max_sample_size_to_check_stop_condition
         )
         self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
+        self.cms = cms
+        self.cms_confidence = cms_confidence
+        self.cms_relative_error = cms_relative_error
+        self.cms_max_num_heavy_hitters = cms_max_num_heavy_hitters
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -938,6 +958,32 @@ class CategoricalOptions(BaseInspectorOptions):
                 "Both, {}.max_sample_size_to_check_stop_condition and "
                 "{}.stop_condition_unique_value_ratio, options either need to be "
                 "set or not set.".format(variable_path, variable_path)
+            )
+
+        if self.cms_confidence is not None and (
+            not isinstance(self.cms_confidence, float)
+            or self.cms_confidence < 0
+            or self.cms_confidence > 1.0
+        ):
+            errors.append(
+                "{}.cms_confidence must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms_relative_error is not None and (
+            not isinstance(self.cms_relative_error, float)
+            or self.cms_relative_error < 0
+            or self.cms_relative_error > 1.0
+        ):
+            errors.append(
+                "{}.cms_relative_error must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms and not isinstance(self.cms_max_num_heavy_hitters, int):
+            errors.append(
+                "{}.if using count min sketch, you must pass an"
+                "integer value for cms_max_num_heavy_hitters".format(variable_path)
             )
 
         return errors
@@ -1070,15 +1116,25 @@ class UniqueCountOptions(BooleanOption):
 class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        unique_count: bool = True,
+        null_count: bool = True,
+    ) -> None:
         """
         Initialize options for row statistics.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
+        :ivar unique_count: boolean option to enable/disable unique_count
+        :vartype unique_count: bool
+        ivar null_count: boolean option to enable/disable null_count
+        :vartype null_count: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
         self.unique_count = UniqueCountOptions(is_enabled=unique_count)
+        self.null_count = BooleanOption(is_enabled=null_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
@@ -1094,9 +1150,14 @@ class RowStatisticsOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.unique_count, UniqueCountOptions):
             errors.append(
-                f"{variable_path}.full_hashing must be an UniqueCountOptions."
+                f"{variable_path}.unique_count must be an UniqueCountOptions."
             )
+
+        if not isinstance(self.null_count, BooleanOption):
+            errors.append(f"{variable_path}.null_count must be an BooleanOption.")
+
         errors += self.unique_count._validate_helper(variable_path + ".unique_counts")
+        errors += self.null_count._validate_helper(variable_path + ".null_count")
         return super()._validate_helper(variable_path)
 
 
@@ -1557,7 +1618,8 @@ class ProfilerOptions(BaseOption):
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
         :ivar presets: A pre-configured mapping of a string name to group of options:
-            "complete", "data_types", and "numeric_stats_disabled". Default: None
+            "complete", "data_types", "numeric_stats_disabled",
+            and "lower_memory_sketching". Default: None
         :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
@@ -1570,6 +1632,10 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
+            elif self.presets == "lower_memory_sketching":
+                self._lower_memory_sketching_presets()
+            else:
+                raise ValueError("The preset entered is not a valid preset.")
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})
@@ -1582,6 +1648,18 @@ class ProfilerOptions(BaseOption):
         self.set({"*.int.is_numeric_stats_enabled": False})
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
+
+    def _lower_memory_sketching_presets(self) -> None:
+        self.set({"row_statistics.unique_count.hashing_method": "hll"})
+        self.set(
+            {
+                (
+                    "structured_options.category."
+                    "max_sample_size_to_check_stop_condition"
+                ): 5000
+            }
+        )
+        self.set({"structured_options.category.stop_condition_unique_value_ratio": 0.5})
 
     def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """
@@ -1620,7 +1698,7 @@ class ProfilerOptions(BaseOption):
 
         return errors
 
-    def set(self, options: dict[str, bool]) -> None:
+    def set(self, options: dict[str, Any]) -> None:
         """
         Overwrite BaseOption.set.
 

@@ -1548,9 +1548,7 @@ class UnstructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
-        if filepath is None or (
-            filepath.split(".")[-1] != "json" and not isinstance(filepath, str)
-        ):
+        if filepath is None or filepath.split(".")[-1] != "json":
             # Create dictionary for all metadata, options, and profile
             data_dict = {
                 "total_samples": self.total_samples,

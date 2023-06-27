@@ -102,7 +102,7 @@ class DataLabeler:
         trainable: bool = False,
     ) -> BaseDataLabeler:
         """
-        Create structured and unstructred data labeler objects.
+        Create structured and unstructured data labeler objects.
 
         :param dirpath: Path to load data labeler
         :type dirpath: str

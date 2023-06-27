@@ -761,6 +761,10 @@ Below is an breakdown of all the options.
       * top_k_categories - (int) Number of categories to be displayed when reporting
       * max_sample_size_to_check_stop_condition - (int) The maximum sample size before categorical stop conditions are checked
       * stop_condition_unique_value_ratio - (float) The highest ratio of unique values to dataset size that is to be considered a categorical type
+      * cms - (Boolean) Enables or Disables the use of count min sketch / heavy hitters for approximate frequency counts
+      * cms_confidence - (float) Defines the number of hashes used in CMS, default 0.95
+      * cms_relative_error - (float) Defines the number of buckets used in CMS, default 0.01
+      * cms_max_num_heavy_hitters - (int) The value used to define the threshold for minimum frequency required by a category to be counted
     * **data_labeler** - Options for the data labeler columns
 
       * is_enabled - (Boolean) Enables or disables the data labeler operations

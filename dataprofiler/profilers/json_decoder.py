@@ -7,12 +7,13 @@ if TYPE_CHECKING:
     import column_profile_compilers as col_pro_compiler
 
     from .base_column_profilers import BaseColumnProfiler
-    from .profile_builder import StructuredColProfiler
+    from .profile_builder import BaseProfiler, StructuredColProfiler
     from .profiler_options import BaseOption
 
 
 # default, but set in the local __init__ to avoid circular imports
 _profiles: dict[str, type[BaseColumnProfiler]] = {}
+_profilers: dict[str, type[BaseProfiler]] = {}
 _compilers: dict[str, type[col_pro_compiler.BaseCompiler]] = {}
 _options: dict[str, type[BaseOption]] = {}
 _structured_col_profiler: dict[str, type[StructuredColProfiler]] = {}
@@ -72,6 +73,24 @@ def get_option_class(class_name: str) -> type[BaseOption]:
     if options_class is None:
         raise ValueError(f"Invalid option class {class_name} " f"failed to load.")
     return options_class
+
+
+def get_profiler_class(class_name: str) -> type[BaseProfiler]:
+    """
+    Use name of class to return default-constructed version of that class.
+
+    Raises ValueError if class_name is not name of a subclass of
+        BaseProfiler.
+
+    :param class_name: name of BaseProfiler subclass retrieved by
+        calling type(instance).__name__
+    :type class_name: str representing name of class
+    :return: subclass of BaseProfiler object
+    """
+    profiler_class: type[BaseProfiler] | None = _profilers.get(class_name)
+    if profiler_class is None:
+        raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
+    return profiler_class
 
 
 def get_structured_col_profiler_class(class_name: str) -> type[StructuredColProfiler]:
@@ -182,10 +201,34 @@ def load_option(serialized_json: dict, options: dict | None = None) -> BaseOptio
     :type options: Dict | None
     :return: subclass of BaseOption that has been deserialized from
         JSON
-
     """
     option_cls: type[BaseOption] = get_option_class(serialized_json["class"])
-    return option_cls.load_from_dict(serialized_json["data"])
+    return option_cls.load_from_dict(serialized_json["data"], options)
+
+
+def load_profiler(serialized_json: dict, options=None) -> BaseProfiler:
+    """
+    Construct subclass of BaseProfiler given a serialized JSON.
+
+    Expected format of serialized_json (see json_encoder):
+        {
+            "class": <str name of class that was serialized>
+            "data": {
+                <attr1>: <value1>
+                <attr2>: <value2>
+                ...
+            }
+        }
+
+    :param serialized_json: JSON representation of column profiler that was
+        serialized using the custom encoder in profilers.json_encoder
+    :type serialized_json: a dict that was created by calling json.loads on
+        a JSON representation using the custom encoder
+    :return: subclass of BaseProfiler that has been deserialized from
+        JSON
+    """
+    profiler_cls: type[BaseProfiler] = get_profiler_class(serialized_json["class"])
+    return profiler_cls.load_from_dict(serialized_json["data"], options)
 
 
 def load_structured_col_profiler(serialized_json: dict) -> StructuredColProfiler:

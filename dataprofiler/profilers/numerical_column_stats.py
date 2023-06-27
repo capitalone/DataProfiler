@@ -409,9 +409,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             self.num_negatives = np.int64(self.num_negatives)
         if not np.isnan(self._biased_variance):
             self._biased_variance = np.float64(self._biased_variance)
-        if not np.isnan(self._biased_variance):
+        if not np.isnan(self._biased_skewness):
             self._biased_skewness = np.float64(self._biased_skewness)
-        if not np.isnan(self._biased_variance):
+        if not np.isnan(self._biased_kurtosis):
             self._biased_kurtosis = np.float64(self._biased_kurtosis)
 
     def diff(

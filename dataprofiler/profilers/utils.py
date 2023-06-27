@@ -297,7 +297,7 @@ def add_nested_dictionaries(first_dict: dict, second_dict: dict) -> dict:
     return merged_dict
 
 
-def biased_skew(df_series: Series) -> float:
+def biased_skew(df_series: Series) -> np.float64:
     """
     Calculate the biased estimator for skewness of the given data.
 
@@ -306,15 +306,15 @@ def biased_skew(df_series: Series) -> float:
     :param df_series: data to get skewness of, assuming floats
     :type df_series: pandas Series
     :return: biased skewness
-    :rtype: float
+    :rtype: np.float64
     """
     n = len(df_series)
     if n < 1:
-        return np.nan
+        return np.float64(np.nan)
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return np.nan
+        return np.float64(np.nan)
 
     diffs = df_series - mean
     squared_diffs = diffs**2
@@ -328,14 +328,14 @@ def biased_skew(df_series: Series) -> float:
     M3 = 0 if np.abs(M3) < 1e-14 else M3
 
     if M2 == 0:
-        return 0.0
+        return np.float64(0.0)
 
     with np.errstate(all="ignore"):
-        skew: float = np.sqrt(n) * M3 / np.power(M2, 1.5)
+        skew: np.float64 = np.sqrt(n) * M3 / np.power(M2, 1.5)
     return skew
 
 
-def biased_kurt(df_series: Series) -> float:
+def biased_kurt(df_series: Series) -> np.float64:
     """
     Calculate the biased estimator for kurtosis of the given data.
 
@@ -344,15 +344,15 @@ def biased_kurt(df_series: Series) -> float:
     :param df_series: data to get kurtosis of, assuming floats
     :type df_series: pandas Series
     :return: biased kurtosis
-    :rtype: float
+    :rtype: np.float64
     """
     n = len(df_series)
     if n < 1:
-        return np.nan
+        return np.float64(np.nan)
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return np.nan
+        return np.float64(np.nan)
 
     diffs = df_series - mean
     squared_diffs = diffs**2
@@ -366,10 +366,10 @@ def biased_kurt(df_series: Series) -> float:
     M4 = 0 if np.abs(M4) < 1e-14 else M4
 
     if M2 == 0:
-        return -3.0
+        return np.float64(-3.0)
 
     with np.errstate(all="ignore"):
-        kurt: float = n * M4 / np.power(M2, 2) - 3
+        kurt: np.float64 = n * M4 / np.power(M2, 2) - 3
     return kurt
 
 

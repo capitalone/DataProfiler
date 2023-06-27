@@ -31,7 +31,7 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
-from .json_decoder import load_compiler, load_option
+from .json_decoder import load_compiler, load_option, load_structured_col_profiler
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
@@ -865,6 +865,31 @@ class BaseProfiler:
         :rtype: dict
         """
         raise NotImplementedError()
+
+    @classmethod
+    def load_from_dict(cls: type[BaseProfilerT], data, options) -> BaseProfilerT:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseProfiler
+        """
+        profiler = cls(None)
+
+        for attr, value in data.items():
+            if "times" == attr:
+                value = defaultdict(float, value)
+            if "_profile" == attr:
+                for idx, profile in enumerate(value):
+                    value[idx] = load_structured_col_profiler(profile)
+            if "options" == attr:
+                value = load_option(value, options)
+
+            setattr(profiler, attr, value)
+        return profiler
 
     def _update_profile_from_chunk(
         self,
@@ -1910,6 +1935,38 @@ class StructuredProfiler(BaseProfiler):
                 ] = self._null_replication_metrics[i]
 
         return _prepare_report(report, output_format, omit_keys)
+
+    @classmethod
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ) -> StructuredProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredProfiler
+        """
+        if data["chi2_matrix"] is not None:
+            data["chi2_matrix"] = np.array(data["chi2_matrix"])
+        if data["correlation_matrix"] is not None:
+            data["correlation_matrix"] = np.array(data["correlation_matrix"])
+        data["_col_name_to_idx"] = defaultdict(
+            list, {int(k): v for k, v in data["_col_name_to_idx"].items()}
+        )
+        data["hashed_row_dict"] = {
+            int(k): v for k, v in data["hashed_row_dict"].items()
+        }
+
+        structured_profiler = super().load_from_dict(data, options)
+
+        return structured_profiler
 
     def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""

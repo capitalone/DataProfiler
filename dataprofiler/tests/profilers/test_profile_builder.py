@@ -2968,6 +2968,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         assert deserialized.profile["statistics"]["max"] == 15
         assert deserialized.profile["statistics"]["min"] == -1.5
 
+
 @mock.patch(
     "dataprofiler.profilers.profile_builder.UnstructuredCompiler",
     spec=UnstructuredCompiler,
@@ -3275,8 +3276,12 @@ class TestUnstructuredProfiler(unittest.TestCase):
             json.dumps(profiler, cls=ProfileEncoder)
 
     def test_decode(self, *mocks):
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(ValueError):
             load_profiler({"class": "UnstructuredProfiler", "data": {}})
+
+    def test_load_from_dict(self, *mocks):
+        with self.assertRaises(NotImplementedError):
+            UnstructuredProfiler.load_from_dict({}, None)
 
 
 class TestUnstructuredProfilerWData(unittest.TestCase):

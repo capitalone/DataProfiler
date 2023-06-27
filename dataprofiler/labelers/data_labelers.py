@@ -1,7 +1,9 @@
 """Module to train and choose between structured and unstructured data labelers."""
 from __future__ import annotations
 
+import importlib.resources
 import os
+import sys
 
 import pandas as pd
 import pkg_resources
@@ -11,7 +13,11 @@ from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
 from .base_model import BaseModel
 from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+if sys.version_info >= (3, 9):
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+
+else:
+    default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 def train_structured_labeler(
@@ -123,9 +129,14 @@ class DataLabeler:
             )
         if trainable:
             if dirpath is None:
-                dirpath = os.path.join(
-                    default_labeler_dir, data_labeler._default_model_loc
-                )
+                if sys.version_info >= (3, 9):
+                    dirpath = str(
+                        default_labeler_dir.joinpath(data_labeler._default_model_loc)
+                    )
+                else:
+                    dirpath = os.path.join(
+                        default_labeler_dir, data_labeler._default_model_loc
+                    )
             return TrainableDataLabeler(dirpath, load_options)
         return data_labeler(dirpath, load_options)
 

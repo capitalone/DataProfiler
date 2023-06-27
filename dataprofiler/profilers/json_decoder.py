@@ -86,7 +86,7 @@ def get_profiler_class(class_name: str) -> type[BaseProfiler]:
         calling type(instance).__name__
     :type class_name: str representing name of class
 
-    :raises: ValueError is the profiler class does not exist
+    :raises: ValueError if the profiler class does not exist
 
     :return: subclass of BaseProfiler object
     """

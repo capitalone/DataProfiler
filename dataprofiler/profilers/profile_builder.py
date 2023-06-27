@@ -1378,7 +1378,7 @@ class UnstructuredProfiler(BaseProfiler):
         :param options: options for loading column profiler params from dictionary
         :type options: Dict | None
 
-        :raises: NotImplementedError()
+        :raises: NotImplementedError
         """
         raise NotImplementedError()
 

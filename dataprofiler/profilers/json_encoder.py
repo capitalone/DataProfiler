@@ -25,7 +25,7 @@ class ProfileEncoder(json.JSONEncoder):
         :param to_serialize: an object to be serialized
         :type to_serialize: a BaseColumnProfile object
 
-        :raises: NotImplementedError()
+        :raises: NotImplementedError
 
         :return: a datatype serializble by json.JSONEncoder
         """

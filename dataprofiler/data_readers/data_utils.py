@@ -280,6 +280,9 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     :type file: TextIOWrapper
     :param sample_nrows: number of rows to sample
     :type sample_nrows: int
+
+    :raises: ValueError()
+
     :return: sampled values
     :rtype: list
     """

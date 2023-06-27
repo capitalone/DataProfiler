@@ -53,7 +53,7 @@ Possible `options`:
 * data_format - Must be a string, possible choices: "dataframe", "records"
 * selected_columns - Columns being selected from the entire dataset, must be a 
   list `["column 1", "ssn"]`
-* sample_nrows - Reservoir sampling to sample `n` rows out of a total of `M` rows.
+* sample_nrows - Reservoir sampling to sample `"n"` rows out of a total of `"M"` rows.
   Specified for how many rows to sample, default None.
 * header - Define the header, for example
 

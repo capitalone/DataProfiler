@@ -2303,7 +2303,7 @@ class TestStructuredProfiler(unittest.TestCase):
                     4.0,  # add existing
                     15.0,  # add new
                 ],
-                ["c", "f"],
+                ["c", "nan"],
             ]
         ).T
 
@@ -2311,8 +2311,9 @@ class TestStructuredProfiler(unittest.TestCase):
         deserialized.update_profile(df_structured)
 
         assert deserialized.total_samples == 4
-        assert deserialized.profile[0].profile["statistics"]["max"] == 15
-        assert deserialized.profile[0].profile["statistics"]["min"] == -1.5
+        assert deserialized.row_has_null_count == 1
+        assert deserialized.row_is_null_count == 0
+        assert deserialized.file_type == "<class 'pandas.core.frame.DataFrame'>"
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

@@ -206,7 +206,7 @@ def load_option(serialized_json: dict, options: dict | None = None) -> BaseOptio
     return option_cls.load_from_dict(serialized_json["data"], options)
 
 
-def load_profiler(serialized_json: dict) -> BaseProfiler:
+def load_profiler(serialized_json: dict, options=None) -> BaseProfiler:
     """
     Construct subclass of BaseProfiler given a serialized JSON.
 
@@ -228,7 +228,7 @@ def load_profiler(serialized_json: dict) -> BaseProfiler:
         JSON
     """
     profiler_cls: type[BaseProfiler] = get_profiler_class(serialized_json["class"])
-    return profiler_cls.load_from_dict(serialized_json["data"])
+    return profiler_cls.load_from_dict(serialized_json["data"], options)
 
 
 def load_structured_col_profiler(serialized_json: dict) -> StructuredColProfiler:

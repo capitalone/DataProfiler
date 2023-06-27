@@ -867,7 +867,7 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load_from_dict(cls: type[BaseProfilerT], data) -> BaseProfilerT:
+    def load_from_dict(cls: type[BaseProfilerT], data, options) -> BaseProfilerT:
         """
         Parse attribute from json dictionary into self.
 
@@ -881,12 +881,12 @@ class BaseProfiler:
 
         for attr, value in data.items():
             if "times" == attr:
-                setattr(profiler, "times", defaultdict(float, value))
+                value = defaultdict(float, value)
             if "_profile" == attr:
                 for idx, profile in enumerate(value):
                     value[idx] = load_structured_col_profiler(profile)
             if "options" == attr:
-                value = load_option(value)
+                value = load_option(value, options)
 
             setattr(profiler, attr, value)
         return profiler
@@ -1964,7 +1964,7 @@ class StructuredProfiler(BaseProfiler):
             int(k): v for k, v in data["hashed_row_dict"].items()
         }
 
-        structured_profiler = super().load_from_dict(data)
+        structured_profiler = super().load_from_dict(data, options)
 
         return structured_profiler
 

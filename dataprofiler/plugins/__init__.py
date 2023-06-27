@@ -31,6 +31,4 @@ def getPlugins(typ):
     :param typ: Broader classification/type of a plugin
     :return: dict
     """
-    # from . import plugins_dict
-
     return plugins_dict.get(typ)

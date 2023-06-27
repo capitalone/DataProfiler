@@ -317,6 +317,8 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
         seed = os.environ.get("DATAPROFILER_SEED")
         if isinstance(seed, int):
             rng = random.Random(int(seed))
+        else:
+            raise ValueError("DATAPROFILER_SEED must be an int.")
 
     while True:
         W *= rng.random() ** kinv

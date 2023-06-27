@@ -806,6 +806,13 @@ class TestCSVDataClass(unittest.TestCase):
         data = CSVData(options={"data_format": "records"})
         self.assertFalse(data.is_structured)
 
+    def test_reservoir_sampling_env_var_validation(self):
+        os.environ.update({"DATAPROFILER_SEED": "hello"})
+
+        expected_error = "DATAPROFILER_SEED must be an int."
+        with self.assertRaisesRegex(ValueError, expected_error):
+            len(Data(self.file_or_buf_list[0]["path"], options={"sample_nrows": 100}))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -44,8 +44,15 @@ from . import utils as test_utils
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-def setup_save_mock_open(mock_open):
+def setup_save_mock_bytes_open(mock_open):
     mock_file = BytesIO()
+    mock_file.close = lambda: None
+    mock_open.side_effect = lambda *args: mock_file
+    return mock_file
+
+
+def setup_save_mock_string_open(mock_open):
+    mock_file = StringIO()
     mock_file.close = lambda: None
     mock_open.side_effect = lambda *args: mock_file
     return mock_file
@@ -1465,7 +1472,7 @@ class TestStructuredProfiler(unittest.TestCase):
         profile = dp.StructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
 
-    def test_save_and_load(self):
+    def test_save_and_load_non_json_file(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
@@ -1481,7 +1488,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch(
@@ -1522,7 +1529,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_open(m)
+            mock_file = setup_save_mock_bytes_open(m)
             save_profile.save()
 
             mock_file.seek(0)
@@ -1537,6 +1544,63 @@ class TestStructuredProfiler(unittest.TestCase):
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
         load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
+
+    def test_save_json_file(self):
+        self.maxDiff = None
+        datapth = "dataprofiler/tests/data/"
+        test_file = "csv/iris.csv"
+
+        # Create Data and StructuredProfiler objects
+        data = dp.Data(os.path.join(datapth, test_file))
+        options = ProfilerOptions()
+        options.set({"correlation.is_enabled": True})
+        with test_utils.mock_timeit():
+            save_profile = dp.StructuredProfiler(data)
+
+        # Save and Load profile with Mock IO
+        with mock.patch("builtins.open") as m:
+            mock_file = setup_save_mock_string_open(m)
+            save_profile.save("mock.json")
+            mock_file.seek(0)
+
+        expected = {
+            "class": "StructuredProfiler",
+            "data": {
+                "_profile": [
+                    mock.ANY,
+                    mock.ANY,
+                    mock.ANY,
+                    mock.ANY,
+                    mock.ANY,
+                    mock.ANY,
+                ],
+                "options": mock.ANY,
+                "encoding": "utf-8",
+                "file_type": "csv",
+                "_samples_per_update": None,
+                "_min_true_samples": 0,
+                "total_samples": 150,
+                "times": {"row_stats": 1.0},
+                "_sampling_ratio": 0.2,
+                "_min_sample_size": 5000,
+                "row_has_null_count": 0,
+                "row_is_null_count": 0,
+                "_col_name_to_idx": {
+                    "id": [0],
+                    "sepallengthcm": [1],
+                    "sepalwidthcm": [2],
+                    "petallengthcm": [3],
+                    "petalwidthcm": [4],
+                    "species": [5],
+                },
+                "correlation_matrix": None,
+                "chi2_matrix": mock.ANY,
+                "hashed_row_dict": mock.ANY,
+                "_null_replication_metrics": None,
+            },
+        }
+        actual = json.loads(mock_file.read())
+        self.assertDictEqual(expected, actual)
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -3789,7 +3853,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.assertIn("vocab", report["data_stats"]["statistics"])
         self.assertIn("words", report["data_stats"]["statistics"])
 
-    def test_save_and_load(self):
+    def test_save_and_load_non_json(self):
         data_folder = "dataprofiler/tests/data/"
         test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
 
@@ -3808,7 +3872,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
 
                 # make sure data_labeler unchanged
@@ -3863,7 +3927,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_open(m)
+            mock_file = setup_save_mock_bytes_open(m)
             save_profile.save()
 
             mock_file.seek(0)
@@ -3883,6 +3947,19 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(["test", "test2"]))
         load_profile.update_profile(pd.DataFrame(["test", "test2"]))
+
+    def test_save_json_file(self):
+        data_folder = "dataprofiler/tests/data/"
+        test_file = "txt/sentence-10x.txt"
+
+        # Create Data and StructuredProfiler objects
+        data = dp.Data(os.path.join(data_folder, test_file))
+        save_profile = UnstructuredProfiler(data)
+
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler serialization not supported."
+        ):
+            save_profile.save("out.json")
 
     def test_options_ingested_correctly(self):
         self.assertIsInstance(self.profiler.options, UnstructuredOptions)
@@ -4241,7 +4318,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch(
@@ -4294,7 +4371,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
 
                 # make sure data_labeler unchanged

@@ -108,7 +108,7 @@ repos:
         additional_dependencies: ['h5py', 'wheel', 'future', 'numpy', 'pandas',
         'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
         'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
-        'networkx','typing-extensions']
+        'networkx','typing-extensions', 'HLL']
   # Pyupgrade - standardize and modernize Python syntax for newer versions of the language
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.0

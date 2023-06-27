@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import logging
 import pickle
 import random
@@ -32,6 +33,7 @@ from .column_profile_compilers import (
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
 from .json_decoder import load_compiler, load_option, load_structured_col_profiler
+from .json_encoder import ProfileEncoder
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
@@ -1122,7 +1124,10 @@ class BaseProfiler:
         :type filepath: String
         :return: None
         """
-        raise NotImplementedError()
+        if filepath is None:
+            filepath = ""
+        with open(filepath, "w") as f:
+            json.dump(self, f, cls=ProfileEncoder)
 
     @classmethod
     def load(cls, filepath: str) -> BaseProfiler:
@@ -1533,21 +1538,26 @@ class UnstructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
-        # Create dictionary for all metadata, options, and profile
-        data_dict = {
-            "total_samples": self.total_samples,
-            "sample": self.sample,
-            "encoding": self.encoding,
-            "file_type": self.file_type,
-            "_samples_per_update": self._samples_per_update,
-            "_min_true_samples": self._min_true_samples,
-            "_empty_line_count": self._empty_line_count,
-            "memory_size": self.memory_size,
-            "options": self.options,
-            "_profile": self.profile,
-            "times": self.times,
-        }
-        self._save_helper(filepath, data_dict)
+        if filepath is None or (
+            filepath.split(".")[-1] != "json" and not isinstance(filepath, str)
+        ):
+            # Create dictionary for all metadata, options, and profile
+            data_dict = {
+                "total_samples": self.total_samples,
+                "sample": self.sample,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+                "_empty_line_count": self._empty_line_count,
+                "memory_size": self.memory_size,
+                "options": self.options,
+                "_profile": self.profile,
+                "times": self.times,
+            }
+            self._save_helper(filepath, data_dict)
+        else:
+            super().save(filepath)
 
 
 class StructuredProfiler(BaseProfiler):
@@ -2829,23 +2839,25 @@ class StructuredProfiler(BaseProfiler):
         :return: None
         """
         # Create dictionary for all metadata, options, and profile
-        data_dict = {
-            "total_samples": self.total_samples,
-            "encoding": self.encoding,
-            "file_type": self.file_type,
-            "row_has_null_count": self.row_has_null_count,
-            "row_is_null_count": self.row_is_null_count,
-            "hashed_row_dict": self.hashed_row_dict,
-            "_samples_per_update": self._samples_per_update,
-            "_min_true_samples": self._min_true_samples,
-            "options": self.options,
-            "chi2_matrix": self.chi2_matrix,
-            "_profile": self.profile,
-            "_col_name_to_idx": self._col_name_to_idx,
-            "times": self.times,
-        }
-
-        self._save_helper(filepath, data_dict)
+        if filepath is None or filepath.split(".")[-1] != "json":
+            data_dict = {
+                "total_samples": self.total_samples,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "row_has_null_count": self.row_has_null_count,
+                "row_is_null_count": self.row_is_null_count,
+                "hashed_row_dict": self.hashed_row_dict,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+                "options": self.options,
+                "chi2_matrix": self.chi2_matrix,
+                "_profile": self.profile,
+                "_col_name_to_idx": self._col_name_to_idx,
+                "times": self.times,
+            }
+            self._save_helper(filepath, data_dict)
+        else:
+            super().save(filepath)
 
 
 class Profiler:

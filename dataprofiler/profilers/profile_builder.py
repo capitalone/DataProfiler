@@ -867,7 +867,7 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load_from_dict(cls, data) -> BaseProfiler:
+    def load_from_dict(cls: type[BaseProfilerT], data) -> BaseProfilerT:
         """
         Parse attribute from json dictionary into self.
 
@@ -1941,7 +1941,7 @@ class StructuredProfiler(BaseProfiler):
         cls,
         data,
         options: dict | None = None,
-    ):
+    ) -> StructuredProfiler:
         """
         Parse attribute from json dictionary into self.
 
@@ -1953,30 +1953,18 @@ class StructuredProfiler(BaseProfiler):
         :return: Profiler with attributes populated.
         :rtype: StructuredProfiler
         """
-        chi2_matrix = data.pop("chi2_matrix")
-        correlation_matrix = data.pop("correlation_matrix")
+        if data["chi2_matrix"] is not None:
+            data["chi2_matrix"] = np.array(data["chi2_matrix"])
+        if data["correlation_matrix"] is not None:
+            data["correlation_matrix"] = np.array(data["correlation_matrix"])
+        data["_col_name_to_idx"] = defaultdict(
+            list, {int(k): v for k, v in data["_col_name_to_idx"].items()}
+        )
+        data["hashed_row_dict"] = {
+            int(k): v for k, v in data["hashed_row_dict"].items()
+        }
 
         structured_profiler = super().load_from_dict(data)
-
-        structured_profiler.times = defaultdict(float, structured_profiler.times)
-
-        if isinstance(structured_profiler, StructuredProfiler):
-            structured_profiler._col_name_to_idx = {
-                int(k): v for k, v in structured_profiler._col_name_to_idx.items()
-            }
-            structured_profiler._col_name_to_idx = defaultdict(
-                list, structured_profiler._col_name_to_idx
-            )
-            structured_profiler.hashed_row_dict = {
-                int(k): v for k, v in structured_profiler.hashed_row_dict.items()
-            }
-
-        if chi2_matrix is not None:
-            setattr(structured_profiler, "chi2_matrix", np.array(chi2_matrix))
-        if correlation_matrix is not None:
-            setattr(
-                structured_profiler, "correlation_matrix", np.array(correlation_matrix)
-            )
 
         return structured_profiler
 

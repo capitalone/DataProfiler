@@ -382,7 +382,8 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -604,7 +605,8 @@ class IntOptions(NumericalOptions["IntOptions"]):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -703,7 +705,8 @@ class FloatOptions(NumericalOptions["FloatOptions"]):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -764,7 +767,8 @@ class TextOptions(NumericalOptions["TextOptions"]):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool

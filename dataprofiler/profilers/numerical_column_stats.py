@@ -87,7 +87,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
-            self.num_quantiles = options.num_quantiles
+            self.num_quantiles = options.num_quantiles.num_quantiles
             self._median_is_enabled = options.median.is_enabled
             self._median_abs_dev_is_enabled = options.median_abs_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled

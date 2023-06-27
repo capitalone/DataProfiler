@@ -7,7 +7,7 @@ from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
 class TestRowStatisticsOptions(TestBooleanOption):
 
     option_class = RowStatisticsOptions
-    keys = ["unique_count"]
+    keys = ["unique_count", "null_count"]
 
     def get_options(self, **params):
         options = RowStatisticsOptions()

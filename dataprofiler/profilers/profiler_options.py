@@ -6,6 +6,7 @@ import abc
 import copy
 import re
 import warnings
+from typing import Any
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
@@ -1070,15 +1071,25 @@ class UniqueCountOptions(BooleanOption):
 class RowStatisticsOptions(BooleanOption):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        unique_count: bool = True,
+        null_count: bool = True,
+    ) -> None:
         """
         Initialize options for row statistics.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
+        :ivar unique_count: boolean option to enable/disable unique_count
+        :vartype unique_count: bool
+        ivar null_count: boolean option to enable/disable null_count
+        :vartype null_count: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
         self.unique_count = UniqueCountOptions(is_enabled=unique_count)
+        self.null_count = BooleanOption(is_enabled=null_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
@@ -1094,9 +1105,14 @@ class RowStatisticsOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.unique_count, UniqueCountOptions):
             errors.append(
-                f"{variable_path}.full_hashing must be an UniqueCountOptions."
+                f"{variable_path}.unique_count must be an UniqueCountOptions."
             )
+
+        if not isinstance(self.null_count, BooleanOption):
+            errors.append(f"{variable_path}.null_count must be an BooleanOption.")
+
         errors += self.unique_count._validate_helper(variable_path + ".unique_counts")
+        errors += self.null_count._validate_helper(variable_path + ".null_count")
         return super()._validate_helper(variable_path)
 
 
@@ -1557,7 +1573,8 @@ class ProfilerOptions(BaseOption):
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
         :ivar presets: A pre-configured mapping of a string name to group of options:
-            "complete", "data_types", and "numeric_stats_disabled". Default: None
+            "complete", "data_types", "numeric_stats_disabled",
+            and "lower_memory_sketching". Default: None
         :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
@@ -1570,6 +1587,10 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
+            elif self.presets == "lower_memory_sketching":
+                self._lower_memory_sketching_presets()
+            else:
+                raise ValueError("The preset entered is not a valid preset.")
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})
@@ -1582,6 +1603,18 @@ class ProfilerOptions(BaseOption):
         self.set({"*.int.is_numeric_stats_enabled": False})
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
+
+    def _lower_memory_sketching_presets(self) -> None:
+        self.set({"row_statistics.unique_count.hashing_method": "hll"})
+        self.set(
+            {
+                (
+                    "structured_options.category."
+                    "max_sample_size_to_check_stop_condition"
+                ): 5000
+            }
+        )
+        self.set({"structured_options.category.stop_condition_unique_value_ratio": 0.5})
 
     def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """
@@ -1620,7 +1653,7 @@ class ProfilerOptions(BaseOption):
 
         return errors
 
-    def set(self, options: dict[str, bool]) -> None:
+    def set(self, options: dict[str, Any]) -> None:
         """
         Overwrite BaseOption.set.
 

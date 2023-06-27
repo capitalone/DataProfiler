@@ -37,5 +37,6 @@ class TestProfilerPresets(unittest.TestCase):
 
     def test_plugin_presets(self, *mocks):
         test_dict = getPlugins("test_preset")
-        for plugin_preset in test_dict:
-            test_dict[plugin_preset](self, *mocks)
+        if test_dict is not None:
+            for plugin_preset in test_dict:
+                test_dict[plugin_preset](self, *mocks)

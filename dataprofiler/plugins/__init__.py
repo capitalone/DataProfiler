@@ -15,7 +15,7 @@ def load_plugins():
     for folder in os.listdir(plugin_path):
         option_path = os.path.join(plugin_path, folder)
         if os.path.isdir(option_path):
-            if option_path == "__pycache__":
+            if folder == "__pycache__":
                 continue
             for filename in os.listdir(option_path):
                 if filename[:-3] != ".py":

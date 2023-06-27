@@ -1,7 +1,7 @@
 import importlib
 import os
 
-from dataprofiler.plugins.decorators import plugin_decorator, plugins_dict
+from .decorators import plugin_decorator, plugins_dict
 
 
 def load_plugins():
@@ -15,7 +15,11 @@ def load_plugins():
     for folder in os.listdir(plugin_path):
         option_path = os.path.join(plugin_path, folder)
         if os.path.isdir(option_path):
+            if option_path == "__pycache__":
+                continue
             for filename in os.listdir(option_path):
+                if filename[:-3] != ".py":
+                    continue
                 spec = importlib.util.spec_from_file_location(
                     filename, os.path.join(option_path, filename)
                 )

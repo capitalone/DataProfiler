@@ -4,6 +4,7 @@ import os
 import random
 import re
 import urllib
+import warnings
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
@@ -22,6 +23,7 @@ from typing import (
 )
 
 import dateutil
+import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
@@ -319,9 +321,9 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
         seed = os.environ.get("DATAPROFILER_SEED")
         if isinstance(seed, int):
-            rng = random.Random(int(seed))
+            rng = np.random.default_rng(int(seed))
         else:
-            raise ValueError("DATAPROFILER_SEED must be an int.")
+            warnings.warn("Seed should be an integer", RuntimeWarning)
 
     while True:
         W *= rng.random() ** kinv

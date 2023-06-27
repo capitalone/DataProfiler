@@ -9,10 +9,10 @@ import pkg_resources
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
 if sys.version_info >= (3, 9):
-    _resource_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
+    default_labeler_dir = importlib.resources.files("resources").joinpath("labelers")
 
 else:
-    _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+    default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class TestRegexDataLabeler(unittest.TestCase):

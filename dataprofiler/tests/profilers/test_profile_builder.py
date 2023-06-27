@@ -2272,12 +2272,7 @@ class TestStructuredProfiler(unittest.TestCase):
         mock_DataLabeler.load_from_library.return_value = mock_labeler
 
         fake_profile_name = None
-        df_structured = pd.DataFrame(
-            [
-                ["-1.5", "3.0"],
-                ["a", "z"],
-            ]
-        ).T
+        df_structured = pd.DataFrame([["1.5", "a", "4"], ["3.0", "z", 7]])
 
         # update mock for 2 confidence values for 2 possible classes
         mock_labeler.predict.side_effect = lambda *args, **kwargs: {
@@ -2296,20 +2291,21 @@ class TestStructuredProfiler(unittest.TestCase):
 
         df_structured = pd.DataFrame(
             [
-                [
-                    4.0,  # add existing
-                    15.0,  # add new
-                ],
-                ["c", "nan"],
+                [4.0, "nan", "15.0"],  # partial nan row
+                ["nan", "nan", "nan"],  # Full nan row
+                ["1.5", "a", "4"],  # Repeated from previous update
             ]
-        ).T
+        )
 
         # validating update after deserialization
         deserialized.update_profile(df_structured)
 
-        assert deserialized.total_samples == 4
-        assert deserialized.row_has_null_count == 1
-        assert deserialized.row_is_null_count == 0
+        assert deserialized.total_samples == 5
+        assert deserialized._max_col_samples_used == 5
+        assert deserialized._min_col_samples_used == 5
+        assert deserialized.row_has_null_count == 2
+        assert deserialized.row_is_null_count == 1
+        assert deserialized._get_unique_row_ratio() == 0.80
         assert deserialized.file_type == "<class 'pandas.core.frame.DataFrame'>"
 
 

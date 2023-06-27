@@ -4,7 +4,7 @@ import os
 from dataprofiler.plugins.decorators import plugin_decorator, plugins_dict
 
 
-def loadPlugins():
+def load_plugins():
     """
     Digs through plugins folder for possible plugins to be imported
     and consequently added to the plugins_dict if properly decorated
@@ -24,7 +24,7 @@ def loadPlugins():
                     spec.loader.exec_module(module)
 
 
-def getPlugins(typ):
+def get_plugins(typ):
     """
     Fetches a dictionary of plugins of a certain type
 

@@ -8,7 +8,7 @@ from .labelers.data_labelers import (
     UnstructuredDataLabeler,
     train_structured_labeler,
 )
-from .plugins import loadPlugins
+from .plugins import load_plugins
 from .profilers.graph_profiler import GraphProfiler
 from .profilers.profile_builder import (
     Profiler,
@@ -44,4 +44,4 @@ def set_seed(seed=None):
     settings._seed = seed
 
 
-loadPlugins()
+load_plugins()

@@ -4,7 +4,7 @@ from unittest import mock
 
 from dataprofiler import ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
-from dataprofiler.plugins.__init__ import getPlugins
+from dataprofiler.plugins.__init__ import get_plugins
 from dataprofiler.plugins.decorators import plugin_decorator, plugins_dict
 
 
@@ -49,5 +49,5 @@ class TestProfilerPresets(unittest.TestCase):
             expected_default_dict["test_preset"]["mock_test"] = test_plugin
             self.assertDictEqual(expected_default_dict, mock_plugin_dict)
 
-            test_get_dict = getPlugins("test_preset")
+            test_get_dict = get_plugins("test_preset")
             self.assertDictEqual({"mock_test": test_plugin}, test_get_dict)

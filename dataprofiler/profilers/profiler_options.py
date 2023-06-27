@@ -8,7 +8,7 @@ import re
 import warnings
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from ..plugins.__init__ import getPlugins
+from ..plugins.__init__ import get_plugins
 
 
 class BaseOption:
@@ -1564,7 +1564,7 @@ class ProfilerOptions(BaseOption):
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()
         self.presets = presets
-        option_plugins = getPlugins("option_preset")
+        option_plugins = get_plugins("option_preset")
         if self.presets:
             if self.presets == "complete":
                 self._complete_presets()

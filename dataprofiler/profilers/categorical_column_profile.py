@@ -54,7 +54,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._stopped_at_unique_ratio: float | None = None
         self._stopped_at_unique_count: int | None = None
 
-        self._cms_max_num_heavy_hitters: int | None = None
+        self._cms_max_num_heavy_hitters: int | None = 5000
         self.cms_num_hashes: int | None = None
         self.cms_num_buckets: int | None = None
         self.cms: datasketches.countminsketch | None = None
@@ -105,6 +105,13 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         )
 
         if self.cms and other.cms:
+
+            assert isinstance(self._cms_max_num_heavy_hitters, int)
+            assert isinstance(other._cms_max_num_heavy_hitters, int)
+            cms_max_num_heavy_hitters: int = min(
+                self._cms_max_num_heavy_hitters, other._cms_max_num_heavy_hitters
+            )
+
             (
                 merged_profile.cms,
                 merged_profile._categories,
@@ -117,7 +124,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 other.cms,
                 other._categories,
                 other.sample_size,
-                other._cms_max_num_heavy_hitters,
+                cms_max_num_heavy_hitters,
             )
 
         elif not self.cms and not other.cms:
@@ -175,7 +182,8 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         else:
             raise Exception(
-                "Unable to add two profiles is only one is using count min sketch."
+                "Unable to add two profiles: One is using count min sketch"
+                "and the other is using full."
             )
 
         return merged_profile
@@ -388,12 +396,12 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             # approximate heavy-hitters
             if i_count >= int(len_df / self._cms_max_num_heavy_hitters):
                 heavy_hitter_dict[value] = i_count
-                # missing_heavy_hitter_dict.pop(value, None)
+                missing_heavy_hitter_dict.pop(value, None)
             elif i_total_count >= int(
                 (self.sample_size + len_df) / self._cms_max_num_heavy_hitters
             ):
                 missing_heavy_hitter_dict[value] = i_total_count
-                # heavy_hitter_dict.pop(value, None)
+                heavy_hitter_dict.pop(value, None)
 
         return cms, heavy_hitter_dict, missing_heavy_hitter_dict
 
@@ -407,7 +415,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         cms2,
         heavy_hitter_dict2,
         len2,
-        other_max_num_heavy_hitters,
+        max_num_heavy_hitters,
     ):
         """Return the aggregate count min sketch and approximate histogram (categories).
 
@@ -444,15 +452,11 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         # re-collecting the estimates of non intersecting categories before
         # re-applying heavy-hitters to the aggregate profile.
-        missing_in_1 = [
-            k for k in heavy_hitter_dict1.keys() if k not in heavy_hitter_dict2.keys()
-        ]
-        for k in missing_in_1:
+        heavy_hitter_dict1 = heavy_hitter_dict1.copy()
+        heavy_hitter_dict2 = heavy_hitter_dict2.copy()
+        for k in (x for x in heavy_hitter_dict1 if x not in heavy_hitter_dict2):
             heavy_hitter_dict2[k] = cms2.get_estimate(k)
-        missing_in_2 = [
-            k for k in heavy_hitter_dict2.keys() if k not in heavy_hitter_dict1.keys()
-        ]
-        for k in missing_in_2:
+        for k in (x for x in heavy_hitter_dict2 if x not in heavy_hitter_dict1):
             heavy_hitter_dict1[k] = cms1.get_estimate(k)
 
         categories = utils.add_nested_dictionaries(
@@ -463,13 +467,6 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         # frequencies compared to treated as a sequence of batches as part of
         # the same stream.
         categories.update(missing_heavy_hitter_dict)
-
-        if other_max_num_heavy_hitters:
-            max_num_heavy_hitters = min(
-                self._cms_max_num_heavy_hitters, other_max_num_heavy_hitters
-            )
-        else:
-            max_num_heavy_hitters = self._cms_max_num_heavy_hitters
 
         total_samples = len1 + len2
         for cat in list(categories):
@@ -519,7 +516,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 self.cms,
                 self._categories,
                 self.sample_size,
-                None,
+                self._cms_max_num_heavy_hitters,
             )
         else:
             category_count = df_series.value_counts(dropna=False).to_dict()

@@ -1053,6 +1053,57 @@ class TestCategoricalColumn(unittest.TestCase):
 
         self.assertEqual(profile3._cms_max_num_heavy_hitters, 3)
 
+    def test_cms_catch_overwriting_with_missing_dict(self):
+
+        dataset = pd.Series(["b"] * 2 + ["c"] * 14)
+        dataset1 = pd.Series(["b"] * 5 + ["c"] * 10)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile = CategoricalColumn("test_name", options)
+        profile.update(dataset)
+
+        expected_categories = ["c"]
+        expected_categories_dict = {"c": 14}
+
+        self.assertEqual(profile.sample_size, len(dataset))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
+
+        profile.update(dataset1)
+        expected_categories = ["c"]
+        expected_categories_dict = {"c": 24}
+
+        self.assertEqual(profile.sample_size, len(dataset) + len(dataset1))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
+
+    def test_cms_vs_full_mismatch_merge(self):
+
+        dataset = pd.Series(["b"] * 2 + ["c"] * 14)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile_cms = CategoricalColumn("test_name", options)
+        profile_cms.update(dataset)
+        profile = CategoricalColumn("test_name")
+        profile.update(dataset)
+
+        with self.assertRaisesRegex(
+            Exception,
+            "Unable to add two profiles: One is using count min sketch"
+            "and the other is using full.",
+        ):
+            profile3 = profile_cms + profile
+
 
 class TestCategoricalSentence(unittest.TestCase):
     def setUp(self):

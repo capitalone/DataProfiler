@@ -269,6 +269,42 @@ class ModeOption(BooleanOption):
         return errors
 
 
+class NumQuantilesOption(BooleanOption):
+    """For setting number of quantile options."""
+
+    def __init__(self, is_enabled: bool = True, num_quantiles: int = 1000) -> None:
+        """
+        Initialize options for number of quantiles.
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar num_quantiles: the number of quantiles to bin the data.
+        :vartype num_quantiles: int
+        """
+        self.num_quantiles = num_quantiles
+        super().__init__(is_enabled=is_enabled)
+
+    def _validate_helper(self, variable_path: str = "NumQuantilesOption") -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if self.num_quantiles is not None and (
+            not isinstance(self.num_quantiles, int) or self.num_quantiles < 1
+        ):
+            errors.append(
+                "{}.num_quantiles must be either None"
+                " or a positive integer".format(variable_path)
+            )
+        return errors
+
+
 class BaseInspectorOptions(BooleanOption):
     """For setting Base options."""
 
@@ -353,7 +389,8 @@ class NumericalOptions(BaseInspectorOptions):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -369,7 +406,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.median_abs_deviation = BooleanOption(is_enabled=True)
         self.num_zeros = BooleanOption(is_enabled=True)
         self.num_negatives = BooleanOption(is_enabled=True)
-        self.num_quantiles = BooleanOption(is_enabled=True)
+        self.num_quantiles = NumQuantilesOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
         # By default, we correct for bias
         self.bias_correction = BooleanOption(is_enabled=True)
@@ -576,7 +613,8 @@ class IntOptions(NumericalOptions):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -675,7 +713,8 @@ class FloatOptions(NumericalOptions):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -736,7 +775,8 @@ class TextOptions(NumericalOptions):
         :ivar num_negatives: boolean option to enable/disable num_negatives
         :vartype num_negatives: BooleanOption
         :ivar num_quantiles: boolean option to enable/disable num_quantiles
-        :vartype num_quantiles: BooleanOption
+            and set the number of quantiles
+        :vartype num_quantiles: NumQuantilesOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool

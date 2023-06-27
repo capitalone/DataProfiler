@@ -753,6 +753,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler.histogram_selection = "auto"
         num_profiler.histogram_methods["auto"]["histogram"] = mock_profile["histogram"]
         num_profiler.quantiles = mock_profile["quantiles"]
+        num_profiler.num_quantiles = 4
         num_profiler.times = mock_profile["times"]
 
         time_array = [float(i) for i in range(100, 0, -1)]

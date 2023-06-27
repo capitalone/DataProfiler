@@ -817,6 +817,7 @@ Below is an breakdown of all the options.
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
       * unique_count - (UniqueCountOptions) Option to enable/disable unique row count calculations
+
         * is_enabled - (Bool) Enables or disables options for unique row count
         * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
         * hll - (HyperLogLogOptions) Options for alternative method of estimating unique row count (activated when `hll` is the selected hashing_method)

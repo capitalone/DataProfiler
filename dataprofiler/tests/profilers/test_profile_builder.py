@@ -1546,7 +1546,6 @@ class TestStructuredProfiler(unittest.TestCase):
         load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
 
     def test_save_json_file(self):
-        self.maxDiff = None
         datapth = "dataprofiler/tests/data/"
         test_file = "csv/iris.csv"
 

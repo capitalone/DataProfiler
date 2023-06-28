@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 import logging
+import pathlib
 import pickle
 import random
 import re
@@ -1116,7 +1117,7 @@ class BaseProfiler:
         # Restore all data labelers
         self._restore_data_labelers(data_labelers)
 
-    def _json_save_helper(self, filepath: str) -> None:
+    def _json_save_helper(self, filepath: str | None) -> None:
         """
         Save profiler to disk.
 
@@ -1125,16 +1126,21 @@ class BaseProfiler:
         :return: None
         """
         if filepath is None:
-            filepath = ""
+            filepath = "profile-{}.pkl".format(
+                datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f")
+            )
+
         with open(filepath, "w") as f:
             json.dump(self, f, cls=ProfileEncoder)
 
-    def save(self, filepath: str = None) -> None:
+    def save(self, filepath: str = None, save_method: str = None) -> None:
         """
         Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
+        :param save_method: the desired saving method ("pickle" | "json")
+        :type save_method: String
         :return: None
         """
         raise NotImplementedError()
@@ -1540,16 +1546,19 @@ class UnstructuredProfiler(BaseProfiler):
         else:
             self._profile.update_profile(data, pool=pool)
 
-    def save(self, filepath: str = None) -> None:
+    def save(self, filepath: str = None, save_method: str = None) -> None:
         """
         Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
+        :param save_method: the desired saving method ("pickle" | "json")
+        :type save_method: String
         :return: None
         """
-        if filepath is None or filepath.split(".")[-1] != "json":
-            # Create dictionary for all metadata, options, and profile
+        if (save_method is None or save_method != "json") and (
+            filepath is None or pathlib.Path(filepath).suffix != "json"
+        ):
             data_dict = {
                 "total_samples": self.total_samples,
                 "sample": self.sample,
@@ -2838,16 +2847,19 @@ class StructuredProfiler(BaseProfiler):
         if self.options.null_replication_metrics.is_enabled:
             self._update_null_replication_metrics(clean_sampled_dict)
 
-    def save(self, filepath: str = None) -> None:
+    def save(self, filepath: str = None, save_method: str = None) -> None:
         """
         Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
+        :param save_method: the desired saving method ("pickle" | "json")
+        :type save_method: String
         :return: None
         """
-        # Create dictionary for all metadata, options, and profile
-        if filepath is None or filepath.split(".")[-1] != "json":
+        if (save_method is None or save_method != "json") and (
+            filepath is None or pathlib.Path(filepath).suffix != "json"
+        ):
             data_dict = {
                 "total_samples": self.total_samples,
                 "encoding": self.encoding,

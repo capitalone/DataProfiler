@@ -75,7 +75,7 @@ class TestNumQuantilesOption(TestBooleanOption):
         expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
-        # Option num_quantiles must be a positive integer
+        # Option num_quantiles cannot be a negative integer
         option = self.get_options(num_quantiles=-5)
         expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))

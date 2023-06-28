@@ -118,7 +118,7 @@ def get_structured_col_profiler_class(class_name: str) -> type[StructuredColProf
 
 
 def load_column_profile(
-    serialized_json: dict, options: dict | None = None
+    serialized_json: dict, config: dict | None = None
 ) -> BaseColumnProfiler:
     """
     Construct subclass of BaseColumnProfiler given a serialized JSON.
@@ -137,8 +137,8 @@ def load_column_profile(
         # serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
-    :param options: options for loading column profiler params from dictionary
-    :type options: Dict | None
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
 
     :return: subclass of BaseColumnProfiler that has been deserialized from
         JSON
@@ -147,11 +147,11 @@ def load_column_profile(
     column_profiler_cls: type[
         BaseColumnProfiler[BaseColumnProfiler]
     ] = get_column_profiler_class(serialized_json["class"])
-    return column_profiler_cls.load_from_dict(serialized_json["data"], options)
+    return column_profiler_cls.load_from_dict(serialized_json["data"], config)
 
 
 def load_compiler(
-    serialized_json: dict, options: dict | None = None
+    serialized_json: dict, config: dict | None = None
 ) -> col_pro_compiler.BaseCompiler:
     """
     Construct subclass of BaseCompiler given a serialized JSON.
@@ -170,8 +170,8 @@ def load_compiler(
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
-    :param options: options for loading column compiler params from dictionary
-    :type options: Dict | None
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
     :return: subclass of BaseCompiler that has been deserialized from
         JSON
 
@@ -179,10 +179,10 @@ def load_compiler(
     column_profiler_cls: type[col_pro_compiler.BaseCompiler] = get_compiler_class(
         serialized_json["class"]
     )
-    return column_profiler_cls.load_from_dict(serialized_json["data"], options)
+    return column_profiler_cls.load_from_dict(serialized_json["data"], config)
 
 
-def load_option(serialized_json: dict, options: dict | None = None) -> BaseOption:
+def load_option(serialized_json: dict, config: dict | None = None) -> BaseOption:
     """
     Construct subclass of BaseOption given a serialized JSON.
 
@@ -200,17 +200,17 @@ def load_option(serialized_json: dict, options: dict | None = None) -> BaseOptio
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
-    :param options: options for loading column profiler params from dictionary
-    :type options: Dict | None
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
     :return: subclass of BaseOption that has been deserialized from
         JSON
 
     """
     option_cls: type[BaseOption] = get_option_class(serialized_json["class"])
-    return option_cls.load_from_dict(serialized_json["data"], options)
+    return option_cls.load_from_dict(serialized_json["data"], config)
 
 
-def load_profiler(serialized_json: dict, options=None) -> BaseProfiler:
+def load_profiler(serialized_json: dict, config=None) -> BaseProfiler:
     """
     Construct subclass of BaseProfiler given a serialized JSON.
 
@@ -228,14 +228,18 @@ def load_profiler(serialized_json: dict, options=None) -> BaseProfiler:
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
     :return: subclass of BaseProfiler that has been deserialized from
         JSON
     """
     profiler_cls: type[BaseProfiler] = get_profiler_class(serialized_json["class"])
-    return profiler_cls.load_from_dict(serialized_json["data"], options)
+    return profiler_cls.load_from_dict(serialized_json["data"], config)
 
 
-def load_structured_col_profiler(serialized_json: dict) -> StructuredColProfiler:
+def load_structured_col_profiler(
+    serialized_json: dict, config: dict | None = None
+) -> StructuredColProfiler:
     """
     Construct subclass of BaseProfiler given a serialized JSON.
 
@@ -252,10 +256,12 @@ def load_structured_col_profiler(serialized_json: dict) -> StructuredColProfiler
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
     :return: subclass of BaseCompiler that has been deserialized from
         JSON
     """
     profiler_cls: type[StructuredColProfiler] = get_structured_col_profiler_class(
         serialized_json["class"]
     )
-    return profiler_cls.load_from_dict(serialized_json["data"])
+    return profiler_cls.load_from_dict(serialized_json["data"], config)

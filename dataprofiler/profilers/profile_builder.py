@@ -868,12 +868,14 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load_from_dict(cls: type[BaseProfilerT], data, options) -> BaseProfilerT:
+    def load_from_dict(cls: type[BaseProfilerT], data, config) -> BaseProfilerT:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param config: config for overriding data params when loading from dict
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: BaseProfiler
@@ -885,9 +887,9 @@ class BaseProfiler:
                 value = defaultdict(float, value)
             if "_profile" == attr:
                 for idx, profile in enumerate(value):
-                    value[idx] = load_structured_col_profiler(profile)
+                    value[idx] = load_structured_col_profiler(profile, config)
             if "options" == attr:
-                value = load_option(value, options)
+                value = load_option(value, config)
 
             setattr(profiler, attr, value)
         return profiler

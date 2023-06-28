@@ -611,6 +611,10 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
 
 
 @mock.patch(
+    "dataprofiler.profilers.utils.DataLabeler",
+    spec=BaseDataLabeler,
+)
+@mock.patch(
     "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
     spec=BaseDataLabeler,
 )
@@ -639,7 +643,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         mock_DataLabeler.predict.side_effect = mock_predict
 
-    def test_column_data_labeler_compiler_report(self, mock_instance):
+    def test_column_data_labeler_compiler_report(self, mock_instance, *mocks):
         self._setup_data_labeler_mock(mock_instance)
         structured_options = StructuredOptions()
         data1 = pd.Series(["2.6", "-1.8", "-2.3"])
@@ -650,7 +654,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         self.assertIn("data_label", report)
         self.assertIn("statistics", report)
 
-    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
+    def test_compiler_data_labeler_diff(self, *mocks):
         # Initialize dummy data
         data = pd.Series([])
 
@@ -717,7 +721,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
-    def test_json_encode(self, *mocked_datalabeler):
+    def test_json_encode(self, *mocks):
         compiler = col_pro_compilers.ColumnDataLabelerCompiler()
 
         serialized = json.dumps(compiler, cls=ProfileEncoder)
@@ -732,7 +736,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
         )
         self.assertEqual(expected, serialized)
 
-    def test_json_decode(self, *mocked_datalabeler):
+    def test_json_decode(self, *mocks):
         expected_compiler = col_pro_compilers.ColumnDataLabelerCompiler()
         serialized = json.dumps(expected_compiler, cls=ProfileEncoder)
 
@@ -740,7 +744,7 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(expected_compiler, deserialized)
 
-    def test_json_encode_after_update(self, mock_instance):
+    def test_json_encode_after_update(self, mock_instance, *mocks):
         self._setup_data_labeler_mock(mock_instance)
 
         data = pd.Series(["-2", "-1", "1", "2"])
@@ -769,10 +773,11 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
 
         self.assertEqual(expected, serialized)
 
-    def test_json_decode_after_update(self, mock_instance):
+    def test_json_decode_after_update(self, mock_instance, mock_utils_DataLabeler):
 
         self._setup_data_labeler_mock(mock_instance)
         mock_instance._default_model_loc = "structured_model"
+        mock_utils_DataLabeler.load_from_library = mock_instance
 
         data = pd.Series(["2", "-1", "1", "2"], name="test")
         with test_utils.mock_timeit():
@@ -797,9 +802,12 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             "data_label_representation", None
         ) == {"a": 0.6, "b": 0.4}
 
-    def test_json_decode_with_options(self, mock_DataLabeler_cls):
+    def test_json_decode_with_options(
+        self, mock_DataLabeler_cls, mock_utils_DataLabeler
+    ):
         self._setup_data_labeler_mock(mock_DataLabeler_cls)
         mock_DataLabeler_cls._default_model_loc = "structured_model"
+        mock_utils_DataLabeler.load_from_library = mock_DataLabeler_cls
 
         data = pd.Series(["2", "-1", "1", "2"], name="test")
         with test_utils.mock_timeit():

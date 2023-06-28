@@ -1733,7 +1733,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(actual_schema, expected_schema)
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
@@ -1858,7 +1858,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     def test_diff_type_checking(self, *mocks):
         data = pd.DataFrame([[1, 2], [5, 6]], columns=["a", "b"])
@@ -1932,7 +1932,7 @@ class TestStructuredProfiler(unittest.TestCase):
         )
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
@@ -2158,8 +2158,14 @@ class TestStructuredProfiler(unittest.TestCase):
         "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_encode(self, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler
+    )
+    def test_json_encode(self, mock_DataLabeler, *mocks):
         fake_profile_name = None
+        mock_DataLabeler._default_model_loc = "test"
+        mock_DataLabeler.return_value = mock_DataLabeler
+
         with test_utils.mock_timeit():
             profile = StructuredProfiler(fake_profile_name)
 
@@ -2192,10 +2198,14 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(expected, serialized_dict)
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
-        spec=BaseDataLabeler,
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
-    def test_json_encode_after_update(self, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler
+    )
+    def test_json_encode_after_update(self, mock_DataLabeler, *mocks):
+        mock_DataLabeler._default_model_loc = "test"
+        mock_DataLabeler.return_value = mock_DataLabeler
         df_structured = pd.DataFrame(
             [
                 [-1.5, 3.0, "nan"],
@@ -2244,13 +2254,20 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(expected, serialized_dict)
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder.BaseDataLabeler",
+        "dataprofiler.profilers.profile_builder.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode(self, mock_DataLabeler, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
         mock_labeler = mock.Mock(spec=BaseDataLabeler)
         mock_labeler._default_model_loc = "test"
+        mock_labeler.return_value = mock_labeler
         mock_DataLabeler.load_from_library = mock_labeler
+        mock_utils_DataLabeler.load_from_library = mock_labeler
+        mock_DataLabeler.return_value = mock_labeler
 
         fake_profile_name = None
         expected_profile = StructuredProfiler(fake_profile_name)
@@ -2261,15 +2278,25 @@ class TestStructuredProfiler(unittest.TestCase):
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder.BaseDataLabeler",
+        "dataprofiler.profilers.profile_builder.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode_after_update(self, mock_DataLabeler, *mocks):
-        mock_labeler = mock_DataLabeler.return_value
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(
+        self, mock_utils_DataLabeler, mock_DataLabeler, *mocks
+    ):
+        mock_labeler = mock.Mock(spec=BaseDataLabeler)
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.return_value = mock_labeler
+        mock_DataLabeler.load_from_library = mock_labeler
+        mock_utils_DataLabeler.load_from_library = mock_labeler
+        mock_DataLabeler.return_value = mock_labeler
         mock_labeler._default_model_loc = "structured_model"
         mock_labeler.model.num_labels = 2
         mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
-        mock_DataLabeler.load_from_library.return_value = mock_labeler
 
         fake_profile_name = None
         df_structured = pd.DataFrame([["1.5", "a", "4"], ["3.0", "z", 7]])
@@ -2289,6 +2316,19 @@ class TestStructuredProfiler(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
+        # validate passes one labeler all the way.
+        config = {}
+        mock_DataLabeler.load_from_library.reset_mock()
+        deserialized = load_profiler(json.loads(serialized), config)
+        mock_DataLabeler.load_from_library.assert_called_once()
+
+        expected_config = {
+            "DataLabelerColumn": {"from_library": {"structured_model": mock_labeler}},
+            "DataLabelerOptions": {"from_library": {"structured_model": mock_labeler}},
+        }
+        self.assertDictEqual(expected_config, config)
+
+        # validating update after deserialization
         df_structured = pd.DataFrame(
             [
                 [4.0, "nan", "15.0"],  # partial nan row
@@ -2297,7 +2337,6 @@ class TestStructuredProfiler(unittest.TestCase):
             ]
         )
 
-        # validating update after deserialization
         deserialized.update_profile(df_structured)
 
         assert deserialized.total_samples == 5
@@ -2741,7 +2780,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch(
         "dataprofiler.profilers.column_profile_compilers."
@@ -2919,7 +2958,11 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode(self, mock_DataLabeler, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
         mock_labeler = mock.Mock(spec=BaseDataLabeler)
         mock_labeler._default_model_loc = "test"
         mock_DataLabeler.load_from_library = mock_labeler
@@ -2936,12 +2979,19 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode_after_update(self, mock_DataLabeler, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(
+        self, mock_utils_DataLabeler, mock_DataLabeler, *mocks
+    ):
         mock_labeler = mock_DataLabeler.return_value
         mock_labeler._default_model_loc = "test"
         mock_labeler.model.num_labels = 2
         mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
         mock_DataLabeler.load_from_library.return_value = mock_labeler
+        mock_utils_DataLabeler.load_from_library.return_value = mock_labeler
 
         # Build expected StructuredColProfiler
         df_float = pd.Series([-1.5, None, 5.0, 7.0, 4.0, 3.0, "NaN", 0, 0, 9.0]).apply(

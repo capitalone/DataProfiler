@@ -281,6 +281,15 @@ Saving and Loading a Profile
 
 The profiles can easily be saved and loaded as shown below:
 
+**NOTE: Json saving and loading only supports Structured Profiles currently.**
+
+There are two save/load methods:
+
+* **Pickle save/load**
+
+  * Save a profile as a `.pkl` file.
+  * Load a `.pkl` file as a profile object.
+
 .. code-block:: python
 
     import json
@@ -289,15 +298,42 @@ The profiles can easily be saved and loaded as shown below:
     # Load a CSV file, with "," as the delimiter
     data = Data("your_file.csv")
 
-    # Read in profile and print results
+    # Read data into profile
     profile = Profiler(data)
+
+    # save structured profile to pkl file
     profile.save(filepath="my_profile.pkl")
-    
-    loaded_profile = dp.Profiler.load("my_profile.pkl")
-    print(json.dumps(loaded_profile.report(report_options={"output_format": "compact"}), 
+
+    # load pkl file to structured profile
+    loaded_pkl_profile = dp.Profiler.load(filepath="my_profile.pkl")
+
+    print(json.dumps(loaded_pkl_profile.report(report_options={"output_format": "compact"}),
                                            indent=4))
 
+* **Json save/load**
 
+  * Save a profile as a human-readable `.json` file.
+  * Load a `.json` file as a profile object.
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+
+    # Load a CSV file, with "," as the delimiter
+    data = Data("your_file.csv")
+
+    # Read data into profile
+    profile = Profiler(data)
+
+    # save structured profile to json file
+    profile.save(filepath="my_profile.json", save_method="json")
+
+    # load json file to structured profile
+    loaded_json_profile = dp.Profiler.load(filepath="my_profile.json", load_method="json")
+
+    print(json.dumps(loaded_json_profile.report(report_options={"output_format": "compact"}),
+                                           indent=4))
 Structured vs Unstructured Profiles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -773,7 +809,24 @@ Below is an breakdown of all the options.
       * is_enabled - (Boolean) Enables or disables performing correlation profiling
       * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
+
+      * unique_count - (UniqueCountOptions) Option to enable/disable unique row count calculations
+
+        * is_enabled - (Bool) Enables or disables options for unique row count
+        * hashing_method - (String) Property to specify row hashing method ("full" | "hll")
+        * hll - (HyperLogLogOptions) Options for alternative method of estimating unique row count (activated when `hll` is the selected hashing_method)
+
+          * seed - (Int) Used to set HLL hashing function seed
+          * register_count - (Int) Number of registers is equal to 2^register_count
+
+      * null_count - (Boolean) Option to enable/disable functionalities for row_has_null_ratio and row_is_null_ratio
     * **chi2_homogeneity** - Options for the chi-squared test matrix
+
+      * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.
+    * **null_replication_metrics** - Options for calculating null replication metrics
+
+      * is_enabled - (Boolean) Enables or disables calculation of null replication metrics
+  * **unstructured_options** - Options responsible for all unstructured data    * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.
     * **null_replication_metrics** - Options for calculating null replication metrics

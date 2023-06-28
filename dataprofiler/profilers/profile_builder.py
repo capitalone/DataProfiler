@@ -1168,8 +1168,8 @@ class BaseProfiler:
 
         :param filepath: Path of file to load from
         :type filepath: String
-        :param load_method: The desired loading method
-        :type load_method: String | None
+        :param load_method: The desired loading method, default = "pickle"
+        :type load_method: Optional[String]
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
@@ -2999,11 +2999,11 @@ class Profiler:
 
         :param filepath: Path of file to load from
         :type filepath: String
-        :param load_method: The desired loading method
-        :type load_method: String | None
+        :param load_method: The desired loading method, default = "pickle"
+        :type load_method: Optional[String]
 
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
         """
-        return BaseProfiler.load(filepath)
+        return BaseProfiler.load(filepath, load_method)

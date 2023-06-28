@@ -308,44 +308,28 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         return profile
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None) -> DataLabelerColumn:
+    def load_from_dict(cls, data, config: dict | None = None) -> DataLabelerColumn:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
+        :param config: config for loading column profiler params from dictionary
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: DataLabelerColumn
         """
         opt = DataLabelerOptions()
+        data_labeler_object = None
+
         data_labeler_load_attr = data.pop("data_labeler")
-        if "from_library" in data_labeler_load_attr:
-            data_labeler_object = (
-                (
-                    options.get(cls.__name__, {})
-                    .get("from_library", {})
-                    .get(data_labeler_load_attr["from_library"])
-                )
-                if options is not None
-                else None
+        if data_labeler_load_attr:
+            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+                data_labeler_load_attr, config
             )
-            if data_labeler_object is None:
-                data_labeler_object = DataLabeler.load_from_library(
-                    data_labeler_load_attr["from_library"]
-                )
-            opt.data_labeler_object = data_labeler_object
-        elif "from_disk" in data_labeler_load_attr:
-            raise NotImplementedError(
-                "Models intialized from disk have not yet been made deserializable"
-            )
-        else:
-            raise ValueError(
-                "Deserialization cannot be done on labelers without "
-                "_default_model_loc set to known value."
-            )
+            if data_labeler_object is not None:
+                opt.data_labeler_object = data_labeler_object
 
         # This is an ambiguous call to super classes.
         # If load_from_dict is part of both super classes there may be issues

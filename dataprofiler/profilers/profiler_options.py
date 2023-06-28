@@ -8,10 +8,9 @@ import re
 import warnings
 from typing import Generic, TypeVar, cast
 
-from dataprofiler.profilers.json_decoder import load_option
-
 from ..labelers.base_data_labeler import BaseDataLabeler
-from ..labelers.data_labelers import DataLabeler
+from . import utils
+from .json_decoder import load_option
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
 BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
@@ -148,14 +147,14 @@ class BaseOption(Generic[BaseOptionT]):
         return None
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None) -> BaseOption:
+    def load_from_dict(cls, data, config: dict | None = None) -> BaseOption:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading options params from dictionary
-        :type options: Dict | None
+        :param config: config to override loading options params from dictionary
+        :type config: Dict | None
 
         :return: Options with attributes populated.
         :rtype: BaseOption
@@ -164,7 +163,7 @@ class BaseOption(Generic[BaseOptionT]):
 
         for attr, value in data.items():
             if isinstance(value, dict) and "class" in value:
-                value = load_option(value)
+                value = load_option(value, config)
             setattr(option, attr, value)
 
         return option
@@ -1068,38 +1067,29 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
     def load_from_dict(
         cls,
         data,
-        options: dict | None = None,
+        config: dict | None = None,
     ) -> DataLabelerOptions:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+        :param config: config to override loading options params from dictionary
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
-        :rtype: BaseOption
+        :rtype: DataLabelerOptions
         """
         data_labeler_object = None
-        data_labeler_load_attr = data.pop("data_labeler_object")
-        if (
-            data_labeler_load_attr is not None
-            and "from_library" in data_labeler_load_attr
-        ):
-            data_labeler_object = (
-                (
-                    options.get(cls.__name__, {})
-                    .get("from_library", {})
-                    .get(data_labeler_load_attr["from_library"])
-                )
-                if options is not None
-                else None
+        data_labeler_load_attr = data.pop("data_labeler_object", {})
+        if data_labeler_load_attr:
+            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+                data_labeler_load_attr, config
             )
-            if data_labeler_object is None:
-                data_labeler_object = DataLabeler.load_from_library(
-                    data_labeler_load_attr["from_library"]
-                )
+            if data_labeler_object:
+                data["data_labeler_object"] = data_labeler_object
+
         dl_options = cast(DataLabelerOptions, super().load_from_dict(data))
-        dl_options.data_labeler_object = data_labeler_object
         return dl_options
 
 

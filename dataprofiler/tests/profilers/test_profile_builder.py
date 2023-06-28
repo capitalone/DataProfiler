@@ -1494,7 +1494,7 @@ class TestStructuredProfiler(unittest.TestCase):
                     "dataprofiler.profilers.profile_builder.DataLabeler",
                     return_value=data_labeler,
                 ):
-                    load_profile = dp.StructuredProfiler.load("mock.pkl")
+                    load_profile = dp.StructuredProfiler.load("mock.pkl", "pickle")
 
                 # validate loaded profile has same data labeler class
                 self.assertIsInstance(
@@ -1517,6 +1517,55 @@ class TestStructuredProfiler(unittest.TestCase):
             load_report = test_utils.clean_report(load_profile.report())
             np.testing.assert_equal(save_report, load_report)
 
+    def test_save_and_load_json_file(self):
+        datapth = "dataprofiler/tests/data/"
+        test_files = ["csv/iris.csv"]
+
+        for test_file in test_files:
+            # Create Data and StructuredProfiler objects
+            data = dp.Data(os.path.join(datapth, test_file))
+            options = ProfilerOptions()
+            options.set(
+                {
+                    "correlation.is_enabled": True,
+                    "null_replication_metrics.is_enabled": True,
+                    "multiprocess.is_enabled": False,
+                }
+            )
+            save_profile = dp.StructuredProfiler(data, options=options)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch("builtins.open") as m:
+                mock_file = setup_save_mock_string_open(m)
+                save_profile.save(save_method="json")
+                mock_file.seek(0)
+                with mock.patch(
+                    "dataprofiler.profilers.utils.DataLabeler.load_from_library",
+                    return_value=data_labeler,
+                ):
+                    load_profile = dp.StructuredProfiler.load("mock.json", "json")
+
+                # validate loaded profile has same data labeler class
+                self.assertIsInstance(
+                    load_profile.options.data_labeler.data_labeler_object,
+                    data_labeler.__class__,
+                )
+
+                # only checks first columns
+                # get first column
+                first_column_profile = load_profile.profile[0]
+                self.assertIsInstance(
+                    first_column_profile.profiles["data_label_profile"]
+                    ._profiles["data_labeler"]
+                    .data_labeler,
+                    data_labeler.__class__,
+                )
+
+            test_utils.assert_profiles_equal(save_profile, load_profile)
+
     def test_save_and_load_no_labeler(self):
         # Create Data and UnstructuredProfiler objects
         data = pd.DataFrame([1, 2, 3], columns=["a"])
@@ -1532,8 +1581,8 @@ class TestStructuredProfiler(unittest.TestCase):
             save_profile.save()
 
             mock_file.seek(0)
-            with mock.patch("dataprofiler.profilers.profile_builder.DataLabeler"):
-                load_profile = dp.StructuredProfiler.load("mock.pkl")
+            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
+                load_profile = dp.StructuredProfiler.load("mock.pkl", "pickle")
 
         # Check that reports are equivalent
         save_report = test_utils.clean_report(save_profile.report())
@@ -3468,6 +3517,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         ):
             UnstructuredProfiler.load_from_dict({}, None)
 
+    @mock.patch("builtins.open")
     def test_save_json_file(self, *mocks):
         data = pd.Series(["this", "is my", "\n\r", "test"])
         save_profile = UnstructuredProfiler(data)
@@ -3941,7 +3991,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.assertIn("vocab", report["data_stats"]["statistics"])
         self.assertIn("words", report["data_stats"]["statistics"])
 
-    def test_save_and_load_pkl(self):
+    def test_save_and_load_pkl_file(self):
         data_folder = "dataprofiler/tests/data/"
         test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
 

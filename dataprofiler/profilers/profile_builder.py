@@ -1588,7 +1588,8 @@ class UnstructuredProfiler(BaseProfiler):
         :type save_method: String
         :return: None
         """
-        if save_method.lower() == "pickle":
+        save_method = save_method.lower()
+        if save_method == "pickle":
             data_dict = {
                 "total_samples": self.total_samples,
                 "sample": self.sample,
@@ -1603,7 +1604,7 @@ class UnstructuredProfiler(BaseProfiler):
                 "times": self.times,
             }
             self._pkl_save_helper(filepath, data_dict)
-        elif save_method.lower() == "json":
+        elif save_method == "json":
             self._json_save_helper(filepath)
         else:
             raise ValueError('save_method must be "json" or "pickle".')
@@ -2893,7 +2894,8 @@ class StructuredProfiler(BaseProfiler):
         :type save_method: String
         :return: None
         """
-        if save_method.lower() == "pickle":
+        save_method = save_method.lower()
+        if save_method == "pickle":
             data_dict = {
                 "total_samples": self.total_samples,
                 "encoding": self.encoding,
@@ -2910,7 +2912,7 @@ class StructuredProfiler(BaseProfiler):
                 "times": self.times,
             }
             self._pkl_save_helper(filepath, data_dict)
-        elif save_method.lower() == "json":
+        elif save_method == "json":
             self._json_save_helper(filepath)
         else:
             raise ValueError('save_method must be "json" or "pickle".')

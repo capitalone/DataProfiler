@@ -1546,7 +1546,7 @@ class TestStructuredProfiler(unittest.TestCase):
                     "dataprofiler.profilers.utils.DataLabeler.load_from_library",
                     return_value=data_labeler,
                 ):
-                    load_profile = dp.StructuredProfiler.load("mock.json", "json")
+                    load_profile = dp.StructuredProfiler.load("mock.json", "JSON")
 
                 # validate loaded profile has same data labeler class
                 self.assertIsInstance(
@@ -1581,7 +1581,7 @@ class TestStructuredProfiler(unittest.TestCase):
             save_profile.save()
 
             mock_file.seek(0)
-            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
+            with mock.patch("dataprofiler.profilers.profile_builder.DataLabeler"):
                 load_profile = dp.StructuredProfiler.load("mock.pkl", "pickle")
 
         # Check that reports are equivalent
@@ -1631,7 +1631,7 @@ class TestStructuredProfiler(unittest.TestCase):
         ) as mock_pb_datetime:
             mock_pb_datetime.now().strftime.return_value = "now"
             mock_file = setup_save_mock_string_open(mock_open)
-            save_profile.save("output/mock.json", "json")
+            save_profile.save("output/mock.json", "JSON")
             mock_file.seek(0)
 
         expected_first_path = "output/mock.json"
@@ -1683,7 +1683,7 @@ class TestStructuredProfiler(unittest.TestCase):
         mock_open.assert_called_with(expected_second_path, "w")
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler",

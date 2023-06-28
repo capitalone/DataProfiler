@@ -11,6 +11,7 @@ from typing import Any, Generic, TypeVar, cast
 from ..labelers.base_data_labeler import BaseDataLabeler
 from . import profiler_utils
 from .json_decoder import load_option
+from ..plugins.__init__ import get_plugins
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
 BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
@@ -1699,6 +1700,7 @@ class ProfilerOptions(BaseOption["ProfilerOptions"]):
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()
         self.presets = presets
+        option_plugins = get_plugins("option_preset")
         if self.presets:
             if self.presets == "complete":
                 self._complete_presets()
@@ -1708,6 +1710,8 @@ class ProfilerOptions(BaseOption["ProfilerOptions"]):
                 self._numeric_stats_disabled_presets()
             elif self.presets == "lower_memory_sketching":
                 self._lower_memory_sketching_presets()
+            elif option_plugins is not None and self.presets in option_plugins:
+                option_plugins[self.presets](self)
             else:
                 raise ValueError("The preset entered is not a valid preset.")
 

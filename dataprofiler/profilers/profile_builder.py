@@ -1174,7 +1174,8 @@ class BaseProfiler:
         :rtype: BaseProfiler
         """
         # Load profile from disk
-
+        if isinstance(load_method, str):
+            load_method = load_method.lower()
         if load_method not in [None, "pickle", "json"]:
             raise ValueError(
                 "Please specify a valid load_method ('pickle','json' or None)"
@@ -1589,6 +1590,7 @@ class UnstructuredProfiler(BaseProfiler):
         :type save_method: String
         :return: None
         """
+        save_method = save_method.lower()
         if save_method == "pickle":
             data_dict = {
                 "total_samples": self.total_samples,
@@ -3031,6 +3033,7 @@ class StructuredProfiler(BaseProfiler):
         :type save_method: String
         :return: None
         """
+        save_method = save_method.lower()
         if save_method == "pickle":
             data_dict = {
                 "total_samples": self.total_samples,

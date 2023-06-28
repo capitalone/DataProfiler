@@ -33,7 +33,12 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
-from .json_decoder import load_compiler, load_option, load_structured_col_profiler
+from .json_decoder import (
+    load_compiler,
+    load_option,
+    load_profiler,
+    load_structured_col_profiler,
+)
 from .json_encoder import ProfileEncoder
 from .profiler_options import (
     BaseOption,
@@ -1157,7 +1162,7 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath: str, load_method: str | None = "pickle") -> BaseProfiler:
         """
         Load profiler from disk.
 
@@ -1168,16 +1173,24 @@ class BaseProfiler:
         :rtype: BaseProfiler
         """
         # Load profile from disk
-        with open(filepath, "rb") as infile:
 
-            if filepath.endswith(".json"):
-                data: dict = json.load(infile)
-            elif filepath.endswith((".pickle", ".pkl")):
-                data = pickle.load(infile)
-            else:
-                raise ValueError(
-                    "Invalid file format. Supported formats are JSON and pickle."
-                )
+        if load_method not in [None, "pickle", "json"]:
+            raise ValueError(
+                "Please specify a valid load_method ('pickle','json' or None)"
+            )
+
+        data: dict | None = None
+        try:
+            if load_method is None or load_method == "pickle":
+                with open(filepath, "rb") as infile:
+                    data = pickle.load(infile)
+        except pickle.UnpicklingError:
+            if load_method == "pickle":
+                raise ValueError("File is unable to be loaded as pickle.")
+        finally:
+            if data is None or load_method == "json":
+                with open(filepath) as infile:
+                    return load_profiler(json.load(infile), {})
 
         # remove profiler class if it exists
         profiler_class: str | None = data.pop("profiler_class", None)
@@ -1595,17 +1608,17 @@ class UnstructuredProfiler(BaseProfiler):
         else:
             raise ValueError('save_method must be "json" or "pickle".')
 
-    def load(self, filepath: str) -> BaseProfiler:
-        """
-        Load Profiler from disk.
+    # def load(self, filepath: str, load_method: str | None) -> BaseProfiler:
+    #     """
+    #     Load Profiler from disk.
 
-        :param filepath: Path of file to load from
-        :return: Profiler being loaded, StructuredProfiler or
-            UnstructuredProfiler
-        :rtype: BaseProfiler
-        """
-        # Create dictionary for all metadata, options, and profile
-        raise NotImplementedError()
+    #     :param filepath: Path of file to load from
+    #     :return: Profiler being loaded, StructuredProfiler or
+    #         UnstructuredProfiler
+    #     :rtype: BaseProfiler
+    #     """
+    #     # Create dictionary for all metadata, options, and profile
+    #     raise NotImplementedError()
 
 
 class StructuredProfiler(BaseProfiler):
@@ -2035,9 +2048,13 @@ class StructuredProfiler(BaseProfiler):
             data["chi2_matrix"] = np.array(data["chi2_matrix"])
         if data["correlation_matrix"] is not None:
             data["correlation_matrix"] = np.array(data["correlation_matrix"])
-        data["_col_name_to_idx"] = defaultdict(
-            list, {int(k): v for k, v in data["_col_name_to_idx"].items()}
-        )
+        try:
+            data["_col_name_to_idx"] = defaultdict(
+                list, {int(k): v for k, v in data["_col_name_to_idx"].items()}
+            )
+        except Exception:
+            data["_col_name_to_idx"] = defaultdict(list, data["_col_name_to_idx"])
+
         data["hashed_row_dict"] = {
             int(k): v for k, v in data["hashed_row_dict"].items()
         }

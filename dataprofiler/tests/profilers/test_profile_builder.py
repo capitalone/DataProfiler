@@ -1581,13 +1581,8 @@ class TestStructuredProfiler(unittest.TestCase):
             save_profile.save()
 
             mock_file.seek(0)
-<<<<<<< HEAD
-            with mock.patch("dataprofiler.profilers.profile_builder.DataLabeler"):
-                load_profile = dp.StructuredProfiler.load("mock.pkl")
-=======
             with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
                 load_profile = dp.StructuredProfiler.load("mock.pkl", "pickle")
->>>>>>> 1e68306 (refactor w/ load_method option, test json load)
 
         # Check that reports are equivalent
         save_report = test_utils.clean_report(save_profile.report())

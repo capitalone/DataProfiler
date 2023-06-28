@@ -1608,18 +1608,6 @@ class UnstructuredProfiler(BaseProfiler):
         else:
             raise ValueError('save_method must be "json" or "pickle".')
 
-    # def load(self, filepath: str, load_method: str | None) -> BaseProfiler:
-    #     """
-    #     Load Profiler from disk.
-
-    #     :param filepath: Path of file to load from
-    #     :return: Profiler being loaded, StructuredProfiler or
-    #         UnstructuredProfiler
-    #     :rtype: BaseProfiler
-    #     """
-    #     # Create dictionary for all metadata, options, and profile
-    #     raise NotImplementedError()
-
 
 class StructuredProfiler(BaseProfiler):
     """For profiling structured data."""

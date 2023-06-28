@@ -1082,13 +1082,12 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         """
         data_labeler_object = None
         data_labeler_load_attr = data.pop("data_labeler_object", {})
-
-        data_labeler_object = utils.reload_labeler_from_options_or_get_new(
-            data_labeler_load_attr, config
-        )
-
-        if data_labeler_object:
-            data["data_labeler_object"] = data_labeler_object
+        if data_labeler_load_attr:
+            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+                data_labeler_load_attr, config
+            )
+            if data_labeler_object:
+                data["data_labeler_object"] = data_labeler_object
 
         dl_options = cast(DataLabelerOptions, super().load_from_dict(data))
         return dl_options

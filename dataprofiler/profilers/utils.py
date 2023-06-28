@@ -843,7 +843,7 @@ def reload_labeler_from_options_or_get_new(
     :return: Profiler with attributes populated.
     :rtype: DataLabelerOptions
     """
-    data_labeler_object = None
+    data_labeler_object: BaseDataLabeler | None = None
     if "from_library" in data_labeler_load_attr:
         data_labeler_object = (
             (
@@ -881,4 +881,13 @@ def reload_labeler_from_options_or_get_new(
                 libray_options.update(labeler_options)
                 class_options["from_library"] = libray_options
                 config[class_name] = class_options
+    elif "from_disk" in data_labeler_load_attr:
+        raise NotImplementedError(
+            "Models intialized from disk have not yet been made deserializable"
+        )
+    else:
+        raise ValueError(
+            "Deserialization cannot be done on labelers without "
+            "_default_model_loc set to known value."
+        )
     return data_labeler_object

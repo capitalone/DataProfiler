@@ -79,10 +79,10 @@ class TestStructuredProfiler(unittest.TestCase):
             )
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnStatsProfileCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnDataLabelerCompiler")
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
     )
@@ -103,16 +103,15 @@ class TestStructuredProfiler(unittest.TestCase):
                 StructuredProfiler(data)
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnStatsProfileCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnDataLabelerCompiler")
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
     )
     @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
+        "dataprofiler.profilers.profile_builder.StructuredProfiler._update_correlation"
     )
     def test_list_data(self, *mocks):
         data = [[1, 1], [None, None], [3, 3], [4, 4], [5, 5], [None, None], [1, 1]]
@@ -132,7 +131,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # validates the sample out maintains the same visual data format as the
         # input.
-        self.assertListEqual(["5", "1", "1", "3", "4"], profiler.profile[0].sample)
+        self.assertListEqual(["1", "4", "5", "1", "3"], profiler.profile[0].sample)
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -2404,7 +2403,17 @@ class TestStructuredProfiler(unittest.TestCase):
         mock_DataLabeler.return_value = mock_labeler
 
         fake_profile_name = None
-        expected_profile = StructuredProfiler(fake_profile_name)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+        expected_profile = StructuredProfiler(
+            fake_profile_name, options=profile_options
+        )
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
         deserialized = load_profiler(json.loads(serialized))
@@ -2440,7 +2449,17 @@ class TestStructuredProfiler(unittest.TestCase):
             "pred": [],
             "conf": [[1, 1], [0, 0]],
         }
-        expected_profile = StructuredProfiler(fake_profile_name)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+        expected_profile = StructuredProfiler(
+            fake_profile_name, options=profile_options
+        )
 
         with test_utils.mock_timeit():
             expected_profile.update_profile(df_structured)
@@ -2471,15 +2490,11 @@ class TestStructuredProfiler(unittest.TestCase):
             ]
         )
 
-        deserialized.update_profile(df_structured)
+        with test_utils.mock_timeit():
+            deserialized.update_profile(df_structured)
+            expected_profile.update_profile(df_structured)
 
-        assert deserialized.total_samples == 5
-        assert deserialized._max_col_samples_used == 5
-        assert deserialized._min_col_samples_used == 5
-        assert deserialized.row_has_null_count == 2
-        assert deserialized.row_is_null_count == 1
-        assert deserialized._get_unique_row_ratio() == 0.80
-        assert deserialized.file_type == "<class 'pandas.core.frame.DataFrame'>"
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):
@@ -2537,19 +2552,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(2999 * 3, src_profile.sample_size)
 
     @mock.patch(
-        "dataprofiler.profilers.column_profile_compilers."
-        "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch(
-        "dataprofiler.profilers.column_profile_compilers." "ColumnStatsProfileCompiler"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.column_profile_compilers." "ColumnDataLabelerCompiler"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_add_profilers(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None])
         profile1 = StructuredColProfiler(data[:2])
@@ -2654,7 +2659,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertDictEqual(
             {
-                "sample": ["4.0", "6.0", "3.0"],
+                "sample": ["6.0", "3.0", "4.0"],
                 "sample_size": 5,
                 "null_count": 2,
                 "null_types": dict(nan=["e", "b"]),
@@ -2671,7 +2676,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         )
         self.assertDictEqual(
             {
-                "sample": ["nan", "6.0", "4.0", "nan"],
+                "sample": ["6.0", "nan", "nan", "4.0"],
                 "sample_size": 6,
                 "null_count": 2,
                 "null_types": {"1.0": ["a"], "3.0": ["c"]},
@@ -2688,7 +2693,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         )
         self.assertDictEqual(
             {
-                "sample": ["3.0", "4.0", "6.0", "nan", "1.0"],
+                "sample": ["3.0", "4.0", "nan", "6.0", "nan"],
                 "sample_size": 6,
                 "null_count": 0,
                 "null_types": {},
@@ -2808,11 +2813,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(10000, update_mock.call_args[0][1])
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_index_overlap_for_update_profile(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile = StructuredColProfiler(data)
@@ -2827,11 +2830,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertDictEqual(profile.null_types_index, {"nan": {1, 4, 6, 9}})
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_index_overlap_for_merge(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile1 = StructuredColProfiler(data)
@@ -2852,11 +2853,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertDictEqual(profile2.null_types_index, {"nan": {1, 4}})
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_min_max_id_properly_update(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None, 1])
         profile1 = StructuredColProfiler(data[:2])
@@ -2879,9 +2878,12 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(0, profile._min_id)
         self.assertEqual(6, profile._max_id)
 
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
     )
     @mock.patch(
         "dataprofiler.profilers.column_profile_compilers."
@@ -3015,7 +3017,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "_sampling_ratio": 0.2,
                 "_min_true_samples": 0,
                 "sample_size": 4,
-                "sample": ["1", "2", "-2"],
+                "sample": ["2", "-2", "1"],
                 "null_count": 1,
                 "null_types": ["Nan"],
                 "null_types_index": {

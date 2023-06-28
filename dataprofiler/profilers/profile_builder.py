@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 import logging
+import os
 import pickle
 import random
 import re
@@ -18,7 +19,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-from .. import data_readers, dp_logging
+from .. import data_readers, dp_logging, settings
 from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
@@ -647,11 +648,22 @@ class StructuredColProfiler:
         df_series = df_series.loc[true_sample_list]
         total_na = total_sample_size - len(true_sample_list)
 
+        rng = np.random.default_rng(settings._seed)
+
+        if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
+            seed = os.environ.get("DATAPROFILER_SEED")
+            if isinstance(seed, int):
+                rng = np.random.default_rng(int(seed))
+            else:
+                warnings.warn("Seed should be an integer", RuntimeWarning)
+
         base_stats = {
             "sample_size": total_sample_size,
             "null_count": total_na,
             "null_types": na_columns,
-            "sample": random.sample(list(df_series.values), min(len(df_series), 5)),
+            "sample": rng.choice(
+                list(df_series.values), (min(len(df_series), 5),), replace=False
+            ).tolist(),
             "min_id": min_id,
             "max_id": max_id,
         }

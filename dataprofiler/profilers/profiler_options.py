@@ -298,9 +298,8 @@ class NumQuantilesOption(BooleanOption):
         if self.num_quantiles is not None and (
             not isinstance(self.num_quantiles, int) or self.num_quantiles < 1
         ):
-            errors.append(
-                "{}.num_quantiles must be a positive integer.".format(variable_path)
-            )
+            errors.append(f"{variable_path}.num_quantiles must be a positive integer.")
+
         return errors
 
 

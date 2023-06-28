@@ -2933,7 +2933,11 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode(self, mock_DataLabeler, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
         mock_labeler = mock.Mock(spec=BaseDataLabeler)
         mock_labeler._default_model_loc = "test"
         mock_DataLabeler.load_from_library = mock_labeler
@@ -2950,12 +2954,19 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
         spec=BaseDataLabeler,
     )
-    def test_json_decode_after_update(self, mock_DataLabeler, *mocks):
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(
+        self, mock_utils_DataLabeler, mock_DataLabeler, *mocks
+    ):
         mock_labeler = mock_DataLabeler.return_value
         mock_labeler._default_model_loc = "test"
         mock_labeler.model.num_labels = 2
         mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
         mock_DataLabeler.load_from_library.return_value = mock_labeler
+        mock_utils_DataLabeler.load_from_library.return_value = mock_labeler
 
         # Build expected StructuredColProfiler
         df_float = pd.Series([-1.5, None, 5.0, 7.0, 4.0, 3.0, "NaN", 0, 0, 9.0]).apply(

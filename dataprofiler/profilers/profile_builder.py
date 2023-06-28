@@ -1168,6 +1168,8 @@ class BaseProfiler:
 
         :param filepath: Path of file to load from
         :type filepath: String
+        :param load_method: The desired loading method
+        :type load_method: String | None
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
@@ -2991,12 +2993,15 @@ class Profiler:
             )
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath: str, load_method: str | None = "pickle") -> BaseProfiler:
         """
         Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String
+        :param load_method: The desired loading method
+        :type load_method: String | None
+
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler

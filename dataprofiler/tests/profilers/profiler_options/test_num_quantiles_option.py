@@ -30,7 +30,7 @@ class TestNumQuantilesOption(TestBooleanOption):
 
         # validate, variable path being passed
         expected_error = (
-            "type object 'test.num_quantiles' has no " "attribute 'is_enabled'"
+            "type object 'test.num_quantiles' has no attribute 'is_enabled'"
         )
         with self.assertRaisesRegex(AttributeError, expected_error):
             option._set_helper({"num_quantiles.is_enabled": True}, "test")
@@ -70,7 +70,7 @@ class TestNumQuantilesOption(TestBooleanOption):
         expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
-        # Option num_quantiles must be a positive integer
+        # Option num_quantiles may not be zero, must be greater than one(1)
         option = self.get_options(num_quantiles=0)
         expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
@@ -99,33 +99,25 @@ class TestNumQuantilesOption(TestBooleanOption):
 
         # Option num_quantiles cannot be a string, must be an int
         option = self.get_options(num_quantiles="Hello World")
-        expected_error = (
-            "NumQuantilesOption.num_quantiles must be a " "positive integer"
-        )
+        expected_error = "NumQuantilesOption.num_quantiles must be a positive integer"
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
 
         # Option num_quantiles cannot be a float, must be an int
         option = self.get_options(num_quantiles=1.1)
-        expected_error = (
-            "NumQuantilesOption.num_quantiles must be a " "positive integer"
-        )
+        expected_error = "NumQuantilesOption.num_quantiles must be a positive integer"
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
 
         # Option num_quantiles must be a positive integer
         option = self.get_options(num_quantiles=0)
-        expected_error = (
-            "NumQuantilesOption.num_quantiles must be a " "positive integer"
-        )
+        expected_error = "NumQuantilesOption.num_quantiles must be a positive integer"
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
 
-        # Option num_quantiles must be a positive integer
+        # Option num_quantiles cannot be a negative integer
         option = self.get_options(num_quantiles=-5)
-        expected_error = (
-            "NumQuantilesOption.num_quantiles must be a " "positive integer"
-        )
+        expected_error = "NumQuantilesOption.num_quantiles must be a positive integer"
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
 

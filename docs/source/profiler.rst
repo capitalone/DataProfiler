@@ -281,6 +281,18 @@ Saving and Loading a Profile
 
 The profiles can easily be saved and loaded as shown below:
 
+There are two save/load methods:
+
+* **pickle save/load**
+    * save a profile as a pkl file.
+    * load a pkl file as a profile object.
+
+* **json save/load**
+    * save a profile as a human-readable json file.
+    * load a json file as a profile object.
+
+**NOTE: json saving and loading isn't supported for unstructured profiles.**
+
 .. code-block:: python
 
     import json
@@ -289,15 +301,19 @@ The profiles can easily be saved and loaded as shown below:
     # Load a CSV file, with "," as the delimiter
     data = Data("your_file.csv")
 
-    # Read in profile and print results
+    # Read data into profile
     profile = Profiler(data)
+
+    # save structured profile to pkl/json file
     profile.save(filepath="my_profile.pkl")
-    
-    loaded_profile = dp.Profiler.load("my_profile.pkl")
-    print(json.dumps(loaded_profile.report(report_options={"output_format": "compact"}), 
+    profile.save(filepath="my_profile.json", save_method="json")
+
+    # load pkl/json file to structured profile
+    loaded_pkl_profile = dp.Profiler.load(filepath="my_profile.pkl")
+    loaded_json_profile = dp.Profiler.load(filepath="my_profile.pkl", load_method="json")
+
+    print(json.dumps(loaded_pkl_profile.report(report_options={"output_format": "compact"}),
                                            indent=4))
-
-
 Structured vs Unstructured Profiles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

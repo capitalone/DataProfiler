@@ -281,7 +281,7 @@ Saving and Loading a Profile
 
 The profiles can easily be saved and loaded as shown below:
 
-**NOTE: json saving and loading isn't supported for unstructured profiles.**
+**NOTE: Json saving and loading only supports Structured Profiles currently.**
 
 There are two save/load methods:
 

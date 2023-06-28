@@ -2297,13 +2297,9 @@ class TestStructuredProfiler(unittest.TestCase):
         mock_DataLabeler.load_from_library = mock_labeler
         mock_utils_DataLabeler.load_from_library = mock_labeler
         mock_DataLabeler.return_value = mock_labeler
-        # mock_labeler = mock_DataLabeler.return_value
         mock_labeler._default_model_loc = "structured_model"
         mock_labeler.model.num_labels = 2
         mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
-        # mock_DataLabeler.load_from_library.return_value = mock_labeler
-        # mock_utils_DataLabeler.load_from_library = mock_labeler
-        # mock_DataLabeler.return_value = mock_DataLabeler
 
         fake_profile_name = None
         df_structured = pd.DataFrame([["1.5", "a", "4"], ["3.0", "z", 7]])

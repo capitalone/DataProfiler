@@ -1138,7 +1138,7 @@ class BaseProfiler:
 
         :param filepath: Path of file to save to
         :type filepath: String
-        :param save_method: the desired saving method (must be "pickle" or "json")
+        :param save_method: The desired saving method (must be "pickle" or "json")
         :type save_method: String
         :return: None
         """
@@ -1551,7 +1551,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         :param filepath: Path of file to save to
         :type filepath: String
-        :param save_method: the desired saving method ("pickle" | "json")
+        :param save_method: The desired saving method ("pickle" | "json")
         :type save_method: String
         :return: None
         """
@@ -2852,7 +2852,7 @@ class StructuredProfiler(BaseProfiler):
 
         :param filepath: Path of file to save to
         :type filepath: String
-        :param save_method: the desired saving method (must be "pickle" or "json")
+        :param save_method: The desired saving method (must be "pickle" or "json")
         :type save_method: String
         :return: None
         """

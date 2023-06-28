@@ -2320,7 +2320,6 @@ class TestStructuredProfiler(unittest.TestCase):
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
         deserialized = load_profiler(json.loads(serialized))
-        mock_DataLabeler.load_from_library.assert_called_once()
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 

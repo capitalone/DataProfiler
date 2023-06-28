@@ -1631,7 +1631,7 @@ class TestStructuredProfiler(unittest.TestCase):
         ) as mock_pb_datetime:
             mock_pb_datetime.now().strftime.return_value = "now"
             mock_file = setup_save_mock_string_open(mock_open)
-            save_profile.save("output/mock.json", "json")
+            save_profile.save("output/mock.json", "JSON")
             mock_file.seek(0)
 
         expected_first_path = "output/mock.json"

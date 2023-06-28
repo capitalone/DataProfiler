@@ -8,6 +8,7 @@ import re
 import warnings
 
 from ..labelers.base_data_labeler import BaseDataLabeler
+from ..plugins.__init__ import get_plugins
 
 
 class BaseOption:
@@ -1563,6 +1564,7 @@ class ProfilerOptions(BaseOption):
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()
         self.presets = presets
+        option_plugins = get_plugins("option_preset")
         if self.presets:
             if self.presets == "complete":
                 self._complete_presets()
@@ -1570,6 +1572,8 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
+            elif option_plugins is not None and self.presets in option_plugins:
+                option_plugins[self.presets](self)
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})

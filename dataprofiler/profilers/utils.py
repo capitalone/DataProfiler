@@ -885,9 +885,4 @@ def reload_labeler_from_options_or_get_new(
         raise NotImplementedError(
             "Models intialized from disk have not yet been made deserializable"
         )
-    else:
-        raise ValueError(
-            "Deserialization cannot be done on labelers without "
-            "_default_model_loc set to known value."
-        )
     return data_labeler_object

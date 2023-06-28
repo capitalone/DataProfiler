@@ -8,6 +8,7 @@ import functools
 import math
 import multiprocessing as mp
 import os
+import random
 import time
 import warnings
 from abc import abstractmethod
@@ -103,14 +104,11 @@ def shuffle_in_chunks(
     if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
-    rng = np.random.default_rng(settings._seed)
-
+    rng = random.Random(x=settings._seed)
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
         seed = os.environ.get("DATAPROFILER_SEED")
-        if isinstance(seed, int):
-            rng = np.random.default_rng(int(seed))
-        else:
-            warnings.warn("Seed should be an integer", RuntimeWarning)
+        if seed:
+            rng = random.Random(int(seed))
 
     indices = KeyDict()
     j = 0
@@ -124,7 +122,9 @@ def shuffle_in_chunks(
 
         # Generate random list of indexes
         lower_bound_list = np.array(range(j, j + true_chunk_size))
-        random_list = rng.integers(lower_bound_list, data_length)
+        random_list = np.empty(len(lower_bound_list))
+        for i in range(len(lower_bound_list)):
+            random_list[i] = rng.randint(lower_bound_list[i], data_length)
 
         # shuffle the indexes
         for count in range(true_chunk_size):

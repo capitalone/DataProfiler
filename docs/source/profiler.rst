@@ -330,9 +330,9 @@ There are two save/load methods:
     profile.save(filepath="my_profile.json", save_method="json")
 
     # load json file to structured profile
-    loaded_json_profile = dp.Profiler.load(filepath="my_profile.pkl", load_method="json")
+    loaded_json_profile = dp.Profiler.load(filepath="my_profile.json", load_method="json")
 
-    print(json.dumps(loaded_pkl_profile.report(report_options={"output_format": "compact"}),
+    print(json.dumps(loaded_json_profile.report(report_options={"output_format": "compact"}),
                                            indent=4))
 Structured vs Unstructured Profiles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

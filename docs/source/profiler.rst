@@ -286,8 +286,9 @@ The profiles can easily be saved and loaded as shown below:
 There are two save/load methods:
 
 * **Pickle save/load**
-    * Save a profile as a `.pkl` file.
-    * Load a `.pkl` file as a profile object.
+
+  * Save a profile as a `.pkl` file.
+  * Load a `.pkl` file as a profile object.
 
 .. code-block:: python
 
@@ -310,8 +311,9 @@ There are two save/load methods:
                                            indent=4))
 
 * **Json save/load**
-    * Save a profile as a human-readable `.json` file.
-    * Load a `.json` file as a profile object.
+
+  * Save a profile as a human-readable `.json` file.
+  * Load a `.json` file as a profile object.
 
 .. code-block:: python
 

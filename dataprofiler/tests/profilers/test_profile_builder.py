@@ -1472,7 +1472,7 @@ class TestStructuredProfiler(unittest.TestCase):
         profile = dp.StructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
 
-    def test_save_and_load_non_json_file(self):
+    def test_save_and_load_pkl_file(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
@@ -1545,61 +1545,112 @@ class TestStructuredProfiler(unittest.TestCase):
         save_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
         load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
 
-    def test_save_json_file(self):
-        datapth = "dataprofiler/tests/data/"
-        test_file = "csv/iris.csv"
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_save_json_file(self, *mocks):
+        mock_labeler = mocks[0].return_value
+        mock_labeler._default_model_loc = "structured_model"
+        mocks[0].load_from_library.return_value = mock_labeler
+
+        df_structured = pd.DataFrame(
+            [
+                [-1.5, 3.0, "nan"],
+                ["a", "z"],
+            ]
+        ).T
 
         # Create Data and StructuredProfiler objects
-        data = dp.Data(os.path.join(datapth, test_file))
-        options = ProfilerOptions()
-        options.set({"correlation.is_enabled": True})
         with test_utils.mock_timeit():
-            save_profile = dp.StructuredProfiler(data)
+            save_profile = dp.StructuredProfiler(df_structured)
 
         # Save and Load profile with Mock IO
-        with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_string_open(m)
-            save_profile.save("mock.json")
+        with mock.patch("builtins.open") as mock_open, mock.patch(
+            "dataprofiler.profilers.profile_builder." "datetime"
+        ) as time_out:
+            time_out.now().strftime.return_value = "now"
+            mock_file = setup_save_mock_string_open(mock_open)
+            save_profile.save("output/mock.json", "json")
             mock_file.seek(0)
 
-        expected = {
+        expected_first_path = "output/mock.json"
+        expected_data = {
             "class": "StructuredProfiler",
             "data": {
                 "_profile": [
                     mock.ANY,
                     mock.ANY,
-                    mock.ANY,
-                    mock.ANY,
-                    mock.ANY,
-                    mock.ANY,
                 ],
                 "options": mock.ANY,
-                "encoding": "utf-8",
-                "file_type": "csv",
+                "encoding": None,
+                "file_type": "<class 'pandas.core.frame.DataFrame'>",
                 "_samples_per_update": None,
                 "_min_true_samples": 0,
-                "total_samples": 150,
+                "total_samples": 3,
                 "times": {"row_stats": 1.0},
                 "_sampling_ratio": 0.2,
                 "_min_sample_size": 5000,
-                "row_has_null_count": 0,
-                "row_is_null_count": 0,
-                "_col_name_to_idx": {
-                    "id": [0],
-                    "sepallengthcm": [1],
-                    "sepalwidthcm": [2],
-                    "petallengthcm": [3],
-                    "petalwidthcm": [4],
-                    "species": [5],
-                },
+                "row_has_null_count": 1,
+                "row_is_null_count": 1,
+                "_col_name_to_idx": {"0": [0], "1": [1]},
                 "correlation_matrix": None,
                 "chi2_matrix": mock.ANY,
-                "hashed_row_dict": mock.ANY,
+                "hashed_row_dict": {
+                    "3389675549807214348": True,
+                    "3478012351066866062": True,
+                    "5121271752956874941": True,
+                },
                 "_null_replication_metrics": None,
             },
         }
-        actual = json.loads(mock_file.read())
-        self.assertDictEqual(expected, actual)
+
+        actual_data = json.loads(mock_file.read())
+
+        mock_open.assert_called_with(expected_first_path, "w")
+        self.assertDictEqual(expected_data, actual_data)
+
+        # do a second call without a specified file path
+        with mock.patch("builtins.open") as mock_open, mock.patch(
+            "dataprofiler.profilers.profile_builder." "datetime"
+        ) as time_out:
+            time_out.now().strftime.return_value = "now"
+            setup_save_mock_string_open(mock_open)
+            save_profile.save(save_method="json")
+
+        expected_second_path = "profile-now.json"
+
+        mock_open.assert_called_with(expected_second_path, "w")
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_save_value_error(self, *mocks):
+        mock_labeler = mocks[0].return_value
+        mock_labeler._default_model_loc = "structured_model"
+        mocks[0].load_from_library.return_value = mock_labeler
+
+        df_structured = pd.DataFrame(
+            [
+                [-1.5, 3.0, "nan"],
+                ["a", "z"],
+            ]
+        ).T
+
+        save_profile = dp.StructuredProfiler(df_structured)
+
+        # Save and Load profile with Mock IO
+        with self.assertRaisesRegex(
+            ValueError, 'save_method must be "json" or "pickle".'
+        ):
+            save_profile.save(save_method="csv")
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -3398,6 +3449,25 @@ class TestUnstructuredProfiler(unittest.TestCase):
         ):
             UnstructuredProfiler.load_from_dict({}, None)
 
+    def test_save_json_file(self, *mocks):
+        data = pd.Series(["this", "is my", "\n\r", "test"])
+        save_profile = UnstructuredProfiler(data)
+
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler serialization not supported."
+        ):
+            save_profile.save(save_method="json")
+
+    def test_save_value_error(self, *mocks):
+        data = pd.Series(["this", "is my", "\n\r", "test"])
+        save_profile = UnstructuredProfiler(data)
+
+        # Save and Load profile with Mock IO
+        with self.assertRaisesRegex(
+            ValueError, 'save_method must be "json" or "pickle".'
+        ):
+            save_profile.save(save_method="csv")
+
 
 class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod
@@ -3852,7 +3922,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.assertIn("vocab", report["data_stats"]["statistics"])
         self.assertIn("words", report["data_stats"]["statistics"])
 
-    def test_save_and_load_non_json(self):
+    def test_save_and_load_pkl(self):
         data_folder = "dataprofiler/tests/data/"
         test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
 
@@ -3946,19 +4016,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(["test", "test2"]))
         load_profile.update_profile(pd.DataFrame(["test", "test2"]))
-
-    def test_save_json_file(self):
-        data_folder = "dataprofiler/tests/data/"
-        test_file = "txt/sentence-10x.txt"
-
-        # Create Data and StructuredProfiler objects
-        data = dp.Data(os.path.join(data_folder, test_file))
-        save_profile = UnstructuredProfiler(data)
-
-        with self.assertRaisesRegex(
-            NotImplementedError, "UnstructuredProfiler serialization not supported."
-        ):
-            save_profile.save("out.json")
 
     def test_options_ingested_correctly(self):
         self.assertIsInstance(self.profiler.options, UnstructuredOptions)

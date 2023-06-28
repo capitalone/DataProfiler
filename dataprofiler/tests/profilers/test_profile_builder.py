@@ -1564,9 +1564,18 @@ class TestStructuredProfiler(unittest.TestCase):
             ]
         ).T
 
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+
         # Create Data and StructuredProfiler objects
         with test_utils.mock_timeit():
-            save_profile = dp.StructuredProfiler(df_structured)
+            save_profile = dp.StructuredProfiler(df_structured, options=profile_options)
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as mock_open, mock.patch(
@@ -1591,20 +1600,20 @@ class TestStructuredProfiler(unittest.TestCase):
                 "_samples_per_update": None,
                 "_min_true_samples": 0,
                 "total_samples": 3,
-                "times": {"row_stats": 1.0},
+                "times": {"correlation": 1.0, "row_stats": 1.0},
                 "_sampling_ratio": 0.2,
                 "_min_sample_size": 5000,
                 "row_has_null_count": 1,
                 "row_is_null_count": 1,
                 "_col_name_to_idx": {"0": [0], "1": [1]},
-                "correlation_matrix": None,
+                "correlation_matrix": mock.ANY,
                 "chi2_matrix": mock.ANY,
                 "hashed_row_dict": {
                     "3389675549807214348": True,
                     "3478012351066866062": True,
                     "5121271752956874941": True,
                 },
-                "_null_replication_metrics": None,
+                "_null_replication_metrics": mock.ANY,
             },
         }
 
@@ -1644,7 +1653,15 @@ class TestStructuredProfiler(unittest.TestCase):
             ]
         ).T
 
-        save_profile = dp.StructuredProfiler(df_structured)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+        save_profile = dp.StructuredProfiler(df_structured, options=profile_options)
 
         # Save and Load profile with Mock IO
         with self.assertRaisesRegex(

@@ -1491,7 +1491,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch(
-                    "dataprofiler.profilers.profile_builder." "DataLabeler",
+                    "dataprofiler.profilers.profile_builder.DataLabeler",
                     return_value=data_labeler,
                 ):
                     load_profile = dp.StructuredProfiler.load("mock.pkl")
@@ -1532,7 +1532,7 @@ class TestStructuredProfiler(unittest.TestCase):
             save_profile.save()
 
             mock_file.seek(0)
-            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
+            with mock.patch("dataprofiler.profilers.profile_builder.DataLabeler"):
                 load_profile = dp.StructuredProfiler.load("mock.pkl")
 
         # Check that reports are equivalent
@@ -1545,7 +1545,7 @@ class TestStructuredProfiler(unittest.TestCase):
         load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler",
@@ -1578,9 +1578,9 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as mock_open, mock.patch(
-            "dataprofiler.profilers.profile_builder." "datetime"
-        ) as time_out:
-            time_out.now().strftime.return_value = "now"
+            "dataprofiler.profilers.profile_builder.datetime"
+        ) as mock_pb_datetime:
+            mock_pb_datetime.now().strftime.return_value = "now"
             mock_file = setup_save_mock_string_open(mock_open)
             save_profile.save("output/mock.json", "json")
             mock_file.seek(0)
@@ -1623,9 +1623,9 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # do a second call without a specified file path
         with mock.patch("builtins.open") as mock_open, mock.patch(
-            "dataprofiler.profilers.profile_builder." "datetime"
-        ) as time_out:
-            time_out.now().strftime.return_value = "now"
+            "dataprofiler.profilers.profile_builder.datetime"
+        ) as mock_pb_datetime:
+            mock_pb_datetime.now().strftime.return_value = "now"
             setup_save_mock_string_open(mock_open)
             save_profile.save(save_method="json")
 

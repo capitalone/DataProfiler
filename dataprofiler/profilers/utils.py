@@ -32,8 +32,10 @@ import scipy
 from pandas import DataFrame, Series
 
 from .. import settings
+from ..labelers.data_labelers import DataLabeler
 
 if TYPE_CHECKING:
+    from ..labelers.base_data_labeler import BaseDataLabeler
     from . import profile_builder
 
 
@@ -825,3 +827,58 @@ def merge_profile_list(
 
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]
+
+
+def reload_labeler_from_options_or_get_new(
+    data_labeler_load_attr: dict, config: dict | None = None
+) -> BaseDataLabeler | None:
+    """
+    If required by the load_attr load a data labeler, but reuse from config if possible.
+
+    :param data_labeler_load_attr: dictionary with attributes and values.
+    :type data_labeler_load_attr: dict[string, dict]
+    :param config: config for loading classes to reuse an existing labeler
+    :type config: dict[string, dict]
+
+    :return: Profiler with attributes populated.
+    :rtype: DataLabelerOptions
+    """
+    data_labeler_object = None
+    if "from_library" in data_labeler_load_attr:
+        data_labeler_object = (
+            (
+                # get options from DLOptions first for reuse
+                config.get("DataLabelerOptions", {})
+                .get("from_library", {})
+                .get(data_labeler_load_attr["from_library"])
+                or
+                # get options from DL column second for reuse
+                config.get("DataLabelerColumn", {})
+                .get("from_library", {})
+                .get(data_labeler_load_attr["from_library"])
+            )
+            if config is not None
+            else None
+        )
+        # load from library if not in options
+        if data_labeler_object is None:
+            data_labeler_object = DataLabeler.load_from_library(
+                data_labeler_load_attr["from_library"]
+            )
+            # save labelers so as not to reload if already loaded
+        if data_labeler_object is not None and config is not None:
+            for class_name in ["DataLabelerOptions", "DataLabelerColumn"]:
+                # get each layer of dicts to not overwrite
+                class_options = config.get(class_name, {})
+                libray_options = class_options.get("from_library", {})
+                # don't replace the one that already exists
+                if data_labeler_load_attr["from_library"] in libray_options:
+                    continue
+                labeler_options = {
+                    data_labeler_load_attr["from_library"]: data_labeler_object
+                }
+                # update the dicts each
+                libray_options.update(labeler_options)
+                class_options["from_library"] = libray_options
+                config[class_name] = class_options
+    return data_labeler_object

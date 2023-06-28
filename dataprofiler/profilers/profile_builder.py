@@ -1169,7 +1169,15 @@ class BaseProfiler:
         """
         # Load profile from disk
         with open(filepath, "rb") as infile:
-            data: dict = pickle.load(infile)
+
+            if filepath.endswith(".json"):
+                data: dict = json.load(infile)
+            elif filepath.endswith((".pickle", ".pkl")):
+                data = pickle.load(infile)
+            else:
+                raise ValueError(
+                    "Invalid file format. Supported formats are JSON and pickle."
+                )
 
         # remove profiler class if it exists
         profiler_class: str | None = data.pop("profiler_class", None)
@@ -1586,6 +1594,18 @@ class UnstructuredProfiler(BaseProfiler):
             self._json_save_helper(filepath)
         else:
             raise ValueError('save_method must be "json" or "pickle".')
+
+    def load(self, filepath: str) -> BaseProfiler:
+        """
+        Load Profiler from disk.
+
+        :param filepath: Path of file to load from
+        :return: Profiler being loaded, StructuredProfiler or
+            UnstructuredProfiler
+        :rtype: BaseProfiler
+        """
+        # Create dictionary for all metadata, options, and profile
+        raise NotImplementedError()
 
 
 class StructuredProfiler(BaseProfiler):

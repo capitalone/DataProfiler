@@ -899,7 +899,8 @@ class BaseProfiler:
         :return: Profiler with attributes populated.
         :rtype: BaseProfiler
         """
-        profiler = cls(None)
+        options = load_option(data["options"], config)
+        profiler = cls(None, options=options)
 
         for attr, value in data.items():
             if "times" == attr:
@@ -908,7 +909,7 @@ class BaseProfiler:
                 for idx, profile in enumerate(value):
                     value[idx] = load_structured_col_profiler(profile, config)
             if "options" == attr:
-                value = load_option(value, config)
+                continue
 
             setattr(profiler, attr, value)
         return profiler

@@ -367,6 +367,7 @@ class TestStructuredOptions(TestBaseOption, JSONDecodeTestMixin):
         expected = {
             "class": "StructuredOptions",
             "data": {
+                "sampling_ratio": 0.2,
                 "multiprocess": {
                     "class": "BooleanOption",
                     "data": {"is_enabled": True},
@@ -408,9 +409,13 @@ class TestStructuredOptions(TestBaseOption, JSONDecodeTestMixin):
                     "class": "BooleanOption",
                     "data": {"is_enabled": False},
                 },
+                "row_statistics": {
+                    "class": "RowStatisticsOptions",
+                    "data": mock.ANY,
+                },
                 "null_values": {"str": 1},
                 "column_null_values": {"2": {"other_str": 5}},
             },
         }
-
+        self.maxDiff = None
         self.assertDictEqual(expected, json.loads(serialized))

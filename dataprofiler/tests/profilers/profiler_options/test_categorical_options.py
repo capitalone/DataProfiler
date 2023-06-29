@@ -291,7 +291,16 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
 
         expected = {
             "class": "CategoricalOptions",
-            "data": {"is_enabled": False, "top_k_categories": 5},
+            "data": {
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_max_num_heavy_hitters": 5000,
+                "cms_relative_error": 0.01,
+                "is_enabled": False,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+                "top_k_categories": 5,
+            },
         }
 
         self.assertDictEqual(expected, json.loads(serialized))

@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import HyperLogLogOptions
 from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
     TestBaseOption,
@@ -171,3 +174,15 @@ class TestHyperLogLogOptions(TestBaseOption):
         self.assertNotEqual(options, options2)
         options2.register_count = 1
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = self.get_options()
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "HyperLogLogOptions",
+            "data": {"seed": 0, "register_count": 15},
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

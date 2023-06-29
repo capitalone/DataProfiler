@@ -1658,7 +1658,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 "_col_name_to_idx": {"0": [0], "1": [1]},
                 "correlation_matrix": mock.ANY,
                 "chi2_matrix": mock.ANY,
-                "hashed_row_dict": {
+                "hashed_row_object": {
                     "3389675549807214348": True,
                     "3478012351066866062": True,
                     "5121271752956874941": True,
@@ -2389,7 +2389,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 "_min_sample_size": 5000,
                 "row_has_null_count": 0,
                 "row_is_null_count": 0,
-                "hashed_row_dict": {},
+                "hashed_row_object": {},
                 "_col_name_to_idx": {},
                 "correlation_matrix": None,
                 "chi2_matrix": None,
@@ -2451,9 +2451,9 @@ class TestStructuredProfiler(unittest.TestCase):
         expected_chi2 = expected["data"].pop("chi2_matrix")
         np.testing.assert_array_almost_equal(expected_chi2, serialized_chi2)
 
-        # hashed_row_dict due to specificity of values
-        serialized_hashed_row_dict = serialized_dict["data"].pop("hashed_row_dict")
-        self.assertEqual(3, len(serialized_hashed_row_dict.keys()))
+        # hashed_row_object due to specificity of values
+        serialized_hashed_row_object = serialized_dict["data"].pop("hashed_row_object")
+        self.assertEqual(3, len(serialized_hashed_row_object.keys()))
 
         self.assertDictEqual(expected, serialized_dict)
 
@@ -4850,7 +4850,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_open(m)
+            mock_file = setup_save_mock_bytes_open(m)
             self.trained_schema_hll.save()
 
             mock_file.seek(0)

@@ -95,7 +95,7 @@ class TestBooleanOption(TestBaseOption, JSONDecodeTestMixin):
         self.assertEqual(options, options2)
 
     def test_json_encode(self):
-        option = BooleanOption(is_enabled=False)
+        option = self.get_options(is_enabled=False)
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 

@@ -826,12 +826,6 @@ Below is an breakdown of all the options.
     * **null_replication_metrics** - Options for calculating null replication metrics
 
       * is_enabled - (Boolean) Enables or disables calculation of null replication metrics
-  * **unstructured_options** - Options responsible for all unstructured data    * **chi2_homogeneity** - Options for the chi-squared test matrix
-
-      * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.
-    * **null_replication_metrics** - Options for calculating null replication metrics
-
-      * is_enabled - (Boolean) Enables or disables calculation of null replication metrics
   * **unstructured_options** - Options responsible for all unstructured data
 
     * **text** - Options for the text profile

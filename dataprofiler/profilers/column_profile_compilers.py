@@ -222,13 +222,13 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
         return self
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None) -> BaseCompiler:
+    def load_from_dict(cls, data, config: dict | None = None) -> BaseCompiler:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
+        :param config: config for loading column profiler params from dictionary
         :type options: Dict | None
 
         :return: Compiler with attributes populated.
@@ -239,7 +239,7 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
         for attr, value in data.items():
             if "_profiles" in attr:
                 for col_type, profile_as_dict in value.items():
-                    value[col_type] = load_column_profile(profile_as_dict, options)
+                    value[col_type] = load_column_profile(profile_as_dict, config)
                 # since needs to be in the same order, use _profilers to enforce
                 value = OrderedDict(
                     {

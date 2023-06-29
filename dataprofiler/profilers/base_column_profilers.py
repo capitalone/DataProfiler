@@ -252,23 +252,23 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
     def load_from_dict(
         cls: type[BaseColumnProfilerT],
         data: dict[str, Any],
-        options: dict | None = None,
+        config: dict | None = None,
     ) -> BaseColumnProfilerT:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
+        :param config: config for loading column profiler params from dictionary
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: BaseColumnProfiler
         """
-        if options is None:
-            options = {}
+        if config is None:
+            config = {}
 
-        class_options = options.get(cls.__name__)
+        class_options = config.get(cls.__name__)
         profile: BaseColumnProfilerT = cls(data["name"], class_options)
 
         time_vals = data.pop("times")

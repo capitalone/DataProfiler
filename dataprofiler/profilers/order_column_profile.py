@@ -315,14 +315,14 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         return self.profile
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None):
+    def load_from_dict(cls, data, config: dict | None = None):
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
+        :param config: options for loading column profiler params from dictionary
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: CategoricalColumn

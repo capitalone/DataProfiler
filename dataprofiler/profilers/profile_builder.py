@@ -2603,7 +2603,7 @@ class StructuredProfiler(BaseProfiler):
         total_row_sum = np.asarray(
             [
                 get_data_type_profiler(profile).sum
-                if get_data_type(profile)
+                if get_data_type(profile) not in [None, "datetime"]
                 else np.nan
                 for profile in self._profile
             ]

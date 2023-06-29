@@ -229,7 +229,7 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
         :param config: config for loading column profiler params from dictionary
-        :type options: Dict | None
+        :type config: Dict | None
 
         :return: Compiler with attributes populated.
         :rtype: BaseCompiler

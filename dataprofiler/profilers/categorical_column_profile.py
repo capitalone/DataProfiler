@@ -553,7 +553,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: dict of counts for each unique value
         :rtype: dict
         """
-        category_count = df_series.value_counts(dropna=False).to_dict()
+        category_count: dict = df_series.value_counts(dropna=False).to_dict()
         return category_count
 
     @BaseColumnProfiler._timeit(name="categories")

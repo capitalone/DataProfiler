@@ -2128,8 +2128,8 @@ class StructuredProfiler(BaseProfiler):
         except Exception:
             data["_col_name_to_idx"] = defaultdict(list, data["_col_name_to_idx"])
 
-        data["hashed_row_dict"] = {
-            int(k): v for k, v in data["hashed_row_dict"].items()
+        data["hashed_row_object"] = {
+            int(k): v for k, v in data["hashed_row_object"].items()
         }
 
         structured_profiler = super().load_from_dict(data, options)
@@ -3044,7 +3044,7 @@ class StructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "row_has_null_count": self.row_has_null_count,
                 "row_is_null_count": self.row_is_null_count,
-                "hashed_row_dict": self.hashed_row_dict,
+                "hashed_row_object": self.hashed_row_object,
                 "_samples_per_update": self._samples_per_update,
                 "_min_true_samples": self._min_true_samples,
                 "options": self.options,

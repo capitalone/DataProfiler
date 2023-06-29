@@ -1057,7 +1057,7 @@ class CorrelationOptions(BaseInspectorOptions["CorrelationOptions"]):
         return errors
 
 
-class HyperLogLogOptions(BaseOption):
+class HyperLogLogOptions(BaseOption["HyperLogLogOptions"]):
     """Options for alternative method of gathering unique row count."""
 
     def __init__(self, seed: int = 0, register_count: int = 15) -> None:
@@ -1101,7 +1101,7 @@ class HyperLogLogOptions(BaseOption):
         return errors
 
 
-class UniqueCountOptions(BooleanOption):
+class UniqueCountOptions(BooleanOption["UniqueCountOptions"]):
     """For configuring options for unique row count."""
 
     def __init__(self, is_enabled: bool = True, hashing_method: str = "full") -> None:
@@ -1142,7 +1142,7 @@ class UniqueCountOptions(BooleanOption):
         return errors
 
 
-class RowStatisticsOptions(BooleanOption):
+class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
     """For configuring options for row statistics."""
 
     def __init__(
@@ -1162,8 +1162,10 @@ class RowStatisticsOptions(BooleanOption):
         :vartype null_count: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
-        self.unique_count = UniqueCountOptions(is_enabled=unique_count)
-        self.null_count = BooleanOption(is_enabled=null_count)
+        self.unique_count: UniqueCountOptions = UniqueCountOptions(
+            is_enabled=unique_count
+        )
+        self.null_count: BooleanOption = BooleanOption(is_enabled=null_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
@@ -1454,18 +1456,18 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
         :vartype sampling_ratio: Union[None, float]
         """
         # Option variables
-        self.multiprocess = BooleanOption()
-        self.int = IntOptions()
-        self.float = FloatOptions()
-        self.datetime = DateTimeOptions()
-        self.text = TextOptions()
-        self.order = OrderOptions()
-        self.category = CategoricalOptions()
-        self.data_labeler = DataLabelerOptions()
-        self.correlation = CorrelationOptions()
-        self.chi2_homogeneity = BooleanOption(is_enabled=True)
-        self.null_replication_metrics = BooleanOption(is_enabled=False)
-        self.row_statistics = RowStatisticsOptions()
+        self.multiprocess: BooleanOption = BooleanOption()
+        self.int: IntOptions = IntOptions()
+        self.float: FloatOptions = FloatOptions()
+        self.datetime: DateTimeOptions = DateTimeOptions()
+        self.text: TextOptions = TextOptions()
+        self.order: OrderOptions = OrderOptions()
+        self.category: CategoricalOptions = CategoricalOptions()
+        self.data_labeler: DataLabelerOptions = DataLabelerOptions()
+        self.correlation: CorrelationOptions = CorrelationOptions()
+        self.chi2_homogeneity: BooleanOption = BooleanOption(is_enabled=True)
+        self.null_replication_metrics: BooleanOption = BooleanOption(is_enabled=False)
+        self.row_statistics: RowStatisticsOptions = RowStatisticsOptions()
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values

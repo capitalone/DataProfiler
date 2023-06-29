@@ -1521,7 +1521,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
     def test_save_and_load_json_file(self):
         datapth = "dataprofiler/tests/data/"
-        test_files = ["csv/iris.csv"]
+        test_files = ["csv/guns.csv", "csv/iris.csv"]
 
         for test_file in test_files:
             # Create Data and StructuredProfiler objects

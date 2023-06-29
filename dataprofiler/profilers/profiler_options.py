@@ -6,11 +6,19 @@ import abc
 import copy
 import re
 import warnings
+from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler
+from . import utils
+from .json_decoder import load_option
+
+BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
+BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")
+NumericalOptionsT = TypeVar("NumericalOptionsT", bound="NumericalOptions")
+BaseInspectorOptionsT = TypeVar("BaseInspectorOptionsT", bound="BaseInspectorOptions")
 
 
-class BaseOption:
+class BaseOption(Generic[BaseOptionT]):
     """For configuring options."""
 
     @property
@@ -138,6 +146,28 @@ class BaseOption:
             return errors
         return None
 
+    @classmethod
+    def load_from_dict(cls, data, config: dict | None = None) -> BaseOption:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param config: config to override loading options params from dictionary
+        :type config: Dict | None
+
+        :return: Options with attributes populated.
+        :rtype: BaseOption
+        """
+        option = cls()
+
+        for attr, value in data.items():
+            if isinstance(value, dict) and "class" in value:
+                value = load_option(value, config)
+            setattr(option, attr, value)
+
+        return option
+
     def __eq__(self, other: object) -> bool:
         """
         Determine equality by ensuring equality of all attributes.
@@ -150,7 +180,7 @@ class BaseOption:
         return self.__dict__ == other.__dict__
 
 
-class BooleanOption(BaseOption):
+class BooleanOption(BaseOption[BooleanOptionT]):
     """For setting Boolean options."""
 
     def __init__(self, is_enabled: bool = True) -> None:
@@ -180,7 +210,7 @@ class BooleanOption(BaseOption):
         return errors
 
 
-class HistogramOption(BooleanOption):
+class HistogramOption(BooleanOption["HistogramOption"]):
     """For setting histogram options."""
 
     def __init__(
@@ -233,7 +263,7 @@ class HistogramOption(BooleanOption):
         return errors
 
 
-class ModeOption(BooleanOption):
+class ModeOption(BooleanOption["ModeOption"]):
     """For setting mode estimation options."""
 
     def __init__(self, is_enabled: bool = True, max_k_modes: int = 5) -> None:
@@ -241,8 +271,8 @@ class ModeOption(BooleanOption):
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
-        :ivar top_k_modes: the max number of modes to return, if applicable
-        :vartype top_k_modes: int
+        :ivar max_k_modes: the max number of modes to return, if applicable
+        :vartype max_k_modes: int
         """
         self.top_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)
@@ -268,7 +298,7 @@ class ModeOption(BooleanOption):
         return errors
 
 
-class BaseInspectorOptions(BooleanOption):
+class BaseInspectorOptions(BooleanOption[BaseInspectorOptionsT]):
     """For setting Base options."""
 
     def __init__(self, is_enabled: bool = True) -> None:
@@ -317,7 +347,7 @@ class BaseInspectorOptions(BooleanOption):
         return is_enabled
 
 
-class NumericalOptions(BaseInspectorOptions):
+class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
     """For configuring options for Numerican Stats Mixin."""
 
     def __init__(self) -> None:
@@ -355,20 +385,20 @@ class NumericalOptions(BaseInspectorOptions):
             stats
         :vartype is_numeric_stats_enabled: bool
         """
-        self.min = BooleanOption(is_enabled=True)
-        self.max = BooleanOption(is_enabled=True)
-        self.mode = ModeOption(is_enabled=True)
-        self.median = BooleanOption(is_enabled=True)
-        self.sum = BooleanOption(is_enabled=True)
-        self.variance = BooleanOption(is_enabled=True)
-        self.skewness = BooleanOption(is_enabled=True)
-        self.kurtosis = BooleanOption(is_enabled=True)
-        self.median_abs_deviation = BooleanOption(is_enabled=True)
-        self.num_zeros = BooleanOption(is_enabled=True)
-        self.num_negatives = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = HistogramOption()
+        self.min: BooleanOption = BooleanOption(is_enabled=True)
+        self.max: BooleanOption = BooleanOption(is_enabled=True)
+        self.mode: ModeOption = ModeOption(is_enabled=True)
+        self.median: BooleanOption = BooleanOption(is_enabled=True)
+        self.sum: BooleanOption = BooleanOption(is_enabled=True)
+        self.variance: BooleanOption = BooleanOption(is_enabled=True)
+        self.skewness: BooleanOption = BooleanOption(is_enabled=True)
+        self.kurtosis: BooleanOption = BooleanOption(is_enabled=True)
+        self.median_abs_deviation: BooleanOption = BooleanOption(is_enabled=True)
+        self.num_zeros: BooleanOption = BooleanOption(is_enabled=True)
+        self.num_negatives: BooleanOption = BooleanOption(is_enabled=True)
+        self.histogram_and_quantiles: HistogramOption = HistogramOption()
         # By default, we correct for bias
-        self.bias_correction = BooleanOption(is_enabled=True)
+        self.bias_correction: BooleanOption = BooleanOption(is_enabled=True)
         BaseInspectorOptions.__init__(self)
 
     @property
@@ -534,7 +564,7 @@ class NumericalOptions(BaseInspectorOptions):
         return errors
 
 
-class IntOptions(NumericalOptions):
+class IntOptions(NumericalOptions["IntOptions"]):
     """For configuring options for Int Column."""
 
     def __init__(self) -> None:
@@ -586,7 +616,7 @@ class IntOptions(NumericalOptions):
         return super()._validate_helper(variable_path)
 
 
-class PrecisionOptions(BooleanOption):
+class PrecisionOptions(BooleanOption["PrecisionOptions"]):
     """For configuring options for precision."""
 
     def __init__(self, is_enabled: bool = True, sample_ratio: float = None) -> None:
@@ -631,7 +661,7 @@ class PrecisionOptions(BooleanOption):
         return errors
 
 
-class FloatOptions(NumericalOptions):
+class FloatOptions(NumericalOptions["FloatOptions"]):
     """For configuring options for Float Column."""
 
     def __init__(self) -> None:
@@ -688,7 +718,7 @@ class FloatOptions(NumericalOptions):
         return errors
 
 
-class TextOptions(NumericalOptions):
+class TextOptions(NumericalOptions["TextOptions"]):
     """For configuring options for Text Column."""
 
     def __init__(self) -> None:
@@ -729,9 +759,9 @@ class TextOptions(NumericalOptions):
         :vartype is_numeric_stats_enabled: bool
         """
         NumericalOptions.__init__(self)
-        self.vocab = BooleanOption(is_enabled=True)
-        self.num_zeros = BooleanOption(is_enabled=False)
-        self.num_negatives = BooleanOption(is_enabled=False)
+        self.vocab: BooleanOption = BooleanOption(is_enabled=True)
+        self.num_zeros: BooleanOption = BooleanOption(is_enabled=False)
+        self.num_negatives: BooleanOption = BooleanOption(is_enabled=False)
 
     def _validate_helper(self, variable_path: str = "TextOptions") -> list[str]:
         """
@@ -815,7 +845,7 @@ class TextOptions(NumericalOptions):
         self.histogram_and_quantiles.is_enabled = value
 
 
-class DateTimeOptions(BaseInspectorOptions):
+class DateTimeOptions(BaseInspectorOptions["DateTimeOptions"]):
     """For configuring options for Datetime Column."""
 
     def __init__(self) -> None:
@@ -839,7 +869,7 @@ class DateTimeOptions(BaseInspectorOptions):
         return super()._validate_helper(variable_path)
 
 
-class OrderOptions(BaseInspectorOptions):
+class OrderOptions(BaseInspectorOptions["OrderOptions"]):
     """For configuring options for Order Column."""
 
     def __init__(self) -> None:
@@ -863,15 +893,19 @@ class OrderOptions(BaseInspectorOptions):
         return super()._validate_helper(variable_path)
 
 
-class CategoricalOptions(BaseInspectorOptions):
+class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
     """For configuring options Categorical Column."""
 
     def __init__(
         self,
         is_enabled: bool = True,
-        top_k_categories: int = None,
+        top_k_categories: int | None = None,
         max_sample_size_to_check_stop_condition: int | None = None,
         stop_condition_unique_value_ratio: float | None = None,
+        cms: bool = False,
+        cms_confidence: float | None = 0.95,
+        cms_relative_error: float | None = 0.01,
+        cms_max_num_heavy_hitters: int | None = 5000,
     ) -> None:
         """
         Initialize options for the Categorical Column.
@@ -886,6 +920,17 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar stop_condition_unique_value_ratio: The highest ratio of unique
             values to dataset size that is to be considered a categorical type
         :vartype stop_condition_unique_value_ratio: [None, float]
+        :ivar cms: boolean option for using count min sketch
+        :vartype cms: bool
+        :ivar cms_confidence: defines the number of hashes used in CMS.
+            eg. confidence = 1 - failure probability, default 0.95
+        :vartype cms_confidence: [None, float]
+        :ivar cms_relative_error: defines the number of buckets used in CMS,
+            default 0.01
+        :vartype cms_relative_error: [None, float]
+        :ivar cms_max_num_heavy_hitters: value used to define
+        the threshold for minimum frequency required by a category to be counted
+        :vartype cms_max_num_heavy_hitters: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -893,6 +938,10 @@ class CategoricalOptions(BaseInspectorOptions):
             max_sample_size_to_check_stop_condition
         )
         self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
+        self.cms = cms
+        self.cms_confidence = cms_confidence
+        self.cms_relative_error = cms_relative_error
+        self.cms_max_num_heavy_hitters = cms_max_num_heavy_hitters
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -940,10 +989,36 @@ class CategoricalOptions(BaseInspectorOptions):
                 "set or not set.".format(variable_path, variable_path)
             )
 
+        if self.cms_confidence is not None and (
+            not isinstance(self.cms_confidence, float)
+            or self.cms_confidence < 0
+            or self.cms_confidence > 1.0
+        ):
+            errors.append(
+                "{}.cms_confidence must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms_relative_error is not None and (
+            not isinstance(self.cms_relative_error, float)
+            or self.cms_relative_error < 0
+            or self.cms_relative_error > 1.0
+        ):
+            errors.append(
+                "{}.cms_relative_error must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if self.cms and not isinstance(self.cms_max_num_heavy_hitters, int):
+            errors.append(
+                "{}.if using count min sketch, you must pass an"
+                "integer value for cms_max_num_heavy_hitters".format(variable_path)
+            )
+
         return errors
 
 
-class CorrelationOptions(BaseInspectorOptions):
+class CorrelationOptions(BaseInspectorOptions["CorrelationOptions"]):
     """For configuring options for Correlation between Columns."""
 
     def __init__(self, is_enabled: bool = False, columns: list[str] = None) -> None:
@@ -982,7 +1057,7 @@ class CorrelationOptions(BaseInspectorOptions):
         return errors
 
 
-class HyperLogLogOptions(BaseOption):
+class HyperLogLogOptions(BaseOption["HyperLogLogOptions"]):
     """Options for alternative method of gathering unique row count."""
 
     def __init__(self, seed: int = 0, register_count: int = 15) -> None:
@@ -1026,7 +1101,7 @@ class HyperLogLogOptions(BaseOption):
         return errors
 
 
-class UniqueCountOptions(BooleanOption):
+class UniqueCountOptions(BooleanOption["UniqueCountOptions"]):
     """For configuring options for unique row count."""
 
     def __init__(self, is_enabled: bool = True, hashing_method: str = "full") -> None:
@@ -1067,18 +1142,30 @@ class UniqueCountOptions(BooleanOption):
         return errors
 
 
-class RowStatisticsOptions(BooleanOption):
+class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
     """For configuring options for row statistics."""
 
-    def __init__(self, is_enabled: bool = True, unique_count: bool = True) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        unique_count: bool = True,
+        null_count: bool = True,
+    ) -> None:
         """
         Initialize options for row statistics.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
+        :ivar unique_count: boolean option to enable/disable unique_count
+        :vartype unique_count: bool
+        ivar null_count: boolean option to enable/disable null_count
+        :vartype null_count: bool
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
-        self.unique_count = UniqueCountOptions(is_enabled=unique_count)
+        self.unique_count: UniqueCountOptions = UniqueCountOptions(
+            is_enabled=unique_count
+        )
+        self.null_count: BooleanOption = BooleanOption(is_enabled=null_count)
 
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
@@ -1094,13 +1181,18 @@ class RowStatisticsOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.unique_count, UniqueCountOptions):
             errors.append(
-                f"{variable_path}.full_hashing must be an UniqueCountOptions."
+                f"{variable_path}.unique_count must be an UniqueCountOptions."
             )
+
+        if not isinstance(self.null_count, BooleanOption):
+            errors.append(f"{variable_path}.null_count must be an BooleanOption.")
+
         errors += self.unique_count._validate_helper(variable_path + ".unique_counts")
+        errors += self.null_count._validate_helper(variable_path + ".null_count")
         return super()._validate_helper(variable_path)
 
 
-class DataLabelerOptions(BaseInspectorOptions):
+class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
     """For configuring options for Data Labeler Column."""
 
     def __init__(self) -> None:
@@ -1196,8 +1288,37 @@ class DataLabelerOptions(BaseInspectorOptions):
             errors.append(f"{variable_path}.max_sample_size must be greater than 0.")
         return errors
 
+    @classmethod
+    def load_from_dict(
+        cls,
+        data,
+        config: dict | None = None,
+    ) -> DataLabelerOptions:
+        """
+        Parse attribute from json dictionary into self.
 
-class TextProfilerOptions(BaseInspectorOptions):
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param config: config to override loading options params from dictionary
+        :type config: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: DataLabelerOptions
+        """
+        data_labeler_object = None
+        data_labeler_load_attr = data.pop("data_labeler_object", {})
+        if data_labeler_load_attr:
+            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+                data_labeler_load_attr, config
+            )
+            if data_labeler_object:
+                data["data_labeler_object"] = data_labeler_object
+
+        dl_options = cast(DataLabelerOptions, super().load_from_dict(data))
+        return dl_options
+
+
+class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
     """For configuring options for text profiler."""
 
     def __init__(
@@ -1231,8 +1352,8 @@ class TextProfilerOptions(BaseInspectorOptions):
         self.stop_words = stop_words
         self.top_k_chars = top_k_chars
         self.top_k_words = top_k_words
-        self.vocab = BooleanOption(is_enabled=True)
-        self.words = BooleanOption(is_enabled=True)
+        self.vocab: BooleanOption = BooleanOption(is_enabled=True)
+        self.words: BooleanOption = BooleanOption(is_enabled=True)
 
     def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> list[str]:
         """
@@ -1289,7 +1410,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         return errors
 
 
-class StructuredOptions(BaseOption):
+class StructuredOptions(BaseOption["StructuredOptions"]):
     """For configuring options for structured profiler."""
 
     def __init__(
@@ -1335,18 +1456,18 @@ class StructuredOptions(BaseOption):
         :vartype sampling_ratio: Union[None, float]
         """
         # Option variables
-        self.multiprocess = BooleanOption()
-        self.int = IntOptions()
-        self.float = FloatOptions()
-        self.datetime = DateTimeOptions()
-        self.text = TextOptions()
-        self.order = OrderOptions()
-        self.category = CategoricalOptions()
-        self.data_labeler = DataLabelerOptions()
-        self.correlation = CorrelationOptions()
-        self.chi2_homogeneity = BooleanOption(is_enabled=True)
-        self.null_replication_metrics = BooleanOption(is_enabled=False)
-        self.row_statistics = RowStatisticsOptions()
+        self.multiprocess: BooleanOption = BooleanOption()
+        self.int: IntOptions = IntOptions()
+        self.float: FloatOptions = FloatOptions()
+        self.datetime: DateTimeOptions = DateTimeOptions()
+        self.text: TextOptions = TextOptions()
+        self.order: OrderOptions = OrderOptions()
+        self.category: CategoricalOptions = CategoricalOptions()
+        self.data_labeler: DataLabelerOptions = DataLabelerOptions()
+        self.correlation: CorrelationOptions = CorrelationOptions()
+        self.chi2_homogeneity: BooleanOption = BooleanOption(is_enabled=True)
+        self.null_replication_metrics: BooleanOption = BooleanOption(is_enabled=False)
+        self.row_statistics: RowStatisticsOptions = RowStatisticsOptions()
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
@@ -1487,7 +1608,7 @@ class StructuredOptions(BaseOption):
         return errors
 
 
-class UnstructuredOptions(BaseOption):
+class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
     """For configuring options for unstructured profiler."""
 
     def __init__(self) -> None:
@@ -1545,7 +1666,7 @@ class UnstructuredOptions(BaseOption):
         return errors
 
 
-class ProfilerOptions(BaseOption):
+class ProfilerOptions(BaseOption["ProfilerOptions"]):
     """For configuring options for profiler."""
 
     def __init__(self, presets: str = None) -> None:
@@ -1557,7 +1678,8 @@ class ProfilerOptions(BaseOption):
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
         :ivar presets: A pre-configured mapping of a string name to group of options:
-            "complete", "data_types", and "numeric_stats_disabled". Default: None
+            "complete", "data_types", "numeric_stats_disabled",
+            and "lower_memory_sketching". Default: None
         :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
@@ -1570,6 +1692,10 @@ class ProfilerOptions(BaseOption):
                 self._data_types_presets()
             elif self.presets == "numeric_stats_disabled":
                 self._numeric_stats_disabled_presets()
+            elif self.presets == "lower_memory_sketching":
+                self._lower_memory_sketching_presets()
+            else:
+                raise ValueError("The preset entered is not a valid preset.")
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})
@@ -1582,6 +1708,18 @@ class ProfilerOptions(BaseOption):
         self.set({"*.int.is_numeric_stats_enabled": False})
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
+
+    def _lower_memory_sketching_presets(self) -> None:
+        self.set({"row_statistics.unique_count.hashing_method": "hll"})
+        self.set(
+            {
+                (
+                    "structured_options.category."
+                    "max_sample_size_to_check_stop_condition"
+                ): 5000
+            }
+        )
+        self.set({"structured_options.category.stop_condition_unique_value_ratio": 0.5})
 
     def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """
@@ -1620,7 +1758,7 @@ class ProfilerOptions(BaseOption):
 
         return errors
 
-    def set(self, options: dict[str, bool]) -> None:
+    def set(self, options: dict[str, Any]) -> None:
         """
         Overwrite BaseOption.set.
 

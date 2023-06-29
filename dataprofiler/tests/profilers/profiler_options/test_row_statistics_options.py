@@ -1,3 +1,7 @@
+import json
+from unittest import mock
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import RowStatisticsOptions
 from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
     TestBooleanOption,
@@ -7,7 +11,7 @@ from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
 class TestRowStatisticsOptions(TestBooleanOption):
 
     option_class = RowStatisticsOptions
-    keys = ["unique_count"]
+    keys = ["unique_count", "null_count"]
 
     def get_options(self, **params):
         options = RowStatisticsOptions()
@@ -75,3 +79,18 @@ class TestRowStatisticsOptions(TestBooleanOption):
         self.assertNotEqual(options, options2)
         options2.is_enabled = False
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = self.get_options(is_enabled=False)
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "RowStatisticsOptions",
+            "data": {
+                "is_enabled": False,
+                "unique_count": {"class": "UniqueCountOptions", "data": mock.ANY},
+                "null_count": {"class": "BooleanOption", "data": {"is_enabled": True}},
+            },
+        }
+        self.assertDictEqual(expected, json.loads(serialized))

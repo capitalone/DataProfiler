@@ -1,6 +1,7 @@
 import os
 import unittest
 from io import BytesIO, StringIO, TextIOWrapper
+from itertools import islice
 
 import pandas as pd
 
@@ -541,8 +542,6 @@ class TestCSVDataClass(unittest.TestCase):
                 self.assertEqual(input_data_obj.data_format, data_format)
                 data = input_data_obj.data
                 if data_format == "dataframe":
-                    import pandas as pd
-
                     self.assertIsInstance(data, pd.DataFrame)
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
@@ -605,11 +604,67 @@ class TestCSVDataClass(unittest.TestCase):
         self.assertEqual(1, csv_data.header)
         self.assertEqual("1", first_value)
 
+    def test_set_header_with_sample(self):
+        test_dir = os.path.join(test_root_path, "data")
+        filename = "csv/sparse-first-and-last-column-two-headers.txt"
+        filename = os.path.join(test_dir, filename)
+
+        # set bad header setting
+        options = dict(header=-2, sample_nrows=100)
+        with self.assertRaisesRegex(
+            ValueError,
+            "`header` must be one of following: auto, "
+            "none for no header, or a non-negative "
+            "integer for the row that represents the "
+            r"header \(0 based index\)",
+        ):
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+
+        # set bad header setting
+        options = dict(header="abcdef", sample_nrows=100)
+        with self.assertRaisesRegex(
+            ValueError,
+            "`header` must be one of following: auto, "
+            "none for no header, or a non-negative "
+            "integer for the row that represents the "
+            r"header \(0 based index\)",
+        ):
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+
+        # set header auto
+        options = dict(header="auto", sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(1, csv_data.header)
+        self.assertEqual("1", first_value)
+
+        # set header None (no header)
+        options = dict(header=None, sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertIsNone(csv_data.header)  # should be None
+        self.assertEqual("COUNT", first_value)
+
+        # set header 0
+        options = dict(header=0, sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(0, csv_data.header)
+        self.assertEqual("CONTAR", first_value)
+
+        # set header 1
+        options = dict(header=1, sample_nrows=100)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(1, csv_data.header)
+        self.assertEqual("1", first_value)
+
     def test_header_check_files(self):
         """
         Determine if files with no header are properly determined.
         """
-        from itertools import islice
 
         # add some more files to the list to test the header detection
         # these files have some first lines which are not the header
@@ -691,6 +746,13 @@ class TestCSVDataClass(unittest.TestCase):
             expected_error="'record_samples_per_line' must be an int more than " "0",
         )
 
+        _test_options(
+            "sample_nrows",
+            valid=[10, 15, 100],
+            invalid=[[-1, 0, dict()]],
+            expected_error="'sample_nrows' must be an int more than " "0",
+        )
+
         # test edge case for header being set
         file = self.input_file_names[0]
         filepath = file["path"]
@@ -715,6 +777,21 @@ class TestCSVDataClass(unittest.TestCase):
             data = Data(input_file["path"])
             self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
             self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
+
+    def test_len_sampled_data(self):
+        """
+        Validate that length called on CSVData is appropriately determining the
+        length value.
+        """
+
+        for input_file in self.file_or_buf_list:
+            data = Data(input_file["path"], options={"sample_nrows": 100})
+            self.assertEqual(
+                min(100, input_file["count"]), len(data), msg=input_file["path"]
+            )
+            self.assertEqual(
+                min(100, input_file["count"]), data.length, msg=input_file["path"]
+            )
 
     def test_is_structured(self):
         # Default construction

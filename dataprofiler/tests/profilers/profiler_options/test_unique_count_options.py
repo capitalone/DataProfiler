@@ -1,3 +1,7 @@
+import json
+from unittest import mock
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import UniqueCountOptions
 from dataprofiler.tests.profilers.profiler_options.test_boolean_option import (
     TestBooleanOption,
@@ -93,3 +97,18 @@ class TestUniqueCountOptions(TestBooleanOption):
         self.assertNotEqual(options, options2)
         options2.is_enabled = False
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = self.get_options(is_enabled=False)
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "UniqueCountOptions",
+            "data": {
+                "is_enabled": False,
+                "hashing_method": "full",
+                "hll": {"class": "HyperLogLogOptions", "data": mock.ANY},
+            },
+        }
+        self.assertDictEqual(expected, json.loads(serialized))

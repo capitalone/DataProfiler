@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import CategoricalColumn
-from dataprofiler.profilers.json_decoder import decode_column_profiler
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import StructuredColProfiler
 from dataprofiler.profilers.profiler_options import CategoricalOptions
@@ -272,7 +272,6 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertCountEqual(categories, profile.categories)
 
     def test_categorical_mapping(self):
-
         df1 = pd.Series(
             [
                 "abcd",
@@ -843,6 +842,10 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
+                    "_cms_max_num_heavy_hitters": 5000,
+                    "cms_num_hashes": None,
+                    "cms_num_buckets": None,
+                    "cms": None,
                 },
             }
         )
@@ -868,7 +871,7 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         profile = CategoricalColumn(df_categorical.name)
 
-        with patch("time.time", side_effect=lambda: 0.0):
+        with test_utils.mock_timeit():
             profile.update(df_categorical)
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
@@ -880,7 +883,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "col_index": np.nan,
                     "sample_size": 12,
                     "metadata": {},
-                    "times": {"categories": 0.0},
+                    "times": {"categories": 1.0},
                     "thread_safe": True,
                     "_categories": {"c": 5, "b": 4, "a": 3},
                     "_CategoricalColumn__calculations": {},
@@ -890,6 +893,10 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": None,
                     "_stopped_at_unique_count": None,
+                    "_cms_max_num_heavy_hitters": 5000,
+                    "cms_num_hashes": None,
+                    "cms_num_buckets": None,
+                    "cms": None,
                 },
             }
         )
@@ -901,7 +908,7 @@ class TestCategoricalColumn(unittest.TestCase):
         expected_profile = CategoricalColumn(fake_profile_name)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = decode_column_profiler(serialized)
+        deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
@@ -928,13 +935,186 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         expected_profile = CategoricalColumn(fake_profile_name)
 
-        with patch("time.time", side_effect=lambda: 0.0):
+        with test_utils.mock_timeit():
             expected_profile.update(df_categorical)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = decode_column_profiler(serialized)
+        deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_categorical = pd.Series(
+            [
+                "a",  # add existing
+                "d",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_categorical)
+
+        assert deserialized.sample_size == 14
+        assert deserialized.categorical_counts == {"c": 5, "b": 4, "a": 4, "d": 1}
+
+    def test_cms_max_num_heavy_hitters(self):
+        df_categorical = pd.Series(["a"] * 5 + ["b"] * 5 + ["c"] * 10)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 2
+
+        profile = CategoricalColumn("test_name", options)
+        profile.update(df_categorical)
+
+        self.assertEqual({"c": 10}, profile._categories)
+        self.assertTrue(profile.sample_size >= 10)
+
+    def test_cms_update_hybrid_batch_stream(self):
+        dataset = pd.Series(["a"] * 7 + ["b"] * 9 + ["c"] * 14)
+        dataset1 = pd.Series(["a"] * 9 + ["b"] * 11 + ["c"] * 9 + ["d"] * 1)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile = CategoricalColumn("test_name", options)
+        profile.update(dataset)
+
+        expected_categories = ["c"]
+        expected_categories_dict = {"c": 14}
+
+        self.assertEqual(profile.sample_size, len(dataset))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
+
+        profile.update(dataset1)
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 20, "c": 23}
+
+        self.assertEqual(profile.sample_size, len(dataset) + len(dataset1))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
+
+    def test_cms_profile_merge_via_add(self):
+
+        dataset = pd.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
+        dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
+
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 22, "c": 23}
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile1 = CategoricalColumn("test_name", options)
+        profile1.update(dataset)
+
+        expected_categories = ["b"]
+        expected_categories_dict = {"b": 12}
+
+        self.assertEqual(profile1._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile1.categories)
+
+        profile2 = CategoricalColumn("test_name", options)
+        profile2.update(dataset1)
+
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 10, "c": 14}
+
+        self.assertEqual(profile2._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile2.categories)
+
+        # Add profiles
+        profile3 = profile1 + profile2
+
+        expected_categories = ["b", "c"]
+        expected_categories_dict = {"b": 22, "c": 23}
+
+        self.assertEqual(
+            profile3.sample_size, profile1.sample_size + profile2.sample_size
+        )
+        self.assertEqual(profile3._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile3.categories)
+
+    def test_cms_profile_min_max_num_heavy_hitters(self):
+
+        dataset = pd.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
+        dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile1 = CategoricalColumn("test_name", options)
+        profile1.update(dataset)
+
+        options.cms_max_num_heavy_hitters = 10
+        profile2 = CategoricalColumn("test_name", options)
+        profile2.update(dataset1)
+
+        # Add profiles
+        profile3 = profile1 + profile2
+
+        self.assertEqual(profile3._cms_max_num_heavy_hitters, 3)
+
+    def test_cms_catch_overwriting_with_missing_dict(self):
+
+        dataset = pd.Series(["b"] * 2 + ["c"] * 14)
+        dataset1 = pd.Series(["b"] * 5 + ["c"] * 10)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile = CategoricalColumn("test_name", options)
+        profile.update(dataset)
+
+        expected_categories = ["c"]
+        expected_categories_dict = {"c": 14}
+
+        self.assertEqual(profile.sample_size, len(dataset))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
+
+        profile.update(dataset1)
+        expected_categories = ["c"]
+        expected_categories_dict = {"c": 24}
+
+        self.assertEqual(profile.sample_size, len(dataset) + len(dataset1))
+        self.assertEqual(profile._categories, expected_categories_dict)
+        self.assertCountEqual(expected_categories, profile.categories)
+
+    def test_cms_vs_full_mismatch_merge(self):
+
+        dataset = pd.Series(["b"] * 2 + ["c"] * 14)
+
+        options = CategoricalOptions()
+        options.cms = True
+        options.cms_confidence = 0.95
+        options.cms_relative_error = 0.01
+        options.cms_max_num_heavy_hitters = 3
+
+        profile_cms = CategoricalColumn("test_name", options)
+        profile_cms.update(dataset)
+        profile = CategoricalColumn("test_name")
+        profile.update(dataset)
+
+        with self.assertRaisesRegex(
+            Exception,
+            "Unable to add two profiles: One is using count min sketch"
+            "and the other is using full.",
+        ):
+            profile3 = profile_cms + profile
 
 
 class TestCategoricalSentence(unittest.TestCase):

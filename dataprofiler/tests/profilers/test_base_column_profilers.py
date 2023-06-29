@@ -163,7 +163,7 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             }
         )
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(expected, serialized)
 
 
 class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):

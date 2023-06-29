@@ -1,12 +1,18 @@
+import json
 import re
+from unittest import mock
 
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import StructuredOptions
+from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
+    JSONDecodeTestMixin,
+)
 from dataprofiler.tests.profilers.profiler_options.test_base_option import (
     TestBaseOption,
 )
 
 
-class TestStructuredOptions(TestBaseOption):
+class TestStructuredOptions(TestBaseOption, JSONDecodeTestMixin):
 
     option_class = StructuredOptions
     other_keys = ["null_values", "column_null_values"]
@@ -350,3 +356,66 @@ class TestStructuredOptions(TestBaseOption):
         self.assertNotEqual(options, options2)
         options2.float.precision.sample_ratio = 0.1
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = StructuredOptions(
+            null_values={"str": 1}, column_null_values={2: {"other_str": 5}}
+        )
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "StructuredOptions",
+            "data": {
+                "sampling_ratio": 0.2,
+                "multiprocess": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "int": {
+                    "class": "IntOptions",
+                    "data": mock.ANY,
+                },
+                "float": {
+                    "class": "FloatOptions",
+                    "data": mock.ANY,
+                },
+                "datetime": {
+                    "class": "DateTimeOptions",
+                    "data": {"is_enabled": True},
+                },
+                "text": {
+                    "class": "TextOptions",
+                    "data": mock.ANY,
+                },
+                "order": {"class": "OrderOptions", "data": {"is_enabled": True}},
+                "category": {
+                    "class": "CategoricalOptions",
+                    "data": mock.ANY,
+                },
+                "data_labeler": {
+                    "class": "DataLabelerOptions",
+                    "data": mock.ANY,
+                },
+                "correlation": {
+                    "class": "CorrelationOptions",
+                    "data": mock.ANY,
+                },
+                "chi2_homogeneity": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "null_replication_metrics": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": False},
+                },
+                "row_statistics": {
+                    "class": "RowStatisticsOptions",
+                    "data": mock.ANY,
+                },
+                "null_values": {"str": 1},
+                "column_null_values": {"2": {"other_str": 5}},
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

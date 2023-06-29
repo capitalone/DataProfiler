@@ -1,9 +1,13 @@
 """Contains functions for data readers."""
 import json
+import os
+import random
 import re
 import urllib
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
+from itertools import islice
+from math import floor, log, log1p
 from typing import (
     Any,
     Dict,
@@ -24,7 +28,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
-from .. import dp_logging
+from .. import dp_logging, settings
 from .._typing import JSONType, Url
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
@@ -268,10 +272,106 @@ def read_json(
     return lines
 
 
+def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
+    """
+    Implement the mathematical logic of Reservoir sampling.
+
+    :param file: wrapper of the opened csv file
+    :type file: TextIOWrapper
+    :param sample_nrows: number of rows to sample
+    :type sample_nrows: int
+
+    :raises: ValueError()
+
+    :return: sampled values
+    :rtype: list
+    """
+    # Copyright 2021 Oscar Benjamin
+    #
+    # Permission is hereby granted, free of charge, to any person obtaining a copy
+    # of this software and associated documentation files (the "Software"), to deal
+    # in the Software without restriction, including without limitation the rights
+    # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    # copies of the Software, and to permit persons to whom the Software is
+    # furnished to do so, subject to the following conditions:
+    #
+    # The above copyright notice and this permission notice shall be included in
+    # all copies or substantial portions of the Software.
+    #
+    # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    # SOFTWARE.
+    # https://gist.github.com/oscarbenjamin/4c1b977181f34414a425f68589e895d1
+
+    iterator = iter(file)
+    values = list(islice(iterator, sample_nrows))
+
+    irange = range(len(values))
+    indices = dict(zip(irange, irange))
+
+    kinv = 1 / sample_nrows
+    W = 1.0
+    rng = random.Random(x=settings._seed)
+    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
+        seed = os.environ.get("DATAPROFILER_SEED")
+        if seed:
+            rng = random.Random(int(seed))
+
+    while True:
+        W *= rng.random() ** kinv
+        # random() < 1.0 but random() ** kinv might not be
+        # W == 1.0 implies "infinite" skips
+        if W == 1.0:
+            break
+        # skip is geometrically distributed with parameter W
+        skip = floor(log(rng.random()) / log1p(-W))
+        try:
+            newval = next(islice(iterator, skip, skip + 1))
+        except StopIteration:
+            break
+        # Append new, replace old with dummy, and keep track of order
+        remove_index = rng.randrange(sample_nrows)
+        values[indices[remove_index]] = str(None)
+        indices[remove_index] = len(values)
+        values.append(newval)
+
+    values = [values[indices[i]] for i in irange]
+    return values
+
+
+def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> StringIO:
+    """
+    Implement Reservoir Sampling to sample n rows out of a total of M rows.
+
+    :param file_path: path of the csv file to be read in
+    :type file_path: TextIOWrapper
+    :param sample_nrows: number of rows being sampled
+    :type sample_nrows: int
+    :param args: options to read the csv file
+    :type args: dict
+    """
+    header = args["header"]
+    result = []
+
+    if header is not None:
+        result = [[next(file_path) for i in range(header + 1)][-1]]
+        args["header"] = 0
+
+    result += reservoir(file_path, sample_nrows)
+
+    fo = StringIO("".join([i if (i[-1] == "\n") else i + "\n" for i in result]))
+    return fo
+
+
 def read_csv_df(
     file_path: Union[str, BytesIO, TextIOWrapper],
     delimiter: Optional[str],
     header: Optional[int],
+    sample_nrows: Optional[int] = None,
     selected_columns: List[str] = [],
     read_in_string: bool = False,
     encoding: Optional[str] = "utf-8",
@@ -314,19 +414,28 @@ def read_csv_df(
 
     # account for py3.6 requirement for pandas, can remove if >= py3.7
     is_buf_wrapped = False
+    is_file_open = False
     if isinstance(file_path, BytesIO):
         # a BytesIO stream has to be wrapped in order to properly be detached
         # in 3.6 this avoids read_csv wrapping the stream and closing too early
         file_path = TextIOWrapper(file_path, encoding=encoding)
         is_buf_wrapped = True
+    elif isinstance(file_path, str):
+        file_path = open(file_path, encoding=encoding)
+        is_file_open = True
 
-    fo = pd.read_csv(file_path, **args)
+    file_data = file_path
+    if sample_nrows:
+        file_data = rsample(file_path, sample_nrows, args)
+    fo = pd.read_csv(file_data, **args)
     data = fo.read()
 
     # if the buffer was wrapped, detach it before returning
     if is_buf_wrapped:
         file_path = cast(TextIOWrapper, file_path)
         file_path.detach()
+    elif is_file_open:
+        file_path.close()
     fo.close()
 
     return data

@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import CategoricalOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import (
     TestBaseInspectorOptions,
@@ -16,6 +19,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -26,6 +33,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -36,6 +47,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": 2,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -46,6 +61,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": 20,
                 "stop_condition_unique_value_ratio": None,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -56,6 +75,10 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": None,
                 "stop_condition_unique_value_ratio": 2,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
             },
             option.properties,
         )
@@ -69,6 +92,29 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
                 "top_k_categories": None,
                 "max_sample_size_to_check_stop_condition": 20,
                 "stop_condition_unique_value_ratio": 2,
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_relative_error": 0.01,
+                "cms_max_num_heavy_hitters": 5000,
+            },
+            option.properties,
+        )
+        option = self.get_options(
+            cms=True,
+            cms_confidence=0.98,
+            cms_relative_error=0.1,
+            cms_max_num_heavy_hitters=5,
+        )
+        self.assertDictEqual(
+            {
+                "is_enabled": True,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+                "cms": True,
+                "cms_confidence": 0.98,
+                "cms_relative_error": 0.1,
+                "cms_max_num_heavy_hitters": 5,
             },
             option.properties,
         )
@@ -237,3 +283,24 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
 
     def test_eq(self):
         super().test_eq()
+
+    def test_json_encode(self):
+        option = CategoricalOptions(is_enabled=False, top_k_categories=5)
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "CategoricalOptions",
+            "data": {
+                "cms": False,
+                "cms_confidence": 0.95,
+                "cms_max_num_heavy_hitters": 5000,
+                "cms_relative_error": 0.01,
+                "is_enabled": False,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+                "top_k_categories": 5,
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

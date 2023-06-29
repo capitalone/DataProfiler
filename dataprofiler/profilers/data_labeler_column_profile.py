@@ -9,7 +9,8 @@ from pandas import DataFrame, Series
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
-from . import BaseColumnProfiler, utils
+from . import utils
+from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import DataLabelerOptions
 
 
@@ -304,6 +305,43 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
             "data_label_representation": self.label_representation,
             "times": self.times,
         }
+        return profile
+
+    @classmethod
+    def load_from_dict(cls, data, config: dict | None = None) -> DataLabelerColumn:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param config: config for loading column profiler params from dictionary
+        :type config: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: DataLabelerColumn
+        """
+        opt = DataLabelerOptions()
+        data_labeler_object = None
+
+        data_labeler_load_attr = data.pop("data_labeler")
+        if data_labeler_load_attr:
+            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+                data_labeler_load_attr, config
+            )
+            if data_labeler_object is not None:
+                opt.data_labeler_object = data_labeler_object
+
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        profile = super().load_from_dict(data, config={cls.__name__: opt})
+
+        if profile._reverse_label_mapping is not None:
+            profile._reverse_label_mapping = {
+                int(k): v for k, v in profile._reverse_label_mapping.items()
+            }
+        if profile._sum_predictions is not None:
+            profile._sum_predictions = np.array(profile._sum_predictions)
+
         return profile
 
     def report(self, remove_disabled_flag: bool = False) -> dict:

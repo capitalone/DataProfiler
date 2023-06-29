@@ -72,6 +72,25 @@ class IntColumn(
         """
         return self.profile
 
+    @classmethod
+    def load_from_dict(cls, data, config: dict | None = None):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param config: config for loading column profiler params from dictionary
+        :type config: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: IntColumn
+        """
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        profile = super().load_from_dict(data)
+        profile._reformat_numeric_stats_types_on_serialized_profiles()
+        return profile
+
     @property
     def profile(self) -> dict:
         """

@@ -14,6 +14,7 @@ import pandas as pd
 import dataprofiler
 import dataprofiler as dp
 from dataprofiler import StructuredDataLabeler, UnstructuredDataLabeler
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 from dataprofiler.profilers.column_profile_compilers import (
     ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler,
@@ -21,6 +22,11 @@ from dataprofiler.profilers.column_profile_compilers import (
 )
 from dataprofiler.profilers.graph_profiler import GraphProfiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
+from dataprofiler.profilers.json_decoder import (
+    load_profiler,
+    load_structured_col_profiler,
+)
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import (
     Profiler,
     StructuredColProfiler,
@@ -39,8 +45,15 @@ from . import utils as test_utils
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-def setup_save_mock_open(mock_open):
+def setup_save_mock_bytes_open(mock_open):
     mock_file = BytesIO()
+    mock_file.close = lambda: None
+    mock_open.side_effect = lambda *args: mock_file
+    return mock_file
+
+
+def setup_save_mock_string_open(mock_open):
+    mock_file = StringIO()
     mock_file.close = lambda: None
     mock_open.side_effect = lambda *args: mock_file
     return mock_file
@@ -60,8 +73,9 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         cls.aws_dataset = pd.read_csv(cls.input_file_path)
         profiler_options = ProfilerOptions()
-        profiler_options.set({"data_labeler.is_enabled": False})
-
+        profiler_options.set(
+            {"data_labeler.is_enabled": False, "multiprocess.is_enabled": False}
+        )
         profiler_options_hll = ProfilerOptions()
         profiler_options_hll.set(
             {
@@ -75,10 +89,10 @@ class TestStructuredProfiler(unittest.TestCase):
             )
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnStatsProfileCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnDataLabelerCompiler")
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
     )
@@ -99,16 +113,15 @@ class TestStructuredProfiler(unittest.TestCase):
                 StructuredProfiler(data)
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnStatsProfileCompiler")
+    @mock.patch("dataprofiler.profilers.profile_builder.ColumnDataLabelerCompiler")
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
     )
     @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
+        "dataprofiler.profilers.profile_builder.StructuredProfiler._update_correlation"
     )
     def test_list_data(self, *mocks):
         data = [[1, 1], [None, None], [3, 3], [4, 4], [5, 5], [None, None], [1, 1]]
@@ -128,7 +141,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # validates the sample out maintains the same visual data format as the
         # input.
-        self.assertListEqual(["5", "1", "1", "3", "4"], profiler.profile[0].sample)
+        self.assertListEqual(["1", "4", "5", "1", "3"], profiler.profile[0].sample)
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -233,6 +246,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type
         )
+        self.assertTrue(merged_profile.options.row_statistics.null_count.is_enabled)
+        self.assertTrue(merged_profile.options.row_statistics.unique_count.is_enabled)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
         self.assertEqual(7, merged_profile.total_samples)
@@ -1458,7 +1473,7 @@ class TestStructuredProfiler(unittest.TestCase):
         profile = dp.StructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
 
-    def test_save_and_load(self):
+    def test_save_and_load_pkl_file(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
@@ -1474,14 +1489,14 @@ class TestStructuredProfiler(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch(
-                    "dataprofiler.profilers.profile_builder." "DataLabeler",
+                    "dataprofiler.profilers.profile_builder.DataLabeler",
                     return_value=data_labeler,
                 ):
-                    load_profile = dp.StructuredProfiler.load("mock.pkl")
+                    load_profile = dp.StructuredProfiler.load("mock.pkl", "pickle")
 
                 # validate loaded profile has same data labeler class
                 self.assertIsInstance(
@@ -1504,6 +1519,55 @@ class TestStructuredProfiler(unittest.TestCase):
             load_report = test_utils.clean_report(load_profile.report())
             np.testing.assert_equal(save_report, load_report)
 
+    def test_save_and_load_json_file(self):
+        datapth = "dataprofiler/tests/data/"
+        test_files = ["csv/guns.csv", "csv/iris.csv"]
+
+        for test_file in test_files:
+            # Create Data and StructuredProfiler objects
+            data = dp.Data(os.path.join(datapth, test_file))
+            options = ProfilerOptions()
+            options.set(
+                {
+                    "correlation.is_enabled": True,
+                    "null_replication_metrics.is_enabled": True,
+                    "multiprocess.is_enabled": False,
+                }
+            )
+            save_profile = dp.StructuredProfiler(data, options=options)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch("builtins.open") as m:
+                mock_file = setup_save_mock_string_open(m)
+                save_profile.save(save_method="json")
+                mock_file.seek(0)
+                with mock.patch(
+                    "dataprofiler.profilers.utils.DataLabeler.load_from_library",
+                    return_value=data_labeler,
+                ):
+                    load_profile = dp.StructuredProfiler.load("mock.json", "JSON")
+
+                # validate loaded profile has same data labeler class
+                self.assertIsInstance(
+                    load_profile.options.data_labeler.data_labeler_object,
+                    data_labeler.__class__,
+                )
+
+                # only checks first columns
+                # get first column
+                first_column_profile = load_profile.profile[0]
+                self.assertIsInstance(
+                    first_column_profile.profiles["data_label_profile"]
+                    ._profiles["data_labeler"]
+                    .data_labeler,
+                    data_labeler.__class__,
+                )
+
+            test_utils.assert_profiles_equal(save_profile, load_profile)
+
     def test_save_and_load_no_labeler(self):
         # Create Data and UnstructuredProfiler objects
         data = pd.DataFrame([1, 2, 3], columns=["a"])
@@ -1515,12 +1579,12 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_open(m)
+            mock_file = setup_save_mock_bytes_open(m)
             save_profile.save()
 
             mock_file.seek(0)
-            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
-                load_profile = dp.StructuredProfiler.load("mock.pkl")
+            with mock.patch("dataprofiler.profilers.profile_builder.DataLabeler"):
+                load_profile = dp.StructuredProfiler.load("mock.pkl", "pickle")
 
         # Check that reports are equivalent
         save_report = test_utils.clean_report(save_profile.report())
@@ -1530,6 +1594,130 @@ class TestStructuredProfiler(unittest.TestCase):
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
         load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_save_json_file(self, *mocks):
+        mock_labeler = mocks[0].return_value
+        mock_labeler._default_model_loc = "structured_model"
+        mocks[0].load_from_library.return_value = mock_labeler
+
+        df_structured = pd.DataFrame(
+            [
+                [-1.5, 3.0, "nan"],
+                ["a", "z"],
+            ]
+        ).T
+
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+
+        # Create Data and StructuredProfiler objects
+        with test_utils.mock_timeit():
+            save_profile = dp.StructuredProfiler(df_structured, options=profile_options)
+
+        # Save and Load profile with Mock IO
+        with mock.patch("builtins.open") as mock_open, mock.patch(
+            "dataprofiler.profilers.profile_builder.datetime"
+        ) as mock_pb_datetime:
+            mock_pb_datetime.now().strftime.return_value = "now"
+            mock_file = setup_save_mock_string_open(mock_open)
+            save_profile.save("output/mock.json", "JSON")
+            mock_file.seek(0)
+
+        expected_first_path = "output/mock.json"
+        expected_data = {
+            "class": "StructuredProfiler",
+            "data": {
+                "_profile": [
+                    mock.ANY,
+                    mock.ANY,
+                ],
+                "options": mock.ANY,
+                "encoding": None,
+                "file_type": "<class 'pandas.core.frame.DataFrame'>",
+                "_samples_per_update": None,
+                "_min_true_samples": 0,
+                "total_samples": 3,
+                "times": {"correlation": 1.0, "row_stats": 1.0},
+                "_sampling_ratio": 0.2,
+                "_min_sample_size": 5000,
+                "row_has_null_count": 1,
+                "row_is_null_count": 1,
+                "_col_name_to_idx": {"0": [0], "1": [1]},
+                "correlation_matrix": mock.ANY,
+                "chi2_matrix": mock.ANY,
+                "hashed_row_object": {
+                    "3389675549807214348": True,
+                    "3478012351066866062": True,
+                    "5121271752956874941": True,
+                },
+                "_null_replication_metrics": mock.ANY,
+            },
+        }
+
+        actual_data = json.loads(mock_file.read())
+
+        mock_open.assert_called_with(expected_first_path, "w")
+        self.assertDictEqual(expected_data, actual_data)
+
+        # do a second call without a specified file path
+        with mock.patch("builtins.open") as mock_open, mock.patch(
+            "dataprofiler.profilers.profile_builder.datetime"
+        ) as mock_pb_datetime:
+            mock_pb_datetime.now().strftime.return_value = "now"
+            setup_save_mock_string_open(mock_open)
+            save_profile.save(save_method="json")
+
+        expected_second_path = "profile-now.json"
+
+        mock_open.assert_called_with(expected_second_path, "w")
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_save_value_error(self, *mocks):
+        mock_labeler = mocks[0].return_value
+        mock_labeler._default_model_loc = "structured_model"
+        mocks[0].load_from_library.return_value = mock_labeler
+
+        df_structured = pd.DataFrame(
+            [
+                [-1.5, 3.0, "nan"],
+                ["a", "z"],
+            ]
+        ).T
+
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+        save_profile = dp.StructuredProfiler(df_structured, options=profile_options)
+
+        # Save and Load profile with Mock IO
+        with self.assertRaisesRegex(
+            ValueError, 'save_method must be "json" or "pickle".'
+        ):
+            save_profile.save(save_method="csv")
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -1725,7 +1913,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(actual_schema, expected_schema)
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
@@ -1850,7 +2038,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     def test_diff_type_checking(self, *mocks):
         data = pd.DataFrame([[1, 2], [5, 6]], columns=["a", "b"])
@@ -1924,7 +2112,7 @@ class TestStructuredProfiler(unittest.TestCase):
         )
 
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
@@ -2111,6 +2299,30 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([[20], [0]], column["class_sum"])
         np.testing.assert_array_almost_equal([[10], [0]], column["class_mean"])
 
+        # account for datetime
+        data = pd.DataFrame(
+            {
+                "a": [3, 2, np.nan, 7, None],
+                "b": [10, 10, 1, 4, 2],
+                "c": ["2/2/2021", "2/5/2021", "2/9/2021", "2/21/2021", None],
+            }
+        )
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_null_rep = {
+            0: {
+                "class_prior": [0.6, 0.4],
+                "class_sum": [[24.0, np.nan], [3.0, 0.0]],
+                "class_mean": [[8.0, np.nan], [1.5, 0.0]],
+            },
+            # 1: has not values bc none to replicate 100% real
+            2: {
+                "class_prior": [0.8, 0.2],
+                "class_sum": [[12.0, 25.0], [0.0, 2.0]],
+                "class_mean": [[3.0, 6.25], [0.0, 2.0]],
+            },
+        }
+        np.testing.assert_equal(expected_null_rep, profiler._null_replication_metrics)
+
     def test_column_level_invalid_values(self):
         data = pd.DataFrame([[1, 1], [9999999, 2], [3, 3]])
 
@@ -2145,6 +2357,215 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_equal(
             ["1", "2"], sorted(report["data_stats"][1]["samples"])
         )
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler
+    )
+    def test_json_encode(self, mock_DataLabeler, *mocks):
+        fake_profile_name = None
+        mock_DataLabeler._default_model_loc = "test"
+        mock_DataLabeler.return_value = mock_DataLabeler
+
+        with test_utils.mock_timeit():
+            profile = StructuredProfiler(fake_profile_name)
+
+        serialized = json.dumps(profile, cls=ProfileEncoder)
+        expected = {
+            "class": "StructuredProfiler",
+            "data": {
+                "_profile": [],
+                "options": mock.ANY,
+                "encoding": None,
+                "file_type": None,
+                "_samples_per_update": None,
+                "_min_true_samples": 0,
+                "total_samples": 0,
+                "times": {},
+                "_sampling_ratio": 0.2,
+                "_min_sample_size": 5000,
+                "row_has_null_count": 0,
+                "row_is_null_count": 0,
+                "hashed_row_object": {},
+                "_col_name_to_idx": {},
+                "correlation_matrix": None,
+                "chi2_matrix": None,
+                "_null_replication_metrics": None,
+            },
+        }
+
+        serialized_dict = json.loads(serialized)
+
+        self.assertDictEqual(expected, serialized_dict)
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler
+    )
+    def test_json_encode_after_update(self, mock_DataLabeler, *mocks):
+        mock_DataLabeler._default_model_loc = "test"
+        mock_DataLabeler.return_value = mock_DataLabeler
+        df_structured = pd.DataFrame(
+            [
+                [-1.5, 3.0, "nan"],
+                ["a", "z"],
+            ]
+        ).T
+        with test_utils.mock_timeit():
+            profile = StructuredProfiler(df_structured)
+
+        serialized = json.dumps(profile, cls=ProfileEncoder)
+
+        expected = {
+            "class": "StructuredProfiler",
+            "data": {
+                "_profile": [mock.ANY, mock.ANY],
+                "options": mock.ANY,
+                "encoding": None,
+                "file_type": "<class 'pandas.core.frame.DataFrame'>",
+                "_samples_per_update": None,
+                "_min_true_samples": 0,
+                "total_samples": 3,
+                "times": {"row_stats": 1.0},
+                "_sampling_ratio": 0.2,
+                "_min_sample_size": 5000,
+                "row_has_null_count": 1,
+                "row_is_null_count": 1,
+                "_col_name_to_idx": {"0": [0], "1": [1]},
+                "correlation_matrix": None,
+                "chi2_matrix": [[1.0, 0.26146412994911117], [0.26146412994911117, 1.0]],
+                "_null_replication_metrics": None,
+            },
+        }
+
+        serialized_dict = json.loads(serialized)
+
+        # Checks for specific dict values
+        # Chi2 due to floating point
+        serialized_chi2 = serialized_dict["data"].pop("chi2_matrix")
+        expected_chi2 = expected["data"].pop("chi2_matrix")
+        np.testing.assert_array_almost_equal(expected_chi2, serialized_chi2)
+
+        # hashed_row_object due to specificity of values
+        serialized_hashed_row_object = serialized_dict["data"].pop("hashed_row_object")
+        self.assertEqual(3, len(serialized_hashed_row_object.keys()))
+
+        self.assertDictEqual(expected, serialized_dict)
+
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
+        mock_labeler = mock.Mock(spec=BaseDataLabeler)
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.return_value = mock_labeler
+        mock_DataLabeler.load_from_library = mock_labeler
+        mock_utils_DataLabeler.load_from_library = mock_labeler
+        mock_DataLabeler.return_value = mock_labeler
+
+        fake_profile_name = None
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+        expected_profile = StructuredProfiler(
+            fake_profile_name, options=profile_options
+        )
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    @mock.patch(
+        "dataprofiler.profilers.profile_builder.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(
+        self, mock_utils_DataLabeler, mock_DataLabeler, *mocks
+    ):
+        mock_labeler = mock.Mock(spec=BaseDataLabeler)
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.return_value = mock_labeler
+        mock_DataLabeler.load_from_library = mock_labeler
+        mock_utils_DataLabeler.load_from_library = mock_labeler
+        mock_DataLabeler.return_value = mock_labeler
+        mock_labeler._default_model_loc = "structured_model"
+        mock_labeler.model.num_labels = 2
+        mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
+
+        fake_profile_name = None
+        df_structured = pd.DataFrame([["1.5", "a", "4"], ["3.0", "z", 7]])
+
+        # update mock for 2 confidence values for 2 possible classes
+        mock_labeler.predict.side_effect = lambda *args, **kwargs: {
+            "pred": [],
+            "conf": [[1, 1], [0, 0]],
+        }
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
+                "multiprocess.is_enabled": False,
+            }
+        )
+        expected_profile = StructuredProfiler(
+            fake_profile_name, options=profile_options
+        )
+
+        with test_utils.mock_timeit():
+            expected_profile.update_profile(df_structured)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        # validate passes one labeler all the way.
+        config = {}
+        mock_DataLabeler.load_from_library.reset_mock()
+        deserialized = load_profiler(json.loads(serialized), config)
+        mock_DataLabeler.load_from_library.assert_called_once()
+
+        expected_config = {
+            "DataLabelerColumn": {"from_library": {"structured_model": mock_labeler}},
+            "DataLabelerOptions": {"from_library": {"structured_model": mock_labeler}},
+        }
+        self.assertDictEqual(expected_config, config)
+
+        # validating update after deserialization
+        df_structured = pd.DataFrame(
+            [
+                [4.0, "nan", "15.0"],  # partial nan row
+                ["nan", "nan", "nan"],  # Full nan row
+                ["1.5", "a", "4"],  # Repeated from previous update
+            ]
+        )
+
+        with test_utils.mock_timeit():
+            deserialized.update_profile(df_structured)
+            expected_profile.update_profile(df_structured)
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):
@@ -2202,19 +2623,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(2999 * 3, src_profile.sample_size)
 
     @mock.patch(
-        "dataprofiler.profilers.column_profile_compilers."
-        "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch(
-        "dataprofiler.profilers.column_profile_compilers." "ColumnStatsProfileCompiler"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.column_profile_compilers." "ColumnDataLabelerCompiler"
-    )
-    @mock.patch(
-        "dataprofiler.profilers.profile_builder."
-        "StructuredProfiler._update_correlation"
-    )
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_add_profilers(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None])
         profile1 = StructuredColProfiler(data[:2])
@@ -2319,7 +2730,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertDictEqual(
             {
-                "sample": ["4.0", "6.0", "3.0"],
+                "sample": ["6.0", "3.0", "4.0"],
                 "sample_size": 5,
                 "null_count": 2,
                 "null_types": dict(nan=["e", "b"]),
@@ -2336,7 +2747,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         )
         self.assertDictEqual(
             {
-                "sample": ["nan", "6.0", "4.0", "nan"],
+                "sample": ["6.0", "nan", "nan", "4.0"],
                 "sample_size": 6,
                 "null_count": 2,
                 "null_types": {"1.0": ["a"], "3.0": ["c"]},
@@ -2353,7 +2764,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         )
         self.assertDictEqual(
             {
-                "sample": ["3.0", "4.0", "6.0", "nan", "1.0"],
+                "sample": ["3.0", "4.0", "nan", "6.0", "nan"],
                 "sample_size": 6,
                 "null_count": 0,
                 "null_types": {},
@@ -2506,11 +2917,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(10000, profiler.report()["global_stats"]["samples_used"])
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_index_overlap_for_update_profile(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile = StructuredColProfiler(data)
@@ -2525,11 +2934,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertDictEqual(profile.null_types_index, {"nan": {1, 4, 6, 9}})
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_index_overlap_for_merge(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile1 = StructuredColProfiler(data)
@@ -2550,11 +2957,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertDictEqual(profile2.null_types_index, {"nan": {1, 4}})
 
     @mock.patch(
-        "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
+        "dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile"
     )
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnStatsProfileCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
-    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     def test_min_max_id_properly_update(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None, 1])
         profile1 = StructuredColProfiler(data[:2])
@@ -2577,9 +2982,12 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         self.assertEqual(0, profile._min_id)
         self.assertEqual(6, profile._max_id)
 
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile.DataLabeler")
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
+    )
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
     )
     @mock.patch(
         "dataprofiler.profilers.column_profile_compilers."
@@ -2643,6 +3051,205 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         }
 
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_encode(self, mocked_datalabeler, *mocks):
+        col_profiler = StructuredColProfiler()
+
+        serialized = json.dumps(col_profiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "StructuredColProfiler",
+                "data": {
+                    "name": None,
+                    "options": None,
+                    "_min_sample_size": 5000,
+                    "_sampling_ratio": 0.2,
+                    "_min_true_samples": 0,
+                    "sample_size": 0,
+                    "sample": [],
+                    "null_count": 0,
+                    "null_types": [],
+                    "null_types_index": {},
+                    "_min_id": None,
+                    "_max_id": None,
+                    "_index_shift": None,
+                    "_last_batch_size": None,
+                    "profiles": {},
+                    "_null_values": {
+                        "": 0,
+                        "nan": 2,
+                        "none": 2,
+                        "null": 2,
+                        "  *": 0,
+                        "--*": 0,
+                        "__*": 0,
+                    },
+                },
+            }
+        )
+        self.assertEqual(expected, serialized)
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_encode_after_update(self, mock_DataLabeler, *mocks):
+        mock_labeler = mock_DataLabeler.return_value
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.model.num_labels = 2
+        mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
+        mock_DataLabeler.load_from_library.return_value = mock_labeler
+
+        data = pd.Series(["-2", "Nan", "1", "2"], name="test")
+        # update mock for 4 values
+        mock_labeler.predict.return_value = {"pred": [], "conf": np.zeros((4, 2))}
+        with test_utils.mock_timeit():
+            col_profiler = StructuredColProfiler(data)
+
+        serialized = json.dumps(col_profiler, cls=ProfileEncoder)
+
+        expected = {
+            "class": "StructuredColProfiler",
+            "data": {
+                "name": "test",
+                "options": mock.ANY,
+                "_min_sample_size": 5000,
+                "_sampling_ratio": 0.2,
+                "_min_true_samples": 0,
+                "sample_size": 4,
+                "sample": ["2", "-2", "1"],
+                "null_count": 1,
+                "null_types": ["Nan"],
+                "null_types_index": {
+                    "Nan": [
+                        1,
+                    ]
+                },
+                "_min_id": 0,
+                "_max_id": 3,
+                "_index_shift": None,
+                "_last_batch_size": 4,
+                "_null_values": {
+                    "": 0,
+                    "nan": 2,
+                    "none": 2,
+                    "null": 2,
+                    "  *": 0,
+                    "--*": 0,
+                    "__*": 0,
+                },
+                "profiles": {
+                    "data_type_profile": {
+                        "class": "ColumnPrimitiveTypeProfileCompiler",
+                        "data": mock.ANY,
+                    },
+                    "data_stats_profile": {
+                        "class": "ColumnStatsProfileCompiler",
+                        "data": mock.ANY,
+                    },
+                    "data_label_profile": {
+                        "class": "ColumnDataLabelerCompiler",
+                        "data": mock.ANY,
+                    },
+                },
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
+        mock_labeler = mock.Mock(spec=BaseDataLabeler)
+        mock_labeler._default_model_loc = "test"
+        mock_DataLabeler.load_from_library = mock_labeler
+
+        fake_profile_name = None
+        expected_profile = StructuredColProfiler(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_structured_col_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    @mock.patch(
+        "dataprofiler.profilers.utils.DataLabeler",
+        spec=BaseDataLabeler,
+    )
+    def test_json_decode_after_update(
+        self, mock_utils_DataLabeler, mock_DataLabeler, *mocks
+    ):
+        mock_labeler = mock_DataLabeler.return_value
+        mock_labeler._default_model_loc = "test"
+        mock_labeler.model.num_labels = 2
+        mock_labeler.reverse_label_mapping = {1: "a", 2: "b"}
+        mock_DataLabeler.load_from_library.return_value = mock_labeler
+        mock_utils_DataLabeler.load_from_library.return_value = mock_labeler
+
+        # Build expected StructuredColProfiler
+        df_float = pd.Series([-1.5, None, 5.0, 7.0, 4.0, 3.0, "NaN", 0, 0, 9.0]).apply(
+            str
+        )
+        # update mock for 10 values
+        mock_labeler.predict.return_value = {"pred": [], "conf": np.zeros((10, 2))}
+
+        expected_profile = StructuredColProfiler(df_float)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_structured_col_profiler(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+        assert deserialized.null_count == 2
+        assert deserialized.null_types_index == {
+            "None": {
+                1,
+            },
+            "NaN": {
+                6,
+            },
+        }
+
+        df_float = pd.Series(
+            [
+                "NaN",  # add existing
+                "15.0",  # add new
+                "null",  # add new
+            ]
+        )
+        # update mock for 2 Values
+        mock_labeler.predict.return_value = {"pred": [], "conf": [[1, 1], [0, 0]]}
+
+        # validating update after deserialization
+        deserialized.update_profile(df_float)
+
+        assert deserialized.sample_size == 13
+        assert deserialized.null_count == 4
+        assert deserialized.null_types_index == {
+            "None": {
+                1,
+            },
+            "NaN": {6, 10},
+            "null": {
+                12,
+            },
+        }
+        assert deserialized.profile["data_label"] == "a"
+        assert deserialized.profile["statistics"]["max"] == 15
+        assert deserialized.profile["statistics"]["min"] == -1.5
 
 
 @mock.patch(
@@ -2945,6 +3552,45 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profile = dp.UnstructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
 
+    def test_encode(self, *mocks):
+        profiler = UnstructuredProfiler(None)
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler serialization not supported."
+        ):
+            json.dumps(profiler, cls=ProfileEncoder)
+
+    def test_decode(self, *mocks):
+        with self.assertRaisesRegex(
+            ValueError, "Invalid profiler class UnstructuredProfiler failed to load."
+        ):
+            load_profiler({"class": "UnstructuredProfiler", "data": {}})
+
+    def test_load_from_dict(self, *mocks):
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler deserialization not supported."
+        ):
+            UnstructuredProfiler.load_from_dict({}, None)
+
+    @mock.patch("builtins.open")
+    def test_save_json_file(self, *mocks):
+        data = pd.Series(["this", "is my", "\n\r", "test"])
+        save_profile = UnstructuredProfiler(data)
+
+        with self.assertRaisesRegex(
+            NotImplementedError, "UnstructuredProfiler serialization not supported."
+        ):
+            save_profile.save(save_method="json")
+
+    def test_save_value_error(self, *mocks):
+        data = pd.Series(["this", "is my", "\n\r", "test"])
+        save_profile = UnstructuredProfiler(data)
+
+        # Save and Load profile with Mock IO
+        with self.assertRaisesRegex(
+            ValueError, 'save_method must be "json" or "pickle".'
+        ):
+            save_profile.save(save_method="csv")
+
 
 class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod
@@ -2954,7 +3600,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         test_utils.set_seed(0)
-        cls.maxDiff = None
+
         cls.input_data = [
             "edited 9 hours ago",
             "6. Do not duplicate code.",
@@ -2992,7 +3638,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         cls.report = cls.profiler.report()
 
     def test_sample(self):
-        self.maxDiff = None
         self.assertCountEqual(
             [
                 "Report",
@@ -3399,7 +4044,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.assertIn("vocab", report["data_stats"]["statistics"])
         self.assertIn("words", report["data_stats"]["statistics"])
 
-    def test_save_and_load(self):
+    def test_save_and_load_pkl_file(self):
         data_folder = "dataprofiler/tests/data/"
         test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
 
@@ -3418,7 +4063,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
 
                 # make sure data_labeler unchanged
@@ -3473,7 +4118,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_open(m)
+            mock_file = setup_save_mock_bytes_open(m)
             save_profile.save()
 
             mock_file.seek(0)
@@ -3555,6 +4200,57 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
                 cls.data, len(cls.data), options=profiler_options_full
             )
 
+    def test_adding_profiles_of_mismatched_null_count_options(self):
+        profiler_options_null_count = ProfilerOptions()
+        profiler_options_null_count.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": True,
+            }
+        )
+        profiler_options_null_disabled = ProfilerOptions()
+        profiler_options_null_disabled.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": False,
+            }
+        )
+        data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
+        with test_utils.mock_timeit():
+            profiler_w_null_count = dp.StructuredProfiler(
+                data[:2], options=profiler_options_null_count
+            )
+            profiler_w_disabled_null_count = dp.StructuredProfiler(
+                data[2:], options=profiler_options_null_disabled
+            )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Attempting to merge two profiles with null row "
+            "count option enabled on one profile but not the other.",
+        ):
+            profiler_w_null_count + profiler_w_disabled_null_count
+
+    def test_profile_null_count_not_enabled(self):
+        profiler_options_null_disabled = ProfilerOptions()
+        profiler_options_null_disabled.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.*.is_enabled": True,
+                "row_statistics.null_count.is_enabled": False,
+            }
+        )
+        data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
+        with test_utils.mock_timeit():
+            profiler_w_disabled_null_count = dp.StructuredProfiler(
+                data[2:], options=profiler_options_null_disabled
+            )
+
+        self.assertEqual(0, profiler_w_disabled_null_count.row_has_null_count)
+        self.assertEqual(0, profiler_w_disabled_null_count.row_is_null_count)
+
     def test_correct_rows_ingested(self):
         test_dict = {
             "1": ["nan", "null", None, None, ""],
@@ -3618,9 +4314,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
     def test_row_is_null_ratio_row_stats_disabled(self):
         profiler_options_1 = ProfilerOptions()
         profiler_options_1.set(
-            {
-                "*.is_enabled": False,
-            }
+            {"*.is_enabled": False, "row_statistics.null_count.is_enabled": False}
         )
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options_1)
         self.assertIsNone(profiler._get_row_is_null_ratio())
@@ -4085,6 +4779,18 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
         profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
+    def test_null_count_empty_profiler(self):
+        profiler_options = ProfilerOptions()
+        profiler_options.set(
+            {
+                "*.is_enabled": False,
+                "row_statistics.null_count.is_enabled": False,
+            }
+        )
+        profiler = StructuredProfiler(pd.DataFrame([]), options=profiler_options)
+        self.assertIsNone(profiler._get_row_is_null_ratio())
+        self.assertIsNone(profiler._get_row_has_null_ratio())
+
     def test_correct_duplicate_row_count_full_row_hashing(self):
         self.assertEqual(15, len(self.trained_schema_full.hashed_row_object))
         self.assertEqual(20, self.trained_schema_full.total_samples)
@@ -4143,7 +4849,7 @@ class TestStructuredProfilerRowStatistics(unittest.TestCase):
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
-            mock_file = setup_save_mock_open(m)
+            mock_file = setup_save_mock_bytes_open(m)
             self.trained_schema_hll.save()
 
             mock_file.seek(0)
@@ -4278,14 +4984,14 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch(
                     "dataprofiler.profilers.profile_builder." "DataLabeler",
                     return_value=data_labeler,
                 ):
-                    load_profile = dp.Profiler.load("mock.pkl")
+                    load_profile = dp.Profiler.load("mock.pkl", load_method="PICKLE")
 
             # validate loaded profile has same data labeler class
             self.assertIsInstance(
@@ -4331,7 +5037,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
             # Save and Load profile with Mock IO
             with mock.patch("builtins.open") as m:
-                mock_file = setup_save_mock_open(m)
+                mock_file = setup_save_mock_bytes_open(m)
                 save_profile.save()
 
                 # make sure data_labeler unchanged

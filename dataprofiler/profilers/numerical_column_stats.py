@@ -56,11 +56,11 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "NumericalStatsMixin parameter 'options' must be "
                 "of type NumericalOptions."
             )
-        self.min: int | float | None = None
-        self.max: int | float | None = None
+        self.min: int | float | np.float64 | np.int64 | None = None
+        self.max: int | float | np.float64 | np.int64 | None = None
         self._top_k_modes: int = 5  # By default, return at max 5 modes
-        self.sum: int | float = 0
-        self._biased_variance: float = np.nan
+        self.sum: int | float | np.float64 | np.int64 = np.float64(0)
+        self._biased_variance: float | np.float64 = np.nan
         self._biased_skewness: float | np.float64 = np.nan
         self._biased_kurtosis: float | np.float64 = np.nan
         self._median_is_enabled: bool = True
@@ -80,8 +80,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         self.user_set_histogram_bin: int | None = None
         self.bias_correction: bool = True  # By default, we correct for bias
         self._mode_is_enabled: bool = True
-        self.num_zeros: int = 0
-        self.num_negatives: int = 0
+        self.num_zeros: int | np.int64 = np.int64(0)
+        self.num_negatives: int | np.int64 = np.int64(0)
+        self._num_quantiles: int = 1000  # TODO: add to options
+
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
@@ -98,23 +100,20 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 self.histogram_bin_method_names = ["custom"]
         self.histogram_methods: dict = {}
         self._stored_histogram: dict = {
-            "total_loss": 0,
-            "current_loss": 0,
+            "total_loss": np.float64(0.0),
+            "current_loss": np.float64(0.0),
             "suggested_bin_count": self.min_histogram_bin,
             "histogram": {"bin_counts": None, "bin_edges": None},
         }
         self._batch_history: list = []
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": np.float64(0.0),
+                "current_loss": np.float64(0.0),
                 "suggested_bin_count": self.min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
-        num_quantiles: int = 1000  # TODO: add to options
-        self.quantiles: list[float] | dict = {
-            bin_num: None for bin_num in range(num_quantiles - 1)
-        }
+        self.quantiles: list[float] | None = None
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -190,8 +189,8 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
-                "total_loss": 0,
-                "current_loss": 0,
+                "total_loss": np.float64(0.0),
+                "current_loss": np.float64(0.0),
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
 
@@ -425,6 +424,58 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         return profile
 
+    def _reformat_numeric_stats_types_on_serialized_profiles(self):
+        """Assistance function in the deserialization of profiler objects.
+
+        This function is to be used to enforce correct typing for attributes
+        associated with the NumericStatsMixin conversions when loading profiler
+        objects in from their serialized saved format
+        """
+
+        def convert_histogram_key_types_to_np(histogram_info: dict):
+            if histogram_info["total_loss"] is not None:
+                histogram_info["total_loss"] = np.float64(histogram_info["total_loss"])
+
+            if histogram_info["current_loss"] is not None:
+                histogram_info["current_loss"] = np.float64(
+                    histogram_info["current_loss"]
+                )
+
+            # Convert hist lists to numpy arrays
+            for key in histogram_info["histogram"].keys():
+                if histogram_info["histogram"][key] is not None:
+                    histogram_info["histogram"][key] = np.array(
+                        histogram_info["histogram"][key]
+                    )
+            return histogram_info
+
+        self._stored_histogram = convert_histogram_key_types_to_np(
+            self._stored_histogram
+        )
+
+        # Convert hist method attributes to correct types
+        for key in self.histogram_methods.keys():
+            self.histogram_methods[key] = convert_histogram_key_types_to_np(
+                self.histogram_methods[key]
+            )
+
+        if self.min is not None:
+            self.min = np.float64(self.min)
+        if self.max is not None:
+            self.max = np.float64(self.max)
+        if self.sum is not None:
+            self.sum = np.float64(self.sum)
+        if self.num_zeros is not None:
+            self.num_zeros = np.int64(self.num_zeros)
+        if self.num_negatives is not None:
+            self.num_negatives = np.int64(self.num_negatives)
+        if not np.isnan(self._biased_variance):
+            self._biased_variance = np.float64(self._biased_variance)
+        if not np.isnan(self._biased_skewness):
+            self._biased_skewness = np.float64(self._biased_skewness)
+        if not np.isnan(self._biased_kurtosis):
+            self._biased_kurtosis = np.float64(self._biased_kurtosis)
+
     def diff(
         self,
         other_profile: NumericStatsMixinT,
@@ -478,11 +529,11 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         return differences
 
     @property
-    def mean(self) -> float:
+    def mean(self) -> float | np.float64:
         """Return mean value."""
         if self.match_count == 0:
             return 0.0
-        return float(self.sum) / self.match_count
+        return self.sum / self.match_count
 
     @property
     def mode(self) -> list[float]:
@@ -509,7 +560,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         return self._get_percentile([50])[0]
 
     @property
-    def variance(self) -> float:
+    def variance(self) -> float | np.float64:
         """Return variance."""
         return (
             self._biased_variance
@@ -544,7 +595,12 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
     @staticmethod
     def _perform_t_test(
-        mean1: float, var1: float, n1: int, mean2: float, var2: float, n2: int
+        mean1: float | np.float64,
+        var1: float | np.float64,
+        n1: int,
+        mean2: float | np.float64,
+        var2: float | np.float64,
+        n2: int,
     ) -> dict:
         results: dict = {
             "t-statistic": None,
@@ -559,7 +615,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 RuntimeWarning,
             )
             invalid_stats = True
-        if np.isnan([mean1, mean2, var1, var2]).any() or None in [
+        if np.isnan(
+            [float(mean1), float(mean2), float(var1), float(var2)]
+        ).any() or None in [
             mean1,
             mean2,
             var1,
@@ -749,7 +807,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         batch_mean: float,
         batch_var: float,
         batch_count: int,
-    ) -> float:
+    ) -> float | np.float64:
         """
         Calculate combined biased variance of the current values and new dataset.
 
@@ -757,7 +815,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         :param batch_var: biased variance of new chunk
         :param batch_count: number of samples in new chunk
         :return: combined biased variance
-        :rtype: float
+        :rtype: float | np.float64
         """
         return self._merge_biased_variance(
             self.match_count,
@@ -771,12 +829,12 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @staticmethod
     def _merge_biased_variance(
         match_count1: int,
-        biased_variance1: float,
-        mean1: float,
+        biased_variance1: float | np.float64,
+        mean1: float | np.float64,
         match_count2: int,
-        biased_variance2: float,
-        mean2: float,
-    ) -> float:
+        biased_variance2: float | np.float64,
+        mean2: float | np.float64,
+    ) -> float | np.float64:
         """
         Calculate combined biased variance of the current values and new dataset.
 
@@ -787,7 +845,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         :param mean2: mean of chunk 2
         :param biased_variance2: variance of chunk 2 without bias correction
         :return: combined variance
-        :rtype: float
+        :rtype: float | np.float64
         """
         if match_count1 < 1:
             return biased_variance2
@@ -809,7 +867,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         return new_variance
 
     @staticmethod
-    def _correct_bias_variance(match_count: int, biased_variance: float) -> float:
+    def _correct_bias_variance(
+        match_count: int, biased_variance: float | np.float64
+    ) -> float | np.float64:
         if match_count is None or biased_variance is None or match_count < 2:
             warnings.warn(
                 "Insufficient match count to correct bias in variance. Bias correction "
@@ -826,12 +886,12 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     def _merge_biased_skewness(
         match_count1: int,
         biased_skewness1: float | np.float64,
-        biased_variance1: float,
-        mean1: float,
+        biased_variance1: float | np.float64,
+        mean1: float | np.float64,
         match_count2: int,
         biased_skewness2: float | np.float64,
-        biased_variance2: float,
-        mean2: float,
+        biased_variance2: float | np.float64,
+        mean2: float | np.float64,
     ) -> float | np.float64:
         """
         Calculate the combined skewness of two data chunks.
@@ -912,13 +972,13 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         match_count1: int,
         biased_kurtosis1: float | np.float64,
         biased_skewness1: float | np.float64,
-        biased_variance1: float,
-        mean1: float,
+        biased_variance1: float | np.float64,
+        mean1: float | np.float64,
         match_count2: int,
         biased_kurtosis2: float | np.float64,
         biased_skewness2: float | np.float64,
-        biased_variance2: float,
-        mean2: float,
+        biased_variance2: float | np.float64,
+        mean2: float | np.float64,
     ) -> float | np.float64:
         """
         Calculate the combined kurtosis of two sets of data.
@@ -1069,7 +1129,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             sum_var += bin_var
         return sum_var
 
-    def _histogram_bin_error(self, input_array: np.ndarray | pd.Series) -> float:
+    def _histogram_bin_error(self, input_array: np.ndarray | pd.Series) -> np.float64:
         """
         Calculate error of each value from bin of the histogram it falls within.
 
@@ -1097,7 +1157,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             (input_array - (bin_edges[inds] + bin_edges[inds - 1]) / 2) ** 2
         )
 
-        return sum_error
+        return np.float64(sum_error)
 
     @staticmethod
     def _histogram_loss(
@@ -1107,7 +1167,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         avg_totalvar: float,
         run_time: float,
         avg_runtime: float,
-    ) -> float:
+    ) -> np.float64:
 
         norm_diff_var: float = 0
         norm_total_var: float = 0
@@ -1119,7 +1179,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         penalized_time = 1  # currently set as 1s
         if (run_time - avg_runtime) >= penalized_time:
             norm_runtime = float(run_time - avg_runtime) / avg_runtime
-        return norm_diff_var + norm_total_var + norm_runtime
+        return np.float64(norm_diff_var + norm_total_var + norm_runtime)
 
     def _select_method_for_histogram(
         self,
@@ -1647,7 +1707,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         :return: list of quantiles
         """
-        percentiles: np.ndarray = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
+        percentiles: np.ndarray = np.linspace(0, 100, (self._num_quantiles - 1) + 2)[
+            1:-1
+        ]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:

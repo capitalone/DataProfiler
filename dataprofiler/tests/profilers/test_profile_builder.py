@@ -78,9 +78,8 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         profiler_options_hll = ProfilerOptions()
         profiler_options_hll.set(
-
-                "data_labeler.is_enabled": False,
             {
+                "data_labeler.is_enabled": False,
                 "row_statistics.unique_count.hashing_method": "hll",
             }
         )

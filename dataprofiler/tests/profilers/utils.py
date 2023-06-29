@@ -8,7 +8,11 @@ import numpy as np
 
 import dataprofiler as dp
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
-from dataprofiler.profilers.profile_builder import BaseProfiler
+from dataprofiler.profilers.column_profile_compilers import BaseCompiler
+from dataprofiler.profilers.profile_builder import BaseProfiler, StructuredColProfiler
+from dataprofiler.profilers.profiler_options import BaseOption
+from dataprofiler.profilers.utils import find_diff_of_dicts
+from dataprofiler.tests.test_utils import patched_assert_warns
 
 
 def set_seed(seed=None):
@@ -166,37 +170,56 @@ def mock_timeit(*args, **kwargs):
     return mock.patch("time.time", side_effect=lambda: next(counter))
 
 
-def assert_profiles_equal(profile1, profile2):
+def assert_profiles_equal(actual, expected):
     """
     Checks if two profile objects are equal.
 
     profiles are instances of BaseProfiler or BaseColumnProfiler. Throws
         exception if not equal
 
-    :param profile_1: profile to compare to profile2
-    :type profile_1: instance of BaseProfiler or BaseColumnProfiler
-    :param profile_2: profile to compare to profile1
-    :type profile_2: instance of BaseProfiler or BaseColumnProfiler
+    :param actual: profile to compare to expected
+    :type actual: instance of BaseProfiler or BaseColumnProfiler
+    :param expected: profile to compare to actual
+    :type expected: instance of BaseProfiler or BaseColumnProfiler
     """
-    profile1_dict = profile1.__dict__
-    profile2_dict = profile2.__dict__
+    actual_dict = actual.__dict__ if not isinstance(actual, dict) else actual
+    expected_dict = expected.__dict__ if not isinstance(expected, dict) else expected
 
-    if len(profile1_dict) != len(profile2_dict):
-        raise ValueError(
-            f"number of attributes on profile1 ({len(profile1_dict)}) != profile2 ({len(profile2_dict)})"
-        )
+    assert (
+        actual_dict.keys() == expected_dict.keys()
+    ), f"{actual_dict.keys()} != {expected_dict.keys()}"
 
-    for attr1, value1 in profile1_dict.items():
-        if attr1 not in profile2_dict:
-            raise ValueError(f"Profile attributes unmatched {attr1}")
+    for key in expected_dict.keys():
+        actual_value = actual_dict.get(key, None)
+        expected_value = expected_dict.get(key, None)
 
-        value2 = profile2_dict[attr1]
-        if not (isinstance(value2, type(value1)) or isinstance(value1, type(value2))):
-            raise ValueError(f"Profile value types unmatched: {value1} != {value2}")
+        assert type(actual_value) == type(
+            expected_value
+        ), f"{actual_value} with type {type(actual_value)} and \
+            {expected_value} with type {type(expected_value)} \
+            do not have the same type for key: {key}"
 
-        if isinstance(value1, (BaseProfiler, BaseColumnProfiler)):
-            assert_profiles_equal(value1, value2)
-        elif isinstance(value1, numbers.Number):
-            np.testing.assert_equal(value1, value2)
-        elif value1 != value2:
-            raise ValueError(f"Profile values unmatched: {value1} != {value2}")
+        if key == "_profile" and isinstance(actual_value, list):
+            for x in range(len(actual_value)):
+                assert_profiles_equal(actual_value[x], expected_value[x])
+        elif isinstance(
+            actual_value,
+            (
+                BaseProfiler,
+                BaseColumnProfiler,
+                StructuredColProfiler,
+                BaseCompiler,
+                BaseOption,
+            ),
+        ):
+            assert_profiles_equal(actual_value, expected_value)
+        elif isinstance(actual_value, dict):
+            assert_profiles_equal(actual_value, expected_value)
+        elif isinstance(actual_value, numbers.Number):
+            np.testing.assert_equal(actual_value, expected_value, f"{key}")
+        elif isinstance(actual_value, np.ndarray):
+            np.testing.assert_array_equal(actual_value, expected_value)
+        else:
+            assert (
+                actual_value == expected_value
+            ), f"Actual value of {actual_value} and expected value of {expected_value} do not have the same value for key: {key}"

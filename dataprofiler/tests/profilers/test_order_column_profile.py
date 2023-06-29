@@ -8,9 +8,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import OrderColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 
 from .. import test_utils
+from . import utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.
@@ -318,7 +320,7 @@ class TestOrderColumn(unittest.TestCase):
 
     @mock.patch("dataprofiler.profilers.OrderColumn._get_data_order")
     def test_random_order_prevents_update_from_occuring(self, mock_get_data_order):
-        mock_get_data_order.return_value = ["random", 1, 2]
+        mock_get_data_order.return_value = ["random", 1, 2, str]
         data = ["a", "b", "ab"]
         df = pd.Series(data).apply(str)
 
@@ -371,6 +373,7 @@ class TestOrderColumn(unittest.TestCase):
                     "order": None,
                     "_last_value": None,
                     "_first_value": None,
+                    "_data_store_type": "float64",
                     "_piecewise": False,
                     "_OrderColumn__calculations": dict(),
                     "name": "0",
@@ -400,6 +403,7 @@ class TestOrderColumn(unittest.TestCase):
                     "order": "descending",
                     "_last_value": "a",
                     "_first_value": "za",
+                    "_data_store_type": "str",
                     "_piecewise": False,
                     "_OrderColumn__calculations": dict(),
                     "name": "0",
@@ -413,3 +417,99 @@ class TestOrderColumn(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = OrderColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update_str(self):
+        fake_profile_name = "Fake profile name"
+
+        # Build expected orderColumn
+        df_order = pd.Series(["za", "z", "c", "c"])
+        expected_profile = OrderColumn(fake_profile_name)
+
+        with utils.mock_timeit():
+            expected_profile.update(df_order)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        utils.assert_profiles_equal(deserialized, expected_profile)
+
+        # Adding data to update that is in descending order
+        # (consistent with previous data)
+        df_order = pd.Series(
+            [
+                "c",  # add existing
+                "a",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_order)
+
+        assert deserialized.sample_size == 6
+        assert deserialized._last_value == "a"
+        assert deserialized.order == expected_profile.order
+
+        # Adding data to update that is in random order
+        # (not consistent with previous data)
+        df_order = pd.Series(
+            [
+                "c",  # add existing
+                "zza",  # add new
+            ]
+        )
+        deserialized.update(df_order)
+
+        assert deserialized.sample_size == 8
+        assert deserialized._last_value == "zza"
+        assert deserialized.order == "random"
+
+    def test_json_decode_after_update_num(self):
+        fake_profile_name = "Fake profile name"
+
+        # Build expected orderColumn
+        df_order = pd.Series(["1", "4", "6"])
+        expected_profile = OrderColumn(fake_profile_name)
+
+        with utils.mock_timeit():
+            expected_profile.update(df_order)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+        utils.assert_profiles_equal(deserialized, expected_profile)
+
+        # Adding data to update that is in descending order
+        # (consistent with previous data)
+        df_order = pd.Series(
+            [
+                "6",  # add existing
+                "9",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        with utils.mock_timeit():
+            expected_profile.update(df_order)
+            deserialized.update(df_order)
+        utils.assert_profiles_equal(expected_profile, deserialized)
+
+        # Adding data to update that is in random order
+        # (not consistent with previous data)
+        df_order = pd.Series(
+            [
+                "3",  # add existing
+                "1",  # add new
+            ]
+        )
+        with utils.mock_timeit():
+            expected_profile.update(df_order)
+            deserialized.update(df_order)
+        utils.assert_profiles_equal(expected_profile, deserialized)

@@ -12,7 +12,8 @@ import pandas as pd
 import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
-from . import BaseColumnProfiler, utils
+from . import utils
+from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import ProfilerOptions
 
 

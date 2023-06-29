@@ -14,6 +14,7 @@ from abc import abstractmethod
 from itertools import islice
 from multiprocessing.pool import Pool
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -30,7 +31,12 @@ import psutil
 import scipy
 from pandas import DataFrame, Series
 
-from dataprofiler import profilers, settings
+from .. import settings
+from ..labelers.data_labelers import DataLabeler
+
+if TYPE_CHECKING:
+    from ..labelers.base_data_labeler import BaseDataLabeler
+    from . import profile_builder
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
@@ -293,7 +299,7 @@ def add_nested_dictionaries(first_dict: dict, second_dict: dict) -> dict:
     return merged_dict
 
 
-def biased_skew(df_series: Series) -> float:
+def biased_skew(df_series: Series) -> np.float64:
     """
     Calculate the biased estimator for skewness of the given data.
 
@@ -302,15 +308,15 @@ def biased_skew(df_series: Series) -> float:
     :param df_series: data to get skewness of, assuming floats
     :type df_series: pandas Series
     :return: biased skewness
-    :rtype: float
+    :rtype: np.float64
     """
     n = len(df_series)
     if n < 1:
-        return np.nan
+        return np.float64(np.nan)
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return np.nan
+        return np.float64(np.nan)
 
     diffs = df_series - mean
     squared_diffs = diffs**2
@@ -324,14 +330,14 @@ def biased_skew(df_series: Series) -> float:
     M3 = 0 if np.abs(M3) < 1e-14 else M3
 
     if M2 == 0:
-        return 0.0
+        return np.float64(0.0)
 
     with np.errstate(all="ignore"):
-        skew: float = np.sqrt(n) * M3 / np.power(M2, 1.5)
+        skew: np.float64 = np.sqrt(n) * M3 / np.power(M2, 1.5)
     return skew
 
 
-def biased_kurt(df_series: Series) -> float:
+def biased_kurt(df_series: Series) -> np.float64:
     """
     Calculate the biased estimator for kurtosis of the given data.
 
@@ -340,15 +346,15 @@ def biased_kurt(df_series: Series) -> float:
     :param df_series: data to get kurtosis of, assuming floats
     :type df_series: pandas Series
     :return: biased kurtosis
-    :rtype: float
+    :rtype: np.float64
     """
     n = len(df_series)
     if n < 1:
-        return np.nan
+        return np.float64(np.nan)
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return np.nan
+        return np.float64(np.nan)
 
     diffs = df_series - mean
     squared_diffs = diffs**2
@@ -362,10 +368,10 @@ def biased_kurt(df_series: Series) -> float:
     M4 = 0 if np.abs(M4) < 1e-14 else M4
 
     if M2 == 0:
-        return -3.0
+        return np.float64(-3.0)
 
     with np.errstate(all="ignore"):
-        kurt: float = n * M4 / np.power(M2, 2) - 3
+        kurt: np.float64 = n * M4 / np.power(M2, 2) - 3
     return kurt
 
 
@@ -387,7 +393,10 @@ T = TypeVar("T", bound=Subtractable)
 
 
 @overload
-def find_diff_of_numbers(stat1: float | np.float64, stat2: float | np.float64) -> Any:
+def find_diff_of_numbers(
+    stat1: int | float | np.float64 | np.int64 | None,
+    stat2: int | float | np.float64 | np.int64 | None,
+) -> Any:
     ...
 
 
@@ -404,9 +413,9 @@ def find_diff_of_numbers(stat1, stat2):
     For ints/floats, returns stat1 - stat2.
 
     :param stat1: the first statistical input
-    :type stat1: Union[int, float]
+    :type stat1: Union[int, float, np.float64, np.int64, None]
     :param stat2: the second statistical input
-    :type stat2: Union[int, float]
+    :type stat2: Union[int, float, np.float64, np.int64, None]
     :return: the difference of the stats
     """
     if stat1 is None and stat2 is None:
@@ -773,9 +782,9 @@ def chunk(lst: list, size: int) -> Iterator[tuple]:
 
 
 def merge(
-    top_profile: profilers.profile_builder.BaseProfiler,
-    other_profile: profilers.profile_builder.BaseProfiler = None,
-) -> profilers.profile_builder.BaseProfiler:
+    top_profile: profile_builder.BaseProfiler,
+    other_profile: profile_builder.BaseProfiler = None,
+) -> profile_builder.BaseProfiler:
     """
     Merge two Profiles.
 
@@ -792,9 +801,9 @@ def merge(
 
 
 def merge_profile_list(
-    list_of_profiles: list[profilers.profile_builder.BaseProfiler],
+    list_of_profiles: list[profile_builder.BaseProfiler],
     pool_count: int = 5,
-) -> profilers.profile_builder.BaseProfiler:
+) -> profile_builder.BaseProfiler:
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group
@@ -818,3 +827,62 @@ def merge_profile_list(
 
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]
+
+
+def reload_labeler_from_options_or_get_new(
+    data_labeler_load_attr: dict, config: dict | None = None
+) -> BaseDataLabeler | None:
+    """
+    If required by the load_attr load a data labeler, but reuse from config if possible.
+
+    :param data_labeler_load_attr: dictionary with attributes and values.
+    :type data_labeler_load_attr: dict[string, dict]
+    :param config: config for loading classes to reuse an existing labeler
+    :type config: dict[string, dict]
+
+    :return: Profiler with attributes populated.
+    :rtype: DataLabelerOptions
+    """
+    data_labeler_object: BaseDataLabeler | None = None
+    if "from_library" in data_labeler_load_attr:
+        data_labeler_object = (
+            (
+                # get options from DLOptions first for reuse
+                config.get("DataLabelerOptions", {})
+                .get("from_library", {})
+                .get(data_labeler_load_attr["from_library"])
+                or
+                # get options from DL column second for reuse
+                config.get("DataLabelerColumn", {})
+                .get("from_library", {})
+                .get(data_labeler_load_attr["from_library"])
+            )
+            if config is not None
+            else None
+        )
+        # load from library if not in options
+        if data_labeler_object is None:
+            data_labeler_object = DataLabeler.load_from_library(
+                data_labeler_load_attr["from_library"]
+            )
+            # save labelers so as not to reload if already loaded
+        if data_labeler_object is not None and config is not None:
+            for class_name in ["DataLabelerOptions", "DataLabelerColumn"]:
+                # get each layer of dicts to not overwrite
+                class_options = config.get(class_name, {})
+                libray_options = class_options.get("from_library", {})
+                # don't replace the one that already exists
+                if data_labeler_load_attr["from_library"] in libray_options:
+                    continue
+                labeler_options = {
+                    data_labeler_load_attr["from_library"]: data_labeler_object
+                }
+                # update the dicts each
+                libray_options.update(labeler_options)
+                class_options["from_library"] = libray_options
+                config[class_name] = class_options
+    elif "from_disk" in data_labeler_load_attr:
+        raise NotImplementedError(
+            "Models intialized from disk have not yet been made deserializable"
+        )
+    return data_labeler_object

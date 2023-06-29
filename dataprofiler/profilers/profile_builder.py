@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import copy
+import json
 import logging
+import os
 import pickle
 import random
 import re
@@ -11,14 +13,14 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, List, Optional, cast
+from typing import Any, Generator, List, Optional, TypeVar, cast
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from HLL import HyperLogLog
 
-from .. import data_readers, dp_logging
+from .. import data_readers, dp_logging, settings
 from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
@@ -32,12 +34,21 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
+from .json_decoder import (
+    load_compiler,
+    load_option,
+    load_profiler,
+    load_structured_col_profiler,
+)
+from .json_encoder import ProfileEncoder
 from .profiler_options import (
     BaseOption,
     ProfilerOptions,
     StructuredOptions,
     UnstructuredOptions,
 )
+
+BaseProfilerT = TypeVar("BaseProfilerT", bound="BaseProfiler")
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -379,6 +390,35 @@ class StructuredColProfiler:
 
         return report
 
+    @classmethod
+    def load_from_dict(cls, data, options: dict | None = None) -> StructuredColProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading structured column profiler
+        :type options: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredColProfiler
+        """
+        profile = cls()
+        for attr, value in data.items():
+            if attr == "profiles":
+                for profile_key, profile_value in value.items():
+                    value[profile_key] = load_compiler(profile_value, options)
+            if attr == "options" and value is not None:
+                value = load_option(value, options)
+            if attr == "_null_values":
+                value = {
+                    k: (re.RegexFlag(v) if v != 0 else 0) for k, v in value.items()
+                }
+            if attr == "null_types_index":
+                value = {k: set(v) for k, v in value.items()}
+            setattr(profile, attr, value)
+        return profile
+
     @property
     def profile(self) -> dict:
         """Return a report."""
@@ -614,11 +654,22 @@ class StructuredColProfiler:
         df_series = df_series.loc[true_sample_list]
         total_na = total_sample_size - len(true_sample_list)
 
+        rng = np.random.default_rng(settings._seed)
+
+        if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
+            seed = os.environ.get("DATAPROFILER_SEED")
+            if isinstance(seed, int):
+                rng = np.random.default_rng(int(seed))
+            else:
+                warnings.warn("Seed should be an integer", RuntimeWarning)
+
         base_stats = {
             "sample_size": total_sample_size,
             "null_count": total_na,
             "null_types": na_columns,
-            "sample": random.sample(list(df_series.values), min(len(df_series), 5)),
+            "sample": rng.choice(
+                list(df_series.values), (min(len(df_series), 5),), replace=False
+            ).tolist(),
             "min_id": min_id,
             "max_id": max_id,
         }
@@ -835,6 +886,34 @@ class BaseProfiler:
         """
         raise NotImplementedError()
 
+    @classmethod
+    def load_from_dict(cls: type[BaseProfilerT], data, config) -> BaseProfilerT:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param config: config for overriding data params when loading from dict
+        :type config: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseProfiler
+        """
+        options = load_option(data["options"], config)
+        profiler = cls(None, options=options)
+
+        for attr, value in data.items():
+            if "times" == attr:
+                value = defaultdict(float, value)
+            if "_profile" == attr:
+                for idx, profile in enumerate(value):
+                    value[idx] = load_structured_col_profiler(profile, config)
+            if "options" == attr:
+                continue
+
+            setattr(profiler, attr, value)
+        return profiler
+
     def _update_profile_from_chunk(
         self,
         data: pd.Series | pd.DataFrame | list,
@@ -1027,7 +1106,7 @@ class BaseProfiler:
                 data_labeler_profile = profiler._profiles["data_labeler"]
                 data_labeler_profile.data_labeler = data_labeler
 
-    def _save_helper(self, filepath: str | None, data_dict: dict) -> None:
+    def _pkl_save_helper(self, filepath: str | None, data_dict: dict) -> None:
         """
         Save profiler to disk.
 
@@ -1056,7 +1135,7 @@ class BaseProfiler:
         # Restore all data labelers
         self._restore_data_labelers(data_labelers)
 
-    def save(self, filepath: str = None) -> None:
+    def _json_save_helper(self, filepath: str | None) -> None:
         """
         Save profiler to disk.
 
@@ -1064,22 +1143,59 @@ class BaseProfiler:
         :type filepath: String
         :return: None
         """
+        if filepath is None:
+            filepath = "profile-{}.json".format(
+                datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f")
+            )
+
+        with open(filepath, "w") as f:
+            json.dump(self, f, cls=ProfileEncoder)
+
+    def save(self, filepath: str = None, save_method: str = "pickle") -> None:
+        """
+        Save profiler to disk.
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :param save_method: The desired saving method (must be "pickle" or "json")
+        :type save_method: String
+        :return: None
+        """
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath: str, load_method: str | None = None) -> BaseProfiler:
         """
         Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String
+        :param load_method: The desired loading method, default = None
+        :type load_method: Optional[String]
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
         """
         # Load profile from disk
-        with open(filepath, "rb") as infile:
-            data: dict = pickle.load(infile)
+        if isinstance(load_method, str):
+            load_method = load_method.lower()
+        if load_method not in [None, "pickle", "json"]:
+            raise ValueError(
+                "Please specify a valid load_method ('pickle','json' or None)"
+            )
+
+        data: dict | None = None
+        try:
+            if load_method is None or load_method == "pickle":
+                with open(filepath, "rb") as infile:
+                    data = pickle.load(infile)
+        except pickle.UnpicklingError:
+            if load_method == "pickle":
+                raise ValueError("File is unable to be loaded as pickle.")
+        finally:
+            if data is None or load_method == "json":
+                with open(filepath) as infile:
+                    return load_profiler(json.load(infile), {})
 
         # remove profiler class if it exists
         profiler_class: str | None = data.pop("profiler_class", None)
@@ -1308,6 +1424,24 @@ class UnstructuredProfiler(BaseProfiler):
         report["data_stats"] = self._profile.report(remove_disabled_flag)
         return _prepare_report(report, output_format, omit_keys)
 
+    @classmethod
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
+
+        :raises: NotImplementedError
+        """
+        raise NotImplementedError("UnstructuredProfiler deserialization not supported.")
+
     @utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(
         self, data: pd.Series, sample_size: int, min_true_samples: int = None
@@ -1449,29 +1583,36 @@ class UnstructuredProfiler(BaseProfiler):
         else:
             self._profile.update_profile(data, pool=pool)
 
-    def save(self, filepath: str = None) -> None:
+    def save(self, filepath: str = None, save_method: str = "pickle") -> None:
         """
         Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
+        :param save_method: The desired saving method ("pickle" | "json")
+        :type save_method: String
         :return: None
         """
-        # Create dictionary for all metadata, options, and profile
-        data_dict = {
-            "total_samples": self.total_samples,
-            "sample": self.sample,
-            "encoding": self.encoding,
-            "file_type": self.file_type,
-            "_samples_per_update": self._samples_per_update,
-            "_min_true_samples": self._min_true_samples,
-            "_empty_line_count": self._empty_line_count,
-            "memory_size": self.memory_size,
-            "options": self.options,
-            "_profile": self.profile,
-            "times": self.times,
-        }
-        self._save_helper(filepath, data_dict)
+        save_method = save_method.lower()
+        if save_method == "pickle":
+            data_dict = {
+                "total_samples": self.total_samples,
+                "sample": self.sample,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+                "_empty_line_count": self._empty_line_count,
+                "memory_size": self.memory_size,
+                "options": self.options,
+                "_profile": self.profile,
+                "times": self.times,
+            }
+            self._pkl_save_helper(filepath, data_dict)
+        elif save_method == "json":
+            self._json_save_helper(filepath)
+        else:
+            raise ValueError('save_method must be "json" or "pickle".')
 
 
 class StructuredProfiler(BaseProfiler):
@@ -1959,6 +2100,42 @@ class StructuredProfiler(BaseProfiler):
 
         return _prepare_report(report, output_format, omit_keys)
 
+    @classmethod
+    def load_from_dict(
+        cls,
+        data,
+        options: dict | None = None,
+    ) -> StructuredProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param options: options for loading column profiler params from dictionary
+        :type options: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: StructuredProfiler
+        """
+        if data["chi2_matrix"] is not None:
+            data["chi2_matrix"] = np.array(data["chi2_matrix"])
+        if data["correlation_matrix"] is not None:
+            data["correlation_matrix"] = np.array(data["correlation_matrix"])
+        try:
+            data["_col_name_to_idx"] = defaultdict(
+                list, {int(k): v for k, v in data["_col_name_to_idx"].items()}
+            )
+        except Exception:
+            data["_col_name_to_idx"] = defaultdict(list, data["_col_name_to_idx"])
+
+        data["hashed_row_object"] = {
+            int(k): v for k, v in data["hashed_row_object"].items()
+        }
+
+        structured_profiler = super().load_from_dict(data, options)
+
+        return structured_profiler
+
     def _get_unique_row_ratio(self) -> float | None:
         """Return unique row ratio."""
         if (
@@ -2427,7 +2604,7 @@ class StructuredProfiler(BaseProfiler):
         total_row_sum = np.asarray(
             [
                 get_data_type_profiler(profile).sum
-                if get_data_type(profile)
+                if get_data_type(profile) not in [None, "datetime"]
                 else np.nan
                 for profile in self._profile
             ]
@@ -2849,32 +3026,38 @@ class StructuredProfiler(BaseProfiler):
         if self.options.null_replication_metrics.is_enabled:
             self._update_null_replication_metrics(clean_sampled_dict)
 
-    def save(self, filepath: str = None) -> None:
+    def save(self, filepath: str = None, save_method: str = "pickle") -> None:
         """
         Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
+        :param save_method: The desired saving method (must be "pickle" or "json")
+        :type save_method: String
         :return: None
         """
-        # Create dictionary for all metadata, options, and profile
-        data_dict = {
-            "total_samples": self.total_samples,
-            "encoding": self.encoding,
-            "file_type": self.file_type,
-            "row_has_null_count": self.row_has_null_count,
-            "row_is_null_count": self.row_is_null_count,
-            "hashed_row_object": self.hashed_row_object,
-            "_samples_per_update": self._samples_per_update,
-            "_min_true_samples": self._min_true_samples,
-            "options": self.options,
-            "chi2_matrix": self.chi2_matrix,
-            "_profile": self.profile,
-            "_col_name_to_idx": self._col_name_to_idx,
-            "times": self.times,
-        }
-
-        self._save_helper(filepath, data_dict)
+        save_method = save_method.lower()
+        if save_method == "pickle":
+            data_dict = {
+                "total_samples": self.total_samples,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "row_has_null_count": self.row_has_null_count,
+                "row_is_null_count": self.row_is_null_count,
+                "hashed_row_object": self.hashed_row_object,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+                "options": self.options,
+                "chi2_matrix": self.chi2_matrix,
+                "_profile": self.profile,
+                "_col_name_to_idx": self._col_name_to_idx,
+                "times": self.times,
+            }
+            self._pkl_save_helper(filepath, data_dict)
+        elif save_method == "json":
+            self._json_save_helper(filepath)
+        else:
+            raise ValueError('save_method must be "json" or "pickle".')
 
 
 class Profiler:
@@ -2949,14 +3132,17 @@ class Profiler:
             )
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath: str, load_method: str | None = None) -> BaseProfiler:
         """
         Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String
+        :param load_method: The desired loading method, default = "None"
+        :type load_method: Optional[String]
+
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
         """
-        return BaseProfiler.load(filepath)
+        return BaseProfiler.load(filepath, load_method)

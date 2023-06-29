@@ -143,7 +143,7 @@ def load_column_profile(
         }
 
     :param serialized_json: JSON representation of column profiler that was
-        # serialized using the custom encoder in profilers.json_encoder
+        serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder
     :param config: config for overriding data params when loading from dict

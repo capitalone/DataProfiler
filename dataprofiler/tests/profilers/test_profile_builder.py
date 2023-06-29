@@ -4967,7 +4967,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
                     "dataprofiler.profilers.profile_builder." "DataLabeler",
                     return_value=data_labeler,
                 ):
-                    load_profile = dp.Profiler.load("mock.pkl")
+                    load_profile = dp.Profiler.load("mock.pkl", load_method="PICKLE")
 
             # validate loaded profile has same data labeler class
             self.assertIsInstance(

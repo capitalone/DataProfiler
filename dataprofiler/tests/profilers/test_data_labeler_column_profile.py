@@ -382,7 +382,6 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                 "avg_predictions": {"a": "unchanged", "b": -0.70, "c": 0.70},
                 "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
             }
-            self.maxDiff = None
             self.assertDictEqual(expected_diff, diff)
 
     def test_empty_data(self, *mocks):

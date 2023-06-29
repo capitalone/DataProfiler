@@ -72,7 +72,9 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         cls.aws_dataset = pd.read_csv(cls.input_file_path)
         profiler_options = ProfilerOptions()
-        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.set(
+            {"data_labeler.is_enabled": False, "multiprocess.is_enabled": False}
+        )
         with test_utils.mock_timeit():
             cls.trained_schema = dp.StructuredProfiler(
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
@@ -2300,6 +2302,30 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([0.5, 0.5], column["class_prior"])
         np.testing.assert_array_almost_equal([[20], [0]], column["class_sum"])
         np.testing.assert_array_almost_equal([[10], [0]], column["class_mean"])
+
+        # account for datetime
+        data = pd.DataFrame(
+            {
+                "a": [3, 2, np.nan, 7, None],
+                "b": [10, 10, 1, 4, 2],
+                "c": ["2/2/2021", "2/5/2021", "2/9/2021", "2/21/2021", None],
+            }
+        )
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_null_rep = {
+            0: {
+                "class_prior": [0.6, 0.4],
+                "class_sum": [[24.0, np.nan], [3.0, 0.0]],
+                "class_mean": [[8.0, np.nan], [1.5, 0.0]],
+            },
+            # 1: has not values bc none to replicate 100% real
+            2: {
+                "class_prior": [0.8, 0.2],
+                "class_sum": [[12.0, 25.0], [0.0, 2.0]],
+                "class_mean": [[3.0, 6.25], [0.0, 2.0]],
+            },
+        }
+        np.testing.assert_equal(expected_null_rep, profiler._null_replication_metrics)
 
     def test_column_level_invalid_values(self):
         data = pd.DataFrame([[1, 1], [9999999, 2], [3, 3]])

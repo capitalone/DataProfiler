@@ -143,6 +143,97 @@ def load_column_profile(
         }
 
     :param serialized_json: JSON representation of column profiler that was
+        # serialized using the custom encoder in profilers.json_encoder
+    :type serialized_json: a dict that was created by calling json.loads on
+        a JSON representation using the custom encoder
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
+
+    :return: subclass of BaseColumnProfiler that has been deserialized from
+        JSON
+
+    """
+    column_profiler_cls: type[
+        BaseColumnProfiler[BaseColumnProfiler]
+    ] = get_column_profiler_class(serialized_json["class"])
+    return column_profiler_cls.load_from_dict(serialized_json["data"], config)
+
+
+def load_compiler(
+    serialized_json: dict, config: dict | None = None
+) -> col_pro_compiler.BaseCompiler:
+    """
+    Construct subclass of BaseCompiler given a serialized JSON.
+
+    Expected format of serialized_json (see json_encoder):
+        {
+            "class": <str name of class that was serialized>
+            "data": {
+                <attr1>: <value1>
+                <attr2>: <value2>
+                ...
+            }
+        }
+
+    :param serialized_json: JSON representation of profile compiler that was
+        serialized using the custom encoder in profilers.json_encoder
+    :type serialized_json: a dict that was created by calling json.loads on
+        a JSON representation using the custom encoder
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
+    :return: subclass of BaseCompiler that has been deserialized from
+        JSON
+
+    """
+    column_profiler_cls: type[col_pro_compiler.BaseCompiler] = get_compiler_class(
+        serialized_json["class"]
+    )
+    return column_profiler_cls.load_from_dict(serialized_json["data"], config)
+
+
+def load_option(serialized_json: dict, config: dict | None = None) -> BaseOption:
+    """
+    Construct subclass of BaseOption given a serialized JSON.
+
+    Expected format of serialized_json (see json_encoder):
+        {
+            "class": <str name of class that was serialized>
+            "data": {
+                <attr1>: <value1>
+                <attr2>: <value2>
+                ...
+            }
+        }
+
+    :param serialized_json: JSON representation of option that was
+        serialized using the custom encoder in profilers.json_encoder
+    :type serialized_json: a dict that was created by calling json.loads on
+        a JSON representation using the custom encoder
+    :param config: config for overriding data params when loading from dict
+    :type config: Dict | None
+    :return: subclass of BaseOption that has been deserialized from
+        JSON
+
+    """
+    option_cls: type[BaseOption] = get_option_class(serialized_json["class"])
+    return option_cls.load_from_dict(serialized_json["data"], config)
+
+
+def load_profiler(serialized_json: dict, config=None) -> BaseProfiler:
+    """
+    Construct subclass of BaseProfiler given a serialized JSON.
+
+    Expected format of serialized_json (see json_encoder):
+        {
+            "class": <str name of class that was serialized>
+            "data": {
+                <attr1>: <value1>
+                <attr2>: <value2>
+                ...
+            }
+        }
+
+    :param serialized_json: JSON representation of column profiler that was
         serialized using the custom encoder in profilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on
         a JSON representation using the custom encoder

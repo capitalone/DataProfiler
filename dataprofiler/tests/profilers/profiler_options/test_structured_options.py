@@ -417,5 +417,4 @@ class TestStructuredOptions(TestBaseOption, JSONDecodeTestMixin):
                 "column_null_values": {"2": {"other_str": 5}},
             },
         }
-
         self.assertDictEqual(expected, json.loads(serialized))

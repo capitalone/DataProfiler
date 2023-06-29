@@ -1162,12 +1162,14 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str, load_method: str | None = "pickle") -> BaseProfiler:
+    def load(cls, filepath: str, load_method: str | None = None) -> BaseProfiler:
         """
         Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String
+        :param load_method: The desired loading method, default = None
+        :type load_method: Optional[String]
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
@@ -2991,14 +2993,17 @@ class Profiler:
             )
 
     @classmethod
-    def load(cls, filepath: str) -> BaseProfiler:
+    def load(cls, filepath: str, load_method: str | None = None) -> BaseProfiler:
         """
         Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String
+        :param load_method: The desired loading method, default = "None"
+        :type load_method: Optional[String]
+
         :return: Profiler being loaded, StructuredProfiler or
             UnstructuredProfiler
         :rtype: BaseProfiler
         """
-        return BaseProfiler.load(filepath)
+        return BaseProfiler.load(filepath, load_method)

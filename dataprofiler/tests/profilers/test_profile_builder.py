@@ -3600,7 +3600,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         test_utils.set_seed(0)
-        cls.maxDiff = None
+
         cls.input_data = [
             "edited 9 hours ago",
             "6. Do not duplicate code.",
@@ -3638,7 +3638,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         cls.report = cls.profiler.report()
 
     def test_sample(self):
-        self.maxDiff = None
         self.assertCountEqual(
             [
                 "Report",

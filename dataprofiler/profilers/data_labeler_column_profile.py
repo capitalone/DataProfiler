@@ -333,7 +333,7 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
 
         # This is an ambiguous call to super classes.
         # If load_from_dict is part of both super classes there may be issues
-        profile = super().load_from_dict(data, options={cls.__name__: opt})
+        profile = super().load_from_dict(data, config={cls.__name__: opt})
 
         if profile._reverse_label_mapping is not None:
             profile._reverse_label_mapping = {

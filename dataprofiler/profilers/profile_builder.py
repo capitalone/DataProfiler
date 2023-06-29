@@ -391,14 +391,14 @@ class StructuredColProfiler:
         return report
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None) -> StructuredColProfiler:
+    def load_from_dict(cls, data, config: dict | None = None) -> StructuredColProfiler:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading structured column profiler
-        :type options: Dict | None
+        :param config: config for loading structured column profiler
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: StructuredColProfiler
@@ -407,9 +407,9 @@ class StructuredColProfiler:
         for attr, value in data.items():
             if attr == "profiles":
                 for profile_key, profile_value in value.items():
-                    value[profile_key] = load_compiler(profile_value, options)
+                    value[profile_key] = load_compiler(profile_value, config)
             if attr == "options" and value is not None:
-                value = load_option(value, options)
+                value = load_option(value, config)
             if attr == "_null_values":
                 value = {
                     k: (re.RegexFlag(v) if v != 0 else 0) for k, v in value.items()
@@ -887,7 +887,9 @@ class BaseProfiler:
         raise NotImplementedError()
 
     @classmethod
-    def load_from_dict(cls: type[BaseProfilerT], data, config) -> BaseProfilerT:
+    def load_from_dict(
+        cls: type[BaseProfilerT], data, config: dict | None = None
+    ) -> BaseProfilerT:
         """
         Parse attribute from json dictionary into self.
 
@@ -1428,15 +1430,15 @@ class UnstructuredProfiler(BaseProfiler):
     def load_from_dict(
         cls,
         data,
-        options: dict | None = None,
+        config: dict | None = None,
     ):
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
+        :param config: config for loading profiler params from dictionary
+        :type config: Dict | None
 
         :raises: NotImplementedError
         """
@@ -2104,15 +2106,15 @@ class StructuredProfiler(BaseProfiler):
     def load_from_dict(
         cls,
         data,
-        options: dict | None = None,
+        config: dict | None = None,
     ) -> StructuredProfiler:
         """
         Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
-        :param options: options for loading column profiler params from dictionary
-        :type options: Dict | None
+        :param config: config for loading profiler params from dictionary
+        :type config: Dict | None
 
         :return: Profiler with attributes populated.
         :rtype: StructuredProfiler
@@ -2132,7 +2134,7 @@ class StructuredProfiler(BaseProfiler):
             int(k): v for k, v in data["hashed_row_object"].items()
         }
 
-        structured_profiler = super().load_from_dict(data, options)
+        structured_profiler = super().load_from_dict(data, config)
 
         return structured_profiler
 

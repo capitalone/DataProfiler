@@ -1,8 +1,9 @@
+pass
 import unittest
 from collections import defaultdict
 from unittest import mock
 
-from dataprofiler.plugins.__init__ import get_plugins
+from dataprofiler.plugins.__init__ import get_plugins, load_plugins
 from dataprofiler.plugins.decorators import plugin_decorator, plugins_dict
 
 
@@ -22,6 +23,24 @@ class TestPlugins(unittest.TestCase):
             test_get_dict = get_plugins("test")
             self.assertDictEqual({"mock_test": test_plugin}, test_get_dict)
 
-    @mock.patch("..plugins.__init__.load_plugins")
-    def test_load_plugin(self, *mocks):
-        return None
+    @mock.patch("dataprofiler.plugins.__init__.importlib.util")
+    @mock.patch("dataprofiler.plugins.__init__.os.path.isdir")
+    @mock.patch("dataprofiler.plugins.__init__.os.listdir")
+    def test_load_plugin(self, mock_listdir, mock_isdir, mock_importlib_util):
+        mock_listdir.side_effect = (
+            lambda dir: ["__pycache__", "py"]
+            if dir.endswith("plugins")
+            else ["stillnotrealpy", "a.json", None]
+        )
+        mock_isdir.return_value = True
+        mock_importlib_util.spec_from_file_location.return_value = None
+        load_plugins()
+        mock_importlib_util.spec_from_file_location.assert_not_called()
+
+        mock_listdir.side_effect = (
+            lambda dir: ["folder"] if dir.endswith("plugins") else ["file.py"]
+        )
+        mock_spec = mock.Mock()
+        mock_importlib_util.spec_from_file_location.return_value = mock_spec
+        load_plugins()
+        mock_importlib_util.module_from_spec.assert_called_with(mock_spec)

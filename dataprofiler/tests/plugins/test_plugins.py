@@ -1,4 +1,3 @@
-pass
 import unittest
 from collections import defaultdict
 from unittest import mock

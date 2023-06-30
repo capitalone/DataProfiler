@@ -37,7 +37,9 @@ class TestPlugins(unittest.TestCase):
         mock_importlib_util.spec_from_file_location.assert_not_called()
 
         mock_listdir.side_effect = (
-            lambda dir: ["folder"] if dir.endswith("plugins") else ["file.py"]
+            lambda folder_dir: ["folder"]
+            if folder_dir.endswith("plugins")
+            else ["file.py"]
         )
         mock_spec = mock.Mock()
         mock_importlib_util.spec_from_file_location.return_value = mock_spec

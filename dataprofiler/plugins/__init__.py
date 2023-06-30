@@ -18,7 +18,7 @@ def load_plugins():
             if folder == "__pycache__":
                 continue
             for filename in os.listdir(option_path):
-                if filename is None or filename[len(filename) - 3 :] != ".py":
+                if filename is None or not filename.endswith(".py"):
                     continue
                 spec = importlib.util.spec_from_file_location(
                     filename, os.path.join(option_path, filename)

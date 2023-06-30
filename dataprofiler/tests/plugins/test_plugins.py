@@ -27,8 +27,8 @@ class TestPlugins(unittest.TestCase):
     @mock.patch("dataprofiler.plugins.__init__.os.listdir")
     def test_load_plugin(self, mock_listdir, mock_isdir, mock_importlib_util):
         mock_listdir.side_effect = (
-            lambda dir: ["__pycache__", "py"]
-            if dir.endswith("plugins")
+            lambda folder_dir: ["__pycache__", "py"]
+            if folder_dir.endswith("plugins")
             else ["stillnotrealpy", "a.json", None]
         )
         mock_isdir.return_value = True

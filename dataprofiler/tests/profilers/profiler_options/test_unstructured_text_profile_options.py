@@ -1,3 +1,6 @@
+import json
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import BooleanOption, TextProfilerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import (
     TestBaseInspectorOptions,
@@ -244,3 +247,29 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         self.assertNotEqual(options, options2)
         options2.words.is_enabled = False
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = TextProfilerOptions(
+            is_enabled=False,
+            is_case_sensitive=False,
+            stop_words=["ab", "aa", "aba"],
+            top_k_chars=5,
+            top_k_words=8,
+        )
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "TextProfilerOptions",
+            "data": {
+                "is_enabled": False,
+                "is_case_sensitive": False,
+                "top_k_chars": 5,
+                "top_k_words": 8,
+                "stop_words": ["ab", "aa", "aba"],
+                "vocab": {"class": "BooleanOption", "data": {"is_enabled": True}},
+                "words": {"class": "BooleanOption", "data": {"is_enabled": True}},
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

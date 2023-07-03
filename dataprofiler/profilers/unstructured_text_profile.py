@@ -9,7 +9,8 @@ from collections import Counter, defaultdict
 from numpy import ndarray
 from pandas import DataFrame, Series
 
-from . import BaseColumnProfiler, utils
+from . import utils
+from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import TextProfilerOptions
 
 

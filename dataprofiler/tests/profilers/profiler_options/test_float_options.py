@@ -1,3 +1,7 @@
+import json
+from unittest import mock
+
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import FloatOptions
 from dataprofiler.tests.profilers.profiler_options.test_numerical_options import (
     TestNumericalOptions,
@@ -36,3 +40,73 @@ class TestFloatOptions(TestNumericalOptions):
         self.assertNotEqual(options, options2)
         options2.precision.is_enabled = False
         self.assertEqual(options, options2)
+
+    def test_json_encode(self):
+        option = FloatOptions()
+
+        serialized = json.dumps(option, cls=ProfileEncoder)
+
+        expected = {
+            "class": "FloatOptions",
+            "data": {
+                "min": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "max": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "mode": {
+                    "class": "ModeOption",
+                    "data": mock.ANY,
+                },
+                "median": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "sum": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "variance": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "skewness": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "kurtosis": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "median_abs_deviation": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "num_zeros": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "num_negatives": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "histogram_and_quantiles": {
+                    "class": "HistogramOption",
+                    "data": mock.ANY,
+                },
+                "bias_correction": {
+                    "class": "BooleanOption",
+                    "data": {"is_enabled": True},
+                },
+                "is_enabled": True,
+                "precision": {
+                    "class": "PrecisionOptions",
+                    "data": mock.ANY,
+                },
+            },
+        }
+
+        self.assertDictEqual(expected, json.loads(serialized))

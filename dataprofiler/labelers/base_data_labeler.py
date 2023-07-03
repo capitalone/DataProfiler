@@ -637,7 +637,9 @@ class BaseDataLabeler:
         :return: DataLabeler class
         :rtype: BaseDataLabeler
         """
-        return cls(os.path.join(default_labeler_dir, name))
+        labeler = cls(os.path.join(default_labeler_dir, name))
+        labeler._default_model_loc = name
+        return labeler
 
     @classmethod
     def load_from_disk(cls, dirpath: str, load_options: dict = None) -> BaseDataLabeler:

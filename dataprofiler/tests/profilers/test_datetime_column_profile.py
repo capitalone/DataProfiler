@@ -10,11 +10,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import DateTimeColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DateTimeOptions
 
-from .. import test_utils
-from . import utils
+from . import utils as test_utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.
@@ -23,7 +23,7 @@ unittest.case._AssertWarnsContext.__enter__ = test_utils.patched_assert_warns
 
 class TestDateTimeColumnProfiler(unittest.TestCase):
     def setUp(self):
-        utils.set_seed(seed=0)
+        test_utils.set_seed(seed=0)
 
     @staticmethod
     def _generate_datetime_data(date_format):
@@ -33,7 +33,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             start_date = pd.Timestamp(1950, 7, 14)
             end_date = pd.Timestamp(2020, 7, 14)
 
-            date_sample = utils.generate_random_date_sample(
+            date_sample = test_utils.generate_random_date_sample(
                 start_date, end_date, [date_format]
             )
             gen_data.append(date_sample)
@@ -500,3 +500,46 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = DateTimeColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        fake_profile_name = "Fake profile name"
+
+        data = [2.5, 12.5, "2013-03-10 15:43:30", 5, "03/10/13 15:43", "Mar 11, 2013"]
+        df = pd.Series(data)
+
+        expected_profile = DateTimeColumn(fake_profile_name)
+        expected_profile.update(df)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        expected_formats = [
+            "%m/%d/%y %H:%M",
+            "%Y-%m-%d %H:%M:%S",
+            "%B %d, %Y",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y%m%dT%H%M%S",
+            "%b %d, %Y",
+        ]
+
+        data_new = ["2012-02-10T15:43:30", "20120210T154300", "March 12, 2014"]
+        df_new = pd.Series(data_new)
+
+        # validating update after deserialization
+        deserialized.update(df_new)
+
+        assert deserialized._dt_obj_min == pd.Timestamp("2012-02-10 15:43:00")
+        assert deserialized._dt_obj_max == pd.Timestamp("2014-03-12 00:00:00")
+
+        assert set(deserialized.date_formats) == set(expected_formats)

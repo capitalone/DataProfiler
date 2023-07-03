@@ -11,9 +11,8 @@ from typing import Any, Callable, Generic, TypeVar
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers.profiler_options import BaseInspectorOptions
-
 from . import utils
+from .profiler_options import BaseInspectorOptions, BaseOption
 
 BaseColumnProfilerT = TypeVar("BaseColumnProfilerT", bound="BaseColumnProfiler")
 
@@ -30,7 +29,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
     _SAMPLING_RATIO = 0.20
     _MIN_SAMPLING_COUNT = 500
 
-    def __init__(self, name: str | None) -> None:
+    def __init__(self, name: str | None, options: BaseOption | None = None):
         """
         Initialize base class properties for the subclass.
 
@@ -249,6 +248,44 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
+    @classmethod
+    def load_from_dict(
+        cls: type[BaseColumnProfilerT],
+        data: dict[str, Any],
+        config: dict | None = None,
+    ) -> BaseColumnProfilerT:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+        :param config: config for loading column profiler params from dictionary
+        :type config: Dict | None
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
+        """
+        if config is None:
+            config = {}
+
+        class_options = config.get(cls.__name__)
+        profile: BaseColumnProfilerT = cls(data["name"], class_options)
+
+        time_vals = data.pop("times")
+        setattr(profile, "times", defaultdict(float, time_vals))
+
+        for attr, value in data.items():
+            if "__calculations" in attr:
+                for metric, function in value.items():
+                    if not hasattr(profile, function):
+                        raise AttributeError(
+                            f"Object {type(profile)} has no attribute {function}."
+                        )
+                    value[metric] = getattr(profile, function).__func__
+            setattr(profile, attr, value)
+
+        return profile
+
 
 BaseColumnPrimitiveTypeProfilerT = TypeVar(
     "BaseColumnPrimitiveTypeProfilerT", bound="BaseColumnPrimitiveTypeProfiler"
@@ -282,7 +319,7 @@ class BaseColumnPrimitiveTypeProfiler(
         :type profile: base data profile dict
         :return: None
         """
-        self.match_count += profile.pop("match_count")
+        self.match_count += int(profile.pop("match_count"))
         BaseColumnProfiler._update_column_base_properties(self, profile)
 
     def _add_helper(

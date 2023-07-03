@@ -9,7 +9,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import FloatColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import FloatOptions
+
+from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -32,7 +36,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertEqual(len(profiler.quantiles), 999)
+        self.assertIsNone(profiler.quantiles)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -1734,3 +1738,264 @@ class TestFloatColumn(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: 'FloatColumn' and" " 'str'",
         )
+
+    def test_json_encode(self):
+        profiler = FloatColumn("0.0")
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        # Copy of NumericalStatsMixin code to test serialization of dicts
+        expected_histogram_bin_method_names = [
+            "auto",
+            "fd",
+            "doane",
+            "scott",
+            "rice",
+            "sturges",
+            "sqrt",
+        ]
+        expected_min_histogram_bin = 1000
+        expected_historam_methods = {}
+        for method in expected_histogram_bin_method_names:
+            expected_historam_methods[method] = {
+                "total_loss": 0.0,
+                "current_loss": 0.0,
+                "suggested_bin_count": expected_min_histogram_bin,
+                "histogram": {"bin_counts": None, "bin_edges": None},
+            }
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "class": "FloatColumn",
+                "data": {
+                    "min": None,
+                    "max": None,
+                    "_top_k_modes": 5,
+                    "sum": 0.0,
+                    "_biased_variance": np.nan,
+                    "_biased_skewness": np.nan,
+                    "_biased_kurtosis": np.nan,
+                    "_median_is_enabled": True,
+                    "_median_abs_dev_is_enabled": True,
+                    "max_histogram_bin": 100000,
+                    "min_histogram_bin": expected_min_histogram_bin,
+                    "histogram_bin_method_names": expected_histogram_bin_method_names,
+                    "histogram_selection": None,
+                    "user_set_histogram_bin": None,
+                    "bias_correction": True,
+                    "_mode_is_enabled": True,
+                    "num_zeros": 0,
+                    "num_negatives": 0,
+                    "_num_quantiles": 1000,
+                    "histogram_methods": expected_historam_methods,
+                    "_stored_histogram": {
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
+                        "suggested_bin_count": 1000,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "_batch_history": [],
+                    "quantiles": None,
+                    "_NumericStatsMixin__calculations": {
+                        "min": "_get_min",
+                        "max": "_get_max",
+                        "sum": "_get_sum",
+                        "variance": "_get_variance",
+                        "skewness": "_get_skewness",
+                        "kurtosis": "_get_kurtosis",
+                        "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                        "num_zeros": "_get_num_zeros",
+                        "num_negatives": "_get_num_negatives",
+                    },
+                    "name": "0.0",
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(),
+                    "thread_safe": True,
+                    "match_count": 0,
+                    "_precision": {
+                        "min": None,
+                        "max": None,
+                        "sum": None,
+                        "mean": None,
+                        "biased_var": None,
+                        "sample_size": None,
+                        "confidence_level": 0.999,
+                    },
+                    "_FloatColumn__z_value_precision": 3.291,
+                    "_FloatColumn__precision_sample_ratio": None,
+                    "_FloatColumn__calculations": {"precision": "_update_precision"},
+                },
+            }
+        )
+        self.assertEqual(expected, serialized)
+
+    @mock.patch("time.time", return_value=0.0)
+    def test_json_encode_after_update(self, time):
+        data = np.array([0.0, 5.0, 10.0])
+        df = pd.Series(data).apply(str)
+
+        int_options = FloatOptions()
+        int_options.histogram_and_quantiles.bin_count_or_method = 5
+        profiler = FloatColumn("0.0", int_options)
+
+        mocked_quantiles = [0.25, 0.50, 0.75]
+        with mock.patch.object(
+            profiler, "_get_percentile", return_value=mocked_quantiles
+        ):
+            # Mock out complex _get_percentile function.
+            # Only need to test valid serialization of np.ndarry.
+            profiler.update(df)
+
+        # Copy of NumericalStatsMixin code to test serialization of dicts
+        expected_histogram_bin_method_names = ["custom"]
+        expected_min_histogram_bin = 5
+        expected_historam_methods = {}
+        for method in expected_histogram_bin_method_names:
+            expected_historam_methods[method] = {
+                "total_loss": 0.0,
+                "current_loss": 0.0,
+                "suggested_bin_count": expected_min_histogram_bin,
+                "histogram": {"bin_counts": None, "bin_edges": None},
+            }
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "FloatColumn",
+                "data": {
+                    "min": 0.0,
+                    "max": 10.0,
+                    "_top_k_modes": 5,
+                    "sum": 15.0,
+                    "_biased_variance": 16.666666666666668,
+                    "_biased_skewness": 0.0,
+                    "_biased_kurtosis": -1.5,
+                    "_median_is_enabled": True,
+                    "_median_abs_dev_is_enabled": True,
+                    "max_histogram_bin": 100000,
+                    "min_histogram_bin": 1000,
+                    "histogram_bin_method_names": expected_histogram_bin_method_names,
+                    "histogram_selection": None,
+                    "user_set_histogram_bin": 5,
+                    "bias_correction": True,
+                    "_mode_is_enabled": True,
+                    "num_zeros": 1,
+                    "num_negatives": 0,
+                    "_num_quantiles": 1000,
+                    "histogram_methods": expected_historam_methods,
+                    "_stored_histogram": {
+                        "total_loss": 2.0,
+                        "current_loss": 2.0,
+                        "suggested_bin_count": 1000,
+                        "histogram": {
+                            "bin_counts": [1, 0, 1, 0, 1],
+                            "bin_edges": [0.0, 2.0, 4.0, 6.0, 8.0, 10.0],
+                        },
+                    },
+                    "_batch_history": [
+                        {
+                            "match_count": 3,
+                            "sample_size": 3,
+                            "min": 0.0,
+                            "max": 10.0,
+                            "sum": 15.0,
+                            "biased_variance": 16.666666666666668,
+                            "mean": 5.0,
+                            "biased_skewness": 0.0,
+                            "biased_kurtosis": -1.5,
+                            "num_zeros": 1,
+                            "num_negatives": 0,
+                        }
+                    ],
+                    "quantiles": [0.25, 0.5, 0.75],
+                    "_NumericStatsMixin__calculations": {
+                        "min": "_get_min",
+                        "max": "_get_max",
+                        "sum": "_get_sum",
+                        "variance": "_get_variance",
+                        "skewness": "_get_skewness",
+                        "kurtosis": "_get_kurtosis",
+                        "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                        "num_zeros": "_get_num_zeros",
+                        "num_negatives": "_get_num_negatives",
+                    },
+                    "name": "0.0",
+                    "col_index": np.nan,
+                    "sample_size": 3,
+                    "metadata": dict(),
+                    "times": {
+                        "precision": 0.0,
+                        "min": 0.0,
+                        "max": 0.0,
+                        "sum": 0.0,
+                        "variance": 0.0,
+                        "skewness": 0.0,
+                        "kurtosis": 0.0,
+                        "histogram_and_quantiles": 0.0,
+                        "num_zeros": 0.0,
+                        "num_negatives": 0.0,
+                    },
+                    "thread_safe": True,
+                    "match_count": 3,
+                    "_precision": {
+                        "min": 0.0,
+                        "max": 2.0,
+                        "sum": 3.0,
+                        "mean": 1.0,
+                        "biased_var": 0.6666666666666666,
+                        "sample_size": 3,
+                        "confidence_level": 0.999,
+                    },
+                    "_FloatColumn__z_value_precision": 3.291,
+                    "_FloatColumn__precision_sample_ratio": None,
+                    "_FloatColumn__calculations": {"precision": "_update_precision"},
+                },
+            }
+        )
+
+        self.assertEqual(expected, serialized)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = FloatColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        fake_profile_name = "Fake profile name"
+        # Actual deserialization
+
+        # Build expected FloatColumn
+        df_float = pd.Series([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]).apply(str)
+        expected_profile = FloatColumn(fake_profile_name)
+
+        with test_utils.mock_timeit():
+            expected_profile.update(df_float)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_float = pd.Series(
+            [
+                4.0,  # add existing
+                15.0,  # add new
+            ]
+        ).apply(str)
+
+        # validating update after deserialization
+        deserialized.update(df_float)
+
+        assert deserialized.sample_size == 12
+        assert (
+            deserialized.mean
+            == sum([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0, 4, 15]) / 12
+        )
+        assert deserialized.max == 15

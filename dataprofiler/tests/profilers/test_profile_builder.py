@@ -1226,12 +1226,7 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
-        report = profiler.report(
-            report_options={
-                "remove_disabled_flag": True,
-                "structured_options.multiprocess.is_enabled": False,
-            }
-        )
+        report = profiler.report(report_options={"remove_disabled_flag": True})
 
         for iter_value in range(0, len(data.columns) - 1):
             self.assertNotIn(
@@ -1248,12 +1243,7 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
-        report = profiler.report(
-            report_options={
-                "remove_disabled_flag": True,
-                "structured_options.multiprocess.is_enabled": False,
-            }
-        )
+        report = profiler.report(report_options={"remove_disabled_flag": True})
 
         for iter_value in range(0, len(data.columns) - 1):
             self.assertNotIn("min", report["data_stats"][iter_value]["statistics"])
@@ -1268,12 +1258,7 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
-        report = profiler.report(
-            report_options={
-                "remove_disabled_flag": True,
-                "structured_options.multiprocess.is_enabled": False,
-            }
-        )
+        report = profiler.report(report_options={"remove_disabled_flag": True})
 
         for iter_value in range(0, len(data.columns)):
             self.assertNotIn("vocab", report["data_stats"][iter_value])

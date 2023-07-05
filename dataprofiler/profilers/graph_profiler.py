@@ -1,6 +1,7 @@
 """Class and functions to calculate and profile properties of graph data."""
 from __future__ import annotations
 
+import importlib
 import pickle
 from collections import defaultdict
 from datetime import datetime
@@ -10,6 +11,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import scipy.stats as st
+from packaging import version
 
 from ..data_readers.graph_data import GraphData
 from . import utils
@@ -399,9 +401,21 @@ class GraphProfiler:
                 best_mle: float = 1000
                 best_fit_properties: tuple = None  # type: ignore[assignment]
 
+                scipy_updated = False
+                scipy_version = version.parse(importlib.metadata.version("scipy"))
+                if scipy_version >= version.parse("1.11.0"):
+                    scipy_updated = True
+
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
-                    fit = distribution.fit(df)
+
+                    # scipy 1.11.0 updated the way they handle
+                    # the loc parameter in fit() for lognorm
+                    if distribution == st.lognorm and scipy_updated:
+                        fit = distribution.fit(df, superfit=True)
+
+                    else:
+                        fit = distribution.fit(df)
                     mle = distribution.nnlf(fit, df)
 
                     if mle <= best_mle:

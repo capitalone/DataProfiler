@@ -405,9 +405,14 @@ class GraphProfiler:
 
                     # scipy 1.11.0 updated the way they handle
                     # the loc parameter in fit() for lognorm
-                    scipy_version = int(
-                        importlib.metadata.version("scipy").replace(".", "")
+                    scipy_version = float(
+                        "".join(
+                            c
+                            for c in importlib.metadata.version("scipy")
+                            if c.isdigit()
+                        )
                     )
+
                     if distribution == st.lognorm and scipy_version >= 1110:
                         fit = distribution.fit(df, superfit=True)
 

@@ -5,13 +5,13 @@ import importlib
 import pickle
 from collections import defaultdict
 from datetime import datetime
-from packaging import version
 from typing import cast
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 import scipy.stats as st
+from packaging import version
 
 from ..data_readers.graph_data import GraphData
 from . import utils
@@ -408,7 +408,9 @@ class GraphProfiler:
                     # the loc parameter in fit() for lognorm
                     scipy_version = version.parse(importlib.metadata.version("scipy"))
 
-                    if distribution == st.lognorm and scipy_version >= version.parse("1.11.0"):
+                    if distribution == st.lognorm and scipy_version >= version.parse(
+                        "1.11.0"
+                    ):
                         fit = distribution.fit(df, superfit=True)
 
                     else:

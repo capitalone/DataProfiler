@@ -32,7 +32,7 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 class BaseModel(metaclass=abc.ABCMeta):
     """For labeling data."""
 
-    __subclasses: dict[str, type[BaseModel]] = {}
+    _BaseModel__subclasses: dict[str, type[BaseModel]] = {}
     __metaclass__ = abc.ABCMeta
 
     # boolean if the label mapping requires the mapping for index 0 reserved
@@ -90,7 +90,7 @@ class BaseModel(metaclass=abc.ABCMeta):
     def _register_subclass(cls) -> None:
         """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
-            cls.__subclasses[cls.__name__.lower()] = cls
+            cls._BaseModel__subclasses[cls.__name__.lower()] = cls
 
     @property
     def label_mapping(self) -> dict[str, int]:
@@ -156,7 +156,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         from .column_name_model import ColumnNameModel  # NOQA
         from .regex_model import RegexModel  # NOQA
 
-        return cls.__subclasses.get(class_name.lower(), None)
+        return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
     def get_parameters(self, param_list: list[str] | None = None) -> dict:
         """

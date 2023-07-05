@@ -401,7 +401,13 @@ class GraphProfiler:
 
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
-                    fit = distribution.fit(df)
+
+                    # scipy 1.11.0 updated the way they handle loc parameter in fit() for lognorm
+                    if distribution == st.lognorm:
+                        fit = distribution.fit(df, superfit=True)
+
+                    else:
+                        fit = distribution.fit(df)
                     mle = distribution.nnlf(fit, df)
 
                     if mle <= best_mle:

@@ -9,6 +9,7 @@ from typing import cast
 import networkx as nx
 import numpy as np
 import pandas as pd
+import scipy
 import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
@@ -402,8 +403,10 @@ class GraphProfiler:
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
 
-                    # scipy 1.11.0 updated the way they handle loc parameter in fit() for lognorm
-                    if distribution == st.lognorm:
+                    # scipy 1.11.0 updated the way they handle
+                    # the loc parameter in fit() for lognorm
+                    scipy_version = float(scipy.__version__.replace(".", ""))
+                    if distribution == st.lognorm and scipy_version >= 1110:
                         fit = distribution.fit(df, superfit=True)
 
                     else:

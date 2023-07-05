@@ -5,6 +5,7 @@ import importlib
 import pickle
 from collections import defaultdict
 from datetime import datetime
+from packaging import version
 from typing import cast
 
 import networkx as nx
@@ -405,15 +406,9 @@ class GraphProfiler:
 
                     # scipy 1.11.0 updated the way they handle
                     # the loc parameter in fit() for lognorm
-                    scipy_version = float(
-                        "".join(
-                            c
-                            for c in importlib.metadata.version("scipy")
-                            if c.isdigit()
-                        )
-                    )
+                    scipy_version = version.parse(importlib.metadata.version("scipy"))
 
-                    if distribution == st.lognorm and scipy_version >= 1110:
+                    if distribution == st.lognorm and scipy_version >= version.parse("1.11.0"):
                         fit = distribution.fit(df, superfit=True)
 
                     else:

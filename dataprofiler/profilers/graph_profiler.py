@@ -401,16 +401,17 @@ class GraphProfiler:
                 best_mle: float = 1000
                 best_fit_properties: tuple = None  # type: ignore[assignment]
 
+                scipy_updated = False
+                scipy_version = version.parse(importlib.metadata.version("scipy"))
+                if scipy_version >= version.parse("1.11.0"):
+                    scipy_updated = True
+
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
 
                     # scipy 1.11.0 updated the way they handle
                     # the loc parameter in fit() for lognorm
-                    scipy_version = version.parse(importlib.metadata.version("scipy"))
-
-                    if distribution == st.lognorm and scipy_version >= version.parse(
-                        "1.11.0"
-                    ):
+                    if scipy_updated and distribution == st.lognorm:
                         fit = distribution.fit(df, superfit=True)
 
                     else:

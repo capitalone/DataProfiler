@@ -394,10 +394,9 @@ class GraphProfiler:
             st.gamma,
         ]
 
-        scipy_gte_1_11_0 = False
-        scipy_version = version.parse(importlib.metadata.version("scipy"))
-        if scipy_version >= version.parse("1.11.0"):
-            scipy_gte_1_11_0 = True
+        scipy_gte_1_11_0 = version.parse(
+            importlib.metadata.version("scipy")
+        ) >= version.parse("1.11.0")
 
         for attribute in attributes:
             if attribute in continuous_attributes:

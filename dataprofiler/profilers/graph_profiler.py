@@ -393,6 +393,12 @@ class GraphProfiler:
             st.lognorm,
             st.gamma,
         ]
+
+        scipy_gte_1_11_0 = False
+        scipy_version = version.parse(importlib.metadata.version("scipy"))
+        if scipy_version >= version.parse("1.11.0"):
+            scipy_gte_1_11_0 = True
+
         for attribute in attributes:
             if attribute in continuous_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
@@ -401,17 +407,12 @@ class GraphProfiler:
                 best_mle: float = 1000
                 best_fit_properties: tuple = None  # type: ignore[assignment]
 
-                scipy_updated = False
-                scipy_version = version.parse(importlib.metadata.version("scipy"))
-                if scipy_version >= version.parse("1.11.0"):
-                    scipy_updated = True
-
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
 
                     # scipy 1.11.0 updated the way they handle
                     # the loc parameter in fit() for lognorm
-                    if distribution == st.lognorm and scipy_updated:
+                    if distribution == st.lognorm and scipy_gte_1_11_0:
                         fit = distribution.fit(df, superfit=True)
 
                     else:

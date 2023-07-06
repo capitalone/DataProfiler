@@ -327,7 +327,12 @@ class TestStructuredProfiler(unittest.TestCase):
         # sum((x - np.mean(x))*(y-np.mean(y))) /
         # np.sqrt(sum((x - np.mean(x)**2)))/np.sqrt(sum((y - np.mean(y)**2)))
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"correlation.is_enabled": True})
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
 
         # data with a sole numeric column
         data = pd.DataFrame([1.0, 8.0, 1.0, -2.0, 5.0])
@@ -580,7 +585,12 @@ class TestStructuredProfiler(unittest.TestCase):
 
     def test_correlation_update(self):
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"correlation.is_enabled": True})
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
 
         # Test with all numeric columns
         data = pd.DataFrame(
@@ -776,12 +786,14 @@ class TestStructuredProfiler(unittest.TestCase):
     def test_chi2(self, *mocks):
         # Empty
         data = pd.DataFrame([])
-        profiler = dp.StructuredProfiler(data)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         self.assertIsNone(profiler.chi2_matrix)
 
         # Single column
         data = pd.DataFrame({"a": ["y", "y", "n", "n", "y"]})
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_mat = np.array([1])
         self.assertEqual(expected_mat, profiler.chi2_matrix)
 
@@ -793,7 +805,7 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
 
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_mat = np.array(
             [[1, 0.309924, 0.404638], [0.309924, 1, 0.548812], [0.404638, 0.548812, 1]]
         )
@@ -808,7 +820,7 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
 
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_mat = np.array(
             [[1, 0.007295, 0.007295], [0.007295, 1, 0.015609], [0.007295, 0.015609, 1]]
         )
@@ -823,7 +835,7 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
 
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_mat = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
         np.testing.assert_array_almost_equal(expected_mat, profiler.chi2_matrix)
 
@@ -840,8 +852,10 @@ class TestStructuredProfiler(unittest.TestCase):
                 "c": ["n", "maybe", "n", "n", "n", "y", "y"],
             }
         )
-        profiler1 = dp.StructuredProfiler(None)
-        profiler2 = dp.StructuredProfiler(data)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
+        profiler1 = dp.StructuredProfiler(None, options=profile_options)
+        profiler2 = dp.StructuredProfiler(data, options=profile_options)
         with mock.patch(
             "dataprofiler.profilers.profile_builder."
             "StructuredProfiler._add_error_checks"
@@ -862,8 +876,8 @@ class TestStructuredProfiler(unittest.TestCase):
 
         data1 = data[:4]
         data2 = data[4:]
-        profiler1 = dp.StructuredProfiler(data1)
-        profiler2 = dp.StructuredProfiler(data2)
+        profiler1 = dp.StructuredProfiler(data1, options=profile_options)
+        profiler2 = dp.StructuredProfiler(data2, options=profile_options)
         profiler3 = profiler1 + profiler2
         expected_mat = np.array(
             [[1, 0.309924, 0.404638], [0.309924, 1, 0.548812], [0.404638, 0.548812, 1]]
@@ -880,8 +894,8 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         data1 = data[:4]
         data2 = data[4:]
-        profiler1 = dp.StructuredProfiler(data1)
-        profiler2 = dp.StructuredProfiler(data2)
+        profiler1 = dp.StructuredProfiler(data1, options=profile_options)
+        profiler2 = dp.StructuredProfiler(data2, options=profile_options)
         profiler3 = profiler1 + profiler2
         expected_mat = np.array(
             [[1, 0.007295, 0.007295], [0.007295, 1, 0.015609], [0.007295, 0.015609, 1]]
@@ -918,7 +932,9 @@ class TestStructuredProfiler(unittest.TestCase):
             }
         )
         data2 = pd.DataFrame({"a": [], "b": [], "c": []})
-        profiler = dp.StructuredProfiler(data1)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
+        profiler = dp.StructuredProfiler(data1, options=profile_options)
         profiler.update_profile(data2)
         expected_mat = np.array(
             [[1, 0.309924, 0.404638], [0.309924, 1, 0.548812], [0.404638, 0.548812, 1]]
@@ -934,7 +950,7 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         data1 = data[:4]
         data2 = data[4:]
-        profiler = dp.StructuredProfiler(data1)
+        profiler = dp.StructuredProfiler(data1, options=profile_options)
         profiler.update_profile(data2)
         expected_mat = np.array(
             [[1, 0.309924, 0.404638], [0.309924, 1, 0.548812], [0.404638, 0.548812, 1]]
@@ -952,7 +968,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
         data1 = data[:4]
         data2 = data[4:]
-        profiler = dp.StructuredProfiler(data1)
+        profiler = dp.StructuredProfiler(data1, options=profile_options)
         profiler.update_profile(data2)
         expected_mat = np.array(
             [[1, 0.007295, 0.007295], [0.007295, 1, 0.015609], [0.007295, 0.015609, 1]]
@@ -969,7 +985,7 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         data1 = data[:4]
         data2 = data[4:]
-        profiler = dp.StructuredProfiler(data1)
+        profiler = dp.StructuredProfiler(data1, options=profile_options)
         profiler.update_profile(data2)
         expected_mat = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
         np.testing.assert_array_almost_equal(expected_mat, profiler.chi2_matrix)
@@ -1203,7 +1219,12 @@ class TestStructuredProfiler(unittest.TestCase):
         # with options to disable FloatColumn `precision`
         # and with remove_disabled_flag == True
         profiler_options = ProfilerOptions()
-        profiler_options.set({"precision.is_enabled": False})
+        profiler_options.set(
+            {
+                "precision.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
@@ -1215,7 +1236,12 @@ class TestStructuredProfiler(unittest.TestCase):
         # with options to disable NumericalMixIn cal `min`
         # and with remove_disabled_flag == True
         profiler_options = ProfilerOptions()
-        profiler_options.set({"min.is_enabled": False})
+        profiler_options.set(
+            {
+                "min.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
@@ -1225,7 +1251,12 @@ class TestStructuredProfiler(unittest.TestCase):
         # with options to disable TextColumn cal `vocab`
         # and with remove_disabled_flag == True
         profiler_options = ProfilerOptions()
-        profiler_options.set({"vocab.is_enabled": False})
+        profiler_options.set(
+            {
+                "vocab.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
@@ -1234,7 +1265,12 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # with profiler options and default remove_disabled_flag
         profiler_options = ProfilerOptions()
-        profiler_options.set({"min.is_enabled": False})
+        profiler_options.set(
+            {
+                "min.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report()
 
@@ -1242,7 +1278,9 @@ class TestStructuredProfiler(unittest.TestCase):
             self.assertIn("min", report["data_stats"][iter_value]["statistics"])
 
         # w/o profiler options and default remove_disabled_flag
-        profiler = dp.StructuredProfiler(data=data)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report()
 
         for iter_value in range(0, len(data.columns) - 1):
@@ -1370,7 +1408,11 @@ class TestStructuredProfiler(unittest.TestCase):
 
     def test_data_label_assigned(self):
         # only use 5 samples
-        trained_schema = dp.StructuredProfiler(self.aws_dataset, samples_per_update=5)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
+        trained_schema = dp.StructuredProfiler(
+            self.aws_dataset, samples_per_update=5, options=profile_options
+        )
         report = trained_schema.report()
         has_non_null_column = False
         for i in range(len(report["data_stats"])):
@@ -1754,7 +1796,10 @@ class TestStructuredProfiler(unittest.TestCase):
             [[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]],
             columns=["a", "b", "a", "b", "c", "d"],
         )
-        profiler = dp.StructuredProfiler(data)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
+
+        profiler = dp.StructuredProfiler(data, options=profile_options)
 
         # Ensure columns are correctly allocated to profiles in list
         expected_mapping = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
@@ -1812,9 +1857,11 @@ class TestStructuredProfiler(unittest.TestCase):
         perm_data = pd.DataFrame(
             [[4, 3, 2, 1], [8, 7, 6, 5]], columns=["d", "c", "b", "a"]
         )
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
 
         # Test via add
-        first_profiler = dp.StructuredProfiler(data)
+        first_profiler = dp.StructuredProfiler(data, options=profile_options)
         perm_profiler = dp.StructuredProfiler(perm_data)
         profiler = first_profiler + perm_profiler
 
@@ -1834,7 +1881,7 @@ class TestStructuredProfiler(unittest.TestCase):
             )
 
         # Test via update
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         profiler.update_profile(perm_data)
 
         for col_idx in range(len(profiler._profile)):
@@ -4047,11 +4094,13 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     def test_save_and_load_pkl_file(self):
         data_folder = "dataprofiler/tests/data/"
         test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"structured_options.multiprocess.is_enabled": False})
 
         for test_file in test_files:
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(data_folder, test_file))
-            save_profile = UnstructuredProfiler(data)
+            save_profile = UnstructuredProfiler(data, options=profile_options)
 
             # If profile _empty_line_count = 0, it won't test if the variable is
             # saved correctly since that is also the default value. Ensure
@@ -4112,7 +4161,12 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         data = "this is my test data: 123-456-7890"
 
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"data_labeler.is_enabled": False})
+        profile_options.set(
+            {
+                "data_labeler.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
 
         save_profile = dp.UnstructuredProfiler(data, options=profile_options)
 

@@ -614,11 +614,15 @@ class StructuredColProfiler:
         df_series = df_series.loc[true_sample_list]
         total_na = total_sample_size - len(true_sample_list)
 
+        rng = utils.dp_rng()
         base_stats = {
             "sample_size": total_sample_size,
             "null_count": total_na,
             "null_types": na_columns,
-            "sample": random.sample(list(df_series.values), min(len(df_series), 5)),
+            "sample": rng.choices(
+                list(df_series.values),
+                k=(min(len(df_series), 5)),
+            ),
             "min_id": min_id,
             "max_id": max_id,
         }

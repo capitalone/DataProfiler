@@ -1842,9 +1842,6 @@ class TestFloatColumn(unittest.TestCase):
         int_options.histogram_and_quantiles.bin_count_or_method = 5
         int_options.histogram_and_quantiles.num_quantiles = 4
         profiler = FloatColumn("0.0", int_options)
-        print("\n\n\n\n\n\n\n\n")
-        print(profiler._num_quantiles)
-        print("\n\n\n\n\n\n\n\n\n")
 
         mocked_quantiles = [0.25, 0.50, 0.75]
         with mock.patch.object(

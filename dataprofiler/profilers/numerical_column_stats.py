@@ -82,15 +82,15 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         self._mode_is_enabled: bool = True
         self.num_zeros: int | np.int64 = np.int64(0)
         self.num_negatives: int | np.int64 = np.int64(0)
-        self._num_quantiles: int = 1000  # TODO: add to options
+        self._num_quantiles: int = 1000  # By default, we use 1000 quantiles
 
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
-            self.num_quantiles = options.num_quantiles.num_quantiles
             self._median_is_enabled = options.median.is_enabled
             self._median_abs_dev_is_enabled = options.median_abs_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
+            self._num_quantiles = options.histogram_and_quantiles.num_quantiles
             bin_count_or_method = options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
                 self.histogram_bin_method_names = [bin_count_or_method]
@@ -114,7 +114,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "suggested_bin_count": self.min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
-        self.quantiles: list[float] | None = None
+        self.quantiles: list[float] | dict = {
+            bin_num: None for bin_num in range(self._num_quantiles - 1)
+        }
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -459,6 +461,13 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             self.histogram_methods[key] = convert_histogram_key_types_to_np(
                 self.histogram_methods[key]
             )
+
+        # Convert quantile keys to correct types
+        if isinstance(self.quantiles, dict):
+            new_quantiles = dict()
+            for key in self.quantiles.keys():
+                new_quantiles[int(key)] = self.quantiles[key]
+            self.quantiles = new_quantiles
 
         if self.min is not None:
             self.min = np.float64(self.min)

@@ -1,20 +1,21 @@
 import json
 
 from dataprofiler.profilers.json_encoder import ProfileEncoder
-from dataprofiler.profilers.profiler_options import HistogramOption
+from dataprofiler.profilers.profiler_options import HistogramAndQuantilesOption
 
 from .test_boolean_option import TestBooleanOption
 
 
-class TestHistogramOption(TestBooleanOption):
+class TestHistogramAndQuantilesOption(TestBooleanOption):
 
-    option_class = HistogramOption
+    option_class = HistogramAndQuantilesOption
     keys = []
 
     def test_init(self):
         option = self.get_options()
         self.assertTrue(option.is_enabled)
         self.assertEqual(option.bin_count_or_method, "auto")
+        self.assertEqual(option.num_quantiles, 1000)
 
     def test_set_helper(self):
         option = self.get_options()
@@ -25,6 +26,13 @@ class TestHistogramOption(TestBooleanOption):
         )
         with self.assertRaisesRegex(AttributeError, expected_error):
             option._set_helper({"bin_count_or_method.is_enabled": True}, "test")
+
+        # validate, variable path being passed
+        expected_error = (
+            "type object 'test.num_quantiles' has no attribute 'is_enabled'"
+        )
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({"num_quantiles.is_enabled": True}, "test")
 
     def test_set(self):
         option = self.get_options()
@@ -71,12 +79,57 @@ class TestHistogramOption(TestBooleanOption):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({"bin_count_or_method.is_enabled": True})
 
+        # Treat num_quantiles as a BooleanOption
+        expected_error = "type object 'num_quantiles' has no attribute " "'is_enabled'"
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({"num_quantiles.is_enabled": True})
+
+        # Test set option for num_quantiles
+        option.set({"num_quantiles": 50})
+        self.assertEqual(option.num_quantiles, 50)
+
     def test_validate_helper(self):
         super().test_validate_helper()
+
+        optpth = self.get_options_path()
+
+        # Default configuration
+        option = self.get_options(num_quantiles=1000)
+        self.assertEqual([], option._validate_helper())
+
+        # Valid configurations
+        option = self.get_options(num_quantiles=50)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(num_quantiles=2000)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(num_quantiles=1)
+        self.assertEqual([], option._validate_helper())
+
+        # Option num_quantiles
+        option = self.get_options(num_quantiles="Hello World")
+        expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+
+        # Option num_quantiles cannot be a float, must be an int
+        option = self.get_options(num_quantiles=1.1)
+        expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+
+        # Option num_quantiles may not be zero, must be greater than one(1)
+        option = self.get_options(num_quantiles=0)
+        expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+
+        # Option num_quantiles cannot be a negative integer
+        option = self.get_options(num_quantiles=-5)
+        expected_error = [f"{optpth}.num_quantiles must be a positive integer."]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
     def test_validate(self):
 
         super().test_validate()
+
+        optpth = self.get_options_path()
 
         params_to_check = [
             # non errors
@@ -115,7 +168,7 @@ class TestHistogramOption(TestBooleanOption):
                     "1",
                 ],
                 errors=[
-                    "HistogramOption.bin_count_or_method must be an integer "
+                    "HistogramAndQuantilesOption.bin_count_or_method must be an integer "
                     "more than 1, a string, or list of strings from the "
                     "following: ['auto', 'fd', 'doane', 'scott', 'rice', "
                     "'sturges', 'sqrt']."
@@ -155,10 +208,42 @@ class TestHistogramOption(TestBooleanOption):
         # this time testing raising an error
         option.bin_count_or_method = "fake method"
         expected_error = (
-            r"HistogramOption.bin_count_or_method must be an integer more than "
+            r"HistogramAndQuantilesOption.bin_count_or_method must be an integer more than "
             r"1, a string, or list of strings from the following: "
             r"\['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt']."
         )
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
+
+        # Valid configurations
+        option = self.get_options(num_quantiles=50)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(num_quantiles=2000)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(num_quantiles=1)
+        self.assertEqual([], option._validate_helper())
+
+        # Option num_quantiles cannot be a string, must be an int
+        option = self.get_options(num_quantiles="Hello World")
+        expected_error = f"{optpth}.num_quantiles must be a positive integer"
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
+
+        # Option num_quantiles cannot be a float, must be an int
+        option = self.get_options(num_quantiles=1.1)
+        expected_error = f"{optpth}.num_quantiles must be a positive integer"
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
+
+        # Option num_quantiles must be a positive integer
+        option = self.get_options(num_quantiles=0)
+        expected_error = f"{optpth}.num_quantiles must be a positive integer"
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
+
+        # Option num_quantiles cannot be a negative integer
+        option = self.get_options(num_quantiles=-5)
+        expected_error = f"{optpth}.num_quantiles must be a positive integer"
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
 
@@ -173,16 +258,25 @@ class TestHistogramOption(TestBooleanOption):
         self.assertNotEqual(options, options2)
         options2.bin_count_or_method = "sturges"
         self.assertEqual(options, options2)
+        options.num_quantiles = 30
+        self.assertNotEqual(options, options2)
+        options2.num_quantiles = 50
+        self.assertNotEqual(options, options2)
+        options2.num_quantiles = 30
+        self.assertEqual(options, options2)
 
     def test_json_encode(self):
-        option = HistogramOption(is_enabled=False, bin_count_or_method="doane")
+        option = HistogramAndQuantilesOption(
+            is_enabled=False, bin_count_or_method="doane"
+        )
 
         serialized = json.dumps(option, cls=ProfileEncoder)
 
         expected = {
-            "class": "HistogramOption",
+            "class": "HistogramAndQuantilesOption",
             "data": {
                 "bin_count_or_method": "doane",
+                "num_quantiles": 1000,
                 "is_enabled": False,
             },
         }

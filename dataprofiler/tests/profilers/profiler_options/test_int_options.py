@@ -86,7 +86,7 @@ class TestIntOptions(TestNumericalOptions):
                     "data": {"is_enabled": True},
                 },
                 "histogram_and_quantiles": {
-                    "class": "HistogramOption",
+                    "class": "HistogramAndQuantilesOption",
                     "data": mock.ANY,
                 },
                 "bias_correction": {

@@ -24,7 +24,6 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         "median_abs_deviation",
         "num_zeros",
         "num_negatives",
-        "num_quantiles",
         "histogram_and_quantiles",
     ]
     numeric_keys = [
@@ -40,7 +39,6 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         "histogram_and_quantiles",
         "num_zeros",
         "num_negatives",
-        "num_quantiles",
     ]
 
     def test_init(self):
@@ -424,7 +422,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
                     "data": {"is_enabled": True},
                 },
                 "histogram_and_quantiles": {
-                    "class": "HistogramOption",
+                    "class": "HistogramAndQuantilesOption",
                     "data": mock.ANY,
                 },
                 "bias_correction": {

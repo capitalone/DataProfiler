@@ -419,7 +419,9 @@ class TestNumericStatsMixin(unittest.TestCase):
             }
         )
         expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
-        expected_profile.quantiles = None
+        expected_profile.quantiles = {
+            bin_num: None for bin_num in range(actual_profile._num_quantiles - 1)
+        }
 
         expected_profile._stored_histogram["histogram"] = {
             "bin_counts": None,
@@ -753,7 +755,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler.histogram_selection = "auto"
         num_profiler.histogram_methods["auto"]["histogram"] = mock_profile["histogram"]
         num_profiler.quantiles = mock_profile["quantiles"]
-        num_profiler.num_quantiles = 4
+        num_profiler._num_quantiles = 4
         num_profiler.times = mock_profile["times"]
 
         time_array = [float(i) for i in range(100, 0, -1)]
@@ -1238,7 +1240,9 @@ class TestNumericStatsMixin(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": None,
+                    "quantiles": {
+                        bin_num: None for bin_num in range(mixin._num_quantiles - 1)
+                    },
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

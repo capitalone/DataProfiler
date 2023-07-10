@@ -36,7 +36,8 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertIsNone(profiler.quantiles)
+        self.assertEqual(profiler._num_quantiles, 1000)
+        self.assertEqual(len(profiler.quantiles), 999)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -1155,7 +1156,7 @@ class TestIntColumn(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": None,
+                    "quantiles": {bin_num: None for bin_num in range(999)},
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",
@@ -1188,7 +1189,6 @@ class TestIntColumn(unittest.TestCase):
 
         int_options = IntOptions()
         int_options.histogram_and_quantiles.bin_count_or_method = 5
-        int_options.num_quantiles.num_quantiles = 4
         profiler = IntColumn("0", int_options)
 
         mocked_quantiles = [0.25, 0.50, 0.75]
@@ -1223,7 +1223,6 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 1,
                     "num_negatives": 0,
-                    "num_quantiles": 4,
                     "histogram_selection": None,
                     "user_set_histogram_bin": 5,
                     "bias_correction": True,

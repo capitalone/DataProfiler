@@ -1,5 +1,5 @@
 setup: requirements.txt requirements-dev.txt requirements-test.txt
-	python3.8 -m venv venv
+	python3 -m venv venv
 
 	. venv/bin/activate && \
 	pip3 install -r requirements.txt && \

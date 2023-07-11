@@ -619,7 +619,7 @@ class StructuredColProfiler:
             "sample_size": total_sample_size,
             "null_count": total_na,
             "null_types": na_columns,
-            "sample": rng.choices(
+            "sample": rng.sample(
                 list(df_series.values),
                 k=(min(len(df_series), 5)),
             ),

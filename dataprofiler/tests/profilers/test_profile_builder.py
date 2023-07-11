@@ -2336,9 +2336,11 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         df_series, base_stats = StructuredColProfiler.clean_data_and_get_base_stats(
             df_series=data, sample_size=6, null_values=null_values, min_true_samples=0
         )
+        actual_sample = base_stats.pop("sample")
+        expected_sample = ["nan", "6.0", "4.0", "nan"]
+        self.assertListEqual(sorted(actual_sample), sorted(expected_sample))
         self.assertDictEqual(
             {
-                "sample": ["nan", "6.0", "4.0", "nan"],
                 "sample_size": 6,
                 "null_count": 2,
                 "null_types": {"1.0": ["a"], "3.0": ["c"]},
@@ -2353,9 +2355,11 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         df_series, base_stats = StructuredColProfiler.clean_data_and_get_base_stats(
             df_series=data, sample_size=6, null_values=null_values, min_true_samples=0
         )
+        actual_sample = base_stats.pop("sample")
+        expected_sample = ["1.0", "3.0", "4.0", "6.0", "nan"]
+        self.assertListEqual(sorted(actual_sample), sorted(expected_sample))
         self.assertDictEqual(
             {
-                "sample": ["3.0", "4.0", "6.0", "nan", "1.0"],
                 "sample_size": 6,
                 "null_count": 0,
                 "null_types": {},

@@ -653,7 +653,7 @@ class StructuredColProfiler:
         df_series = df_series.loc[true_sample_list]
         total_na = total_sample_size - len(true_sample_list)
 
-        rng = utils.dp_rng()
+        rng = utils.get_random_number_generator()
 
         base_stats = {
             "sample_size": total_sample_size,

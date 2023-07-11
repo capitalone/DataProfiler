@@ -91,7 +91,7 @@ def _combine_unique_sets(a: list | set, b: list | set) -> list:
     return list(combined_list)
 
 
-def dp_rng() -> np.random._generator.Generator:
+def get_random_number_generator() -> np.random._generator.Generator:
     """Create a random number generator using a manual seed DATAPROFILER_SEED."""
     rng = np.random.default_rng(settings._seed)
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
@@ -119,7 +119,7 @@ def shuffle_in_chunks(
     if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
-    rng = dp_rng()
+    rng = get_random_number_generator()
 
     indices = KeyDict()
     j = 0

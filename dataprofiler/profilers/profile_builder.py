@@ -5,7 +5,6 @@ from __future__ import annotations
 import copy
 import json
 import logging
-import os
 import pickle
 import random
 import re
@@ -20,7 +19,7 @@ import numpy as np
 import pandas as pd
 from HLL import HyperLogLog
 
-from .. import data_readers, dp_logging, settings
+from .. import data_readers, dp_logging
 from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
@@ -654,14 +653,7 @@ class StructuredColProfiler:
         df_series = df_series.loc[true_sample_list]
         total_na = total_sample_size - len(true_sample_list)
 
-        rng = np.random.default_rng(settings._seed)
-
-        if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-            seed = os.environ.get("DATAPROFILER_SEED")
-            if isinstance(seed, int):
-                rng = np.random.default_rng(int(seed))
-            else:
-                warnings.warn("Seed should be an integer", RuntimeWarning)
+        rng = utils.dp_rng()
 
         base_stats = {
             "sample_size": total_sample_size,

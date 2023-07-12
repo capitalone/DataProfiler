@@ -1,9 +1,9 @@
 """Contains functions for data readers."""
 import json
 import os
-import random
 import re
 import urllib
+import warnings
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
@@ -22,6 +22,7 @@ from typing import (
 )
 
 import dateutil
+import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
@@ -272,6 +273,19 @@ def read_json(
     return lines
 
 
+def get_random_number_generator() -> np.random._generator.Generator:
+    """Create a random number generator using a manual seed DATAPROFILER_SEED."""
+    rng = np.random.default_rng(settings._seed)
+    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
+        seed = os.environ.get("DATAPROFILER_SEED")
+        seed = str(seed)
+        try:
+            rng = np.random.default_rng(int(seed))
+        except ValueError:
+            warnings.warn("Seed should be an integer", RuntimeWarning)
+    return rng
+
+
 def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     """
     Implement the mathematical logic of Reservoir sampling.
@@ -315,11 +329,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
 
     kinv = 1 / sample_nrows
     W = 1.0
-    rng = random.Random(x=settings._seed)
-    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-        seed = os.environ.get("DATAPROFILER_SEED")
-        if seed:
-            rng = random.Random(int(seed))
+    rng = get_random_number_generator()
 
     while True:
         W *= rng.random() ** kinv
@@ -334,7 +344,8 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
         except StopIteration:
             break
         # Append new, replace old with dummy, and keep track of order
-        remove_index = rng.randrange(sample_nrows)
+        remove_index = rng.integers(0, int(sample_nrows), 1)[0]
+        print(remove_index)
         values[indices[remove_index]] = str(None)
         indices[remove_index] = len(values)
         values.append(newval)

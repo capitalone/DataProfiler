@@ -96,8 +96,11 @@ def get_random_number_generator() -> np.random._generator.Generator:
     rng = np.random.default_rng(settings._seed)
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
         seed = os.environ.get("DATAPROFILER_SEED")
-        if seed:
+        seed = str(seed)
+        try:
             rng = np.random.default_rng(int(seed))
+        except ValueError:
+            warnings.warn("Seed should be an integer", RuntimeWarning)
     return rng
 
 

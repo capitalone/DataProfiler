@@ -247,11 +247,16 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
     Validates get_random_number_generator() is properly working.
     """
 
+    def setUp(self):
+        self.rng = data_utils.get_random_number_generator()
+        self.lower_bound_list = np.array([1, 2, 3, 4, 5])
+        self.data_length = 10
+
     def test_rng_integer(self):
         """
         Check that the random number generator generates the expected single number.
         """
-        rng = data_utils.get_random_number_generator()
+        rng = self.rng
         sample_value = rng.integers(0, 100, 1)[0]
         self.assertEqual(sample_value, 85)
 
@@ -259,9 +264,10 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
         """
         Check that the random number generator generates the expected series of integers.
         """
-        rng = data_utils.get_random_number_generator()
-        lower_bound_list = np.array([1, 2, 3, 4, 5])
-        data_length = 10
+        rng = self.rng
+        lower_bound_list = self.lower_bound_list
+        data_length = self.data_length
+
         sample_series = rng.integers(lower_bound_list, data_length).tolist()
         self.assertListEqual(sample_series, [8, 7, 6, 5, 6])
 
@@ -269,8 +275,9 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
         """
         Check that the random number generator generates the expected series.
         """
-        rng = data_utils.get_random_number_generator()
-        lower_bound_list = np.array([1, 2, 3, 4, 5])
+        rng = self.rng
+        lower_bound_list = self.lower_bound_list
+
         sample_series = rng.choice(
             list(lower_bound_list), (min(len(lower_bound_list), 5),), replace=False
         ).tolist()

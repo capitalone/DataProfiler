@@ -1,9 +1,7 @@
 """Contains functions for data readers."""
 import json
-import os
 import re
 import urllib
-import warnings
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
@@ -22,14 +20,15 @@ from typing import (
 )
 
 import dateutil
-import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
-from .. import dp_logging, settings
+import dataprofiler.generator as generator
+
+from .. import dp_logging
 from .._typing import JSONType, Url
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
@@ -273,18 +272,6 @@ def read_json(
     return lines
 
 
-def get_random_number_generator() -> np.random._generator.Generator:
-    """Create a random number generator using a manual seed DATAPROFILER_SEED."""
-    rng = np.random.default_rng(settings._seed)
-    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-        seed: str = os.environ.get("DATAPROFILER_SEED", "")
-        try:
-            rng = np.random.default_rng(int(seed))
-        except ValueError:
-            warnings.warn("Seed should be an integer", RuntimeWarning)
-    return rng
-
-
 def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     """
     Implement the mathematical logic of Reservoir sampling.
@@ -328,7 +315,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
 
     kinv = 1 / sample_nrows
     W = 1.0
-    rng = get_random_number_generator()
+    rng = generator.get_random_number_generator()
 
     while True:
         W *= rng.random() ** kinv
@@ -833,7 +820,6 @@ def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
                 "Content-length" in url.headers
                 and int(url.headers["Content-length"]) >= 1024**3
             ):
-
                 raise ValueError(
                     "The downloaded file from the url may not be " "larger than 1GB"
                 )

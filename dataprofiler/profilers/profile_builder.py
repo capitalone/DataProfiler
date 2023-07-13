@@ -19,6 +19,8 @@ import numpy as np
 import pandas as pd
 from HLL import HyperLogLog
 
+import dataprofiler.generator as generator
+
 from .. import data_readers, dp_logging
 from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
@@ -653,7 +655,7 @@ class StructuredColProfiler:
         df_series = df_series.loc[true_sample_list]
         total_na = total_sample_size - len(true_sample_list)
 
-        rng = utils.get_random_number_generator()
+        rng = generator.get_random_number_generator()
 
         base_stats = {
             "sample_size": total_sample_size,

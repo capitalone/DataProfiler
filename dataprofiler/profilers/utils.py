@@ -7,7 +7,6 @@ import datetime
 import functools
 import math
 import multiprocessing as mp
-import os
 import time
 import warnings
 from abc import abstractmethod
@@ -31,12 +30,13 @@ import psutil
 import scipy
 from pandas import DataFrame, Series
 
-from .. import settings
 from ..labelers.data_labelers import DataLabeler
 
 if TYPE_CHECKING:
     from ..labelers.base_data_labeler import BaseDataLabeler
     from . import profile_builder
+
+import dataprofiler.generator as generator
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
@@ -91,18 +91,6 @@ def _combine_unique_sets(a: list | set, b: list | set) -> list:
     return list(combined_list)
 
 
-def get_random_number_generator() -> np.random._generator.Generator:
-    """Create a random number generator using a manual seed DATAPROFILER_SEED."""
-    rng = np.random.default_rng(settings._seed)
-    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-        seed: str = os.environ.get("DATAPROFILER_SEED", "")
-        try:
-            rng = np.random.default_rng(int(seed))
-        except ValueError:
-            warnings.warn("Seed should be an integer", RuntimeWarning)
-    return rng
-
-
 def shuffle_in_chunks(
     data_length: int, chunk_size: int
 ) -> Generator[list[int], None, Any]:
@@ -121,7 +109,7 @@ def shuffle_in_chunks(
     if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
-    rng = get_random_number_generator()
+    rng = generator.get_random_number_generator()
 
     indices = KeyDict()
     j = 0

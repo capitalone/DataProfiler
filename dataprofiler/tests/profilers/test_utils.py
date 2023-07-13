@@ -455,29 +455,25 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
         """
         Check that the random number generator generates the expected single number.
         """
-        rng = self.rng
-        sample_value = rng.integers(0, 100, 1)[0]
+        sample_value = self.rng.integers(0, 100, 1)[0]
         self.assertEqual(sample_value, 85)
 
     def test_rng_integer_series(self):
         """
         Check that the random number generator generates the expected series of integers.
         """
-        rng = self.rng
-        lower_bound_list = self.lower_bound_list
-        data_length = self.data_length
-
-        sample_series = rng.integers(lower_bound_list, data_length).tolist()
+        sample_series = self.rng.integers(
+            self.lower_bound_list, self.data_length
+        ).tolist()
         self.assertListEqual(sample_series, [8, 7, 6, 5, 6])
 
     def test_rng_choice(self):
         """
         Check that the random number generator generates the expected series.
         """
-        rng = self.rng
-        lower_bound_list = self.lower_bound_list
-
-        sample_series = rng.choice(
-            list(lower_bound_list), (min(len(lower_bound_list), 5),), replace=False
+        sample_series = self.rng.choice(
+            list(self.lower_bound_list),
+            (min(len(self.lower_bound_list), 5),),
+            replace=False,
         ).tolist()
         self.assertListEqual(sample_series, [5, 3, 4, 1, 2])

@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-import dataprofiler.generator as generator
+import dataprofiler.utils_global as utils_global
 
 
 class TestGetRandomNumberGenerator(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
 
     def setUp(self):
         """Declare variables to be used in the rest of the test suite."""
-        self.rng = generator.get_random_number_generator()
+        self.rng = utils_global.get_random_number_generator()
         self.lower_bound_list = np.array([1, 2, 3, 4, 5])
         self.data_length = 10
 

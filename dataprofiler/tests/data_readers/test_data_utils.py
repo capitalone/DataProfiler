@@ -2,9 +2,6 @@ import os
 import unittest
 from itertools import islice
 
-import numpy as np
-
-import dataprofiler.generator as generator
 from dataprofiler.data_readers import data_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

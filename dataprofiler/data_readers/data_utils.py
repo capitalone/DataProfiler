@@ -26,7 +26,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
-import dataprofiler.generator as generator
+import dataprofiler.utils_global as utils_global
 
 from .. import dp_logging
 from .._typing import JSONType, Url
@@ -315,7 +315,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
 
     kinv = 1 / sample_nrows
     W = 1.0
-    rng = generator.get_random_number_generator()
+    rng = utils_global.get_random_number_generator()
 
     while True:
         W *= rng.random() ** kinv

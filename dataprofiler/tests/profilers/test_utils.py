@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 import dataprofiler as dp
-import dataprofiler.generator as generator
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 from dataprofiler.profilers import utils
 

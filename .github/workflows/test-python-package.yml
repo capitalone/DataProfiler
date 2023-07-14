@@ -9,6 +9,7 @@ on:
       - 'main'
       - 'feature/**'
       - 'dev'
+      - 'release/**'
 
 jobs:
   build:

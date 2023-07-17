@@ -338,7 +338,7 @@ class FloatColumn(
         """
         if len(df_series) == 0:
             return list()
-        return df_series.map(NumericStatsMixin.is_float)
+        return df_series.map(NumericStatsMixin.is_float).astype("bool")
 
     @BaseColumnProfiler._timeit(name="precision")
     def _update_precision(

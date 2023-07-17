@@ -53,6 +53,46 @@ class TestOriginalFunction(unittest.TestCase):
             actual_value = rng.integers(0, 1e6, 1)[0]
         self.assertNotEqual(actual_value, 850624)
 
+    @unittest.mock.patch.dict(os.environ, {"DATAPROFILER_SEED": "123"}, clear=True)
+    @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=None)
+    def test_dataprofiler_seed_true_settings_seed_true(self):
+        """Verify that we get the expected result when DATAPROFILER_SEED in os.environ and settings._seed==None."""
+        rng = utils_global.get_random_number_generator()
+        actual_value = rng.integers(0, 1e6, 1)[0]
+        expected_value_generator = np.random.default_rng(123)
+        expected_value = expected_value_generator.integers(0, 1e6, 1)[0]
+        self.assertEqual(actual_value, expected_value)
+
+    @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=123)
+    def test_dataprofiler_seed_false_settings_seed_false(self):
+        """Verify that we get the expected result when DATAPROFILER_SEED not in os.environ and settings._seed!=None."""
+        with unittest.mock.patch.dict("os.environ"):
+            del os.environ["DATAPROFILER_SEED"]
+            rng = utils_global.get_random_number_generator()
+            actual_value = rng.integers(0, 1e6, 1)[0]
+            expected_value_generator = np.random.default_rng(123)
+            expected_value = expected_value_generator.integers(0, 1e6, 1)[0]
+        self.assertEqual(actual_value, expected_value)
+
+    @unittest.mock.patch.dict(
+        os.environ, {"DATAPROFILER_SEED": "George Washington"}, clear=True
+    )
+    @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=None)
+    def test_warning_raised(self):
+        with self.assertWarns(RuntimeWarning):
+            rng = utils_global.get_random_number_generator()
+            actual_value = rng.integers(0, 1e6, 1)[0]
+        self.assertNotEqual(actual_value, 850624)
+
+    @unittest.mock.patch.dict(os.environ, {"DATAPROFILER_SEED": "0"}, clear=True)
+    @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=123)
+    def test_try_returned(self):
+        rng = utils_global.get_random_number_generator()
+        actual_value = rng.integers(0, 100, 1)[0]
+        expected_value_generator = np.random.default_rng(123)
+        expected_value = expected_value_generator.integers(0, 100, 1)[0]
+        self.assertEqual(actual_value, expected_value)
+
 
 class TestCorrectOutputs(unittest.TestCase):
     """Validates get_random_number_generator() is properly working."""

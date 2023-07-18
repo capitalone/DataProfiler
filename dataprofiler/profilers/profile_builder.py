@@ -19,9 +19,7 @@ import numpy as np
 import pandas as pd
 from HLL import HyperLogLog
 
-import dataprofiler.utils_global as utils_global
-
-from .. import data_readers, dp_logging
+from .. import data_readers, dp_logging, utils_global
 from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler

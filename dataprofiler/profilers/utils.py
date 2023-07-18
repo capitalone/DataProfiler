@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from ..labelers.base_data_labeler import BaseDataLabeler
     from . import profile_builder
 
-import dataprofiler.utils_global as utils_global
+from .. import utils_global
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:

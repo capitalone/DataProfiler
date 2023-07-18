@@ -24,7 +24,7 @@ class TestOriginalFunction(unittest.TestCase):
         rng = utils_global.get_random_number_generator()
         actual_value = rng.integers(0, 100)
         expected_value_generator = np.random.default_rng(123)
-        expected_value = expected_value_generator.integers(0, 100, 1)[0]
+        expected_value = expected_value_generator.integers(0, 100)
         self.assertEqual(actual_value, expected_value)
 
     @unittest.mock.patch.dict(os.environ, {"DATAPROFILER_SEED": "0"}, clear=True)
@@ -34,7 +34,7 @@ class TestOriginalFunction(unittest.TestCase):
         rng = utils_global.get_random_number_generator()
         actual_value = rng.integers(0, 100)
         expected_value_generator = np.random.default_rng(123)
-        expected_value = expected_value_generator.integers(0, 100, 1)[0]
+        expected_value = expected_value_generator.integers(0, 100)
         self.assertEqual(actual_value, expected_value)
 
     @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=None)
@@ -51,9 +51,9 @@ class TestOriginalFunction(unittest.TestCase):
     def test_dataprofiler_seed_true_settings_seed_true(self):
         """Verify that we get the expected result when DATAPROFILER_SEED in os.environ and settings._seed==None."""
         rng = utils_global.get_random_number_generator()
-        actual_value = rng.integers(0, 1e6, 1)[0]
+        actual_value = rng.integers(0, 1e6)
         expected_value_generator = np.random.default_rng(123)
-        expected_value = expected_value_generator.integers(0, 1e6, 1)[0]
+        expected_value = expected_value_generator.integers(0, 1e6)
         self.assertEqual(actual_value, expected_value)
 
     @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=123)
@@ -83,5 +83,5 @@ class TestOriginalFunction(unittest.TestCase):
         rng = utils_global.get_random_number_generator()
         actual_value = rng.integers(0, 100)
         expected_value_generator = np.random.default_rng(123)
-        expected_value = expected_value_generator.integers(0, 100, 1)[0]
+        expected_value = expected_value_generator.integers(0, 100)
         self.assertEqual(actual_value, expected_value)

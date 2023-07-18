@@ -451,7 +451,6 @@ In addition, it utilizes only the first 10,000 rows.
    profiler.rst
    data_labeling.rst
    graphs.rst
-   roadmap.rst
 
 .. toctree::
    :maxdepth: 2
@@ -466,6 +465,7 @@ In addition, it utilizes only the first 10,000 rows.
    :hidden:
    :caption: Community:
 
+   roadmap.rst
    Changelog<https://github.com/capitalone/DataProfiler/releases>
    Feedback<https://github.com/capitalone/DataProfiler/issues/new/choose>
    GitHub<https://github.com/capitalone/DataProfiler>

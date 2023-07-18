@@ -328,7 +328,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
         except StopIteration:
             break
         # Append new, replace old with dummy, and keep track of order
-        remove_index = rng.integers(0, sample_nrows, 1)[0]
+        remove_index = rng.integers(0, sample_nrows)
         values[indices[remove_index]] = str(None)
         indices[remove_index] = len(values)
         values.append(newval)

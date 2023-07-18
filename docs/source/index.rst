@@ -451,6 +451,7 @@ In addition, it utilizes only the first 10,000 rows.
    profiler.rst
    data_labeling.rst
    graphs.rst
+   roadmap.rst
 
 .. toctree::
    :maxdepth: 2

@@ -276,47 +276,6 @@ class HistogramAndQuantilesOption(BooleanOption["HistogramAndQuantilesOption"]):
         return errors
 
 
-class HistogramOption(HistogramAndQuantilesOption):
-    """For setting histogram options."""
-
-    def __init__(
-        self,
-        is_enabled: bool = True,
-        bin_count_or_method: str | int | list[str] = "auto",
-    ) -> None:
-        """
-        Initialize Options for histograms.
-
-        :ivar is_enabled: boolean option to enable/disable the option.
-        :vartype is_enabled: bool
-        :ivar bin_count_or_method: bin count or the method with which to
-            calculate histograms
-        :vartype bin_count_or_method: Union[str, int, list(str)]
-        :ivar num_quantiles: boolean option to enable/disable num_quantiles
-            and set the number of quantiles
-        :vartype num_quantiles: int
-        """
-        super().__init__(is_enabled=is_enabled, bin_count_or_method=bin_count_or_method)
-        warnings.warn(
-            "HistorgramOption will be deprecated in the future. Please "
-            "begin utilizing the new HistogramAndQuantilesOption class.",
-            DeprecationWarning,
-        )
-
-    def _validate_helper(self, variable_path: str = "HistogramOption") -> list[str]:
-        """
-        Validate the options do not conflict and cause errors.
-
-        :param variable_path: current path to variable set.
-        :type variable_path: str
-        :return: list of errors (if raise_error is false)
-        :rtype: list(str)
-        """
-        errors = super()._validate_helper(variable_path=variable_path)
-
-        return errors
-
-
 class ModeOption(BooleanOption["ModeOption"]):
     """For setting mode estimation options."""
 

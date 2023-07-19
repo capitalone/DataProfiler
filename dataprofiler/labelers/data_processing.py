@@ -735,8 +735,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             X_train = np.array(
                 [[sentence] for sentence in batch_data["samples"]], dtype=object
             )
-            if labels is not None:
-                num_classes = max(label_mapping.values()) + 1  # type: ignore
+            if labels is not None and label_mapping is not None:
+                num_classes = max(label_mapping.values()) + 1
 
                 Y_train = tf.keras.utils.to_categorical(
                     batch_data["labels"], num_classes
@@ -1503,8 +1503,12 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
                 unstructured_label_set,
             ) = self.convert_to_unstructured_format(batch_data, batch_labels)
             unstructured_data[ind] = unstructured_text
-            if labels is not None:
-                unstructured_labels[ind] = unstructured_label_set  # type: ignore
+            if (
+                labels is not None
+                and unstructured_labels is not None
+                and unstructured_label_set is not None
+            ):
+                unstructured_labels[ind] = unstructured_label_set
 
         if labels is not None:
             np_unstruct_labels = np.array(unstructured_labels, dtype="object")

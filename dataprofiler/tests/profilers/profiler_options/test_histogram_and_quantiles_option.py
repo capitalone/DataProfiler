@@ -282,3 +282,21 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
         }
 
         self.assertDictEqual(expected, json.loads(serialized))
+
+    def test_json_decode_warn(self):
+        expected = {
+            "class": "HistogramOption",
+            "data": {
+                "bin_count_or_method": "doane",
+                "is_enabled": False,
+            },
+        }
+
+        expected_warning = (
+            "HistogramOption will be deprecated in the future. Please "
+            "begin utilizing the new HistogramAndQuantilesOption class."
+        )
+
+        # with self.assertWarnsRegex(Warning, expected_warning):
+
+        json.dumps(expected, cls=ProfileEncoder)

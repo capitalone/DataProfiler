@@ -1156,7 +1156,9 @@ class TestIntColumn(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": {bin_num: None for bin_num in range(999)},
+                    "quantiles": {
+                        bin_num: None for bin_num in range(profiler._num_quantiles - 1)
+                    },
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

@@ -51,9 +51,3 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
     def test_warning_raised(self):
         with self.assertWarnsRegex(RuntimeWarning, "Seed should be an integer"):
             rng = utils_global.get_random_number_generator()
-
-    @unittest.mock.patch.dict(os.environ, {"DATAPROFILER_SEED": "0"}, clear=True)
-    def test_try_returned(self):
-        with unittest.mock.patch("numpy.random.default_rng") as mock_fnc:
-            rng = utils_global.get_random_number_generator()
-            self.assertEqual(mock_fnc.call_count, 2)

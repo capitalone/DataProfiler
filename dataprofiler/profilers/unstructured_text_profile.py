@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from numpy import ndarray
 from pandas import DataFrame, Series
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import TextProfilerOptions
 
@@ -621,7 +621,7 @@ class TextProfiler:
 
         diff["words"] = utils.find_diff_of_lists_and_sets(self_words, other_words)
 
-        diff["word_count"] = utils.find_diff_of_dicts_with_diff_keys(
+        diff["word_count"] = profiler_utils.find_diff_of_dicts_with_diff_keys(
             self_word_count, other_word_count
         )
 

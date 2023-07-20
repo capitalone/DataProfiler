@@ -14,7 +14,7 @@ import scipy.stats as st
 from packaging import version
 
 from ..data_readers.graph_data import GraphData
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import ProfilerOptions
 
@@ -124,7 +124,7 @@ class GraphProfiler:
             "num_edges": utils.find_diff_of_numbers(
                 self._num_edges, other_profile._num_edges
             ),
-            "categorical_attributes": utils.find_diff_of_lists_and_sets(
+            "categorical_attributes": profiler_utils.find_diff_of_lists_and_sets(
                 self._categorical_attributes, other_profile._categorical_attributes
             ),
             "continuous_attributes": utils.find_diff_of_lists_and_sets(

@@ -8,7 +8,7 @@ from typing import cast
 import datasketches
 from pandas import DataFrame, Series
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 
@@ -284,7 +284,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             differences["statistics"]["categories"] = utils.find_diff_of_lists_and_sets(
                 self.categories, other_profile.categories
             )
-            differences["statistics"]["gini_impurity"] = utils.find_diff_of_numbers(
+            differences["statistics"]["gini_impurity"] = profiler_utils.find_diff_of_numbers(
                 self.gini_impurity, other_profile.gini_impurity
             )
             differences["statistics"]["unalikeability"] = utils.find_diff_of_numbers(

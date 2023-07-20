@@ -11,7 +11,7 @@ from typing import Any, Callable, Generic, TypeVar
 import numpy as np
 import pandas as pd
 
-from . import utils
+from . import profiler_utils
 from .profiler_options import BaseInspectorOptions, BaseOption
 
 BaseColumnProfilerT = TypeVar("BaseColumnProfilerT", bound="BaseColumnProfiler")

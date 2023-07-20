@@ -8,7 +8,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers import TextColumn, utils
+from dataprofiler.profilers import TextColumn, profiler_utils
 from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import TextOptions

@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from ..labelers.base_data_labeler import BaseDataLabeler
     from . import profile_builder
 
-from .. import utils_global
+from .. import rng_utils
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
@@ -109,7 +109,7 @@ def shuffle_in_chunks(
     if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
-    rng = utils_global.get_random_number_generator()
+    rng = rng_utils.get_random_number_generator()
 
     indices = KeyDict()
     j = 0

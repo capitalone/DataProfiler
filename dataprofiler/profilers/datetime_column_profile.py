@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .profiler_options import DateTimeOptions
 
@@ -114,7 +114,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
             merged_profile.max = other.max
             merged_profile._dt_obj_max = other._dt_obj_max
 
-        merged_profile.date_formats = utils._combine_unique_sets(
+        merged_profile.date_formats = profiler_utils._combine_unique_sets(
             self.date_formats, other.date_formats
         )
         return merged_profile
@@ -198,7 +198,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
             "max": utils.find_diff_of_dates(
                 self._dt_obj_max, other_profile._dt_obj_max
             ),
-            "format": utils.find_diff_of_lists_and_sets(
+            "format": profiler_utils.find_diff_of_lists_and_sets(
                 self.date_formats, other_profile.date_formats
             ),
         }

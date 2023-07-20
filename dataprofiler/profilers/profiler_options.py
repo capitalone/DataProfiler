@@ -9,7 +9,7 @@ import warnings
 from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from . import utils
+from . import profiler_utils
 from .json_decoder import load_option
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")

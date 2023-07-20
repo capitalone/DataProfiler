@@ -26,7 +26,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
-from .. import dp_logging, utils_global
+from .. import dp_logging, rng_utils
 from .._typing import JSONType, Url
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
@@ -313,7 +313,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
 
     kinv = 1 / sample_nrows
     W = 1.0
-    rng = utils_global.get_random_number_generator()
+    rng = rng_utils.get_random_number_generator()
 
     while True:
         W *= rng.random() ** kinv

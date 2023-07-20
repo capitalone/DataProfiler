@@ -13,7 +13,7 @@ import numpy.typing as npt
 import pandas as pd
 import scipy.stats
 
-from . import histogram_utils, utils
+from . import histogram_utils, profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import NumericalOptions
 
@@ -503,7 +503,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             "mean": utils.find_diff_of_numbers(self.mean, other_profile.mean),
             "median": utils.find_diff_of_numbers(self.median, other_profile.median),
             "mode": utils.find_diff_of_lists_and_sets(self.mode, other_profile.mode),
-            "median_absolute_deviation": utils.find_diff_of_numbers(
+            "median_absolute_deviation": profiler_utils.find_diff_of_numbers(
                 self.median_abs_deviation,
                 other_profile.median_abs_deviation,
             ),
@@ -1844,7 +1844,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
 
-        batch_biased_skewness = utils.biased_skew(df_series)
+        batch_biased_skewness = profiler_utils.biased_skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
         batch_biased_var = subset_properties["biased_variance"]

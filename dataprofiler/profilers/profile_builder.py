@@ -19,11 +19,11 @@ import numpy as np
 import pandas as pd
 from HLL import HyperLogLog
 
-from .. import data_readers, dp_logging, utils_global
+from .. import data_readers, dp_logging, rng_utils
 from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
-from . import utils
+from . import profiler_utils
 from .column_profile_compilers import (
     BaseCompiler,
     ColumnDataLabelerCompiler,
@@ -270,7 +270,7 @@ class StructuredColProfiler:
                 comp_diff = self.profiles[key].diff(
                     other_profile.profiles[key], options=options
                 )
-                unordered_profile = utils.recursive_dict_update(
+                unordered_profile = profiler_utils.recursive_dict_update(
                     unordered_profile, comp_diff
                 )
 
@@ -286,7 +286,7 @@ class StructuredColProfiler:
 
         unordered_profile["statistics"].update(
             {
-                "sample_size": utils.find_diff_of_numbers(
+                "sample_size": profiler_utils.find_diff_of_numbers(
                     self.sample_size, other_profile.sample_size
                 ),
                 "null_count": utils.find_diff_of_numbers(
@@ -336,7 +336,7 @@ class StructuredColProfiler:
         """Return profile."""
         unordered_profile: dict = dict()
         for profile in self.profiles.values():
-            unordered_profile = utils.recursive_dict_update(
+            unordered_profile = profiler_utils.recursive_dict_update(
                 unordered_profile, profile.report(remove_disabled_flag)
             )
 
@@ -428,7 +428,7 @@ class StructuredColProfiler:
         self._last_batch_size = base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
-        self.null_types = utils._combine_unique_sets(
+        self.null_types = profiler_utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
 
@@ -437,7 +437,7 @@ class StructuredColProfiler:
         base_nti = base_stats["null_types"]
 
         # Check if indices overlap, if they do, adjust attributes accordingly
-        if utils.overlap(self._min_id, self._max_id, base_min, base_max):
+        if profiler_utils.overlap(self._min_id, self._max_id, base_min, base_max):
             warnings.warn(
                 f"Overlapping indices detected. To resolve, indices "
                 f"where null data present will be shifted forward "
@@ -605,7 +605,7 @@ class StructuredColProfiler:
                 len_df, chunk_size=sample_size
             )
         else:
-            sample_ind_generator = utils.partition(
+            sample_ind_generator = profiler_utils.partition(
                 sample_ids[0], chunk_size=sample_size
             )
 
@@ -818,7 +818,7 @@ class BaseProfiler:
                 (
                     "global_stats",
                     {
-                        "file_type": utils.find_diff_of_strings_and_bools(
+                        "file_type": profiler_utils.find_diff_of_strings_and_bools(
                             self.file_type, other_profile.file_type
                         ),
                         "encoding": utils.find_diff_of_strings_and_bools(
@@ -1072,7 +1072,7 @@ class BaseProfiler:
                 self.options.set({"data_labeler.data_labeler_object": data_labeler})
 
             except Exception as e:
-                utils.warn_on_profile("data_labeler", e)
+                profiler_utils.warn_on_profile("data_labeler", e)
                 self.options.set({"data_labeler.is_enabled": False})
                 self.options.set({"data_labeler.data_labeler_object": data_labeler})
 
@@ -1329,10 +1329,10 @@ class UnstructuredProfiler(BaseProfiler):
                 "samples_used": utils.find_diff_of_numbers(
                     self.total_samples, other_profile.total_samples
                 ),
-                "empty_line_count": utils.find_diff_of_numbers(
+                "empty_line_count": profiler_utils.find_diff_of_numbers(
                     self._empty_line_count, other_profile._empty_line_count
                 ),
-                "memory_size": utils.find_diff_of_numbers(
+                "memory_size": profiler_utils.find_diff_of_numbers(
                     self.memory_size, other_profile.memory_size
                 ),
             }
@@ -1436,7 +1436,7 @@ class UnstructuredProfiler(BaseProfiler):
         """
         raise NotImplementedError("UnstructuredProfiler deserialization not supported.")
 
-    @utils.method_timeit(name="clean_and_base_stats")
+    @profiler_utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(
         self, data: pd.Series, sample_size: int, min_true_samples: int = None
     ) -> tuple[pd.Series, dict]:
@@ -1473,10 +1473,10 @@ class UnstructuredProfiler(BaseProfiler):
         data = data.apply(str)
 
         # get memory size
-        base_stats: dict = {"memory_size": utils.get_memory_size(data, unit="M")}
+        base_stats: dict = {"memory_size": profiler_utils.get_memory_size(data, unit="M")}
 
         # Setup sample generator
-        sample_ind_generator = utils.shuffle_in_chunks(len_data, chunk_size=sample_size)
+        sample_ind_generator = profiler_utils.shuffle_in_chunks(len_data, chunk_size=sample_size)
 
         true_sample_list = set()
         total_sample_size = 0
@@ -1864,13 +1864,13 @@ class StructuredProfiler(BaseProfiler):
                 "samples_used": utils.find_diff_of_numbers(
                     self._max_col_samples_used, other_profile._max_col_samples_used
                 ),
-                "column_count": utils.find_diff_of_numbers(
+                "column_count": profiler_utils.find_diff_of_numbers(
                     len(self._profile), len(other_profile._profile)
                 ),
-                "row_count": utils.find_diff_of_numbers(
+                "row_count": profiler_utils.find_diff_of_numbers(
                     self.total_samples, other_profile.total_samples
                 ),
-                "row_has_null_ratio": utils.find_diff_of_numbers(
+                "row_has_null_ratio": profiler_utils.find_diff_of_numbers(
                     self._get_row_has_null_ratio(),
                     other_profile._get_row_has_null_ratio(),
                 ),
@@ -1878,17 +1878,17 @@ class StructuredProfiler(BaseProfiler):
                     self._get_row_is_null_ratio(),
                     other_profile._get_row_is_null_ratio(),
                 ),
-                "unique_row_ratio": utils.find_diff_of_numbers(
+                "unique_row_ratio": profiler_utils.find_diff_of_numbers(
                     self._get_unique_row_ratio(), other_profile._get_unique_row_ratio()
                 ),
-                "duplicate_row_count": utils.find_diff_of_numbers(
+                "duplicate_row_count": profiler_utils.find_diff_of_numbers(
                     self._get_duplicate_row_count(),
                     other_profile._get_duplicate_row_count(),
                 ),
                 "correlation_matrix": utils.find_diff_of_matrices(
                     self.correlation_matrix, other_profile.correlation_matrix
                 ),
-                "chi2_matrix": utils.find_diff_of_matrices(
+                "chi2_matrix": profiler_utils.find_diff_of_matrices(
                     self.chi2_matrix, other_profile.chi2_matrix
                 ),
                 "profile_schema": defaultdict(list),
@@ -2826,7 +2826,7 @@ class StructuredProfiler(BaseProfiler):
                         yield e
 
         # Shuffle indices once and share with columns
-        sample_ids = [*utils.shuffle_in_chunks(len(data), len(data))]
+        sample_ids = [*profiler_utils.shuffle_in_chunks(len(data), len(data))]
 
         # If there are no minimum true samples, you can sort to save time
         if min_true_samples in [None, 0]:
@@ -2866,7 +2866,7 @@ class StructuredProfiler(BaseProfiler):
         if self.options.multiprocess.is_enabled:
             est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
             est_data_size = (est_data_size / min(50000, len(data))) * len(data)
-            pool, pool_size = utils.generate_pool(
+            pool, pool_size = profiler_utils.generate_pool(
                 max_pool_size=None, data_size=est_data_size, cols=len(data.columns)
             )
 

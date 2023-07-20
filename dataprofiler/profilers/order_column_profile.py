@@ -7,7 +7,7 @@ from typing import Protocol, Type, TypeVar, cast
 import numpy as np
 from pandas import DataFrame, Series
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import OrderOptions
 

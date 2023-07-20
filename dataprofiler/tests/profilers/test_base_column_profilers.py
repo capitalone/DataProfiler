@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers import utils
+from dataprofiler.profilers import profiler_utils
 from dataprofiler.profilers.base_column_profilers import (
     BaseColumnPrimitiveTypeProfiler,
     BaseColumnProfiler,

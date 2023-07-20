@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.labelers import BaseDataLabeler
-from dataprofiler.profilers import utils
+from dataprofiler.profilers import profiler_utils
 from dataprofiler.profilers.data_labeler_column_profile import DataLabelerColumn
 from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
@@ -376,7 +376,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
             diff = profiler1.diff(profiler2)
             expected_diff = {
-                "data_label": utils.find_diff_of_lists_and_sets(
+                "data_label": profiler_utils.find_diff_of_lists_and_sets(
                     ["a", "b", "c"], ["b", "c", "d"]
                 ),
                 "avg_predictions": {"a": "unchanged", "b": -0.70, "c": 0.70},

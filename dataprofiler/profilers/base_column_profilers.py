@@ -76,7 +76,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         :param name: key argument for the times dictionary
         :type name: str
         """
-        return utils.method_timeit(method, name)
+        return profiler_utils.method_timeit(method, name)
 
     @staticmethod
     def _filter_properties_w_options(

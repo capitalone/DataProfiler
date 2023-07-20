@@ -4,6 +4,7 @@ from dataprofiler.profilers.json_decoder import load_option
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import HistogramAndQuantilesOption
 
+from .. import utils as test_utils
 from .test_boolean_option import TestBooleanOption
 
 
@@ -285,7 +286,7 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
         self.assertDictEqual(expected, json.loads(serialized))
 
     def test_json_decode_warn(self):
-        expected = {
+        old_histogram = {
             "class": "HistogramOption",
             "data": {
                 "bin_count_or_method": "doane",
@@ -293,12 +294,18 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
             },
         }
 
-        expected_string = json.dumps(expected)
+        expected = HistogramAndQuantilesOption(
+            is_enabled=False, bin_count_or_method="doane"
+        )
+
+        expected_string = json.dumps(old_histogram, cls=ProfileEncoder)
 
         expected_warning = (
-            "HistogramOption will be deprecated in the future. Please "
-            "begin utilizing the new HistogramAndQuantilesOption class."
+            "HistogramOption will be deprecated in the future. HistogramOption has been "
+            "changed to HistogramAndQuantilesOption while JSON decoding. Please begin "
+            "utilizing the new HistogramAndQuantilesOption class."
         )
 
         with self.assertWarnsRegex(DeprecationWarning, expected_warning):
-            load_option(json.loads(expected_string))
+            deserialized = load_option(json.loads(expected_string))
+            test_utils.assert_profiles_equal(deserialized, expected)

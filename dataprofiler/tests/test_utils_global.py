@@ -48,9 +48,11 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
             self.assertEqual(mock_np_generator.call_count, 1)
             mock_np_generator.assert_called_with(123)
 
-    @unittest.mock.patch.dict(os.environ, {"DATAPROFILER_SEED": "George Washington"})
+    @unittest.mock.patch.dict(
+        os.environ, {"DATAPROFILER_SEED": "George Washington"}, clear=True
+    )
     @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=None)
     def test_warning_raised(self):
         """Test that warning raises if seed is not an integer."""
         with self.assertWarnsRegex(RuntimeWarning, "Seed should be an integer"):
-            rng = utils_global.get_random_number_generator()
+            utils_global.get_random_number_generator()

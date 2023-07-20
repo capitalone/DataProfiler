@@ -1,6 +1,7 @@
 """Contains methods to decode components of a Profiler."""
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -72,6 +73,14 @@ def get_option_class(class_name: str) -> type[BaseOption]:
     options_class: type[BaseOption] | None = _options.get(class_name)
     if options_class is None:
         raise ValueError(f"Invalid option class {class_name} " f"failed to load.")
+
+    if class_name == "HistogramOption":
+        warnings.warn(
+            f"{class_name} will be deprecated in the future. During the JSON encode "
+            "process, HistogramOption is mapped to HistogramAndQuantilesOption. "
+            "Please begin utilizing the new HistogramAndQuantilesOption class.",
+            DeprecationWarning,
+        )
     return options_class
 
 

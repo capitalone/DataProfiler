@@ -301,9 +301,9 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
         expected_string = json.dumps(old_histogram, cls=ProfileEncoder)
 
         expected_warning = (
-            "HistogramOption will be deprecated in the future. HistogramOption has been "
-            "mapped to HistogramAndQuantilesOption while JSON decoding. Please begin "
-            "utilizing the new HistogramAndQuantilesOption class."
+            "HistogramOption will be deprecated in the future. During the JSON encode "
+            "process, HistogramOption is mapped to HistogramAndQuantilesOption. "
+            "Please begin utilizing the new HistogramAndQuantilesOption class."
         )
 
         with self.assertWarnsRegex(DeprecationWarning, expected_warning):

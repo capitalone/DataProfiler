@@ -1838,10 +1838,10 @@ class TestFloatColumn(unittest.TestCase):
         data = np.array([0.0, 5.0, 10.0])
         df = pd.Series(data).apply(str)
 
-        int_options = FloatOptions()
-        int_options.histogram_and_quantiles.bin_count_or_method = 5
-        int_options.histogram_and_quantiles.num_quantiles = 4
-        profiler = FloatColumn("0.0", int_options)
+        float_options = FloatOptions()
+        float_options.histogram_and_quantiles.bin_count_or_method = 5
+        float_options.histogram_and_quantiles.num_quantiles = 4
+        profiler = FloatColumn("0.0", float_options)
 
         mocked_quantiles = [0.25, 0.50, 0.75]
         with mock.patch.object(

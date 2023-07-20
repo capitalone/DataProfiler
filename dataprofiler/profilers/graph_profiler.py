@@ -118,34 +118,34 @@ class GraphProfiler:
             )
 
         diff_profile = {
-            "num_nodes": utils.find_diff_of_numbers(
+            "num_nodes": profiler_utils.find_diff_of_numbers(
                 self._num_nodes, other_profile._num_nodes
             ),
-            "num_edges": utils.find_diff_of_numbers(
+            "num_edges": profiler_utils.find_diff_of_numbers(
                 self._num_edges, other_profile._num_edges
             ),
             "categorical_attributes": profiler_utils.find_diff_of_lists_and_sets(
                 self._categorical_attributes, other_profile._categorical_attributes
             ),
-            "continuous_attributes": utils.find_diff_of_lists_and_sets(
+            "continuous_attributes": profiler_utils.find_diff_of_lists_and_sets(
                 self._continuous_attributes, other_profile._continuous_attributes
             ),
-            "avg_node_degree": utils.find_diff_of_numbers(
+            "avg_node_degree": profiler_utils.find_diff_of_numbers(
                 self._avg_node_degree, other_profile._avg_node_degree
             ),
-            "global_max_component_size": utils.find_diff_of_numbers(
+            "global_max_component_size": profiler_utils.find_diff_of_numbers(
                 self._global_max_component_size,
                 other_profile._global_max_component_size,
             ),
-            "continuous_distribution": utils.find_diff_of_dicts_with_diff_keys(
+            "continuous_distribution": profiler_utils.find_diff_of_dicts_with_diff_keys(
                 self._continuous_distribution,
                 other_profile._continuous_distribution,
             ),
-            "categorical_distribution": utils.find_diff_of_dicts_with_diff_keys(
+            "categorical_distribution": profiler_utils.find_diff_of_dicts_with_diff_keys(  # noqa: E501
                 self._categorical_distribution,
                 other_profile._categorical_distribution,
             ),
-            "times": utils.find_diff_of_dicts(self.times, other_profile.times),
+            "times": profiler_utils.find_diff_of_dicts(self.times, other_profile.times),
         }
 
         return diff_profile

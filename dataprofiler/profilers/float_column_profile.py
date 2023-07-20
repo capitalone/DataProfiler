@@ -137,7 +137,7 @@ class FloatColumn(
         other_precision = other_profile.profile["precision"]
         precision_diff = dict()
         for key in self.profile["precision"].keys():
-            precision_diff[key] = utils.find_diff_of_numbers(
+            precision_diff[key] = profiler_utils.find_diff_of_numbers(
                 self.profile["precision"][key], other_precision[key]
             )
         precision_diff.pop("confidence_level")

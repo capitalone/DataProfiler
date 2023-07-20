@@ -497,20 +497,26 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             )
 
         differences = {
-            "min": utils.find_diff_of_numbers(self.min, other_profile.min),
-            "max": utils.find_diff_of_numbers(self.max, other_profile.max),
-            "sum": utils.find_diff_of_numbers(self.sum, other_profile.sum),
-            "mean": utils.find_diff_of_numbers(self.mean, other_profile.mean),
-            "median": utils.find_diff_of_numbers(self.median, other_profile.median),
-            "mode": utils.find_diff_of_lists_and_sets(self.mode, other_profile.mode),
+            "min": profiler_utils.find_diff_of_numbers(self.min, other_profile.min),
+            "max": profiler_utils.find_diff_of_numbers(self.max, other_profile.max),
+            "sum": profiler_utils.find_diff_of_numbers(self.sum, other_profile.sum),
+            "mean": profiler_utils.find_diff_of_numbers(self.mean, other_profile.mean),
+            "median": profiler_utils.find_diff_of_numbers(
+                self.median, other_profile.median
+            ),
+            "mode": profiler_utils.find_diff_of_lists_and_sets(
+                self.mode, other_profile.mode
+            ),
             "median_absolute_deviation": profiler_utils.find_diff_of_numbers(
                 self.median_abs_deviation,
                 other_profile.median_abs_deviation,
             ),
-            "variance": utils.find_diff_of_numbers(
+            "variance": profiler_utils.find_diff_of_numbers(
                 self.variance, other_profile.variance
             ),
-            "stddev": utils.find_diff_of_numbers(self.stddev, other_profile.stddev),
+            "stddev": profiler_utils.find_diff_of_numbers(
+                self.stddev, other_profile.stddev
+            ),
             "t-test": self._perform_t_test(
                 self.mean,
                 self.variance,
@@ -1888,7 +1894,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
 
-        batch_biased_kurtosis = utils.biased_kurt(df_series)
+        batch_biased_kurtosis = profiler_utils.biased_kurt(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]
         batch_biased_var = subset_properties["biased_variance"]

@@ -131,7 +131,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         elif not self.cms and not other.cms:
             # If both profiles have not met stop condition
             if not (self._stop_condition_is_met or other._stop_condition_is_met):
-                merged_profile._categories = utils.add_nested_dictionaries(
+                merged_profile._categories = profiler_utils.add_nested_dictionaries(
                     self._categories, other._categories
                 )
 
@@ -250,7 +250,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         # Make sure other_profile's type matches this class
         differences: dict = super().diff(other_profile, options)
 
-        differences["categorical"] = utils.find_diff_of_strings_and_bools(
+        differences["categorical"] = profiler_utils.find_diff_of_strings_and_bools(
             self.is_match, other_profile.is_match
         )
 
@@ -258,13 +258,13 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             [
                 (
                     "unique_count",
-                    utils.find_diff_of_numbers(
+                    profiler_utils.find_diff_of_numbers(
                         self.unique_count, other_profile.unique_count
                     ),
                 ),
                 (
                     "unique_ratio",
-                    utils.find_diff_of_numbers(
+                    profiler_utils.find_diff_of_numbers(
                         self.unique_ratio, other_profile.unique_ratio
                     ),
                 ),
@@ -275,19 +275,25 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         if self.is_match and other_profile.is_match:
             differences["statistics"][
                 "chi2-test"
-            ] = utils.perform_chi_squared_test_for_homogeneity(
+            ] = profiler_utils.perform_chi_squared_test_for_homogeneity(
                 self._categories,
                 self.sample_size,
                 other_profile._categories,
                 other_profile.sample_size,
             )
-            differences["statistics"]["categories"] = utils.find_diff_of_lists_and_sets(
+            differences["statistics"][
+                "categories"
+            ] = profiler_utils.find_diff_of_lists_and_sets(
                 self.categories, other_profile.categories
             )
-            differences["statistics"]["gini_impurity"] = profiler_utils.find_diff_of_numbers(
+            differences["statistics"][
+                "gini_impurity"
+            ] = profiler_utils.find_diff_of_numbers(
                 self.gini_impurity, other_profile.gini_impurity
             )
-            differences["statistics"]["unalikeability"] = utils.find_diff_of_numbers(
+            differences["statistics"][
+                "unalikeability"
+            ] = profiler_utils.find_diff_of_numbers(
                 self.unalikeability, other_profile.unalikeability
             )
             cat_count1 = dict(
@@ -299,9 +305,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 )
             )
 
-            differences["statistics"]["categorical_count"] = utils.find_diff_of_dicts(
-                cat_count1, cat_count2
-            )
+            differences["statistics"][
+                "categorical_count"
+            ] = profiler_utils.find_diff_of_dicts(cat_count1, cat_count2)
 
         return differences
 
@@ -532,7 +538,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         for k in (x for x in heavy_hitter_dict2 if x not in heavy_hitter_dict1):
             heavy_hitter_dict1[k] = cms1.get_estimate(k)
 
-        categories = utils.add_nested_dictionaries(
+        categories = profiler_utils.add_nested_dictionaries(
             heavy_hitter_dict2, heavy_hitter_dict1
         )
 
@@ -604,7 +610,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             )
         else:
             category_count = self._get_categories_full(df_series)
-            self._categories = utils.add_nested_dictionaries(
+            self._categories = profiler_utils.add_nested_dictionaries(
                 self._categories, category_count
             )
             self._update_stop_condition(df_series)

@@ -111,7 +111,9 @@ class TextColumn(
         differences = NumericStatsMixin.diff(self, other_profile, options)
 
         del differences["psi"]
-        vocab_diff = profiler_utils.find_diff_of_lists_and_sets(self.vocab, other_profile.vocab)
+        vocab_diff = profiler_utils.find_diff_of_lists_and_sets(
+            self.vocab, other_profile.vocab
+        )
         differences["vocab"] = vocab_diff
         return differences
 

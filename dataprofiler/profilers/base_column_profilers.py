@@ -173,7 +173,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         else:
             raise ValueError(f"Column names unmatched: {other1.name} != {other2.name}")
 
-        self.times = utils.add_nested_dictionaries(other1.times, other2.times)
+        self.times = profiler_utils.add_nested_dictionaries(other1.times, other2.times)
 
         self.sample_size = other1.sample_size + other2.sample_size
 

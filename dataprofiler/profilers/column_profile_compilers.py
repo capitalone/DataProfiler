@@ -106,7 +106,7 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
                         df_series.name, options=profiler_options
                     )
                 except Exception as e:
-                    utils.warn_on_profile(profiler.type, e)
+                    profiler_utils.warn_on_profile(profiler.type, e)
 
         # Update profile after creation
         self.update_profile(df_series, pool)

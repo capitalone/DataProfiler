@@ -192,10 +192,10 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
         super().diff(other_profile, options)
 
         differences = {
-            "min": utils.find_diff_of_dates(
+            "min": profiler_utils.find_diff_of_dates(
                 self._dt_obj_min, other_profile._dt_obj_min
             ),
-            "max": utils.find_diff_of_dates(
+            "max": profiler_utils.find_diff_of_dates(
                 self._dt_obj_max, other_profile._dt_obj_max
             ),
             "format": profiler_utils.find_diff_of_lists_and_sets(

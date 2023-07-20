@@ -1,5 +1,6 @@
 import json
 
+from dataprofiler.profilers.json_decoder import load_option
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import HistogramAndQuantilesOption
 
@@ -292,11 +293,12 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
             },
         }
 
+        expected_string = json.dumps(expected)
+
         expected_warning = (
             "HistogramOption will be deprecated in the future. Please "
             "begin utilizing the new HistogramAndQuantilesOption class."
         )
 
-        # with self.assertWarnsRegex(Warning, expected_warning):
-
-        json.dumps(expected, cls=ProfileEncoder)
+        with self.assertWarnsRegex(DeprecationWarning, expected_warning):
+            load_option(json.loads(expected_string))

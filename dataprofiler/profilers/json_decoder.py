@@ -77,7 +77,7 @@ def get_option_class(class_name: str) -> type[BaseOption]:
     if class_name == "HistogramOption":
         warnings.warn(
             f"{class_name} will be deprecated in the future. HistogramOption has been "
-            "changed to HistogramAndQuantilesOption while JSON decoding. Please begin "
+            "mapped to HistogramAndQuantilesOption while JSON decoding. Please begin "
             "utilizing the new HistogramAndQuantilesOption class.",
             DeprecationWarning,
         )

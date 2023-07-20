@@ -302,7 +302,7 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
 
         expected_warning = (
             "HistogramOption will be deprecated in the future. HistogramOption has been "
-            "changed to HistogramAndQuantilesOption while JSON decoding. Please begin "
+            "mapped to HistogramAndQuantilesOption while JSON decoding. Please begin "
             "utilizing the new HistogramAndQuantilesOption class."
         )
 

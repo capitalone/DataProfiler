@@ -3,9 +3,6 @@ import os
 import unittest
 import unittest.mock
 
-import numpy as np
-from numpy.random import PCG64
-
 from .. import utils_global
 
 
@@ -17,7 +14,7 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
     def test_dataprofiler_seed_true_settings_seed_false(self):
         """Test for DATAPROFILER_SEED in os.environ and settings._seed!=None."""
         with unittest.mock.patch("numpy.random.default_rng") as mock_np_generator:
-            rng = utils_global.get_random_number_generator()
+            utils_global.get_random_number_generator()
             self.assertEqual(mock_np_generator.call_count, 1)
             mock_np_generator.assert_called_with(123)
 
@@ -26,7 +23,7 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
     def test_dataprofiler_seed_false_settings_seed_true(self):
         """Test for DATAPROFILER_SEED not in os.environ and settings._seed==None."""
         with unittest.mock.patch("numpy.random.default_rng") as mock_np_generator:
-            rng = utils_global.get_random_number_generator()
+            utils_global.get_random_number_generator()
             self.assertEqual(mock_np_generator.call_count, 1)
             mock_np_generator.assert_called_with(None)
 
@@ -35,7 +32,7 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
     def test_dataprofiler_seed_true_settings_seed_true(self):
         """Test for DATAPROFILER_SEED in os.environ and settings._seed==None."""
         with unittest.mock.patch("numpy.random.default_rng") as mock_np_generator:
-            rng = utils_global.get_random_number_generator()
+            utils_global.get_random_number_generator()
             self.assertEqual(mock_np_generator.call_count, 2)
             mock_np_generator.assert_called_with(123)
 
@@ -44,7 +41,7 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
     def test_dataprofiler_seed_false_settings_seed_false(self):
         """Test for DATAPROFILER_SEED not in os.environ and settings._seed!=None."""
         with unittest.mock.patch("numpy.random.default_rng") as mock_np_generator:
-            rng = utils_global.get_random_number_generator()
+            utils_global.get_random_number_generator()
             self.assertEqual(mock_np_generator.call_count, 1)
             mock_np_generator.assert_called_with(123)
 

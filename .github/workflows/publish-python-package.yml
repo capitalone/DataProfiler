@@ -6,7 +6,8 @@ name: Publish Python Package
 
 on:
   release:
-    types: [created]
+    branches:
+      - 'release/*'
 
 jobs:
   deploy:

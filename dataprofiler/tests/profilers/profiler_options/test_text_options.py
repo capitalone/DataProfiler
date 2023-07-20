@@ -128,7 +128,7 @@ class TestTextOptions(TestNumericalOptions):
                     "data": {"is_enabled": False},
                 },
                 "histogram_and_quantiles": {
-                    "class": "HistogramOption",
+                    "class": "HistogramAndQuantilesOption",
                     "data": mock.ANY,
                 },
                 "bias_correction": {

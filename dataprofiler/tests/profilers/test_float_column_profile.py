@@ -37,6 +37,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
         self.assertIsNone(profiler.quantiles)
+        self.assertEqual(profiler._num_quantiles, 1000)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -1837,9 +1838,10 @@ class TestFloatColumn(unittest.TestCase):
         data = np.array([0.0, 5.0, 10.0])
         df = pd.Series(data).apply(str)
 
-        int_options = FloatOptions()
-        int_options.histogram_and_quantiles.bin_count_or_method = 5
-        profiler = FloatColumn("0.0", int_options)
+        float_options = FloatOptions()
+        float_options.histogram_and_quantiles.bin_count_or_method = 5
+        float_options.histogram_and_quantiles.num_quantiles = 4
+        profiler = FloatColumn("0.0", float_options)
 
         mocked_quantiles = [0.25, 0.50, 0.75]
         with mock.patch.object(
@@ -1884,7 +1886,7 @@ class TestFloatColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 1,
                     "num_negatives": 0,
-                    "_num_quantiles": 1000,
+                    "_num_quantiles": 4,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
                         "total_loss": 2.0,

@@ -82,7 +82,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         self._mode_is_enabled: bool = True
         self.num_zeros: int | np.int64 = np.int64(0)
         self.num_negatives: int | np.int64 = np.int64(0)
-        self._num_quantiles: int = 1000  # TODO: add to options
+        self._num_quantiles: int = 1000  # By default, we use 1000 quantiles
 
         if options:
             self.bias_correction = options.bias_correction.is_enabled
@@ -90,6 +90,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             self._median_is_enabled = options.median.is_enabled
             self._median_abs_dev_is_enabled = options.median_abs_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
+            self._num_quantiles = options.histogram_and_quantiles.num_quantiles
             bin_count_or_method = options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
                 self.histogram_bin_method_names = [bin_count_or_method]

@@ -24,7 +24,7 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
 
         # validate, variable path being passed
         expected_error = (
-            "type object 'test.bin_count_or_method' has no " "attribute 'is_enabled'"
+            "type object 'test.bin_count_or_method' has no attribute 'is_enabled'"
         )
         with self.assertRaisesRegex(AttributeError, expected_error):
             option._set_helper({"bin_count_or_method.is_enabled": True}, "test")
@@ -76,13 +76,13 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
 
         # Treat bin_count_or_method as a BooleanOption
         expected_error = (
-            "type object 'bin_count_or_method' has no attribute " "'is_enabled'"
+            "type object 'bin_count_or_method' has no attribute 'is_enabled'"
         )
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({"bin_count_or_method.is_enabled": True})
 
         # Treat num_quantiles as a BooleanOption
-        expected_error = "type object 'num_quantiles' has no attribute " "'is_enabled'"
+        expected_error = "type object 'num_quantiles' has no attribute 'is_enabled'"
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({"num_quantiles.is_enabled": True})
 

@@ -114,9 +114,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "suggested_bin_count": self.min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
-        self.quantiles: list[float] | dict = {
-            bin_num: None for bin_num in range(self._num_quantiles - 1)
-        }
+        self.quantiles: list[float] | None = None
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -461,13 +459,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             self.histogram_methods[key] = convert_histogram_key_types_to_np(
                 self.histogram_methods[key]
             )
-
-        # Convert quantile keys to correct types
-        if isinstance(self.quantiles, dict):
-            new_quantiles = dict()
-            for key in self.quantiles.keys():
-                new_quantiles[int(key)] = self.quantiles[key]
-            self.quantiles = new_quantiles
 
         if self.min is not None:
             self.min = np.float64(self.min)

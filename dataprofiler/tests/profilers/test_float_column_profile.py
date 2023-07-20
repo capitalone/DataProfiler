@@ -36,8 +36,8 @@ class TestFloatColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
+        self.assertIsNone(profiler.quantiles)
         self.assertEqual(profiler._num_quantiles, 1000)
-        self.assertEqual(len(profiler.quantiles), 999)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -1797,9 +1797,7 @@ class TestFloatColumn(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": {
-                        bin_num: None for bin_num in range(profiler._num_quantiles - 1)
-                    },
+                    "quantiles": None,
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

@@ -419,10 +419,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             }
         )
         expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
-        expected_profile.quantiles = {
-            bin_num: None for bin_num in range(actual_profile._num_quantiles - 1)
-        }
-
+        expected_profile.quantiles = None
         expected_profile._stored_histogram["histogram"] = {
             "bin_counts": None,
             "bin_edges": None,
@@ -1240,9 +1237,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": {
-                        bin_num: None for bin_num in range(mixin._num_quantiles - 1)
-                    },
+                    "quantiles": None,
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

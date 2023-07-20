@@ -40,7 +40,7 @@ class TestGetRandomNumberGenerator(unittest.TestCase):
             mock_np_generator.assert_called_with(123)
 
     @unittest.mock.patch("dataprofiler.utils_global.settings._seed", new=123)
-    @unittest.mock.patch.dict("os.environ")
+    @unittest.mock.patch.dict("os.environ", clear=True)
     def test_dataprofiler_seed_false_settings_seed_false(self):
         """Test for DATAPROFILER_SEED not in os.environ and settings._seed!=None."""
         with unittest.mock.patch("numpy.random.default_rng") as mock_np_generator:

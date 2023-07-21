@@ -7,7 +7,7 @@ from typing import Protocol, Type, TypeVar, cast
 import numpy as np
 from pandas import DataFrame, Series
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import OrderOptions
 
@@ -362,7 +362,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         super().diff(other_profile, options)
 
         differences = {
-            "order": utils.find_diff_of_strings_and_bools(
+            "order": profiler_utils.find_diff_of_strings_and_bools(
                 self.order, other_profile.order
             )
         }

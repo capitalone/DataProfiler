@@ -11,7 +11,7 @@ from typing import Any, Callable, Generic, TypeVar
 import numpy as np
 import pandas as pd
 
-from . import utils
+from . import profiler_utils
 from .profiler_options import BaseInspectorOptions, BaseOption
 
 BaseColumnProfilerT = TypeVar("BaseColumnProfilerT", bound="BaseColumnProfiler")
@@ -76,7 +76,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         :param name: key argument for the times dictionary
         :type name: str
         """
-        return utils.method_timeit(method, name)
+        return profiler_utils.method_timeit(method, name)
 
     @staticmethod
     def _filter_properties_w_options(
@@ -173,7 +173,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         else:
             raise ValueError(f"Column names unmatched: {other1.name} != {other2.name}")
 
-        self.times = utils.add_nested_dictionaries(other1.times, other2.times)
+        self.times = profiler_utils.add_nested_dictionaries(other1.times, other2.times)
 
         self.sample_size = other1.sample_size + other2.sample_size
 

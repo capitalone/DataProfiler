@@ -8,7 +8,7 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers import TextColumn, utils
+from dataprofiler.profilers import TextColumn, profiler_utils
 from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import TextOptions
@@ -584,7 +584,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             "median_absolute_deviation": -0.5,
             "variance": profile1["variance"] - profile2["variance"],
             "stddev": profile1["stddev"] - profiler2["stddev"],
-            "vocab": utils.find_diff_of_lists_and_sets(
+            "vocab": profiler_utils.find_diff_of_lists_and_sets(
                 profile1["vocab"], profile2["vocab"]
             ),
             "t-test": {

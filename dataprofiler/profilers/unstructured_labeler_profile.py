@@ -8,7 +8,7 @@ from pandas import Series
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import DataLabelerOptions
 
@@ -87,14 +87,16 @@ class UnstructuredLabelerProfile:
         options.data_labeler_object = self.data_labeler
 
         merged_profile = UnstructuredLabelerProfile(options=options)
-        merged_profile.entity_counts = utils.add_nested_dictionaries(
+        merged_profile.entity_counts = profiler_utils.add_nested_dictionaries(
             self.entity_counts, other.entity_counts
         )
 
         merged_profile.char_sample_size = self.char_sample_size + other.char_sample_size
         merged_profile.word_sample_size = self.word_sample_size + other.word_sample_size
 
-        merged_profile.times = utils.add_nested_dictionaries(self.times, other.times)
+        merged_profile.times = profiler_utils.add_nested_dictionaries(
+            self.times, other.times
+        )
 
         merged_profile._update_percentages()
 
@@ -133,10 +135,10 @@ class UnstructuredLabelerProfile:
         entity_counts_diff = {}
         entity_percentages_diff = {}
         for key in ["word_level", "true_char_level", "postprocess_char_level"]:
-            entity_percentages_diff[key] = utils.find_diff_of_dicts(
+            entity_percentages_diff[key] = profiler_utils.find_diff_of_dicts(
                 self.entity_percentages[key], other_profile.entity_percentages[key]
             )
-            entity_counts_diff[key] = utils.find_diff_of_dicts(
+            entity_counts_diff[key] = profiler_utils.find_diff_of_dicts(
                 self.entity_counts[key], other_profile.entity_counts[key]
             )
 

@@ -1587,7 +1587,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 save_profile.save(save_method="json")
                 mock_file.seek(0)
                 with mock.patch(
-                    "dataprofiler.profilers.utils.DataLabeler.load_from_library",
+                    "dataprofiler.profilers.profiler_utils.DataLabeler.load_from_library",
                     return_value=data_labeler,
                 ):
                     load_profile = dp.StructuredProfiler.load("mock.json", "JSON")
@@ -2509,7 +2509,7 @@ class TestStructuredProfiler(unittest.TestCase):
         spec=BaseDataLabeler,
     )
     @mock.patch(
-        "dataprofiler.profilers.utils.DataLabeler",
+        "dataprofiler.profilers.profiler_utils.DataLabeler",
         spec=BaseDataLabeler,
     )
     def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
@@ -2543,7 +2543,7 @@ class TestStructuredProfiler(unittest.TestCase):
         spec=BaseDataLabeler,
     )
     @mock.patch(
-        "dataprofiler.profilers.utils.DataLabeler",
+        "dataprofiler.profilers.profiler_utils.DataLabeler",
         spec=BaseDataLabeler,
     )
     def test_json_decode_after_update(
@@ -3213,7 +3213,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         spec=BaseDataLabeler,
     )
     @mock.patch(
-        "dataprofiler.profilers.utils.DataLabeler",
+        "dataprofiler.profilers.profiler_utils.DataLabeler",
         spec=BaseDataLabeler,
     )
     def test_json_decode(self, mock_utils_DataLabeler, mock_DataLabeler, *mocks):
@@ -3234,7 +3234,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         spec=BaseDataLabeler,
     )
     @mock.patch(
-        "dataprofiler.profilers.utils.DataLabeler",
+        "dataprofiler.profilers.profiler_utils.DataLabeler",
         spec=BaseDataLabeler,
     )
     def test_json_decode_after_update(

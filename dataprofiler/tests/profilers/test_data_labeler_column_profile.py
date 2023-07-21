@@ -485,7 +485,9 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         self.assertEqual(expected, serialized)
 
-    @mock.patch("dataprofiler.profilers.utils.DataLabeler", spec=BaseDataLabeler)
+    @mock.patch(
+        "dataprofiler.profilers.profiler_utils.DataLabeler", spec=BaseDataLabeler
+    )
     def test_json_decode(self, mock_utils_DataLabeler, mock_BaseDataLabeler):
         self._setup_data_labeler_mock(mock_BaseDataLabeler)
         mock_utils_DataLabeler.load_from_library.side_effect = mock_BaseDataLabeler
@@ -526,7 +528,9 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             class_as_dict["data"]["data_labeler"] = {"from_disk": "test"}
             deserialized = load_column_profile(class_as_dict, config)
 
-    @mock.patch("dataprofiler.profilers.utils.DataLabeler", spec=BaseDataLabeler)
+    @mock.patch(
+        "dataprofiler.profilers.profiler_utils.DataLabeler", spec=BaseDataLabeler
+    )
     def test_json_decode_after_update(
         self, mock_utils_DataLabeler, mock_BaseDataLabeler
     ):

@@ -12,7 +12,7 @@ from dataprofiler.profilers import profiler_utils
 
 class TestShuffleInChunks(unittest.TestCase):
     """
-    Validates utils.shuffle_in_chunks is properly working.
+    Validates profiler_utils.shuffle_in_chunks is properly working.
     """
 
     def test_full_sample(self):
@@ -67,7 +67,9 @@ class TestShuffleInChunks(unittest.TestCase):
             [[1], [2, 3], [4]],
             profiler_utils.find_diff_of_lists_and_sets([1, 2, 3], [2, 3, 4]),
         )
-        self.assertEqual("unchanged", utils.find_diff_of_lists_and_sets({3, 2}, {2, 3}))
+        self.assertEqual(
+            "unchanged", profiler_utils.find_diff_of_lists_and_sets({3, 2}, {2, 3})
+        )
         self.assertEqual(
             [[1], [2, 3], [4]],
             profiler_utils.find_diff_of_lists_and_sets({1, 2, 3}, {2, 3, 4}),
@@ -76,7 +78,8 @@ class TestShuffleInChunks(unittest.TestCase):
             "unchanged", profiler_utils.find_diff_of_lists_and_sets({2, 3}, [2, 3])
         )
         self.assertEqual(
-            [[1], [2, 3], [4]], utils.find_diff_of_lists_and_sets([1, 2, 3], {2, 3, 4})
+            [[1], [2, 3], [4]],
+            profiler_utils.find_diff_of_lists_and_sets([1, 2, 3], {2, 3, 4}),
         )
         self.assertEqual(
             [None, {1, 2}], profiler_utils.find_diff_of_lists_and_sets(None, {1, 2})
@@ -86,32 +89,36 @@ class TestShuffleInChunks(unittest.TestCase):
         )
 
         # Ensure ints and floats are handled appropriately
-        self.assertEqual(1, utils.find_diff_of_numbers(5, 4))
-        self.assertEqual(1.0, utils.find_diff_of_numbers(5.0, 4.0))
-        self.assertEqual(1.0, utils.find_diff_of_numbers(5.0, 4))
+        self.assertEqual(1, profiler_utils.find_diff_of_numbers(5, 4))
+        self.assertEqual(1.0, profiler_utils.find_diff_of_numbers(5.0, 4.0))
+        self.assertEqual(1.0, profiler_utils.find_diff_of_numbers(5.0, 4))
         self.assertEqual("unchanged", profiler_utils.find_diff_of_numbers(5.0, 5.0))
         self.assertEqual("unchanged", profiler_utils.find_diff_of_numbers(5, 5.0))
         self.assertEqual([4, None], profiler_utils.find_diff_of_numbers(4, None))
-        self.assertEqual("unchanged", utils.find_diff_of_numbers(None, None))
+        self.assertEqual("unchanged", profiler_utils.find_diff_of_numbers(None, None))
 
         # Ensure strings are handled appropriately
         self.assertEqual(
-            "unchanged", utils.find_diff_of_strings_and_bools("Hello", "Hello")
+            "unchanged", profiler_utils.find_diff_of_strings_and_bools("Hello", "Hello")
         )
         self.assertEqual(
             ["Hello", "team"],
             profiler_utils.find_diff_of_strings_and_bools("Hello", "team"),
         )
-        self.assertEqual("unchanged", utils.find_diff_of_strings_and_bools(None, None))
+        self.assertEqual(
+            "unchanged", profiler_utils.find_diff_of_strings_and_bools(None, None)
+        )
 
         # Ensure dates are handled appropriately
         a = datetime(2021, 6, 28)
         b = datetime(2021, 6, 27, 1)
-        self.assertEqual("unchanged", utils.find_diff_of_dates(a, a))
+        self.assertEqual("unchanged", profiler_utils.find_diff_of_dates(a, a))
         self.assertEqual("+23:00:00", profiler_utils.find_diff_of_dates(a, b))
         self.assertEqual("-23:00:00", profiler_utils.find_diff_of_dates(b, a))
-        self.assertEqual(["06/28/21 00:00:00", None], utils.find_diff_of_dates(a, None))
-        self.assertEqual("unchanged", utils.find_diff_of_dates(None, None))
+        self.assertEqual(
+            ["06/28/21 00:00:00", None], profiler_utils.find_diff_of_dates(a, None)
+        )
+        self.assertEqual("unchanged", profiler_utils.find_diff_of_dates(None, None))
 
         # Ensure that differencing dictionaries is handled appropriately
         dict1 = {
@@ -280,7 +287,7 @@ class TestShuffleInChunks(unittest.TestCase):
         # when lists are same length
         list_1 = [np.nan, 1.5, 6.7]
         list_2 = [np.nan, 1.5, np.nan]
-        diff_1 = utils.find_diff_of_lists_and_sets(list_1, list_2)
+        diff_1 = profiler_utils.find_diff_of_lists_and_sets(list_1, list_2)
         expected_diff_1 = [[6.7], [np.nan, 1.5], [np.nan]]
 
         for x, y in zip(diff_1, expected_diff_1):
@@ -290,7 +297,7 @@ class TestShuffleInChunks(unittest.TestCase):
         # when lists aren't the same length
         list_3 = [np.nan, 1.5, 6.7, np.nan, np.nan, np.nan]
         list_4 = [4.2, 1.5, np.nan]
-        diff_2 = utils.find_diff_of_lists_and_sets(list_3, list_4)
+        diff_2 = profiler_utils.find_diff_of_lists_and_sets(list_3, list_4)
         expected_diff_2 = [[6.7, np.nan, np.nan, np.nan], [np.nan, 1.5], [4.2]]
 
         for x, y in zip(diff_2, expected_diff_2):
@@ -308,7 +315,7 @@ class TestShuffleInChunks(unittest.TestCase):
 
         list_7 = [np.nan, 3]
         list_8 = [np.nan, 3]
-        diff_4 = utils.find_diff_of_lists_and_sets(list_7, list_8)
+        diff_4 = profiler_utils.find_diff_of_lists_and_sets(list_7, list_8)
         expected_diff_4 = "unchanged"
 
         self.assertEqual(diff_4, expected_diff_4)
@@ -321,7 +328,7 @@ class TestShuffleInChunks(unittest.TestCase):
 
         # Check matrix subtraction of same size matrices
         expected_matrix = [[-10.0, np.nan, 3.0], [3.0, 0.0, 4.0], [np.nan, -12.0, 8.0]]
-        diff_matrix = utils.find_diff_of_matrices(matrix1, matrix2)
+        diff_matrix = profiler_utils.find_diff_of_matrices(matrix1, matrix2)
         comparison = (
             (expected_matrix == diff_matrix)
             | (np.isnan(expected_matrix) & np.isnan(diff_matrix))
@@ -334,10 +341,10 @@ class TestShuffleInChunks(unittest.TestCase):
         )
         # Check matrix subtraction with different sized matrices
         matrix1 = [[1, 2], [1, 2]]
-        self.assertIsNone(utils.find_diff_of_matrices(matrix1, matrix2))
+        self.assertIsNone(profiler_utils.find_diff_of_matrices(matrix1, matrix2))
 
         # Check matrix with none
-        self.assertIsNone(utils.find_diff_of_matrices(matrix1, None))
+        self.assertIsNone(profiler_utils.find_diff_of_matrices(matrix1, None))
 
     def test_get_memory_size(self):
         """
@@ -359,7 +366,7 @@ class TestShuffleInChunks(unittest.TestCase):
         )
         self.assertEqual(
             33 / 1024**2,
-            utils.get_memory_size(["This is test,", " a Test sentence.!!!"]),
+            profiler_utils.get_memory_size(["This is test,", " a Test sentence.!!!"]),
         )
         self.assertEqual(
             33 / 1024**3,
@@ -372,7 +379,7 @@ class TestShuffleInChunks(unittest.TestCase):
 @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler)
 class TestProfileDistributedMerge(unittest.TestCase):
     """
-    Validates utils.merge_profile_list is properly working.
+    Validates profiler_utils.merge_profile_list is properly working.
     """
 
     @staticmethod

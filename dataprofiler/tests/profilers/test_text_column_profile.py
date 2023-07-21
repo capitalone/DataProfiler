@@ -584,7 +584,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             "median_absolute_deviation": -0.5,
             "variance": profile1["variance"] - profile2["variance"],
             "stddev": profile1["stddev"] - profiler2["stddev"],
-            "vocab": utils.find_diff_of_lists_and_sets(
+            "vocab": profiler_utils.find_diff_of_lists_and_sets(
                 profile1["vocab"], profile2["vocab"]
             ),
             "t-test": {

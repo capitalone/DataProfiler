@@ -7,7 +7,6 @@ import datetime
 import functools
 import math
 import multiprocessing as mp
-import os
 import time
 import warnings
 from abc import abstractmethod
@@ -31,12 +30,13 @@ import psutil
 import scipy
 from pandas import DataFrame, Series
 
-from .. import settings
 from ..labelers.data_labelers import DataLabeler
 
 if TYPE_CHECKING:
     from ..labelers.base_data_labeler import BaseDataLabeler
     from . import profile_builder
+
+from .. import rng_utils
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
@@ -109,14 +109,7 @@ def shuffle_in_chunks(
     if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
-    rng = np.random.default_rng(settings._seed)
-
-    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-        seed = os.environ.get("DATAPROFILER_SEED")
-        if isinstance(seed, int):
-            rng = np.random.default_rng(int(seed))
-        else:
-            warnings.warn("Seed should be an integer", RuntimeWarning)
+    rng = rng_utils.get_random_number_generator()
 
     indices = KeyDict()
     j = 0

@@ -1,7 +1,5 @@
 """Contains functions for data readers."""
 import json
-import os
-import random
 import re
 import urllib
 from collections import OrderedDict
@@ -28,7 +26,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
-from .. import dp_logging, settings
+from .. import dp_logging, rng_utils
 from .._typing import JSONType, Url
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
@@ -315,11 +313,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
 
     kinv = 1 / sample_nrows
     W = 1.0
-    rng = random.Random(x=settings._seed)
-    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-        seed = os.environ.get("DATAPROFILER_SEED")
-        if seed:
-            rng = random.Random(int(seed))
+    rng = rng_utils.get_random_number_generator()
 
     while True:
         W *= rng.random() ** kinv
@@ -334,7 +328,7 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
         except StopIteration:
             break
         # Append new, replace old with dummy, and keep track of order
-        remove_index = rng.randrange(sample_nrows)
+        remove_index = rng.integers(0, sample_nrows)
         values[indices[remove_index]] = str(None)
         indices[remove_index] = len(values)
         values.append(newval)
@@ -824,7 +818,6 @@ def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
                 "Content-length" in url.headers
                 and int(url.headers["Content-length"]) >= 1024**3
             ):
-
                 raise ValueError(
                     "The downloaded file from the url may not be " "larger than 1GB"
                 )

@@ -1556,7 +1556,8 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         elif isinstance(random_state, (list, tuple)) and len(random_state) == 3:
             # tuple required for random state to be set, lists do not work
             if isinstance(random_state[1], list):
-                random_state[1] = tuple(random_state[1])  # type: ignore
+                random_state = list(random_state)
+                random_state[1] = tuple(random_state[1])
             if isinstance(random_state, list):
                 random_state = tuple(random_state)
             temp_random_state = random.Random()
@@ -1895,7 +1896,8 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
         elif isinstance(random_state, (list, tuple)) and len(random_state) == 3:
             # tuple required for random state to be set, lists do not work
             if isinstance(random_state[1], list):
-                random_state[1] = tuple(random_state[1])  # type: ignore
+                random_state = list(random_state)
+                random_state[1] = tuple(random_state[1])
             if isinstance(random_state, list):
                 random_state = tuple(random_state)
             temp_random_state = random.Random()

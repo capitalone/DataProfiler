@@ -2047,9 +2047,9 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
         elif aggregation_func == "random":
             num_labels = max(label_mapping.values()) + 1
             random_state: random.Random = self._parameters["random_state"]
-            priority_order = np.array(list(range(num_labels)))
-            random_state.shuffle(priority_order)  # type: ignore
-            self.priority_prediction(results, priority_order)
+            priority_order = list(range(num_labels))
+            random_state.shuffle(priority_order)
+            self.priority_prediction(results, np.array(priority_order))
         else:
             raise ValueError(
                 f"`{aggregation_func}` is not a valid aggregation function"

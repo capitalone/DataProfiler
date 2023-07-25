@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers import utils
+from dataprofiler.profilers import profiler_utils
 from dataprofiler.profilers.base_column_profilers import (
     BaseColumnPrimitiveTypeProfiler,
     BaseColumnProfiler,
@@ -185,7 +185,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
     def test_combine_unqiue_sets(self):
         a = [1, 2, 3]
         b = [3, 1, 4, -1]
-        c = utils._combine_unique_sets(a, b)
+        c = profiler_utils._combine_unique_sets(a, b)
         self.assertCountEqual([1, 2, 3, 4, -1], c)
 
     def test__init__(self):

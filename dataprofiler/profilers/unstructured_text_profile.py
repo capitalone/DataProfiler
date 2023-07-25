@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from numpy import ndarray
 from pandas import DataFrame, Series
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import TextProfilerOptions
 
@@ -610,18 +610,20 @@ class TextProfiler:
             other_word_count = {k.lower(): v for k, v in other_word_count.items()}
 
         diff: dict = {}
-        diff["vocab"] = utils.find_diff_of_lists_and_sets(
+        diff["vocab"] = profiler_utils.find_diff_of_lists_and_sets(
             list(self.vocab_count.keys()), list(other_profile.vocab_count.keys())
         )
 
-        diff["vocab_count"] = utils.find_diff_of_dicts_with_diff_keys(
+        diff["vocab_count"] = profiler_utils.find_diff_of_dicts_with_diff_keys(
             dict(self.vocab_count.most_common(self._top_k_chars)),
             dict(other_profile.vocab_count.most_common(self._top_k_chars)),
         )
 
-        diff["words"] = utils.find_diff_of_lists_and_sets(self_words, other_words)
+        diff["words"] = profiler_utils.find_diff_of_lists_and_sets(
+            self_words, other_words
+        )
 
-        diff["word_count"] = utils.find_diff_of_dicts_with_diff_keys(
+        diff["word_count"] = profiler_utils.find_diff_of_dicts_with_diff_keys(
             self_word_count, other_word_count
         )
 

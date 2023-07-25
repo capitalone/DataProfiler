@@ -9,7 +9,7 @@ import warnings
 from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from . import utils
+from . import profiler_utils
 from .json_decoder import load_option
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
@@ -1308,7 +1308,7 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         data_labeler_object = None
         data_labeler_load_attr = data.pop("data_labeler_object", {})
         if data_labeler_load_attr:
-            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+            data_labeler_object = profiler_utils.reload_labeler_from_options_or_get_new(
                 data_labeler_load_attr, config
             )
             if data_labeler_object:

@@ -241,7 +241,7 @@ def generate_pool(
     :rtype cpu_count: int
     """
     suggested_pool_size = suggest_pool_size(data_size, cols)
-    if max_pool_size is None or suggested_pool_size is None:
+    if max_pool_size is not None and suggested_pool_size is not None and max_pool_size >= suggested_pool_size:
         max_pool_size = suggested_pool_size
 
     # Always leave 1 cores free

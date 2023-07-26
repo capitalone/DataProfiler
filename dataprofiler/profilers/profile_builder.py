@@ -1658,6 +1658,9 @@ class StructuredProfiler(BaseProfiler):
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to " "StructuredProfiler")
 
+        if isinstance(data, pd.DataFrame) and len(data) > 750000:
+            options.multiprocess.is_enabled = False
+
         super().__init__(data, samples_per_update, min_true_samples, options)
 
         # Structured specific properties

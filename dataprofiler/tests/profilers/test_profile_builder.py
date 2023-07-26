@@ -88,6 +88,23 @@ class TestStructuredProfiler(unittest.TestCase):
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
             )
 
+    @mock.patch("dataprofiler.profilers.profile_builder.len")
+    def test_auto_multiprocess_option(self, mock_len):
+        data = [[0]]
+
+        profiler = dp.StructuredProfiler(data)
+        mock_len.return_value = 100
+        self.assertFalse(profiler.options.multiprocess.is_enabled)
+
+        profiler = dp.StructuredProfiler(data)
+        mock_len.return_value = 1e9
+        self.assertFalse(profiler.options.multiprocess.is_enabled)
+
+        profiler = dp.StructuredProfiler(data)
+
+        mock_len.return_value = 10
+        self.assertTrue(profiler.options.multiprocess.is_enabled)
+
     @mock.patch(
         "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )
@@ -121,7 +138,7 @@ class TestStructuredProfiler(unittest.TestCase):
         "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
     )
     @mock.patch(
-        "dataprofiler.profilers.profile_builder.StructuredProfiler._update_correlation"
+        "dataprofiler.profilers.profile_builder.StructuredProfiler._update_correlation",
     )
     def test_list_data(self, *mocks):
         data = [[1, 1], [None, None], [3, 3], [4, 4], [5, 5], [None, None], [1, 1]]

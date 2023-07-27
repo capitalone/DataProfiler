@@ -125,10 +125,6 @@ class TestStructuredProfiler(unittest.TestCase):
             profiler._auto_multiprocess_toggle(data, rows_threshold, cols_threshold)
         )
 
-    @mock.patch("dataprofiler.profilers.profile_builder.StructuredProfiler._auto_mult")
-    def new_test_mock_function():
-        pass
-
     @mock.patch(
         "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )

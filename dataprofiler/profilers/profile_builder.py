@@ -3024,7 +3024,7 @@ class StructuredProfiler(BaseProfiler):
         notification_str = "Calculating the statistics... "
         pool = None
         if self.options.multiprocess.is_enabled and auto_multiprocess_toggle:
-            pool, pool_size = utils.generate_pool(4, est_data_size)
+            pool, pool_size = profiler_utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
 

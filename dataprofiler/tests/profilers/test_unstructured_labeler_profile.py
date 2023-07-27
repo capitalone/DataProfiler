@@ -4,7 +4,7 @@ from unittest import mock
 
 import pandas as pd
 
-from dataprofiler.profilers import utils
+from dataprofiler.profilers import profiler_utils
 from dataprofiler.profilers.unstructured_labeler_profile import (
     UnstructuredLabelerProfile,
 )

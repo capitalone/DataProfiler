@@ -1658,10 +1658,6 @@ class StructuredProfiler(BaseProfiler):
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to " "StructuredProfiler")
 
-        # definitely changing this, just need to pass prechecks to get WIP PR
-        if isinstance(data, pd.DataFrame) and len(data) > 750000:
-            options.multiprocess.is_enabled = False
-
         super().__init__(data, samples_per_update, min_true_samples, options)
 
         # Structured specific properties
@@ -2785,6 +2781,34 @@ class StructuredProfiler(BaseProfiler):
 
         return merged_properties
 
+    def _auto_multiprocess_toggle(
+        self,
+        data: pd.DataFrame,
+        num_rows_threshold: int = 750000,
+        num_cols_threshold: int = 20,
+    ) -> bool:
+        """
+        Automate multiprocessing toggle depending on dataset sizes.
+
+        :param data: a dataset
+        :type data: pandas.DataFrame
+        :param num_rows_threshold: threshold for number of rows over
+            which options.multiprocess is enabled
+        :type num_rows_threshold: int
+        :param num_cols_threshold: threshold for number of columns
+            over which options.multiprocess is enabled
+        :type num_cols_threshold: int
+        :return: recommended option.multiprocess.is_enabled value
+        :rtype: bool
+        """
+        # If the number of rows or columns exceed their respective threshold,
+        # we want to turn on multiprocessing
+        if data.shape[0] > num_rows_threshold or data.shape[1] > num_cols_threshold:
+            return True
+        # Otherwise, we do not turn on multiprocessing
+        else:
+            return False
+
     def _update_profile_from_chunk(
         self,
         data: list | pd.Series | pd.DataFrame,
@@ -2806,6 +2830,11 @@ class StructuredProfiler(BaseProfiler):
             data = data.to_frame()
         elif isinstance(data, list):
             data = pd.DataFrame(data, dtype=object)
+
+        # If options.multiprocess is enabled, auto-toggle multiprocessing
+        auto_multiprocess_toggle = None
+        if self.options.multiprocess.is_enabled:
+            auto_multiprocess_toggle = self._auto_multiprocess_toggle(data, 750000, 20)
 
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)
@@ -2875,7 +2904,7 @@ class StructuredProfiler(BaseProfiler):
 
         # Generate pool and estimate datasize
         pool = None
-        if self.options.multiprocess.is_enabled:
+        if self.options.multiprocess.is_enabled and auto_multiprocess_toggle:
             est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
             est_data_size = (est_data_size / min(50000, len(data))) * len(data)
             pool, pool_size = utils.generate_pool(
@@ -2996,7 +3025,7 @@ class StructuredProfiler(BaseProfiler):
         # Process and label the data
         notification_str = "Calculating the statistics... "
         pool = None
-        if self.options.multiprocess.is_enabled:
+        if self.options.multiprocess.is_enabled and auto_multiprocess_toggle:
             pool, pool_size = utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"

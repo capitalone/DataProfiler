@@ -88,22 +88,46 @@ class TestStructuredProfiler(unittest.TestCase):
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
             )
 
-    @mock.patch("dataprofiler.profilers.profile_builder.len")
-    def test_auto_multiprocess_option(self, mock_len):
-        data = [[0]]
+    def test_auto_multiprocess_toggle(self, *mocks):
+        rows_threshold = 5
+        cols_threshold = 10
 
+        # Test for no multiprocessing for sufficiently small datasets
+        data = pd.DataFrame(np.random.random((2, 5)))
         profiler = dp.StructuredProfiler(data)
-        mock_len.return_value = 100
-        self.assertFalse(profiler.options.multiprocess.is_enabled)
-
+        self.assertFalse(
+            profiler._auto_multiprocess_toggle(data, rows_threshold, cols_threshold)
+        )
+        data = pd.DataFrame(np.random.random((5, 10)))
         profiler = dp.StructuredProfiler(data)
-        mock_len.return_value = 1e9
-        self.assertFalse(profiler.options.multiprocess.is_enabled)
+        self.assertFalse(
+            profiler._auto_multiprocess_toggle(data, rows_threshold, cols_threshold)
+        )
 
+        # Test for multiprocessing with only rows passing threshold
+        data = pd.DataFrame(np.random.random((6, 10)))
         profiler = dp.StructuredProfiler(data)
+        self.assertTrue(
+            profiler._auto_multiprocess_toggle(data, rows_threshold, cols_threshold)
+        )
 
-        mock_len.return_value = 10
-        self.assertTrue(profiler.options.multiprocess.is_enabled)
+        # Test for multiprocessing with only columns passing threshold
+        data = pd.DataFrame(np.random.random((5, 11)))
+        profiler = dp.StructuredProfiler(data)
+        self.assertTrue(
+            profiler._auto_multiprocess_toggle(data, rows_threshold, cols_threshold)
+        )
+
+        # Test for multiprocessing with both rows and columns passing threshold
+        data = pd.DataFrame(np.random.random((6, 11)))
+        profiler = dp.StructuredProfiler(data)
+        self.assertTrue(
+            profiler._auto_multiprocess_toggle(data, rows_threshold, cols_threshold)
+        )
+
+    @mock.patch("dataprofiler.profilers.profile_builder.StructuredProfiler._auto_mult")
+    def new_test_mock_function():
+        pass
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"

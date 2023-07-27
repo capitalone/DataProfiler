@@ -1,6 +1,7 @@
 """Class and functions to calculate and profile properties of graph data."""
 from __future__ import annotations
 
+import importlib
 import pickle
 from collections import defaultdict
 from datetime import datetime
@@ -10,9 +11,10 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import scipy.stats as st
+from packaging import version
 
 from ..data_readers.graph_data import GraphData
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import ProfilerOptions
 
@@ -116,34 +118,34 @@ class GraphProfiler:
             )
 
         diff_profile = {
-            "num_nodes": utils.find_diff_of_numbers(
+            "num_nodes": profiler_utils.find_diff_of_numbers(
                 self._num_nodes, other_profile._num_nodes
             ),
-            "num_edges": utils.find_diff_of_numbers(
+            "num_edges": profiler_utils.find_diff_of_numbers(
                 self._num_edges, other_profile._num_edges
             ),
-            "categorical_attributes": utils.find_diff_of_lists_and_sets(
+            "categorical_attributes": profiler_utils.find_diff_of_lists_and_sets(
                 self._categorical_attributes, other_profile._categorical_attributes
             ),
-            "continuous_attributes": utils.find_diff_of_lists_and_sets(
+            "continuous_attributes": profiler_utils.find_diff_of_lists_and_sets(
                 self._continuous_attributes, other_profile._continuous_attributes
             ),
-            "avg_node_degree": utils.find_diff_of_numbers(
+            "avg_node_degree": profiler_utils.find_diff_of_numbers(
                 self._avg_node_degree, other_profile._avg_node_degree
             ),
-            "global_max_component_size": utils.find_diff_of_numbers(
+            "global_max_component_size": profiler_utils.find_diff_of_numbers(
                 self._global_max_component_size,
                 other_profile._global_max_component_size,
             ),
-            "continuous_distribution": utils.find_diff_of_dicts_with_diff_keys(
+            "continuous_distribution": profiler_utils.find_diff_of_dicts_with_diff_keys(
                 self._continuous_distribution,
                 other_profile._continuous_distribution,
             ),
-            "categorical_distribution": utils.find_diff_of_dicts_with_diff_keys(
+            "categorical_distribution": profiler_utils.find_diff_of_dicts_with_diff_keys(  # noqa: E501
                 self._categorical_distribution,
                 other_profile._categorical_distribution,
             ),
-            "times": utils.find_diff_of_dicts(self.times, other_profile.times),
+            "times": profiler_utils.find_diff_of_dicts(self.times, other_profile.times),
         }
 
         return diff_profile
@@ -391,6 +393,11 @@ class GraphProfiler:
             st.lognorm,
             st.gamma,
         ]
+
+        scipy_gte_1_11_0 = version.parse(
+            importlib.metadata.version("scipy")
+        ) >= version.parse("1.11.0")
+
         for attribute in attributes:
             if attribute in continuous_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
@@ -401,7 +408,14 @@ class GraphProfiler:
 
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
-                    fit = distribution.fit(df)
+
+                    # scipy 1.11.0 updated the way they handle
+                    # the loc parameter in fit() for lognorm
+                    if distribution == st.lognorm and scipy_gte_1_11_0:
+                        fit = distribution.fit(df, superfit=True)
+
+                    else:
+                        fit = distribution.fit(df)
                     mle = distribution.nnlf(fit, df)
 
                     if mle <= best_mle:

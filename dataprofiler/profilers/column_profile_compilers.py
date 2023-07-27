@@ -8,7 +8,7 @@ from typing import Generic, TypeVar
 
 from pandas import Series
 
-from . import utils
+from . import profiler_utils
 from .categorical_column_profile import CategoricalColumn
 from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn
@@ -106,7 +106,7 @@ class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
                         df_series.name, options=profiler_options
                     )
                 except Exception as e:
-                    utils.warn_on_profile(profiler.type, e)
+                    profiler_utils.warn_on_profile(profiler.type, e)
 
         # Update profile after creation
         self.update_profile(df_series, pool)
@@ -338,7 +338,7 @@ class ColumnPrimitiveTypeProfileCompiler(
         if all_profiles:
             for key in all_profiles:
                 if key in self._profiles and key in other._profiles:
-                    diff = utils.find_diff_of_numbers(
+                    diff = profiler_utils.find_diff_of_numbers(
                         self._profiles[key].data_type_ratio,
                         other._profiles[key].data_type_ratio,
                     )
@@ -352,7 +352,7 @@ class ColumnPrimitiveTypeProfileCompiler(
         data_type1 = self.selected_data_type
         data_type2 = other.selected_data_type
         if data_type1 is not None or data_type2 is not None:
-            diff_profile["data_type"] = utils.find_diff_of_strings_and_bools(
+            diff_profile["data_type"] = profiler_utils.find_diff_of_strings_and_bools(
                 data_type1, data_type2
             )
             # Find diff of matching profile statistics

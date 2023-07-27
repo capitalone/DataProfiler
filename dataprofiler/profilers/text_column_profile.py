@@ -6,7 +6,7 @@ import itertools
 import numpy as np
 import pandas as pd
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import TextOptions
@@ -111,7 +111,9 @@ class TextColumn(
         differences = NumericStatsMixin.diff(self, other_profile, options)
 
         del differences["psi"]
-        vocab_diff = utils.find_diff_of_lists_and_sets(self.vocab, other_profile.vocab)
+        vocab_diff = profiler_utils.find_diff_of_lists_and_sets(
+            self.vocab, other_profile.vocab
+        )
         differences["vocab"] = vocab_diff
         return differences
 
@@ -149,7 +151,7 @@ class TextColumn(
         :return: None
         """
         data_flat = set(itertools.chain(*data))
-        self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
+        self.vocab = profiler_utils._combine_unique_sets(self.vocab, data_flat)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
         """

@@ -611,7 +611,7 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
 
 
 @mock.patch(
-    "dataprofiler.profilers.utils.DataLabeler",
+    "dataprofiler.profilers.profiler_utils.DataLabeler",
     spec=BaseDataLabeler,
 )
 @mock.patch(

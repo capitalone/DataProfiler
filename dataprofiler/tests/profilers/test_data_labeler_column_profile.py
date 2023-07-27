@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.labelers import BaseDataLabeler
-from dataprofiler.profilers import utils
+from dataprofiler.profilers import profiler_utils
 from dataprofiler.profilers.data_labeler_column_profile import DataLabelerColumn
 from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
@@ -376,7 +376,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
             diff = profiler1.diff(profiler2)
             expected_diff = {
-                "data_label": utils.find_diff_of_lists_and_sets(
+                "data_label": profiler_utils.find_diff_of_lists_and_sets(
                     ["a", "b", "c"], ["b", "c", "d"]
                 ),
                 "avg_predictions": {"a": "unchanged", "b": -0.70, "c": 0.70},
@@ -485,7 +485,9 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         self.assertEqual(expected, serialized)
 
-    @mock.patch("dataprofiler.profilers.utils.DataLabeler", spec=BaseDataLabeler)
+    @mock.patch(
+        "dataprofiler.profilers.profiler_utils.DataLabeler", spec=BaseDataLabeler
+    )
     def test_json_decode(self, mock_utils_DataLabeler, mock_BaseDataLabeler):
         self._setup_data_labeler_mock(mock_BaseDataLabeler)
         mock_utils_DataLabeler.load_from_library.side_effect = mock_BaseDataLabeler
@@ -526,7 +528,9 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             class_as_dict["data"]["data_labeler"] = {"from_disk": "test"}
             deserialized = load_column_profile(class_as_dict, config)
 
-    @mock.patch("dataprofiler.profilers.utils.DataLabeler", spec=BaseDataLabeler)
+    @mock.patch(
+        "dataprofiler.profilers.profiler_utils.DataLabeler", spec=BaseDataLabeler
+    )
     def test_json_decode_after_update(
         self, mock_utils_DataLabeler, mock_BaseDataLabeler
     ):

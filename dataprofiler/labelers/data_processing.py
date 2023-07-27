@@ -49,16 +49,14 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     def _register_subclass(cls) -> None:
         """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
-            cls._BaseDataProcessor__subclasses[  # type: ignore
-                cls.__name__.lower()
-            ] = cls
+            cls.__subclasses[cls.__name__.lower()] = cls
 
     @classmethod
-    def get_class(cls: type[Processor], class_name: str) -> type[Processor] | None:
+    def get_class(
+        cls: type[BaseDataProcessor], class_name: str
+    ) -> type[BaseDataProcessor] | None:
         """Get class of BaseDataProcessor object."""
-        return cls._BaseDataProcessor__subclasses.get(  # type: ignore
-            class_name.lower(), None
-        )
+        return cls.__subclasses.get(class_name.lower(), None)
 
     def __eq__(self, other: object) -> bool:
         """
@@ -129,7 +127,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             self._parameters[param] = kwargs[param]
 
     @abc.abstractmethod
-    def process(self, *args: Any) -> Any:
+    def process(self, *args: Any, **kwargs: Any) -> Any:
         """Process data."""
         raise NotImplementedError()
 
@@ -169,13 +167,15 @@ class BaseDataPreprocessor(BaseDataProcessor):
         super().__init__(**parameters)
 
     @abc.abstractmethod
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
         label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
-    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None] | tuple[
+        np.ndarray, np.ndarray
+    ] | np.ndarray:
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -191,7 +191,7 @@ class BaseDataPostprocessor(BaseDataProcessor):
         super().__init__(**parameters)
 
     @abc.abstractmethod
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -240,7 +240,7 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
         )
         print(help_str)
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -668,7 +668,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         if batch_data["samples"]:
             yield batch_data
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -735,8 +735,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             X_train = np.array(
                 [[sentence] for sentence in batch_data["samples"]], dtype=object
             )
-            if labels is not None:
-                num_classes = max(label_mapping.values()) + 1  # type: ignore
+            if labels is not None and label_mapping is not None:
+                num_classes = max(label_mapping.values()) + 1
 
                 Y_train = tf.keras.utils.to_categorical(
                     batch_data["labels"], num_classes
@@ -836,7 +836,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         if errors:
             raise ValueError("\n".join(errors))
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -1269,7 +1269,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
         return results
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -1439,7 +1439,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
         return text, entities
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         labels: np.ndarray | None = None,
@@ -1503,8 +1503,12 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
                 unstructured_label_set,
             ) = self.convert_to_unstructured_format(batch_data, batch_labels)
             unstructured_data[ind] = unstructured_text
-            if labels is not None:
-                unstructured_labels[ind] = unstructured_label_set  # type: ignore
+            if (
+                labels is not None
+                and unstructured_labels is not None
+                and unstructured_label_set is not None
+            ):
+                unstructured_labels[ind] = unstructured_label_set
 
         if labels is not None:
             np_unstruct_labels = np.array(unstructured_labels, dtype="object")
@@ -1800,7 +1804,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
         return results
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -2022,7 +2026,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                 pred, axis=1, ord=1, keepdims=True
             )
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -2160,7 +2164,7 @@ class StructRegexPostProcessor(
         ) as fp:
             json.dump(params, fp)
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,
@@ -2253,7 +2257,7 @@ class ColumnNameModelPostprocessor(
         )
         print(help_str)
 
-    def process(  # type: ignore
+    def process(
         self,
         data: np.ndarray,
         results: dict,

@@ -418,7 +418,7 @@ json_data = Data('https://github.com/capitalone/DataProfiler/blob/main/dataprofi
 ```
 
 If the file type is not automatically identified (rare), you can specify them
-specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-filetype-or-delimiter).
+specifically, see section [Specifying a Filetype or Delimiter](https://capitalone.github.io/DataProfiler/docs/0.10.1/html/profiler.html?highlight=filetype#specifying-a-filetype-or-delimiter).
 
 ### Profile a File
 

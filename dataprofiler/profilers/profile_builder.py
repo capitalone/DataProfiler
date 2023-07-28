@@ -2779,34 +2779,6 @@ class StructuredProfiler(BaseProfiler):
 
         return merged_properties
 
-    def _auto_multiprocess_toggle(
-        self,
-        data: pd.DataFrame,
-        num_rows_threshold: int = 750000,
-        num_cols_threshold: int = 20,
-    ) -> bool:
-        """
-        Automate multiprocessing toggle depending on dataset sizes.
-
-        :param data: a dataset
-        :type data: pandas.DataFrame
-        :param num_rows_threshold: threshold for number of rows over
-            which options.multiprocess is enabled
-        :type num_rows_threshold: int
-        :param num_cols_threshold: threshold for number of columns
-            over which options.multiprocess is enabled
-        :type num_cols_threshold: int
-        :return: recommended option.multiprocess.is_enabled value
-        :rtype: bool
-        """
-        # If the number of rows or columns exceed their respective threshold,
-        # we want to turn on multiprocessing
-        if data.shape[0] > num_rows_threshold or data.shape[1] > num_cols_threshold:
-            return True
-        # Otherwise, we do not turn on multiprocessing
-        else:
-            return False
-
     def _update_profile_from_chunk(
         self,
         data: list | pd.Series | pd.DataFrame,
@@ -2832,7 +2804,7 @@ class StructuredProfiler(BaseProfiler):
         # If options.multiprocess is enabled, auto-toggle multiprocessing
         auto_multiprocess_toggle = None
         if self.options.multiprocess.is_enabled:
-            auto_multiprocess_toggle = self._auto_multiprocess_toggle(data, 750000, 20)
+            auto_multiprocess_toggle = profiler_utils.auto_multiprocess_toggle(data)
 
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)

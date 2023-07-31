@@ -477,7 +477,7 @@ class TestAutoMultiProcessToggle(unittest.TestCase):
     Validate profile_utils.auto_multiprocess_toggle is properly working.
     """
 
-    def test_auto_multiprocess_toggle(self, *mocks):
+    def test_auto_multiprocess_toggle(self):
         rows_threshold = 5
         cols_threshold = 10
 

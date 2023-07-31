@@ -177,6 +177,34 @@ def partition(data: list, chunk_size: int) -> Generator[list, None, Any]:
         yield data[idx : idx + chunk_size]
 
 
+def auto_multiprocess_toggle(
+    data: DataFrame,
+    num_rows_threshold: int = 750000,
+    num_cols_threshold: int = 20,
+) -> bool:
+    """
+    Automate multiprocessing toggle depending on dataset sizes.
+
+    :param data: a dataset
+    :type data: pandas.DataFrame
+    :param num_rows_threshold: threshold for number of rows over
+        which options.multiprocess is enabled
+    :type num_rows_threshold: int
+    :param num_cols_threshold: threshold for number of columns
+        over which options.multiprocess is enabled
+    :type num_cols_threshold: int
+    :return: recommended option.multiprocess.is_enabled value
+    :rtype: bool
+    """
+    # If the number of rows or columns exceed their respective threshold,
+    # we want to turn on multiprocessing
+    if data.shape[0] > num_rows_threshold or data.shape[1] > num_cols_threshold:
+        return True
+    # Otherwise, we do not turn on multiprocessing
+    else:
+        return False
+
+
 def suggest_pool_size(data_size: int = None, cols: int = None) -> int | None:
     """
     Suggest the pool size based on resources.

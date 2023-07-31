@@ -469,3 +469,52 @@ class TestProfileDistributedMerge(unittest.TestCase):
 
         self.assertEqual(1, single_report["data_stats"][0]["statistics"]["min"])
         self.assertEqual(60.0, single_report["data_stats"][0]["statistics"]["max"])
+
+
+class TestAutoMultiProcessToggle(unittest.TestCase):
+
+    """
+    Validate profile_utils.auto_multiprocess_toggle is properly working.
+    """
+
+    def test_auto_multiprocess_toggle(self, *mocks):
+        rows_threshold = 5
+        cols_threshold = 10
+
+        # Test for no multiprocessing for sufficiently small datasets
+        data = pd.DataFrame(np.random.random((2, 5)))
+        self.assertFalse(
+            profiler_utils.auto_multiprocess_toggle(
+                data, rows_threshold, cols_threshold
+            )
+        )
+        data = pd.DataFrame(np.random.random((5, 10)))
+        self.assertFalse(
+            profiler_utils.auto_multiprocess_toggle(
+                data, rows_threshold, cols_threshold
+            )
+        )
+
+        # Test for multiprocessing with only rows passing threshold
+        data = pd.DataFrame(np.random.random((6, 10)))
+        self.assertTrue(
+            profiler_utils.auto_multiprocess_toggle(
+                data, rows_threshold, cols_threshold
+            )
+        )
+
+        # Test for multiprocessing with only columns passing threshold
+        data = pd.DataFrame(np.random.random((5, 11)))
+        self.assertTrue(
+            profiler_utils.auto_multiprocess_toggle(
+                data, rows_threshold, cols_threshold
+            )
+        )
+
+        # Test for multiprocessing with both rows and columns passing threshold
+        data = pd.DataFrame(np.random.random((6, 11)))
+        self.assertTrue(
+            profiler_utils.auto_multiprocess_toggle(
+                data, rows_threshold, cols_threshold
+            )
+        )

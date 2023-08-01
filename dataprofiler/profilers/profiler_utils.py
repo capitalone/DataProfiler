@@ -187,11 +187,11 @@ def auto_multiprocess_toggle(
 
     :param data: a dataset
     :type data: pandas.DataFrame
-    :param num_rows_threshold: threshold for number of rows over
-        which options.multiprocess is enabled
+    :param num_rows_threshold: threshold for number of rows to
+        use multiprocessors
     :type num_rows_threshold: int
     :param num_cols_threshold: threshold for number of columns
-        over which options.multiprocess is enabled
+        to use multiprocessors
     :type num_cols_threshold: int
     :return: recommended option.multiprocess.is_enabled value
     :rtype: bool

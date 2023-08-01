@@ -2801,11 +2801,6 @@ class StructuredProfiler(BaseProfiler):
         elif isinstance(data, list):
             data = pd.DataFrame(data, dtype=object)
 
-        # If options.multiprocess is enabled, auto-toggle multiprocessing
-        auto_multiprocess_toggle = None
-        if self.options.multiprocess.is_enabled:
-            auto_multiprocess_toggle = profiler_utils.auto_multiprocess_toggle(data)
-
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)
         for col_idx in range(len(data.columns)):
@@ -2871,6 +2866,11 @@ class StructuredProfiler(BaseProfiler):
                         options=self.options,
                     )
                 )
+
+        # If options.multiprocess is enabled, auto-toggle multiprocessing
+        auto_multiprocess_toggle = False
+        if self.options.multiprocess.is_enabled:
+            auto_multiprocess_toggle = profiler_utils.auto_multiprocess_toggle(data)
 
         # Generate pool and estimate datasize
         pool = None

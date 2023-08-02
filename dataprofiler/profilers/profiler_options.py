@@ -227,8 +227,7 @@ class HistogramAndQuantilesOption(BooleanOption["HistogramAndQuantilesOption"]):
         :ivar bin_count_or_method: bin count or the method with which to
             calculate histograms
         :vartype bin_count_or_method: Union[str, int, list(str)]
-        :ivar num_quantiles: boolean option to enable/disable num_quantiles
-            and set the number of quantiles
+        :ivar num_quantiles: number of quantiles
         :vartype num_quantiles: int
         """
         self.bin_count_or_method = bin_count_or_method

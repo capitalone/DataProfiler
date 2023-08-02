@@ -420,7 +420,6 @@ class TestNumericStatsMixin(unittest.TestCase):
         )
         expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
         expected_profile.quantiles = None
-
         expected_profile._stored_histogram["histogram"] = {
             "bin_counts": None,
             "bin_edges": None,

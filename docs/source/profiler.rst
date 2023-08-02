@@ -718,7 +718,7 @@ Below is an breakdown of all the options.
           methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
           Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
         * num_quantiles - (Int) Number of quantiles to bin the data. 
-          Default value is set to 1000 quantiles.
+          Default value is set to 1,000 quantiles.
         * is_enabled - (Boolean) Enables or disables histogram and quantiles
     * **float** - Options for the float columns
 
@@ -775,7 +775,7 @@ Below is an breakdown of all the options.
           methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
           Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
         * num_quantiles - (Int) Number of quantiles to bin the data. 
-          Default value is set to 1000 quantiles.
+          Default value is set to 1,000 quantiles.
         * is_enabled - (Boolean) Enables or disables histogram and quantiles        
     * **text** - Options for the text columns
 
@@ -830,7 +830,7 @@ Below is an breakdown of all the options.
           methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
           Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
         * num_quantiles - (Int) Number of quantiles to bin the data. 
-          Default value is set to 1000 quantiles.
+          Default value is set to 1,000 quantiles.
         * is_enabled - (Boolean) Enables or disables histogram and quantiles  
     * **datetime** - Options for the datetime columns
 

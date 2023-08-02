@@ -210,13 +210,14 @@ class BooleanOption(BaseOption[BooleanOptionT]):
         return errors
 
 
-class HistogramOption(BooleanOption["HistogramOption"]):
+class HistogramAndQuantilesOption(BooleanOption["HistogramAndQuantilesOption"]):
     """For setting histogram options."""
 
     def __init__(
         self,
         is_enabled: bool = True,
         bin_count_or_method: str | int | list[str] = "auto",
+        num_quantiles: int = 1000,
     ) -> None:
         """
         Initialize Options for histograms.
@@ -226,11 +227,17 @@ class HistogramOption(BooleanOption["HistogramOption"]):
         :ivar bin_count_or_method: bin count or the method with which to
             calculate histograms
         :vartype bin_count_or_method: Union[str, int, list(str)]
+        :ivar num_quantiles: boolean option to enable/disable num_quantiles
+            and set the number of quantiles
+        :vartype num_quantiles: int
         """
         self.bin_count_or_method = bin_count_or_method
+        self.num_quantiles = num_quantiles
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path: str = "HistogramOption") -> list[str]:
+    def _validate_helper(
+        self, variable_path: str = "HistogramAndQuantilesOption"
+    ) -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -260,6 +267,12 @@ class HistogramOption(BooleanOption["HistogramOption"]):
                     "than 1, a string, or list of strings from the "
                     "following: {}.".format(variable_path, valid_methods)
                 )
+
+        if self.num_quantiles is not None and (
+            not isinstance(self.num_quantiles, int) or self.num_quantiles < 1
+        ):
+            errors.append(f"{variable_path}.num_quantiles must be a positive integer.")
+
         return errors
 
 
@@ -396,7 +409,9 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
         self.median_abs_deviation: BooleanOption = BooleanOption(is_enabled=True)
         self.num_zeros: BooleanOption = BooleanOption(is_enabled=True)
         self.num_negatives: BooleanOption = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles: HistogramOption = HistogramOption()
+        self.histogram_and_quantiles: HistogramAndQuantilesOption = (
+            HistogramAndQuantilesOption()
+        )
         # By default, we correct for bias
         self.bias_correction: BooleanOption = BooleanOption(is_enabled=True)
         BaseInspectorOptions.__init__(self)

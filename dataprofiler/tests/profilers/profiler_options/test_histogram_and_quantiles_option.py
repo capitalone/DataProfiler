@@ -178,8 +178,8 @@ class TestHistogramAndQuantilesOption(TestBooleanOption):
             ),
         ]
 
-        # # this code can be abstracted to limit code everywhere else
-        # # AKA, for loop below could be abstracted to a utils func
+        # this code can be abstracted to limit code everywhere else
+        # AKA, for loop below could be abstracted to a utils func
 
         # Default configuration is valid
         option = self.get_options()

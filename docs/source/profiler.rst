@@ -662,7 +662,8 @@ Below is an breakdown of all the options.
 
   * **structured_options** - Options responsible for all structured data
 
-    * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
+    * **multiprocess** - Option to enable multiprocessing. If on, multiprocessing is automatically toggled depending on the number of rows and columns in the dataset.         
+      Automatically selects the optimal number of processes to utilize based on system constraints when toggled on.
 
       * is_enabled - (Boolean) Enables or disables multiprocessing
 

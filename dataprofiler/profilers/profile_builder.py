@@ -2867,9 +2867,14 @@ class StructuredProfiler(BaseProfiler):
                     )
                 )
 
+        # If options.multiprocess is enabled, auto-toggle multiprocessing
+        auto_multiprocess_toggle = False
+        if self.options.multiprocess.is_enabled:
+            auto_multiprocess_toggle = profiler_utils.auto_multiprocess_toggle(data)
+
         # Generate pool and estimate datasize
         pool = None
-        if self.options.multiprocess.is_enabled:
+        if auto_multiprocess_toggle:
             est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
             est_data_size = (est_data_size / min(50000, len(data))) * len(data)
             pool, pool_size = profiler_utils.generate_pool(
@@ -2990,7 +2995,7 @@ class StructuredProfiler(BaseProfiler):
         # Process and label the data
         notification_str = "Calculating the statistics... "
         pool = None
-        if self.options.multiprocess.is_enabled:
+        if auto_multiprocess_toggle:
             pool, pool_size = profiler_utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"

@@ -8,7 +8,7 @@ A copy of the license for numpy is available here:
 https://github.com/numpy/numpy/blob/main/LICENSE.txt
 """
 import operator
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.lib.histograms import (  # type: ignore[attr-defined]
@@ -348,3 +348,114 @@ def _calculate_bins_from_profile(profile, bin_method):
             # the IQR of the data is zero.
             n_equal_bins = 1
     return n_equal_bins
+
+
+def _assimilate_histogram(
+    from_hist_entity_count_per_bin: np.ndarray,
+    from_hist_bin_edges: np.ndarray,
+    dest_hist_entity_count_per_bin: np.ndarray,
+    dest_hist_bin_edges: np.ndarray,
+    dest_hist_num_bin: int,
+    is_float_profile: bool,
+) -> tuple[dict[str, np.ndarray[Any, Any]], float]:
+    """
+    Assimilates a histogram into another histogram using specifications.
+
+    :param from_hist_entity_count_per_bin: the breakdown of number of entities
+        within a given histogram bin (to be assimilated)
+    :type from_hist_entity_count_per_bin: List[float]
+    :param from_hist_bin_edges: List of value ranges for histogram bins
+        (to be assimilated)
+    :type from_hist_bin_edges: List[Tuple[float]]
+    :param from_hist_entity_count_per_bin: the breakdown of number of
+        entities within a given histogram bin (assimilated to)
+    :type dest_hist_entity_count_per_bin: List[float]
+    :param dest_hist_bin_edges: List of value ranges for histogram bins
+        (assimilated to)
+    :type dest_hist_bin_edges: List[Tuple[float]]
+    :param dest_hist_num_bin: The number of bins desired for histogram
+    :type dest_hist_num_bin: int
+    :param is_float_profile: Whether values in bins are floats
+    :type is_float_profile: bool
+    :return: Tuple containing dictionary of histogram info and histogram loss
+    """
+    # allocate bin_counts
+    new_bin_id = 0
+    hist_loss = 0
+    for bin_id, bin_count in enumerate(from_hist_entity_count_per_bin):
+        if not bin_count:  # if nothing in bin, nothing to add
+            continue
+
+        bin_edge = from_hist_bin_edges[bin_id : bin_id + 3]
+
+        # if we know not float, we can assume values in bins are integers.
+        if not is_float_profile:
+            bin_edge = np.round(bin_edge)
+
+        # loop until we have a new bin which contains the current bin.
+        while (
+            bin_edge[0] >= dest_hist_bin_edges[new_bin_id + 1]
+            and new_bin_id < dest_hist_num_bin - 1
+        ):
+            new_bin_id += 1
+
+        new_bin_edge = dest_hist_bin_edges[new_bin_id : new_bin_id + 3]
+
+        # find where the current bin falls within the new bins
+        is_last_bin = new_bin_id == dest_hist_num_bin - 1
+        if bin_edge[1] < new_bin_edge[1] or is_last_bin:
+            # current bin is within the new bin
+            dest_hist_entity_count_per_bin[new_bin_id] += bin_count
+            hist_loss += (
+                ((new_bin_edge[1] + new_bin_edge[0]) - (bin_edge[1] + bin_edge[0])) / 2
+            ) ** 2 * bin_count
+        elif bin_edge[0] < new_bin_edge[1]:
+            # current bin straddles two of the new bins
+            # get the percentage of bin that falls to the left
+            percentage_in_left_bin = (new_bin_edge[1] - bin_edge[0]) / (
+                bin_edge[1] - bin_edge[0]
+            )
+            count_in_left_bin = round(bin_count * percentage_in_left_bin)
+            dest_hist_entity_count_per_bin[new_bin_id] += count_in_left_bin
+            hist_loss += (
+                ((new_bin_edge[1] + new_bin_edge[0]) - (bin_edge[1] + bin_edge[0])) / 2
+            ) ** 2 * count_in_left_bin
+
+            # allocate leftovers to the right bin
+            dest_hist_entity_count_per_bin[new_bin_id + 1] += (
+                bin_count - count_in_left_bin
+            )
+            hist_loss += (
+                ((new_bin_edge[2] + new_bin_edge[1]) - (bin_edge[1] + bin_edge[0])) / 2
+            ) ** 2 * (bin_count - count_in_left_bin)
+
+            # increment bin id to the right bin
+            new_bin_id += 1
+    return (
+        {
+            "bin_edges": dest_hist_bin_edges,
+            "bin_counts": dest_hist_entity_count_per_bin,
+        },
+        hist_loss,
+    )
+
+
+def _regenerate_histogram(
+    entity_count_per_bin, bin_edges, suggested_bin_count, is_float_profile, options=None
+) -> tuple[dict[str, np.ndarray], float]:
+
+    # create proper binning
+    new_bin_counts = np.zeros((suggested_bin_count,))
+    new_bin_edges = np.linspace(bin_edges[0], bin_edges[-1], suggested_bin_count + 1)
+    if options:
+        new_bin_edges = np.linspace(
+            options["min_edge"], options["max_edge"], suggested_bin_count + 1
+        )
+    return _assimilate_histogram(
+        from_hist_entity_count_per_bin=entity_count_per_bin,
+        from_hist_bin_edges=bin_edges,
+        dest_hist_entity_count_per_bin=new_bin_counts,
+        dest_hist_bin_edges=new_bin_edges,
+        dest_hist_num_bin=suggested_bin_count,
+        is_float_profile=is_float_profile,
+    )

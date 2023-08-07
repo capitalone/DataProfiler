@@ -11,7 +11,7 @@ from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.column_profile_compilers import BaseCompiler
 from dataprofiler.profilers.profile_builder import BaseProfiler, StructuredColProfiler
 from dataprofiler.profilers.profiler_options import BaseOption
-from dataprofiler.profilers.utils import find_diff_of_dicts
+from dataprofiler.profilers.profiler_utils import find_diff_of_dicts
 from dataprofiler.tests.test_utils import patched_assert_warns
 
 

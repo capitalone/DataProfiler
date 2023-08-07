@@ -9,7 +9,7 @@ from pandas import DataFrame, Series
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import DataLabelerOptions
 
@@ -325,7 +325,7 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
 
         data_labeler_load_attr = data.pop("data_labeler")
         if data_labeler_load_attr:
-            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+            data_labeler_object = profiler_utils.reload_labeler_from_options_or_get_new(
                 data_labeler_load_attr, config
             )
             if data_labeler_object is not None:
@@ -379,9 +379,13 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         other_label_rep = other_profile.label_representation
 
         differences = {
-            "data_label": utils.find_diff_of_lists_and_sets(self_labels, other_labels),
-            "avg_predictions": utils.find_diff_of_dicts(avg_preds, other_avg_preds),
-            "label_representation": utils.find_diff_of_dicts(
+            "data_label": profiler_utils.find_diff_of_lists_and_sets(
+                self_labels, other_labels
+            ),
+            "avg_predictions": profiler_utils.find_diff_of_dicts(
+                avg_preds, other_avg_preds
+            ),
+            "label_representation": profiler_utils.find_diff_of_dicts(
                 label_rep, other_label_rep
             ),
         }

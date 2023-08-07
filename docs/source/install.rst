@@ -28,7 +28,7 @@ MacOS with homebrew:
 
 .. code-block:: console
 
-    brew install snappy
+    brew install snappy && CPPFLAGS="-I/usr/local/include -L/usr/local/lib" pip install python-snappy
 
 
 Linux install:

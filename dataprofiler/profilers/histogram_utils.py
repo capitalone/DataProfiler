@@ -356,7 +356,6 @@ def _assimilate_histogram(
     dest_hist_entity_count_per_bin: np.ndarray,
     dest_hist_bin_edges: np.ndarray,
     dest_hist_num_bin: int,
-    is_float_profile: bool,
 ) -> tuple[dict[str, np.ndarray[Any, Any]], float]:
     """
     Assimilates a histogram into another histogram using specifications.
@@ -375,8 +374,6 @@ def _assimilate_histogram(
     :type dest_hist_bin_edges: List[Tuple[float]]
     :param dest_hist_num_bin: The number of bins desired for histogram
     :type dest_hist_num_bin: int
-    :param is_float_profile: Whether values in bins are floats
-    :type is_float_profile: bool
     :return: Tuple containing dictionary of histogram info and histogram loss
     """
     # allocate bin_counts
@@ -387,10 +384,6 @@ def _assimilate_histogram(
             continue
 
         bin_edge = from_hist_bin_edges[bin_id : bin_id + 3]
-
-        # if we know not float, we can assume values in bins are integers.
-        if not is_float_profile:
-            bin_edge = np.round(bin_edge)
 
         # loop until we have a new bin which contains the current bin.
         while (
@@ -441,7 +434,7 @@ def _assimilate_histogram(
 
 
 def _regenerate_histogram(
-    entity_count_per_bin, bin_edges, suggested_bin_count, is_float_profile, options=None
+    entity_count_per_bin, bin_edges, suggested_bin_count, options=None
 ) -> tuple[dict[str, np.ndarray], float]:
 
     # create proper binning
@@ -457,5 +450,4 @@ def _regenerate_histogram(
         dest_hist_entity_count_per_bin=new_bin_counts,
         dest_hist_bin_edges=new_bin_edges,
         dest_hist_num_bin=suggested_bin_count,
-        is_float_profile=is_float_profile,
     )

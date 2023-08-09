@@ -234,7 +234,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             dest_hist_entity_count_per_bin=new_entity_count_by_bin,
             dest_hist_bin_edges=ideal_bin_edges,
             dest_hist_num_bin=ideal_count_of_bins,
-            is_float_profile=self.__class__.__name__ == "FloatColumn",
         )
 
         # Ensure loss is calculated on second run of regenerate
@@ -246,7 +245,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             dest_hist_entity_count_per_bin=new_entity_count_by_bin,
             dest_hist_bin_edges=ideal_bin_edges,
             dest_hist_num_bin=ideal_count_of_bins,
-            is_float_profile=self.__class__.__name__ == "FloatColumn",
         )
 
         aggregate_histogram_loss = hist_loss1 + hist_loss2
@@ -712,7 +710,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                     entity_count_per_bin=self_histogram["bin_counts"],
                     bin_edges=self_histogram["bin_edges"],
                     suggested_bin_count=num_psi_bins,
-                    is_float_profile=self.__class__.__name__ == "FloatColumn",
                     options={
                         "min_edge": min_min_edge,
                         "max_edge": max_max_edge,
@@ -734,7 +731,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                     entity_count_per_bin=other_histogram["bin_counts"],
                     bin_edges=other_histogram["bin_edges"],
                     suggested_bin_count=num_psi_bins,
-                    is_float_profile=self.__class__.__name__ == "FloatColumn",
                     options={
                         "min_edge": min_min_edge,
                         "max_edge": max_max_edge,
@@ -1404,7 +1400,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             entity_count_per_bin=bin_counts,
             bin_edges=bin_edges,
             suggested_bin_count=suggested_bin_count,
-            is_float_profile=self.__class__.__name__ == "FloatColumn",
         )
 
     def _get_best_histogram_for_profile(self) -> dict:

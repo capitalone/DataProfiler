@@ -8,7 +8,7 @@ A copy of the license for numpy is available here:
 https://github.com/numpy/numpy/blob/main/LICENSE.txt
 """
 import operator
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.lib.histograms import (  # type: ignore[attr-defined]
@@ -356,7 +356,7 @@ def _assimilate_histogram(
     dest_hist_entity_count_per_bin: np.ndarray,
     dest_hist_bin_edges: np.ndarray,
     dest_hist_num_bin: int,
-) -> tuple[dict[str, np.ndarray[Any, Any]], float]:
+) -> Tuple[Dict[str, np.ndarray[Any, Any]], float]:
     """
     Assimilates a histogram into another histogram using specifications.
 
@@ -435,7 +435,7 @@ def _assimilate_histogram(
 
 def _regenerate_histogram(
     entity_count_per_bin, bin_edges, suggested_bin_count, options=None
-) -> tuple[dict[str, np.ndarray], float]:
+) -> Tuple[Dict[str, np.ndarray], float]:
 
     # create proper binning
     new_bin_counts = np.zeros((suggested_bin_count,))

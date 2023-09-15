@@ -24,11 +24,18 @@ Snappy Installation
 
 This is required to profile parquet/avro datasets
 
-MacOS with homebrew:
+MacOS (intel chip) with homebrew:
 
 .. code-block:: console
 
     brew install snappy && CPPFLAGS="-I/usr/local/include -L/usr/local/lib" pip install python-snappy
+
+
+MacOS (apple chip) with homebrew:
+
+.. code-block:: console
+
+    brew install snappy && CPPFLAGS="-I/opt/homebrew/include -L/opt/homebrew/lib" pip install python-snappy
 
 
 Linux install:

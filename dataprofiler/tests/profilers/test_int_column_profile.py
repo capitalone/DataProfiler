@@ -37,6 +37,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
         self.assertIsNone(profiler.quantiles)
+        self.assertEqual(profiler._num_quantiles, 1000)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):

@@ -7,7 +7,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from . import utils
+from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import FloatOptions
@@ -137,7 +137,7 @@ class FloatColumn(
         other_precision = other_profile.profile["precision"]
         precision_diff = dict()
         for key in self.profile["precision"].keys():
-            precision_diff[key] = utils.find_diff_of_numbers(
+            precision_diff[key] = profiler_utils.find_diff_of_numbers(
                 self.profile["precision"][key], other_precision[key]
             )
         precision_diff.pop("confidence_level")
@@ -306,7 +306,7 @@ class FloatColumn(
         # length of sampled cells after all punctuation removed
         len_per_float = (
             df_series_clean.sample(sample_size).replace(to_replace=r, value="").map(len)
-        )
+        ).astype(float)
 
         # Determine statistics precision
         precision_sum = len_per_float.sum()
@@ -338,7 +338,7 @@ class FloatColumn(
         """
         if len(df_series) == 0:
             return list()
-        return df_series.map(NumericStatsMixin.is_float)
+        return df_series.map(NumericStatsMixin.is_float).astype("bool")
 
     @BaseColumnProfiler._timeit(name="precision")
     def _update_precision(

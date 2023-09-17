@@ -9,7 +9,7 @@ import warnings
 from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from . import utils
+from . import profiler_utils
 from .json_decoder import load_option
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
@@ -210,13 +210,14 @@ class BooleanOption(BaseOption[BooleanOptionT]):
         return errors
 
 
-class HistogramOption(BooleanOption["HistogramOption"]):
+class HistogramAndQuantilesOption(BooleanOption["HistogramAndQuantilesOption"]):
     """For setting histogram options."""
 
     def __init__(
         self,
         is_enabled: bool = True,
         bin_count_or_method: str | int | list[str] = "auto",
+        num_quantiles: int = 1000,
     ) -> None:
         """
         Initialize Options for histograms.
@@ -226,11 +227,16 @@ class HistogramOption(BooleanOption["HistogramOption"]):
         :ivar bin_count_or_method: bin count or the method with which to
             calculate histograms
         :vartype bin_count_or_method: Union[str, int, list(str)]
+        :ivar num_quantiles: number of quantiles
+        :vartype num_quantiles: int
         """
         self.bin_count_or_method = bin_count_or_method
+        self.num_quantiles = num_quantiles
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path: str = "HistogramOption") -> list[str]:
+    def _validate_helper(
+        self, variable_path: str = "HistogramAndQuantilesOption"
+    ) -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -260,6 +266,12 @@ class HistogramOption(BooleanOption["HistogramOption"]):
                     "than 1, a string, or list of strings from the "
                     "following: {}.".format(variable_path, valid_methods)
                 )
+
+        if self.num_quantiles is not None and (
+            not isinstance(self.num_quantiles, int) or self.num_quantiles < 1
+        ):
+            errors.append(f"{variable_path}.num_quantiles must be a positive integer.")
+
         return errors
 
 
@@ -396,7 +408,9 @@ class NumericalOptions(BaseInspectorOptions[NumericalOptionsT]):
         self.median_abs_deviation: BooleanOption = BooleanOption(is_enabled=True)
         self.num_zeros: BooleanOption = BooleanOption(is_enabled=True)
         self.num_negatives: BooleanOption = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles: HistogramOption = HistogramOption()
+        self.histogram_and_quantiles: HistogramAndQuantilesOption = (
+            HistogramAndQuantilesOption()
+        )
         # By default, we correct for bias
         self.bias_correction: BooleanOption = BooleanOption(is_enabled=True)
         BaseInspectorOptions.__init__(self)
@@ -1308,7 +1322,7 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         data_labeler_object = None
         data_labeler_load_attr = data.pop("data_labeler_object", {})
         if data_labeler_load_attr:
-            data_labeler_object = utils.reload_labeler_from_options_or_get_new(
+            data_labeler_object = profiler_utils.reload_labeler_from_options_or_get_new(
                 data_labeler_load_attr, config
             )
             if data_labeler_object:

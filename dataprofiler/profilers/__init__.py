@@ -28,7 +28,7 @@ from .profiler_options import (
     DataLabelerOptions,
     DateTimeOptions,
     FloatOptions,
-    HistogramOption,
+    HistogramAndQuantilesOption,
     HyperLogLogOptions,
     IntOptions,
     ModeOption,
@@ -66,7 +66,8 @@ json_decoder._compilers = {
 
 json_decoder._options = {
     BooleanOption.__name__: BooleanOption,
-    HistogramOption.__name__: HistogramOption,
+    "HistogramOption": HistogramAndQuantilesOption,
+    HistogramAndQuantilesOption.__name__: HistogramAndQuantilesOption,
     ModeOption.__name__: ModeOption,
     BaseInspectorOptions.__name__: BaseInspectorOptions,
     NumericalOptions.__name__: NumericalOptions,

@@ -196,7 +196,7 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         self.assertDictEqual(expected, json.loads(serialized))
 
     @mock.patch(
-        "dataprofiler.profilers.utils.DataLabeler",
+        "dataprofiler.profilers.profiler_utils.DataLabeler",
         spec=BaseDataLabeler,
     )
     def test_json_decode(self, mock_BaseDataLabeler):

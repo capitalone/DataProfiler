@@ -1,5 +1,4 @@
 import json
-import math
 import os
 import unittest
 from collections import defaultdict
@@ -766,15 +765,9 @@ class TestCategoricalColumn(unittest.TestCase):
         profile2 = CategoricalColumn(df_categorical.name)
         profile2.update(df_categorical)
 
-        # Calculate expected_psi
-        expected_psi = 0
-        bin_perc = [4 / 8, 3 / 8, 1 / 8]
-        bin_perc_2 = [3 / 7, 2 / 7, 2 / 7]
-        for perc_A, perc_B in zip(bin_perc, bin_perc_2):
-            expected_psi += (perc_B - perc_A) * math.log(perc_B / perc_A)
-
         # chi2-statistic = sum((observed-expected)^2/expected for each category in each column)
         # df = categories - 1
+        # psi = (% of records based on Sample (A) - % of records  Sample (B)) * ln(A/ B)
         # p-value found through using chi2 CDF
         expected_diff = {
             "categorical": "unchanged",
@@ -789,7 +782,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "categories": "unchanged",
                 "gini_impurity": -0.059311224489795866,
                 "unalikeability": -0.08333333333333326,
-                "psi": expected_psi,
+                "psi": 0.16814961527477595,
                 "categorical_count": {"y": 1, "n": 1, "maybe": -1},
             },
         }

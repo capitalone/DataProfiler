@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import unittest
 from collections import defaultdict
@@ -753,6 +754,44 @@ class TestCategoricalColumn(unittest.TestCase):
         expected_diff = {
             "categorical": [True, False],
             "statistics": {"unique_count": -10, "unique_ratio": -0.7142857142857143},
+        }
+        self.assertDictEqual(expected_diff, profile.diff(profile2))
+
+        # Test diff with psi enabled
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n", "maybe"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+
+        df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+        profile2 = CategoricalColumn(df_categorical.name)
+        profile2.update(df_categorical)
+
+        # Calculate expected_psi
+        expected_psi = 0
+        bin_perc = [4 / 8, 3 / 8, 1 / 8]
+        bin_perc_2 = [3 / 7, 2 / 7, 2 / 7]
+        for perc_A, perc_B in zip(bin_perc, bin_perc_2):
+            expected_psi += (perc_B - perc_A) * math.log(perc_B / perc_A)
+
+        # chi2-statistic = sum((observed-expected)^2/expected for each category in each column)
+        # df = categories - 1
+        # p-value found through using chi2 CDF
+        expected_diff = {
+            "categorical": "unchanged",
+            "statistics": {
+                "unique_count": "unchanged",
+                "unique_ratio": -0.05357142857142855,
+                "chi2-test": {
+                    "chi2-statistic": 0.6122448979591839,
+                    "df": 2,
+                    "p-value": 0.7362964551863367,
+                },
+                "categories": "unchanged",
+                "gini_impurity": -0.059311224489795866,
+                "unalikeability": -0.08333333333333326,
+                "psi": expected_psi,
+                "categorical_count": {"y": 1, "n": 1, "maybe": -1},
+            },
         }
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 

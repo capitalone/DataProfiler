@@ -726,14 +726,12 @@ class TestCategoricalColumn(unittest.TestCase):
                     "df": 2,
                     "p-value": 0.3099238764710244,
                 },
-                "psi": 0,
             },
         }
         with self.assertWarnsRegex(
             RuntimeWarning,
             "psi was not calculated due to the differences in categories "
-            "of the profiles. Differences:\n{'maybe'}\n"
-            "defaulting psi value to 0...",
+            "of the profiles. Differences:\n{'maybe'}",
         ):
             test_profile_diff = profile.diff(profile2)
         self.assertDictEqual(expected_diff, test_profile_diff)

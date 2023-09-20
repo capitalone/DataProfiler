@@ -728,8 +728,13 @@ class TestCategoricalColumn(unittest.TestCase):
                 },
             },
         }
-
-        self.assertDictEqual(expected_diff, profile.diff(profile2))
+        with self.assertWarnsRegex(
+            RuntimeWarning,
+            "psi was not calculated due to the differences in categories "
+            "of the profiles. Differences:\n{'maybe'}",
+        ):
+            test_profile_diff = profile.diff(profile2)
+        self.assertDictEqual(expected_diff, test_profile_diff)
 
         # Test with one categorical column matching
         df_not_categorical = pd.Series(
@@ -753,6 +758,38 @@ class TestCategoricalColumn(unittest.TestCase):
         expected_diff = {
             "categorical": [True, False],
             "statistics": {"unique_count": -10, "unique_ratio": -0.7142857142857143},
+        }
+        self.assertDictEqual(expected_diff, profile.diff(profile2))
+
+        # Test diff with psi enabled
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n", "maybe"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+
+        df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+        profile2 = CategoricalColumn(df_categorical.name)
+        profile2.update(df_categorical)
+
+        # chi2-statistic = sum((observed-expected)^2/expected for each category in each column)
+        # df = categories - 1
+        # psi = (% of records based on Sample (A) - % of records  Sample (B)) * ln(A/ B)
+        # p-value found through using chi2 CDF
+        expected_diff = {
+            "categorical": "unchanged",
+            "statistics": {
+                "unique_count": "unchanged",
+                "unique_ratio": -0.05357142857142855,
+                "chi2-test": {
+                    "chi2-statistic": 0.6122448979591839,
+                    "df": 2,
+                    "p-value": 0.7362964551863367,
+                },
+                "categories": "unchanged",
+                "gini_impurity": -0.059311224489795866,
+                "unalikeability": -0.08333333333333326,
+                "psi": 0.16814961527477595,
+                "categorical_count": {"y": 1, "n": 1, "maybe": -1},
+            },
         }
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 

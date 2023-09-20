@@ -1,6 +1,8 @@
 """Contains class for categorical column profiler."""
 from __future__ import annotations
 
+import math
+import warnings
 from collections import defaultdict
 from operator import itemgetter
 from typing import cast
@@ -304,6 +306,20 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                     other_profile._categories.items(), key=itemgetter(1), reverse=True
                 )
             )
+            if cat_count1.keys() == cat_count2.keys():
+                total_psi = 0.0
+                for key in cat_count1.keys():
+                    perc_A = cat_count1[key] / self.sample_size
+                    perc_B = cat_count2[key] / other_profile.sample_size
+                    total_psi += (perc_B - perc_A) * math.log(perc_B / perc_A)
+                    differences["statistics"]["psi"] = total_psi
+            else:
+                warnings.warn(
+                    "psi was not calculated due to the differences in categories "
+                    "of the profiles. Differences:\n"
+                    f"{set(cat_count1.keys()) ^ set(cat_count2.keys())}",
+                    RuntimeWarning,
+                )
 
             differences["statistics"][
                 "categorical_count"

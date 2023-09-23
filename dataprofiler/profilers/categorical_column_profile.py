@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import math
-import warnings
 from collections import defaultdict
 from operator import itemgetter
 from typing import cast
@@ -306,24 +305,24 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                     other_profile._categories.items(), key=itemgetter(1), reverse=True
                 )
             )
-            if cat_count1.keys() == cat_count2.keys():
-                total_psi = 0.0
-                for key in cat_count1.keys():
-                    perc_A = cat_count1[key] / self.sample_size
-                    perc_B = cat_count2[key] / other_profile.sample_size
-                    total_psi += (perc_B - perc_A) * math.log(perc_B / perc_A)
-                    differences["statistics"]["psi"] = total_psi
-            else:
-                warnings.warn(
-                    "psi was not calculated due to the differences in categories "
-                    "of the profiles. Differences:\n"
-                    f"{set(cat_count1.keys()) ^ set(cat_count2.keys())}",
-                    RuntimeWarning,
-                )
+            self_cat_count, other_cat_count = self._preprocess_for_categorical_psi_calculation(
+                self_cat_count=cat_count1,
+                other_cat_count=cat_count2,
+            )
+
+            total_psi = 0.0
+            for iter_key in self_cat_count.keys():
+                percent_self = self_cat_count[iter_key] / self.sample_size
+                percent_other = other_cat_count[iter_key] / other_profile.sample_size
+                try:
+                    total_psi += (percent_other - percent_self) * math.log(percent_other / percent_self)
+                except Exception:
+                    total_psi += 0.0
+                differences["statistics"]["psi"] = total_psi
 
             differences["statistics"][
                 "categorical_count"
-            ] = profiler_utils.find_diff_of_dicts(cat_count1, cat_count2)
+            ] = profiler_utils.find_diff_of_dicts(self_cat_count, other_cat_count)
 
         return differences
 
@@ -430,6 +429,16 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         ):
             is_match = True
         return is_match
+
+    def _preprocess_for_categorical_psi_calculation(self, self_cat_count, other_cat_count):
+        super_set_categories = set(self_cat_count.keys()) | set(other_cat_count.keys())
+        for iter_key in super_set_categories:
+            for iter_dictionary in [self_cat_count, other_cat_count]:
+                try:
+                    iter_dictionary[iter_key] = iter_dictionary[iter_key]
+                except KeyError:
+                    iter_dictionary[iter_key] = 0
+        return self_cat_count, other_cat_count
 
     def _check_stop_condition_is_met(self, sample_size: int, unqiue_ratio: float):
         """Return boolean given stop conditions.

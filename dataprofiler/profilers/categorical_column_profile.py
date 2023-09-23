@@ -9,9 +9,12 @@ from typing import cast
 import datasketches
 from pandas import DataFrame, Series
 
+from .. import dp_logging
 from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
+
+logger = dp_logging.get_child_logger(__name__)
 
 
 class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
@@ -439,6 +442,15 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self, self_cat_count, other_cat_count
     ):
         super_set_categories = set(self_cat_count.keys()) | set(other_cat_count.keys())
+        if (super_set_categories != self_cat_count.keys()) or (
+            super_set_categories != other_cat_count.keys()
+        ):
+            logger.info(
+                f"""PSI data pre-processing found that categories between
+                    the profiles were not equal. Both profiles not contain
+                    the following categories {super_set_categories}."""
+            )
+
         for iter_key in super_set_categories:
             for iter_dictionary in [self_cat_count, other_cat_count]:
                 try:

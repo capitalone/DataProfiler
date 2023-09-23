@@ -317,12 +317,12 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             for iter_key in self_cat_count.keys():
                 percent_self = self_cat_count[iter_key] / self.sample_size
                 percent_other = other_cat_count[iter_key] / other_profile.sample_size
-                try:
+                if (percent_other == 0) or (percent_self == 0):
+                    total_psi += 0.0
+                else:
                     total_psi += (percent_other - percent_self) * math.log(
                         percent_other / percent_self
                     )
-                except Exception:
-                    total_psi += 0.0
                 differences["statistics"]["psi"] = total_psi
 
             differences["statistics"][

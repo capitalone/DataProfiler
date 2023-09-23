@@ -305,7 +305,10 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                     other_profile._categories.items(), key=itemgetter(1), reverse=True
                 )
             )
-            self_cat_count, other_cat_count = self._preprocess_for_categorical_psi_calculation(
+            (
+                self_cat_count,
+                other_cat_count,
+            ) = self._preprocess_for_categorical_psi_calculation(
                 self_cat_count=cat_count1,
                 other_cat_count=cat_count2,
             )
@@ -315,7 +318,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 percent_self = self_cat_count[iter_key] / self.sample_size
                 percent_other = other_cat_count[iter_key] / other_profile.sample_size
                 try:
-                    total_psi += (percent_other - percent_self) * math.log(percent_other / percent_self)
+                    total_psi += (percent_other - percent_self) * math.log(
+                        percent_other / percent_self
+                    )
                 except Exception:
                     total_psi += 0.0
                 differences["statistics"]["psi"] = total_psi
@@ -430,7 +435,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             is_match = True
         return is_match
 
-    def _preprocess_for_categorical_psi_calculation(self, self_cat_count, other_cat_count):
+    def _preprocess_for_categorical_psi_calculation(
+        self, self_cat_count, other_cat_count
+    ):
         super_set_categories = set(self_cat_count.keys()) | set(other_cat_count.keys())
         for iter_key in super_set_categories:
             for iter_dictionary in [self_cat_count, other_cat_count]:

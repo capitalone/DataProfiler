@@ -506,7 +506,7 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
                     "df": 2,
                     "p-value": 0.3499377491111554,
                 },
-                "psi": 0.009815252971365292
+                "psi": 0.009815252971365292,
             },
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))

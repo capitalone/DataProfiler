@@ -447,7 +447,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         ):
             logger.info(
                 f"""PSI data pre-processing found that categories between
-                    the profiles were not equal. Both profiles not contain
+                    the profiles were not equal. Both profiles do not contain
                     the following categories {super_set_categories}."""
             )
 

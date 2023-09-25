@@ -701,6 +701,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile.gini_impurity, None)
 
     def test_categorical_diff(self):
+        # test psi new category in another profile
         df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
@@ -720,21 +721,17 @@ class TestCategoricalColumn(unittest.TestCase):
                 "categories": [[], ["y", "n"], ["maybe"]],
                 "gini_impurity": -0.16326530612244894,
                 "unalikeability": -0.19047619047619047,
-                "categorical_count": {"y": 1, "n": 1, "maybe": [None, 2]},
+                "categorical_count": {"y": 1, "n": 1, "maybe": -2},
                 "chi2-test": {
                     "chi2-statistic": 82 / 35,
                     "df": 2,
                     "p-value": 0.3099238764710244,
                 },
+                "psi": 0.0990210257942779,
             },
         }
-        with self.assertWarnsRegex(
-            RuntimeWarning,
-            "psi was not calculated due to the differences in categories "
-            "of the profiles. Differences:\n{'maybe'}",
-        ):
-            test_profile_diff = profile.diff(profile2)
-        self.assertDictEqual(expected_diff, test_profile_diff)
+        actual_diff = profile.diff(profile2)
+        self.assertDictEqual(expected_diff, actual_diff)
 
         # Test with one categorical column matching
         df_not_categorical = pd.Series(
@@ -770,10 +767,6 @@ class TestCategoricalColumn(unittest.TestCase):
         profile2 = CategoricalColumn(df_categorical.name)
         profile2.update(df_categorical)
 
-        # chi2-statistic = sum((observed-expected)^2/expected for each category in each column)
-        # df = categories - 1
-        # psi = (% of records based on Sample (A) - % of records  Sample (B)) * ln(A/ B)
-        # p-value found through using chi2 CDF
         expected_diff = {
             "categorical": "unchanged",
             "statistics": {

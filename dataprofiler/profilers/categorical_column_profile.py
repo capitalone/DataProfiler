@@ -440,9 +440,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self, self_cat_count, other_cat_count
     ):
         super_set_categories = set(self_cat_count.keys()) | set(other_cat_count.keys())
-        if (super_set_categories != self_cat_count.keys()) or (
-            super_set_categories != other_cat_count.keys()
-        ):
+        if self_cat_count.keys() != other_cat_count.keys():
             logger.info(
                 f"""PSI data pre-processing found that categories between
                     the profiles were not equal. Both profiles do not contain

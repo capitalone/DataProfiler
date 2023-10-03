@@ -404,7 +404,9 @@ class GraphProfiler:
                 df = pd.Series(data_as_list)
                 best_fit: str = None  # type: ignore[assignment]
                 best_mle: float = 1000
-                best_fit_properties: tuple = None  # type: ignore[assignment]
+                best_fit_attributes: tuple = None  # type: ignore[assignment]
+                best_fit_loc: float = None
+                best_fit_scale: float = None
 
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
@@ -422,21 +424,29 @@ class GraphProfiler:
                         best_distrib = distribution
                         best_fit = distribution.name
                         best_mle = mle
-                        best_fit_properties = fit
-
-                mean, variance, skew, kurtosis = best_distrib.stats(
-                    best_fit_properties, moments="mvsk"
-                )
+                        best_fit_attributes = fit[:-2]
+                        best_fit_scale = fit[-1]
+                        best_fit_loc = fit[-2]
+                if best_fit_attributes:
+                    mean, variance, skew, kurtosis = [moment.item() for moment in best_distrib.stats(
+                        best_fit_attributes, scale=best_fit_scale, loc=best_fit_loc, moments="mvsk"
+                    )]
+                else: 
+                    mean, variance, skew, kurtosis = best_distrib.stats(
+                        scale=best_fit_scale, loc=best_fit_loc, moments="mvsk"
+                    )
                 properties: dict[str, list[np.ndarray]] = {
-                    "best_fit_properties": list(best_fit_properties),
-                    "mean": list(mean),
-                    "variance": list(variance),
-                    "skew": list(skew),
-                    "kurtosis": list(kurtosis),
+                    "best_fit_attributes": list(best_fit_attributes),
+                    "mean": mean,
+                    "variance": variance,
+                    "skew": skew,
+                    "kurtosis": kurtosis,
                 }
                 continuous_distributions[attribute] = {
                     "name": best_fit,
                     "scale": best_mle,
+                    "mean": best_fit_loc,
+                    "standard_deviation": best_fit_scale,
                     "properties": properties,
                 }
             else:

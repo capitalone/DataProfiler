@@ -94,6 +94,7 @@ class StructuredColProfiler:
         self.sample_size: int = 0
         self.sample: list[str] = list()
         self.null_count: int = 0
+        self.null_ratio: float | None = None
         self.null_types: list[str] = list()
         self.null_types_index: dict = {}
         self._min_id: int | None = None
@@ -292,6 +293,9 @@ class StructuredColProfiler:
                 "null_count": profiler_utils.find_diff_of_numbers(
                     self.null_count, other_profile.null_count
                 ),
+                "null_ratio": profiler_utils.find_diff_of_numbers(
+                    self.null_ratio, other_profile.null_ratio
+                ),
                 "null_types": profiler_utils.find_diff_of_lists_and_sets(
                     self.null_types, other_profile.null_types
                 ),
@@ -428,6 +432,7 @@ class StructuredColProfiler:
         self._last_batch_size = base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
+        self.null_ratio = base_stats["null_count"] / base_stats["sample_size"]
         self.null_types = profiler_utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
@@ -570,6 +575,7 @@ class StructuredColProfiler:
                 {
                     "sample_size": 0,
                     "null_count": 0,
+                    "null_ratio": None,
                     "null_types": dict(),
                     "sample": [],
                     "min_id": None,
@@ -658,6 +664,7 @@ class StructuredColProfiler:
         base_stats = {
             "sample_size": total_sample_size,
             "null_count": total_na,
+            "null_ratio": total_na / total_sample_size,
             "null_types": na_columns,
             "sample": rng.choice(
                 list(df_series.values), (min(len(df_series), 5),), replace=False

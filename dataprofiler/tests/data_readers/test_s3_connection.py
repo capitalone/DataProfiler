@@ -1,7 +1,5 @@
 import unittest
-from unittest.mock import patch, Mock
-
-from botocore.exceptions import NoCredentialsError
+from unittest.mock import patch
 
 from dataprofiler.data_readers.data_utils import create_s3_client
 
@@ -9,8 +7,8 @@ from dataprofiler.data_readers.data_utils import create_s3_client
 class TestCreateS3Client(unittest.TestCase):
     @patch('boto3.client')
     def test_create_s3_client_with_credentials(self, mock_boto3_client):
-        aws_access_key_id = 'YOUR_ACCESS_KEY'
-        aws_secret_access_key = 'YOUR_SECRET_KEY'
+        aws_access_key_id = '<YOUR_ACCESS_KEY>'
+        aws_secret_access_key = '<YOUR_SECRET_KEY>'
         region_name = 'us-west-1'
 
         create_s3_client(
@@ -28,8 +26,8 @@ class TestCreateS3Client(unittest.TestCase):
         )
 
     @patch('boto3.client')
-    @patch('os.environ', {'AWS_ACCESS_KEY_ID': 'YOUR_ACCESS_KEY',
-                          'AWS_SECRET_ACCESS_KEY': 'YOUR_SECRET_KEY'})
+    @patch('os.environ', {'AWS_ACCESS_KEY_ID': '<YOUR_ACCESS_KEY>',
+                          'AWS_SECRET_ACCESS_KEY': '<YOUR_SECRET_KEY>'})
     def test_create_s3_client_with_environment_variables(self, mock_boto3_client):
         region_name = 'us-west-1'
 
@@ -37,8 +35,8 @@ class TestCreateS3Client(unittest.TestCase):
 
         mock_boto3_client.assert_called_with(
             's3',
-            aws_access_key_id='YOUR_ACCESS_KEY',
-            aws_secret_access_key='YOUR_SECRET_KEY',
+            aws_access_key_id='<YOUR_ACCESS_KEY>',
+            aws_secret_access_key='<YOUR_SECRET_KEY>',
             aws_session_token=None,
             region_name=region_name
         )
@@ -61,8 +59,8 @@ class TestCreateS3Client(unittest.TestCase):
     @patch('botocore.exceptions.NoCredentialsError', Exception)
     def test_create_s3_client_with_iam_role_fallback_to_credentials(self,
                                                                     mock_boto3_client):
-        aws_access_key_id = 'YOUR_ACCESS_KEY'
-        aws_secret_access_key = 'YOUR_SECRET_KEY'
+        aws_access_key_id = '<YOUR_ACCESS_KEY>'
+        aws_secret_access_key = '<YOUR_SECRET_KEY>'
         region_name = 'us-west-1'
 
         create_s3_client(

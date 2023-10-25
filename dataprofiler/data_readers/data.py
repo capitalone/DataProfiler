@@ -72,9 +72,8 @@ class Data:
 
         if is_valid_url(input_file_path):
             if is_s3_uri(input_file_path):
-                if not options.get("storage_options"):
-                    raise ValueError("storage_options must be a dict, not NoneType")
-                s3 = create_s3_client(**options.pop("storage_options"))
+                storage_options = options.pop("storage_options", {})
+                s3 = create_s3_client(**storage_options)
                 input_file_path = s3_uri_to_bytes(s3_uri=input_file_path, s3_client=s3)
             else:
                 input_file_path = url_to_bytes(input_file_path, options)

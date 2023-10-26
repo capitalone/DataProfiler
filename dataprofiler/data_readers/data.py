@@ -6,7 +6,13 @@ from typing import Any, Dict, List, Optional, Union
 from .. import dp_logging
 from .avro_data import AVROData
 from .csv_data import CSVData
-from .data_utils import is_valid_url, url_to_bytes
+from .data_utils import (
+    create_s3_client,
+    is_s3_uri,
+    is_valid_url,
+    s3_uri_to_bytes,
+    url_to_bytes,
+)
 from .graph_data import GraphData
 from .json_data import JSONData
 from .parquet_data import ParquetData
@@ -65,7 +71,12 @@ class Data:
             options = dict()
 
         if is_valid_url(input_file_path):
-            input_file_path = url_to_bytes(input_file_path, options)
+            if is_s3_uri(input_file_path):
+                storage_options = options.pop("storage_options", {})
+                s3 = create_s3_client(**storage_options)
+                input_file_path = s3_uri_to_bytes(s3_uri=input_file_path, s3_client=s3)
+            else:
+                input_file_path = url_to_bytes(input_file_path, options)
 
         for data_class_info in cls.data_classes:
             data_class = data_class_info["data_class"]

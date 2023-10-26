@@ -134,3 +134,6 @@ venv.bak/
 env3/
 
 *.bak
+
+#Pipfiles
+Pipfile*

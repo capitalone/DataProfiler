@@ -1,5 +1,6 @@
 """Contains functions for data readers."""
 import json
+import os
 import re
 import urllib
 from collections import OrderedDict
@@ -19,6 +20,8 @@ from typing import (
     cast,
 )
 
+import boto3
+import botocore
 import dateutil
 import pandas as pd
 import pyarrow.parquet as pq
@@ -843,3 +846,93 @@ def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
 
     stream.seek(0)
     return stream
+
+
+def is_s3_uri(path: str) -> bool:
+    """
+    Check if the given path is an S3 URI. This function checks for common S3 URI prefixes "s3://" and "s3a://".
+
+    Args:
+        path (str): The path to check for an S3 URI.
+
+    Returns:
+        bool: True if the path is an S3 URI, False otherwise.
+    """
+    # Define the S3 URI prefixes to check
+    s3_uri_prefixes = ["s3://", "s3a://"]
+    path = path.strip()
+    # Check if the path starts with any of the specified prefixes
+    return any(path.startswith(prefix) for prefix in s3_uri_prefixes)
+
+
+def create_s3_client(
+    aws_access_key_id: Optional[str] = None,
+    aws_secret_access_key: Optional[str] = None,
+    aws_session_token: Optional[str] = None,
+    region_name: Optional[str] = None
+) -> boto3.client:
+    """
+    Create and return an S3 client with the provided credentials or IAM roles
+    associated with the pod's service account.
+
+    Args:
+        aws_access_key_id (str): The AWS access key ID.
+        aws_secret_access_key (str): The AWS secret access key.
+        aws_session_token (str): The AWS session token (optional, typically used for temporary credentials).
+        region_name (str): The AWS region name (default is 'us-east-1').
+
+    Returns:
+        boto3.client: A S3 client instance.
+    """
+    # Check if credentials are not provided and use environment variables as fallback
+    if aws_access_key_id is None:
+        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+    if aws_secret_access_key is None:
+        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    if aws_session_token is None:
+        aws_session_token = os.environ.get('AWS_SESSION_TOKEN')
+
+    # Check if region is not provided and use environment variable as fallback
+    if region_name is None:
+        region_name = os.environ.get('AWS_REGION', 'us-east-1')
+
+    # Check if IAM roles for service accounts are available
+    try:
+        s3 = boto3.client('s3',
+                          aws_access_key_id=aws_access_key_id,
+                          aws_secret_access_key=aws_secret_access_key,
+                          aws_session_token=aws_session_token,
+                          region_name=region_name
+                          )
+    except botocore.exceptions.NoCredentialsError:
+        # IAM roles are not available, so fall back to provided credentials
+        if aws_access_key_id is None or aws_secret_access_key is None:
+            raise ValueError("AWS access key ID and secret access key are required.")
+        s3 = boto3.client('s3',
+                          aws_access_key_id=aws_access_key_id,
+                          aws_secret_access_key=aws_secret_access_key,
+                          aws_session_token=aws_session_token,
+                          region_name=region_name
+                          )
+
+    return s3
+
+
+def s3_uri_to_bytes(s3_uri: str, s3_client: boto3.client) -> BytesIO:
+    """ Download an object from an S3 URI and return its content as BytesIO.
+
+    Args:
+        s3_uri (str): The S3 URI specifying the location of the object to download.
+        s3_client (boto3.client): An initialized AWS S3 client for accessing the S3 service.
+
+    Returns:
+        BytesIO: A BytesIO object containing the content of the downloaded S3 object.
+    """
+    # Parse the S3 URI
+    parsed_uri = urllib.parse.urlsplit(s3_uri)
+    bucket_name = parsed_uri.netloc
+    file_key = parsed_uri.path.lstrip("/")
+    # Download the S3 object
+    response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+    # Return the object's content as BytesIO
+    return BytesIO(response['Body'].read())

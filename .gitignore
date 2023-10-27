@@ -137,3 +137,6 @@ env3/
 
 #Pipfiles
 Pipfile*
+
+#vscode-settings
+.vscode/

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from dataprofiler.data_readers.data_utils import create_s3_client
+from dataprofiler.data_readers.data_utils import S3Helper
 
 
 class TestCreateS3Client(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestCreateS3Client(unittest.TestCase):
         aws_secret_access_key = "<YOUR_SECRET_KEY>"
         region_name = "us-west-1"
 
-        create_s3_client(
+        S3Helper.create_s3_client(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
             region_name=region_name,
@@ -36,7 +36,7 @@ class TestCreateS3Client(unittest.TestCase):
     def test_create_s3_client_with_environment_variables(self, mock_boto3_client):
         region_name = "us-west-1"
 
-        create_s3_client(region_name=region_name)
+        S3Helper.create_s3_client(region_name=region_name)
 
         mock_boto3_client.assert_called_with(
             "s3",
@@ -51,7 +51,7 @@ class TestCreateS3Client(unittest.TestCase):
     def test_create_s3_client_with_iam_role_and_region_from_environment_variable(
         self, mock_boto3_client
     ):
-        create_s3_client()
+        S3Helper.create_s3_client()
 
         mock_boto3_client.assert_called_with(
             "s3",
@@ -70,7 +70,7 @@ class TestCreateS3Client(unittest.TestCase):
         aws_secret_access_key = "<YOUR_SECRET_KEY>"
         region_name = "us-west-1"
 
-        create_s3_client(
+        S3Helper.create_s3_client(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
             region_name=region_name,
@@ -86,10 +86,11 @@ class TestCreateS3Client(unittest.TestCase):
 
     @patch("boto3.client")
     def test_create_s3_client_with_iam_role(self, mock_boto3_client):
-        # Simulate a scenario where IAM roles are available, and no credentials are provided
+        # Simulate a scenario where IAM roles are available,
+        # and no credentials are provided
         region_name = "us-west-1"
 
-        create_s3_client(region_name=region_name)
+        S3Helper.create_s3_client(region_name=region_name)
 
         mock_boto3_client.assert_called_with(
             "s3",

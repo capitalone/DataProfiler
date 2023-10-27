@@ -210,14 +210,14 @@ Below is the structured difference report:
                 'stddev': float,
                 't-test': {
                     't-statistic': float,
-                    'conservative': {'df': int,
+                    'conservative': {'deg_of_free': int,
                                      'p-value': float},
-                    'welch': {'df': float,
+                    'welch': {'deg_of_free': float,
                               'p-value': float}},
                 'psi': float,
                 "chi2-test": {
                     "chi2-statistic": float,
-                    "df": int,
+                    "deg_of_free": int,
                     "p-value": float
                 },
                 'unique_count': int,

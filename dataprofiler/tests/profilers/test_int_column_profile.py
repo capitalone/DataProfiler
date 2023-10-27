@@ -1062,8 +1062,8 @@ class TestIntColumn(unittest.TestCase):
             "median_absolute_deviation": -5,
             "t-test": {
                 "t-statistic": -0.5638091828819275,
-                "conservative": {"df": 1.0, "p-value": 0.6731699660830497},
-                "welch": {"df": 1.0547717074524683, "p-value": 0.6691886269547123},
+                "conservative": {"deg_of_free": 1.0, "p-value": 0.6731699660830497},
+                "welch": {"deg_of_free": 1.0547717074524683, "p-value": 0.6691886269547123},
             },
             "psi": 0.0675775180180274,
         }

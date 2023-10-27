@@ -2153,7 +2153,7 @@ class TestStructuredProfiler(unittest.TestCase):
         diff = profile1.diff(profile2)
         expected_chi2_test_dict = {
             "chi2-statistic": 2.342857142857143,
-            "df": 2,
+            "deg_of_free": 2,
             "p-value": 0.3099238764710244,
         }
         self.assertDictEqual(

@@ -589,8 +589,8 @@ class TestTextColumnProfiler(unittest.TestCase):
             ),
             "t-test": {
                 "t-statistic": -1.9339958714826413,
-                "conservative": {"df": 8.0, "p-value": 0.08916903961929257},
-                "welch": {"df": 15.761400272034564, "p-value": 0.07127621949432528},
+                "conservative": {"deg_of_free": 8.0, "p-value": 0.08916903961929257},
+                "welch": {"deg_of_free": 15.761400272034564, "p-value": 0.07127621949432528},
             },
         }
 

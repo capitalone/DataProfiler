@@ -611,8 +611,8 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     ) -> dict:
         results: dict = {
             "t-statistic": None,
-            "conservative": {"df": None, "p-value": None},
-            "welch": {"df": None, "p-value": None},
+            "conservative": {"deg_of_free": None, "p-value": None},
+            "welch": {"deg_of_free": None, "p-value": None},
         }
 
         invalid_stats = False
@@ -647,17 +647,17 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         s_delta = var1 / n1 + var2 / n2
         t = (mean1 - mean2) / np.sqrt(s_delta)
-        conservative_df = min(n1, n2) - 1
-        welch_df = s_delta**2 / (
+        conservative_deg_of_free = min(n1, n2) - 1
+        welch_deg_of_free = s_delta**2 / (
             (var1 / n1) ** 2 / (n1 - 1) + (var2 / n2) ** 2 / (n2 - 1)
         )
         results["t-statistic"] = t
-        results["conservative"]["df"] = float(conservative_df)
-        results["welch"]["df"] = float(welch_df)
+        results["conservative"]["deg_of_free"] = float(conservative_deg_of_free)
+        results["welch"]["deg_of_free"] = float(welch_deg_of_free)
 
-        conservative_t = scipy.stats.t(conservative_df)
+        conservative_t = scipy.stats.t(conservative_deg_of_free)
         conservative_p_val = (1 - conservative_t.cdf(abs(t))) * 2
-        welch_t = scipy.stats.t(welch_df)
+        welch_t = scipy.stats.t(welch_deg_of_free)
         welch_p_val = (1 - welch_t.cdf(abs(t))) * 2
 
         results["conservative"]["p-value"] = float(conservative_p_val)

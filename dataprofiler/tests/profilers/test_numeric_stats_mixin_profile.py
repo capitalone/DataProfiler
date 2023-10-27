@@ -869,7 +869,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             "t-test": {
                 "t-statistic": 0.3923009049186606,
                 "conservative": {"deg_of_free": 9, "p-value": 0.7039643545772609},
-                "welch": {"deg_of_free": 25.945257024943864, "p-value": 0.6980401261750298},
+                "welch": {
+                    "deg_of_free": 25.945257024943864,
+                    "p-value": 0.6980401261750298,
+                },
             },
             "psi": None,
         }
@@ -1057,7 +1060,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             "t-test": {
                 "t-statistic": -3.138407239349285,
                 "conservative": {"deg_of_free": 9, "p-value": 0.011958658754358975},
-                "welch": {"deg_of_free": 25.945257024943864, "p-value": 0.004201616692122823},
+                "welch": {
+                    "deg_of_free": 25.945257024943864,
+                    "p-value": 0.004201616692122823,
+                },
             },
             "psi": None,
         }

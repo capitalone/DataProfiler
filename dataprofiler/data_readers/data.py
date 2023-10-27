@@ -68,7 +68,7 @@ class Data:
             if S3Helper.is_s3_uri(input_file_path):
                 storage_options = options.pop("storage_options", {})
                 s3 = S3Helper.create_s3_client(**storage_options)
-                input_file_path = S3Helper.s3_uri_to_bytes(
+                input_file_path = S3Helper.get_s3_uri(
                     s3_uri=input_file_path, s3_client=s3
                 )
             else:

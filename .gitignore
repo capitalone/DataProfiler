@@ -14,7 +14,7 @@ dataprofiler/labelers/embeddings/glove-reduced-64D.txt
 
 .cache/
 .idea/
-.vscode
+.vscode*
 *.pyc
 *.pkl
 *.whl
@@ -137,6 +137,3 @@ env3/
 
 #Pipfiles
 Pipfile*
-
-#vscode-settings
-.vscode/

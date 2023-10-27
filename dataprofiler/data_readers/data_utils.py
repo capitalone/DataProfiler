@@ -854,19 +854,6 @@ class S3Helper:
 
     This class provides methods to check if a path is an S3 URI
         and to create an S3 client.
-
-    Attributes:
-        None
-
-    Methods:
-        is_s3_uri(path: str) -> bool: Check if the given path is an S3 URI.
-        create_s3_client(aws_access_key_id: Optional[str] = None,
-                        aws_secret_access_key: Optional[str] = None,
-                        aws_session_token: Optional[str] = None,
-                        region_name: Optional[str] = None) -> boto3.client:
-            Create and return an S3 client.
-        s3_uri_to_bytes(s3_uri: str, s3_client: boto3.client) -> BytesIO:
-            Download an object from an S3 URI and return its content as BytesIO.
     """
 
     @staticmethod
@@ -889,7 +876,7 @@ class S3Helper:
         is_s3 = any(path.startswith(prefix) for prefix in s3_uri_prefixes)
 
         if not is_s3:
-            logger.info(f"'{path}' is not a valid S3 URI")
+            logger.debug(f"'{path}' is not a valid S3 URI")
 
         return is_s3
 
@@ -959,7 +946,7 @@ class S3Helper:
         return s3
 
     @staticmethod
-    def s3_uri_to_bytes(s3_uri: str, s3_client: boto3.client) -> BytesIO:
+    def get_s3_uri(s3_uri: str, s3_client: boto3.client) -> BytesIO:
         """
         Download an object from an S3 URI and return its content as BytesIO.
 

@@ -417,7 +417,6 @@ class GraphProfiler:
                     else:
                         fit = distribution.fit(df)
                     mle = distribution.nnlf(fit, df)
-
                     if mle <= best_mle:
                         best_distrib = distribution
                         best_fit = distribution.name

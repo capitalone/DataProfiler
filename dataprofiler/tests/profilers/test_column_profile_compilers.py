@@ -230,8 +230,11 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
                 "stddev": 3.285085839971525,
                 "t-test": {
                     "t-statistic": 0.4155260166386663,
-                    "conservative": {"df": 1.0, "p-value": 0.749287157907667},
-                    "welch": {"df": 3.6288111187629117, "p-value": 0.7011367179395704},
+                    "conservative": {"deg_of_free": 1.0, "p-value": 0.749287157907667},
+                    "welch": {
+                        "deg_of_free": 3.6288111187629117,
+                        "p-value": 0.7011367179395704,
+                    },
                 },
                 "psi": 0.17328679513998632,
             },
@@ -322,8 +325,14 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
                 },
                 "t-test": {
                     "t-statistic": -1.9674775073518591,
-                    "conservative": {"df": 1.0, "p-value": 0.29936264581081673},
-                    "welch": {"df": 1.0673824509440946, "p-value": 0.28696889329266506},
+                    "conservative": {
+                        "deg_of_free": 1.0,
+                        "p-value": 0.29936264581081673,
+                    },
+                    "welch": {
+                        "deg_of_free": 1.0673824509440946,
+                        "p-value": 0.28696889329266506,
+                    },
                 },
                 "psi": 0,
             },
@@ -503,7 +512,7 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
                 "categorical_count": {"9": -1, "1": 1, "10": -1},
                 "chi2-test": {
                     "chi2-statistic": 2.1,
-                    "df": 2,
+                    "deg_of_free": 2,
                     "p-value": 0.3499377491111554,
                 },
                 "psi": 0.009815252971365292,

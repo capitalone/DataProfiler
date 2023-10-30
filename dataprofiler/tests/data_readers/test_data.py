@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 
 from dataprofiler.data_readers.data import Data
+from dataprofiler.data_readers.text_data import TextData
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -170,6 +171,8 @@ class TestDataReadFromURL(unittest.TestCase):
         },
     )
     def test_read_s3_uri(self, mock_boto3_client):
+        region_name = "us-east-1"
+
         # Create a custom mock response
         custom_response = {"Body": MagicMock()}
         custom_response["Body"].read.return_value = b"Test S3 content"
@@ -177,6 +180,16 @@ class TestDataReadFromURL(unittest.TestCase):
         # Mock the behavior of the S3 client to return the custom response
         mock_boto3_client.return_value.get_object.return_value = custom_response
         data_obj = Data("s3a://my-bucket/my_file.txt")
+
+        self.assertEqual(type(data_obj), TextData)
+
+        mock_boto3_client.assert_called_with(
+            "s3",
+            aws_access_key_id="<YOUR_ACCESS_KEY>",
+            aws_secret_access_key="<YOUR_SECRET_KEY>",
+            aws_session_token=None,
+            region_name=region_name,
+        )
 
 
 if __name__ == "__main__":

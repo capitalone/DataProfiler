@@ -65,7 +65,7 @@ class Data:
             options = dict()
 
         if is_valid_url(input_file_path):
-            if S3Helper.is_s3_uri(input_file_path):
+            if S3Helper.is_s3_uri(input_file_path, logger=logger):
                 storage_options = options.pop("storage_options", {})
                 s3 = S3Helper.create_s3_client(**storage_options)
                 input_file_path = S3Helper.get_s3_uri(

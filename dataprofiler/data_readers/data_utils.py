@@ -1,5 +1,6 @@
 """Contains functions for data readers."""
 import json
+import logging
 import os
 import re
 import urllib
@@ -857,7 +858,7 @@ class S3Helper:
     """
 
     @staticmethod
-    def is_s3_uri(path: str) -> bool:
+    def is_s3_uri(path: str, logger: logging.Logger) -> bool:
         """
         Check if the given path is an S3 URI.
 
@@ -865,6 +866,7 @@ class S3Helper:
 
         Args:
             path (str): The path to check for an S3 URI.
+            logger (logging.Logger): The logger instance for logging.
 
         Returns:
             bool: True if the path is an S3 URI, False otherwise.
@@ -874,7 +876,6 @@ class S3Helper:
         path = path.strip()
         # Check if the path starts with any of the specified prefixes
         is_s3 = any(path.startswith(prefix) for prefix in s3_uri_prefixes)
-
         if not is_s3:
             logger.debug(f"'{path}' is not a valid S3 URI")
 

@@ -2,6 +2,7 @@ import os
 import unittest
 from itertools import islice
 
+from dataprofiler import dp_logging
 from dataprofiler.data_readers import data_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -32,9 +33,8 @@ class TestDataReadingWriting(unittest.TestCase):
             dict(path=os.path.join(test_dir, "csv/reddit_wsb.csv"), encoding="utf-8"),
         ]
 
-        get_match_acc = lambda s, s2: sum([s[i] == s2[i] for i in range(len(s))]) / len(
-            s
-        )
+        def get_match_acc(s, s2):
+            return sum([s[i] == s2[i] for i in range(len(s))]) / len(s)
 
         for input_file in input_files:
             detected_encoding = data_utils.detect_file_encoding(
@@ -238,3 +238,20 @@ class TestDataReadingWriting(unittest.TestCase):
                 chunk_size_bytes=f["chunk_size_bytes"],
             )
             self.assertEqual(expected, output_str, f["path"])
+
+    def test_is_s3_uri_failure_logger_check(self):
+        invalid_path = "invalid_path"
+
+        logger = dp_logging.get_child_logger(__name__)
+
+        with self.assertLogs(logger, level="DEBUG") as log_context:
+            # Call the function with the invalid path
+            is_s3 = data_utils.S3Helper.is_s3_uri(invalid_path, logger)
+
+            # Assert that the function returns False (invalid path)
+            self.assertFalse(is_s3)
+
+            # Assert that the log message is generated and logged
+            self.assertIn(
+                f"'{invalid_path}' is not a valid S3 URI", log_context.output[0]
+            )

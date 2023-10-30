@@ -739,7 +739,7 @@ def perform_chi_squared_test_for_homogeneity(
     """
     results: dict[str, int | float | None] = {
         "chi2-statistic": None,
-        "df": None,
+        "deg_of_free": None,
         "p-value": None,
     }
 
@@ -758,8 +758,8 @@ def perform_chi_squared_test_for_homogeneity(
 
     # Calculate degrees of freedom
     # df = (rows - 1) * (cols - 1), in the case of two groups reduces to cols - 1
-    df = num_cats - 1
-    results["df"] = df
+    deg_of_free = num_cats - 1
+    results["deg_of_free"] = deg_of_free
 
     total = sample_size1 + sample_size2
 
@@ -781,7 +781,7 @@ def perform_chi_squared_test_for_homogeneity(
     results["chi2-statistic"] = chi2_statistic
 
     # Calculate p-value, i.e. P(X > chi2_statistic)
-    p_value: float = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)
+    p_value: float = 1 - scipy.stats.chi2(deg_of_free).cdf(chi2_statistic)
     results["p-value"] = p_value
 
     return results

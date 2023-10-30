@@ -724,7 +724,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "categorical_count": {"y": 1, "n": 1, "maybe": -2},
                 "chi2-test": {
                     "chi2-statistic": 82 / 35,
-                    "df": 2,
+                    "deg_of_free": 2,
                     "p-value": 0.3099238764710244,
                 },
                 "psi": 0.0990210257942779,
@@ -774,7 +774,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "unique_ratio": -0.05357142857142855,
                 "chi2-test": {
                     "chi2-statistic": 0.6122448979591839,
-                    "df": 2,
+                    "deg_of_free": 2,
                     "p-value": 0.7362964551863367,
                 },
                 "categories": "unchanged",

@@ -64,6 +64,7 @@ repos:
             typing-extensions>=3.10.0.2,
             HLL>=2.0.3,
             datasketches>=4.1.0,
+            boto3>=1.28.61,
 
             # requirements-dev.txt
             check-manifest>=0.48,
@@ -110,7 +111,7 @@ repos:
         additional_dependencies: ['h5py', 'wheel', 'future', 'numpy', 'pandas',
         'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
         'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
-        'networkx','typing-extensions', 'HLL', 'datasketches']
+        'networkx','typing-extensions', 'HLL', 'datasketches', 'boto3']
   # Pyupgrade - standardize and modernize Python syntax for newer versions of the language
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.0

@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 
+from dataprofiler import dp_logging
 from dataprofiler.data_readers.data_utils import S3Helper
 
 
@@ -99,6 +100,23 @@ class TestCreateS3Client(unittest.TestCase):
             aws_session_token=None,
             region_name=region_name,
         )
+
+    def test_is_s3_uri_failure_logger_check(self):
+        invalid_path = "invalid_path"
+
+        logger = dp_logging.get_child_logger(__name__)
+
+        with self.assertLogs(logger, level="DEBUG") as log_context:
+            # Call the function with the invalid path
+            is_s3 = S3Helper.is_s3_uri(invalid_path, logger)
+
+            # Assert that the function returns False (invalid path)
+            self.assertFalse(is_s3)
+
+            # Assert that the log message is generated and logged
+            self.assertIn(
+                f"'{invalid_path}' is not a valid S3 URI", log_context.output[0]
+            )
 
 
 if __name__ == "__main__":

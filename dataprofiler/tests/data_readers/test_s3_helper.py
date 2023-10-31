@@ -5,7 +5,7 @@ from dataprofiler import dp_logging
 from dataprofiler.data_readers.data_utils import S3Helper
 
 
-class TestCreateS3Client(unittest.TestCase):
+class TestS3Helper(unittest.TestCase):
     @patch("boto3.client")
     def test_create_s3_client_with_credentials(self, mock_boto3_client):
         aws_access_key_id = "<YOUR_ACCESS_KEY>"

@@ -105,7 +105,7 @@ class TestGraphProfiler(unittest.TestCase):
         )
 
         cls.expected_properties_weight = {
-            "best_fit_attributes": [8.646041719759628],
+            "best_fit_properties": [8.646041719759628],
             "mean": 3315291431455125.5,
             "variance": 3.2085541544027255e63,
             "skew": 4.987683961374356e48,
@@ -113,7 +113,7 @@ class TestGraphProfiler(unittest.TestCase):
         }
 
         cls.expected_properties_uniform = {
-            "best_fit_attributes": [],
+            "best_fit_properties": [],
             "mean": 1.3,
             "variance": 0.013333333333333327,
             "skew": 0.0,
@@ -135,7 +135,7 @@ class TestGraphProfiler(unittest.TestCase):
                         "mean": 1.1,
                         "standard_deviation": 0.3999999999999999,
                         "properties": {
-                            "best_fit_attributes": [],
+                            "best_fit_properties": [],
                             "mean": 1.3,
                             "variance": 0.013333333333333327,
                             "skew": 0.0,
@@ -348,7 +348,6 @@ class TestGraphProfiler(unittest.TestCase):
 
         # Tests diffs between profiles with different # nodes and different continuous/categorical attributes
         diff_2 = profile_2.diff(profile_3)
-        print(diff_2)
         self.assertDictEqual(diff_2, self.expected_diff_2)
 
     def test_save_and_load(self):

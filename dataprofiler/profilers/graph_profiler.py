@@ -404,7 +404,7 @@ class GraphProfiler:
                 df = pd.Series(data_as_list)
                 best_fit: str = None  # type: ignore[assignment]
                 best_mle: float = 1000
-                best_fit_attributes: tuple = None  # type: ignore[assignment]
+                best_fit_properties: tuple = None  # type: ignore[assignment]
 
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
@@ -421,14 +421,14 @@ class GraphProfiler:
                         best_distrib = distribution
                         best_fit = distribution.name
                         best_mle = mle
-                        best_fit_attributes = fit[:-2]
+                        best_fit_properties = fit[:-2]
                         best_fit_scale = fit[-1]
                         best_fit_loc = fit[-2]
-                if best_fit_attributes:
+                if best_fit_properties:
                     mean, variance, skew, kurtosis = (
                         moment.item()
                         for moment in best_distrib.stats(
-                            best_fit_attributes,
+                            best_fit_properties,
                             scale=best_fit_scale,
                             loc=best_fit_loc,
                             moments="mvsk",
@@ -439,7 +439,7 @@ class GraphProfiler:
                         scale=best_fit_scale, loc=best_fit_loc, moments="mvsk"
                     )
                 properties: dict[str, list[np.ndarray]] = {
-                    "best_fit_attributes": list(best_fit_attributes),
+                    "best_fit_properties": list(best_fit_properties),
                     "mean": mean,
                     "variance": variance,
                     "skew": skew,

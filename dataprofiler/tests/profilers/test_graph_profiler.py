@@ -105,19 +105,29 @@ class TestGraphProfiler(unittest.TestCase):
         )
 
         cls.expected_properties_weight = {
-            "best_fit_properties": [8.646041719759628],
-            "mean": 3315291431455125.5,
-            "variance": 3.2085541544027255e63,
-            "skew": 4.987683961374356e48,
-            "kurtosis": 7.262126433044066e129,
+            "scale": -15.250985118262854,
+            "mean": 1.6999999999999997,
+            "standard_deviation": 0.19403886939727638,
+            "properties": {
+                "best_fit_properties": [8.646041719759628],
+                "mean": 3315291431455125.5,
+                "variance": 3.2085541544027255e63,
+                "skew": 4.987683961374356e48,
+                "kurtosis": 7.262126433044066e129,
+            },
         }
 
         cls.expected_properties_uniform = {
-            "best_fit_properties": [],
-            "mean": 1.3,
-            "variance": 0.013333333333333327,
-            "skew": 0.0,
-            "kurtosis": -1.2,
+            "scale": -4.581453659370776,
+            "mean": 1.1,
+            "standard_deviation": 0.3999999999999999,
+            "properties": {
+                "best_fit_properties": [],
+                "mean": 1.3,
+                "variance": 0.013333333333333327,
+                "skew": 0.0,
+                "kurtosis": -1.2,
+            },
         }
 
         cls.expected_diff_1 = {
@@ -227,58 +237,32 @@ class TestGraphProfiler(unittest.TestCase):
             },
         }
 
-    def check_profile(self, profile, report=False):
+    def check_continuous_properties(
+        self, continuous_distribution_props, expected_distribution_props
+    ):
         """
         NOTE: this function is needed because github tests often lead result in
         slightly different property values. Hence why assertAlmostEqual is used.
         """
         # check that data properties is almost equal
-        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        self.assertAlmostEqual(scale, -15.250985118262854)
+        scale = continuous_distribution_props.pop("scale")
+        self.assertAlmostEqual(scale, expected_distribution_props["scale"])
 
-        mean = profile.profile["continuous_distribution"]["weight"].pop("mean")
-        self.assertAlmostEqual(mean, 1.6999999999999997)
+        mean = continuous_distribution_props.pop("mean")
+        self.assertAlmostEqual(mean, expected_distribution_props["mean"])
 
-        standard_deviation = profile.profile["continuous_distribution"]["weight"].pop(
-            "standard_deviation"
+        standard_deviation = continuous_distribution_props.pop("standard_deviation")
+        self.assertAlmostEqual(
+            standard_deviation, expected_distribution_props["standard_deviation"]
         )
-        self.assertAlmostEqual(standard_deviation, 0.19403886939727638)
-
-        scale = profile.profile["continuous_distribution"]["uniform"].pop("scale")
-        self.assertAlmostEqual(scale, -4.581453659370776)
-
-        mean = profile.profile["continuous_distribution"]["uniform"].pop("mean")
-        self.assertAlmostEqual(mean, 1.1)
-
-        standard_deviation = profile.profile["continuous_distribution"]["uniform"].pop(
-            "standard_deviation"
-        )
-        self.assertAlmostEqual(standard_deviation, 0.3999999999999999)
 
         # check that distribution properties are almost equal
-        weight_properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
-        )
+        weight_properties = continuous_distribution_props.pop("properties")
 
         for key, value in weight_properties.items():
-            self.assertAlmostEqual(self.expected_properties_weight[key], value)
-
-        uniform_properties = profile.profile["continuous_distribution"]["uniform"].pop(
-            "properties"
-        )
-
-        for key, value in uniform_properties.items():
-            self.assertAlmostEqual(self.expected_properties_uniform[key], value)
-
-        if report:
-            report = profile.report()
-            report["continuous_attributes"].sort()
-            report["categorical_attributes"].sort()
-            self.assertDictEqual(self.expected_profile, report)
-        else:
-            profile.profile["continuous_attributes"].sort()
-            profile.profile["categorical_attributes"].sort()
-            self.assertDictEqual(self.expected_profile, profile.profile)
+            self.assertAlmostEqual(
+                expected_distribution_props["properties"][key], value
+            )
 
     def test_add(self):
         profile_1 = GraphProfiler(self.graph_1)
@@ -296,7 +280,17 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph_1)
 
-        self.check_profile(profile)
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["weight"],
+            self.expected_properties_weight,
+        )
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["uniform"],
+            self.expected_properties_uniform,
+        )
+        profile.profile["continuous_attributes"].sort()
+        profile.profile["categorical_attributes"].sort()
+        self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
         # test_report
@@ -304,7 +298,18 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile.update(self.graph_1)
 
-        self.check_profile(profile, report=True)
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["weight"],
+            self.expected_properties_weight,
+        )
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["uniform"],
+            self.expected_properties_uniform,
+        )
+        report = profile.report()
+        report["continuous_attributes"].sort()
+        report["categorical_attributes"].sort()
+        self.assertDictEqual(self.expected_profile, report)
 
     def test_graph_data_object(self):
         data = GraphData(data=self.graph_1)
@@ -313,7 +318,17 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(data)
 
-        self.check_profile(profile)
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["weight"],
+            self.expected_properties_weight,
+        )
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["uniform"],
+            self.expected_properties_uniform,
+        )
+        profile.profile["continuous_attributes"].sort()
+        profile.profile["categorical_attributes"].sort()
+        self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
         profile_1 = dp.GraphProfiler(self.graph_1)

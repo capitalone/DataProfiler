@@ -26,8 +26,6 @@ def setup_save_mock_open(mock_open):
 
 
 class TestGraphProfiler(unittest.TestCase):
-    maxDiff = None
-
     @classmethod
     def setUpClass(cls):
         cls.graph_1 = nx.Graph()

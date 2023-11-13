@@ -174,7 +174,7 @@ any valid bucket path that points to one of the valid data types.
 Possible `options`:
 
 * `storage_options`: must be a dictionary where the keys for boto3 initialization are set
-  If `storage_options` is provided in `options`, the below variables are retrieved from the dictionary provided. Otherwise, will retrieve from [environment variables](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#environment-variables).
+  If `storage_options` is provided in `options`, the below variables are retrieved from the dictionary provided. Otherwise, will retrieve from (environment variables)[https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#environment-variables].
   
   * `AWS_ACCESS_KEY_ID`
   * `AWS_SECRET_ACCESS_KEY`

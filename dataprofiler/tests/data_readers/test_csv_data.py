@@ -536,10 +536,7 @@ class TestCSVDataClass(unittest.TestCase):
         Test the data format options.
         """
         for input_file in self.file_or_buf_list:
-            try:
-                input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
-            except:
-                print(input_file["path"])
+            input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
             self.assertEqual(input_data_obj.data_type, "csv")
             self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -594,10 +591,7 @@ class TestCSVDataClass(unittest.TestCase):
                 self.assertEqual(
                     input_data_obj.data_format, data_format, msg=input_file["path"]
                 )
-                try:
-                    data = input_data_obj.data
-                except:
-                    print(input_file["path"])
+                data = input_data_obj.data
                 if data_format == "dataframe":
                     self.assertIsInstance(data, pd.DataFrame, msg=input_file["path"])
                 elif data_format in ["records", "json"]:

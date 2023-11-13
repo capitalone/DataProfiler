@@ -162,3 +162,21 @@ URL may also be specified using the options dict parameter.
 Possible `options`:
 
 * verify_ssl: must be a boolean string, choices: "True", "False". Set to "True" by default.
+
+Data Using an AWS S3 URI
+========================
+
+Data class for loading datasets from AWS S3 URI. Specified by passing in 
+any valid bucket path that points to one of the valid data types.
+
+`Data('s3a://my-bucket/file_name.txt')`
+
+Possible `options`:
+
+* `storage_options`: must be a dictionary where the keys for boto3 initialization are set
+  If `storage_options` is provided in `options`, the below variables are retrieved from the dictionary provided. Otherwise, will retrieve from `environment variables <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#environment-variables>`_.
+  
+  * `AWS_ACCESS_KEY_ID`
+  * `AWS_SECRET_ACCESS_KEY`
+  * `AWS_SESSION_TOKEN`
+  * `AWS_REGION` (default `us-east-1`)

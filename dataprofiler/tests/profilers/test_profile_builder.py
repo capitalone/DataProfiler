@@ -2043,6 +2043,7 @@ class TestStructuredProfiler(unittest.TestCase):
                         "label_representation": {"a": "unchanged"},
                         "sample_size": -2,
                         "null_count": -1,
+                        "null_ratio": -0.25,
                         "null_types": [[], [], ["nan"]],
                         "null_types_index": [{}, {}, {"nan": {2}}],
                         "data_type_representation": {"all_data_types": "unchanged"},
@@ -2061,6 +2062,7 @@ class TestStructuredProfiler(unittest.TestCase):
                         "label_representation": {"a": "unchanged"},
                         "sample_size": -2,
                         "null_count": -1,
+                        "null_ratio": -0.25,
                         "null_types": [[], [], ["nan"]],
                         "null_types_index": [{}, {}, {"nan": {2}}],
                         "data_type_representation": {"all_data_types": "unchanged"},
@@ -2151,7 +2153,7 @@ class TestStructuredProfiler(unittest.TestCase):
         diff = profile1.diff(profile2)
         expected_chi2_test_dict = {
             "chi2-statistic": 2.342857142857143,
-            "df": 2,
+            "deg_of_free": 2,
             "p-value": 0.3099238764710244,
         }
         self.assertDictEqual(
@@ -2780,6 +2782,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "sample": ["6.0", "3.0", "4.0"],
                 "sample_size": 5,
                 "null_count": 2,
+                "null_ratio": 2 / 5,
                 "null_types": dict(nan=["e", "b"]),
                 "min_id": None,
                 "max_id": None,
@@ -2797,6 +2800,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "sample": ["6.0", "nan", "nan", "4.0"],
                 "sample_size": 6,
                 "null_count": 2,
+                "null_ratio": 2 / 6,
                 "null_types": {"1.0": ["a"], "3.0": ["c"]},
                 "min_id": None,
                 "max_id": None,
@@ -2814,6 +2818,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "sample": ["3.0", "4.0", "nan", "6.0", "nan"],
                 "sample_size": 6,
                 "null_count": 0,
+                "null_ratio": 0 / 6,
                 "null_types": {},
                 "min_id": None,
                 "max_id": None,
@@ -3091,6 +3096,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "label_representation": {"a": "unchanged"},
                 "sample_size": 3,
                 "null_count": 2,
+                "null_ratio": 2 / 7,
                 "null_types": [["nan"], [], []],
                 "null_types_index": [{"nan": {1, 5}}, {}, {}],
                 "data_type_representation": {"all_data_types": "unchanged"},
@@ -3119,6 +3125,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                     "sample_size": 0,
                     "sample": [],
                     "null_count": 0,
+                    "null_ratio": None,
                     "null_types": [],
                     "null_types_index": {},
                     "_min_id": None,
@@ -3170,6 +3177,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "sample_size": 4,
                 "sample": ["2", "-2", "1"],
                 "null_count": 1,
+                "null_ratio": 1 / 4,
                 "null_types": ["Nan"],
                 "null_types_index": {
                     "Nan": [

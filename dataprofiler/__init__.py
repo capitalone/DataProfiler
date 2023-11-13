@@ -8,6 +8,7 @@ from .labelers.data_labelers import (
     UnstructuredDataLabeler,
     train_structured_labeler,
 )
+from .plugins import load_plugins
 from .profilers.graph_profiler import GraphProfiler
 from .profilers.profile_builder import (
     Profiler,
@@ -41,3 +42,6 @@ def set_seed(seed=None):
     if seed is not None and (not isinstance(seed, int) or seed < 0):
         raise ValueError("Seed should be a non-negative integer.")
     settings._seed = seed
+
+
+load_plugins()

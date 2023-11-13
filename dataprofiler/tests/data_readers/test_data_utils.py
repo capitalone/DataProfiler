@@ -32,9 +32,8 @@ class TestDataReadingWriting(unittest.TestCase):
             dict(path=os.path.join(test_dir, "csv/reddit_wsb.csv"), encoding="utf-8"),
         ]
 
-        get_match_acc = lambda s, s2: sum([s[i] == s2[i] for i in range(len(s))]) / len(
-            s
-        )
+        def get_match_acc(s, s2):
+            return sum([s[i] == s2[i] for i in range(len(s))]) / len(s)
 
         for input_file in input_files:
             detected_encoding = data_utils.detect_file_encoding(

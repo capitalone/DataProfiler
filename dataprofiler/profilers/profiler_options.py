@@ -9,9 +9,9 @@ import warnings
 from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler
+from ..plugins.__init__ import get_plugins
 from . import profiler_utils
 from .json_decoder import load_option
-from ..plugins.__init__ import get_plugins
 
 BaseOptionT = TypeVar("BaseOptionT", bound="BaseOption")
 BooleanOptionT = TypeVar("BooleanOptionT", bound="BooleanOption")

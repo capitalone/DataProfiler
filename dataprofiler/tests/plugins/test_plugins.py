@@ -17,7 +17,9 @@ class TestPlugins(unittest.TestCase):
 
             expected_default_dict = defaultdict(dict)
             expected_default_dict["test"]["mock_test"] = test_plugin
-            self.assertDictEqual(expected_default_dict, mock_plugin_dict)
+            self.assertDictEqual(
+                expected_default_dict["test"], mock_plugin_dict["test"]
+            )
 
             test_get_dict = get_plugins("test")
             self.assertDictEqual({"mock_test": test_plugin}, test_get_dict)

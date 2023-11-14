@@ -181,6 +181,21 @@ class TestParquetDataClass(unittest.TestCase):
             self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
             self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
 
+    def test_len_sampled_data(self):
+        """
+        Validate that length called on ParquetData with sample_nrows option is
+        appropriately determining the length value.
+        """
+
+        for input_file in self.file_or_buf_list:
+            data = Data(input_file["path"], options={"sample_nrows": 100})
+            self.assertEqual(
+                min(100, input_file["count"]), len(data), msg=input_file["path"]
+            )
+            self.assertEqual(
+                min(100, input_file["count"]), data.length, msg=input_file["path"]
+            )
+
     def test_file_encoding(self):
         """Tests to ensure file_encoding set to None"""
         for input_file in self.file_or_buf_list:

@@ -1,8 +1,8 @@
 """Contains functions for data readers."""
 import json
-import random
 import logging
 import os
+import random
 import re
 import urllib
 from collections import OrderedDict

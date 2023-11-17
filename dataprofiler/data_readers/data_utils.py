@@ -462,7 +462,10 @@ def sample_parquet(
     :rtype:
     """
     # read parquet file into table
-    table = pq.read_table(file_path, columns=selected_columns)
+    if selected_columns:
+        table = pq.read_table(file_path, columns=selected_columns)
+    else:
+        table = pq.read_table(file_path)
 
     # sample
     n_rows = table.num_rows

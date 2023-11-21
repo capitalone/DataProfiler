@@ -32,11 +32,11 @@ class TestGraphProfiler(unittest.TestCase):
         cls.graph_1.add_nodes_from([1, 2, 3, 4])
         cls.graph_1.add_edges_from(
             [
-                (1, 2, {"id": 1, "weight": 2.5}),
-                (2, 3, {"id": 2, "weight": 1.7}),
-                (3, 4, {"id": 3, "weight": 1.8}),
-                (4, 1, {"id": 4, "weight": 4.1}),
-                (1, 3, {"id": 5, "weight": 2.1}),
+                (1, 2, {"id": 1, "weight": 2.5, "uniform": 1.1}),
+                (2, 3, {"id": 2, "weight": 1.7, "uniform": 1.2}),
+                (3, 4, {"id": 3, "weight": 1.8, "uniform": 1.3}),
+                (4, 1, {"id": 4, "weight": 4.1, "uniform": 1.4}),
+                (1, 3, {"id": 5, "weight": 2.1, "uniform": 1.5}),
             ]
         )
 
@@ -67,13 +67,16 @@ class TestGraphProfiler(unittest.TestCase):
             num_nodes=4,
             num_edges=5,
             categorical_attributes=["id"],
-            continuous_attributes=["weight"],
+            continuous_attributes=["uniform", "weight"],
             avg_node_degree=2.5,
             global_max_component_size=5,
             continuous_distribution={
                 "id": None,
                 "weight": {
                     "name": "lognorm",
+                },
+                "uniform": {
+                    "name": "uniform",
                 },
             },
             categorical_distribution={
@@ -82,6 +85,7 @@ class TestGraphProfiler(unittest.TestCase):
                     "bin_edges": [1.0, 2.0, 3.0, 4.0, 5.0],
                 },
                 "weight": None,
+                "uniform": None,
             },
             times=defaultdict(
                 float,
@@ -98,41 +102,63 @@ class TestGraphProfiler(unittest.TestCase):
             ),
         )
 
-        cls.expected_properties = {
-            "best_fit_properties": [
-                8.646041719759628,
-                1.6999999999999997,
-                0.19403886939727638,
-            ],
-            "mean": [1.7085707836543698e16, 4.241852142820433, 1.0190038591415866],
-            "variance": [8.521811094505713e64, 305.76588081569196, 0.03984103474264823],
-            "skew": [4.987683961374356e48, 82.41830452500491, 0.5951548443693909],
-            "kurtosis": [7.262126433044066e129, 117436.2896499293, 0.6363254662738349],
+        cls.expected_properties_weight = {
+            "scale": -15.250985118262854,
+            "mean": 1.6999999999999997,
+            "standard_deviation": 0.19403886939727638,
+            "properties": {
+                "best_fit_properties": [8.646041719759628],
+                "mean": 3315291431455125.5,
+                "variance": 3.2085541544027255e63,
+                "skew": 4.987683961374356e48,
+                "kurtosis": 7.262126433044066e129,
+            },
+        }
+
+        cls.expected_properties_uniform = {
+            "scale": -4.581453659370776,
+            "mean": 1.1,
+            "standard_deviation": 0.3999999999999999,
+            "properties": {
+                "best_fit_properties": [],
+                "mean": 1.3,
+                "variance": 0.013333333333333327,
+                "skew": 0.0,
+                "kurtosis": -1.2,
+            },
         }
 
         cls.expected_diff_1 = {
             "num_nodes": "unchanged",
             "num_edges": 1,
             "categorical_attributes": [[], ["id"], ["value"]],
-            "continuous_attributes": "unchanged",
+            "continuous_attributes": [["uniform"], ["weight"], []],
             "avg_node_degree": 0.5,
             "global_max_component_size": 1,
             "continuous_distribution": [
-                {},
+                {
+                    "uniform": {
+                        "name": "uniform",
+                        "scale": -4.581453659370776,
+                        "mean": 1.1,
+                        "standard_deviation": 0.3999999999999999,
+                        "properties": {
+                            "best_fit_properties": [],
+                            "mean": 1.3,
+                            "variance": 0.013333333333333327,
+                            "skew": 0.0,
+                            "kurtosis": -1.2,
+                        },
+                    }
+                },
                 {
                     "id": "unchanged",
-                    "weight": [
-                        {},
-                        {
-                            "name": ["lognorm", "uniform"],
-                        },
-                        {},
-                    ],
+                    "weight": [{}, {"name": ["lognorm", "uniform"]}, {}],
                 },
                 {"value": None},
             ],
             "categorical_distribution": [
-                {},
+                {"uniform": None},
                 {
                     "id": [
                         {},
@@ -172,27 +198,15 @@ class TestGraphProfiler(unittest.TestCase):
             "continuous_distribution": [
                 {},
                 {
-                    "weight": [
-                        {},
-                        {
-                            "name": ["uniform", "gamma"],
-                        },
-                        {},
-                    ],
                     "id": "unchanged",
-                    "value": [
-                        None,
-                        {
-                            "name": "uniform",
-                        },
-                    ],
+                    "value": [None, {"name": "uniform"}],
+                    "weight": [{}, {"name": ["uniform", "gamma"]}, {}],
                 },
                 {},
             ],
             "categorical_distribution": [
                 {},
                 {
-                    "weight": "unchanged",
                     "id": [
                         {},
                         {
@@ -205,6 +219,7 @@ class TestGraphProfiler(unittest.TestCase):
                         {"bin_counts": [1, 1, 2], "bin_edges": [4.0, 6.0, 8.0, 10.0]},
                         None,
                     ],
+                    "weight": "unchanged",
                 },
                 {},
             ],
@@ -220,17 +235,32 @@ class TestGraphProfiler(unittest.TestCase):
             },
         }
 
-    def check_continuous_properties(self, continuous_distribution_props):
+    def check_continuous_properties(
+        self, continuous_distribution_props, expected_distribution_props
+    ):
         """
         NOTE: this function is needed because github tests often lead result in
         slightly different property values. Hence why assertAlmostEqual is used.
-
         """
-        for key in continuous_distribution_props:
-            for x, y in zip(
-                self.expected_properties[key], continuous_distribution_props[key]
-            ):
-                self.assertAlmostEqual(x, y)
+        # check that data properties is almost equal
+        scale = continuous_distribution_props.pop("scale")
+        self.assertAlmostEqual(scale, expected_distribution_props["scale"])
+
+        mean = continuous_distribution_props.pop("mean")
+        self.assertAlmostEqual(mean, expected_distribution_props["mean"])
+
+        standard_deviation = continuous_distribution_props.pop("standard_deviation")
+        self.assertAlmostEqual(
+            standard_deviation, expected_distribution_props["standard_deviation"]
+        )
+
+        # check that distribution properties are almost equal
+        weight_properties = continuous_distribution_props.pop("properties")
+
+        for key, value in weight_properties.items():
+            self.assertAlmostEqual(
+                expected_distribution_props["properties"][key], value
+            )
 
     def test_add(self):
         profile_1 = GraphProfiler(self.graph_1)
@@ -248,16 +278,16 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph_1)
 
-        # check that scale is almost equal
-        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        self.assertAlmostEqual(scale, -15.250985118262854)
-
-        # check that properties are almost equal
-        properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["weight"],
+            self.expected_properties_weight,
         )
-        self.check_continuous_properties(properties)
-
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["uniform"],
+            self.expected_properties_uniform,
+        )
+        profile.profile["continuous_attributes"].sort()
+        profile.profile["categorical_attributes"].sort()
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
@@ -266,17 +296,18 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile.update(self.graph_1)
 
-        # check that scale is almost equal
-        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        self.assertAlmostEqual(scale, -15.250985118262854)
-
-        # check that properties are almost equal
-        properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["weight"],
+            self.expected_properties_weight,
         )
-        self.check_continuous_properties(properties)
-
-        self.assertDictEqual(self.expected_profile, profile.report())
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["uniform"],
+            self.expected_properties_uniform,
+        )
+        report = profile.report()
+        report["continuous_attributes"].sort()
+        report["categorical_attributes"].sort()
+        self.assertDictEqual(self.expected_profile, report)
 
     def test_graph_data_object(self):
         data = GraphData(data=self.graph_1)
@@ -285,16 +316,16 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(data)
 
-        # check that scale is almost equal
-        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        self.assertAlmostEqual(scale, -15.250985118262854)
-
-        # check that properties are almost equal
-        properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["weight"],
+            self.expected_properties_weight,
         )
-        self.check_continuous_properties(properties)
-
+        self.check_continuous_properties(
+            profile.profile["continuous_distribution"]["uniform"],
+            self.expected_properties_uniform,
+        )
+        profile.profile["continuous_attributes"].sort()
+        profile.profile["categorical_attributes"].sort()
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
@@ -310,12 +341,20 @@ class TestGraphProfiler(unittest.TestCase):
         # Remove scale because it causes rounding issues during the test
         profile_1.profile["continuous_distribution"]["weight"].pop("scale")
         profile_1.profile["continuous_distribution"]["weight"].pop("properties")
+        profile_1.profile["continuous_distribution"]["weight"].pop("mean")
+        profile_1.profile["continuous_distribution"]["weight"].pop("standard_deviation")
         profile_2.profile["continuous_distribution"]["weight"].pop("scale")
         profile_2.profile["continuous_distribution"]["weight"].pop("properties")
+        profile_2.profile["continuous_distribution"]["weight"].pop("mean")
+        profile_2.profile["continuous_distribution"]["weight"].pop("standard_deviation")
         profile_3.profile["continuous_distribution"]["weight"].pop("scale")
         profile_3.profile["continuous_distribution"]["weight"].pop("properties")
+        profile_3.profile["continuous_distribution"]["weight"].pop("mean")
+        profile_3.profile["continuous_distribution"]["weight"].pop("standard_deviation")
         profile_3.profile["continuous_distribution"]["value"].pop("scale")
         profile_3.profile["continuous_distribution"]["value"].pop("properties")
+        profile_3.profile["continuous_distribution"]["value"].pop("mean")
+        profile_3.profile["continuous_distribution"]["value"].pop("standard_deviation")
 
         diff_1 = profile_1.diff(profile_2)
         self.assertDictEqual(diff_1, self.expected_diff_1)

@@ -2,6 +2,8 @@ import os
 import unittest
 from io import BytesIO
 
+import pandas as pd
+
 from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.parquet_data import ParquetData
 
@@ -102,15 +104,10 @@ class TestParquetDataClass(unittest.TestCase):
             input_data_obj = Data(input_file["path"], data_type="parquet")
             self.assertEqual(input_data_obj.data_type, "parquet")
 
-    def test_specifying_data_type_when_sampled(self):
-        """
-        Determine if the parquet file can be loaded with manual data_type setting when sampled
-        """
-        for input_file in self.file_or_buf_list:
-            input_data_obj = Data(
+            input_data_obj_sampled = Data(
                 input_file["path"], data_type="parquet", options={"sample_nrows": 100}
             )
-            self.assertEqual(input_data_obj.data_type, "parquet")
+            self.assertEqual(input_data_obj_sampled.data_type, "parquet")
 
     def test_reload_data(self):
         """
@@ -122,15 +119,14 @@ class TestParquetDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.data_type, "parquet")
             self.assertEqual(input_file["path"], input_data_obj.input_file_path)
 
-    def test_reload_data_when_sampled(self):
-        """
-        Determine if the parquet file can be reloaded when sampled
-        """
-        for input_file in self.file_or_buf_list:
-            input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
-            input_data_obj.reload(input_file["path"], options={"sample_nrows": 100})
-            self.assertEqual(input_data_obj.data_type, "parquet")
-            self.assertEqual(input_file["path"], input_data_obj.input_file_path)
+            input_data_obj_sampled = Data(
+                input_file["path"], options={"sample_nrows": 100}
+            )
+            input_data_obj_sampled.reload(
+                input_file["path"], options={"sample_nrows": 100}
+            )
+            self.assertEqual(input_data_obj_sampled.data_type, "parquet")
+            self.assertEqual(input_file["path"], input_data_obj_sampled.input_file_path)
 
     def test_data_formats(self):
         """
@@ -143,30 +139,23 @@ class TestParquetDataClass(unittest.TestCase):
                 self.assertEqual(input_data_obj.data_format, data_format)
                 data = input_data_obj.data
                 if data_format == "dataframe":
-                    import pandas as pd
-
                     self.assertIsInstance(data, pd.DataFrame)
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)
 
-    def test_data_formats_when_sampled(self):
-        """
-        Determine if the parquet file data_formats can be used when sampled
-        """
-        for input_file in self.file_or_buf_list:
-            input_data_obj = Data(input_file["path"], options={"sample_nrows": 100})
-            for data_format in list(input_data_obj._data_formats.keys()):
-                input_data_obj.data_format = data_format
-                self.assertEqual(input_data_obj.data_format, data_format)
-                data = input_data_obj.data
+            input_data_obj_sampled = Data(
+                input_file["path"], options={"sample_nrows": 100}
+            )
+            for data_format in list(input_data_obj_sampled._data_formats.keys()):
+                input_data_obj_sampled.data_format = data_format
+                self.assertEqual(input_data_obj_sampled.data_format, data_format)
+                data_sampled = input_data_obj_sampled.data
                 if data_format == "dataframe":
-                    import pandas as pd
-
-                    self.assertIsInstance(data, pd.DataFrame)
+                    self.assertIsInstance(data_sampled, pd.DataFrame)
                 elif data_format in ["records", "json"]:
-                    self.assertIsInstance(data, list)
-                    self.assertIsInstance(data[0], str)
+                    self.assertIsInstance(data_sampled, list)
+                    self.assertIsInstance(data_sampled[0], str)
 
     def test_mixed_string_col(self):
         """
@@ -219,19 +208,14 @@ class TestParquetDataClass(unittest.TestCase):
             self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
             self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
 
-    def test_len_sampled_data(self):
-        """
-        Validate that length called on ParquetData with sample_nrows option is
-        appropriately determining the length value.
-        """
-
-        for input_file in self.file_or_buf_list:
-            data = Data(input_file["path"], options={"sample_nrows": 100})
+            data_sampled = Data(input_file["path"], options={"sample_nrows": 100})
             self.assertEqual(
-                min(100, input_file["count"]), len(data), msg=input_file["path"]
+                min(100, input_file["count"]), len(data_sampled), msg=input_file["path"]
             )
             self.assertEqual(
-                min(100, input_file["count"]), data.length, msg=input_file["path"]
+                min(100, input_file["count"]),
+                data_sampled.length,
+                msg=input_file["path"],
             )
 
     def test_file_encoding(self):

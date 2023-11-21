@@ -451,19 +451,25 @@ def convert_unicode_col_to_utf8(input_df: pd.DataFrame) -> pd.DataFrame:
     :rtype: pd.DataFrame
     """
     # Convert all the unicode columns to utf-8
-    types = input_df.apply(lambda x: pd.api.types.infer_dtype(x.values, skipna=True))
-
-    mixed_and_unicode_cols = types[types == "unicode"].index.union(
-        types[types == "mixed"].index
+    input_column_types = input_df.apply(
+        lambda x: pd.api.types.infer_dtype(x.values, skipna=True)
     )
 
-    for col in mixed_and_unicode_cols:
-        input_df[col] = input_df[col].apply(
+    mixed_and_unicode_cols = input_column_types[
+        input_column_types == "unicode"
+    ].index.union(input_column_types[input_column_types == "mixed"].index)
+
+    for iter_column in mixed_and_unicode_cols:
+        # Encode sting to bytes
+        input_df[iter_column] = input_df[iter_column].apply(
             lambda x: x.encode("utf-8").strip() if isinstance(x, str) else x
         )
-        input_df[col] = input_df[col].apply(
+
+        # Decode bytes back to string
+        input_df[iter_column] = input_df[iter_column].apply(
             lambda x: x.decode("utf-8").strip() if isinstance(x, bytes) else x
         )
+
     return input_df
 
 
@@ -489,18 +495,18 @@ def sample_parquet(
     """
     # read parquet file into table
     if selected_columns:
-        table = pq.read_table(file_path, columns=selected_columns)
+        parquet_table = pq.read_table(file_path, columns=selected_columns)
     else:
-        table = pq.read_table(file_path)
+        parquet_table = pq.read_table(file_path)
 
     # sample
-    n_rows = table.num_rows
+    n_rows = parquet_table.num_rows
     if n_rows > sample_nrows:
         sample_index = np.array([False] * n_rows)
         sample_index[random.sample(range(n_rows), sample_nrows)] = True
     else:
         sample_index = np.array([True] * n_rows)
-    sample_df = table.filter(sample_index).to_pandas()
+    sample_df = parquet_table.filter(sample_index).to_pandas()
 
     # Convert all the unicode columns to utf-8
     sample_df = convert_unicode_col_to_utf8(sample_df)

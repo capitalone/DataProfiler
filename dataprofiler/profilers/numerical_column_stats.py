@@ -1417,11 +1417,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
             bin_edge = from_hist_bin_edges[bin_id : bin_id + 3]
 
-            # if we know not float, we can assume values in bins are integers.
-            is_float_profile = self.__class__.__name__ == "FloatColumn"
-            if not is_float_profile:
-                bin_edge = np.round(bin_edge)
-
             # loop until we have a new bin which contains the current bin.
             while (
                 bin_edge[0] >= dest_hist_bin_edges[new_bin_id + 1]

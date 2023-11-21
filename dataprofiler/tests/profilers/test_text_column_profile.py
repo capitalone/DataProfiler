@@ -236,7 +236,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             kurtosis=-1251.0 / 1372.0,
             stddev=np.sqrt(14.0 / 9.0),
             histogram={
-                "bin_counts": np.array([5, 0, 2, 0, 1, 2]),
+                "bin_counts": np.array([5, 1, 1, 1, 0, 2]),
                 "bin_edges": np.array([1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]),
             },
             quantiles={0: 1.25, 1: 1.5, 2: 3.0},

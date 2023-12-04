@@ -108,9 +108,8 @@ class TextColumn(
         :rtype: dict
         """
         # Make sure other_profile's type matches this class
-        differences = NumericStatsMixin.diff(self, other_profile, options)
+        differences = BaseColumnProfiler.diff(self, other_profile, options)
 
-        del differences["psi"]
         vocab_diff = profiler_utils.find_diff_of_lists_and_sets(
             self.vocab, other_profile.vocab
         )

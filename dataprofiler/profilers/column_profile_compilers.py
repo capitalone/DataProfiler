@@ -338,6 +338,8 @@ class ColumnPrimitiveTypeProfileCompiler(
         if all_profiles:
             for key in all_profiles:
                 if key in self._profiles and key in other._profiles:
+                    prof_diff = self._profiles[key].diff(other._profiles[key])
+                    diff_profile.update(prof_diff)
                     diff = profiler_utils.find_diff_of_numbers(
                         self._profiles[key].data_type_ratio,
                         other._profiles[key].data_type_ratio,

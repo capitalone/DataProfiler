@@ -285,6 +285,9 @@ class StructuredColProfiler:
             }
         )
 
+        if "statistics" not in unordered_profile:
+            unordered_profile["statistics"] = {}
+
         unordered_profile["statistics"].update(
             {
                 "sample_size": profiler_utils.find_diff_of_numbers(

@@ -119,14 +119,29 @@ class TestParquetDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.data_type, "parquet")
             self.assertEqual(input_file["path"], input_data_obj.input_file_path)
 
-            input_data_obj_sampled = Data(
+            input_data_obj_sampled_before = Data(
                 input_file["path"], options={"sample_nrows": 100}
             )
-            input_data_obj_sampled.reload(
+            self.assertEqual(input_data_obj_sampled_before.data_type, "parquet")
+            self.assertEqual(
+                input_file["path"], input_data_obj_sampled_before.input_file_path
+            )
+            input_data_obj_sampled_after = input_data_obj_sampled_before
+            input_data_obj_sampled_after.reload(
                 input_file["path"], options={"sample_nrows": 100}
             )
-            self.assertEqual(input_data_obj_sampled.data_type, "parquet")
-            self.assertEqual(input_file["path"], input_data_obj_sampled.input_file_path)
+            self.assertEqual(input_data_obj_sampled_after.data_type, "parquet")
+            self.assertEqual(
+                input_file["path"], input_data_obj_sampled_after.input_file_path
+            )
+            self.assertEqual(
+                input_data_obj_sampled_before.data_type,
+                input_data_obj_sampled_after.data_type,
+            )
+            self.assertEqual(
+                input_data_obj_sampled_before.input_file_path,
+                input_data_obj_sampled_after.input_file_path,
+            )
 
     def test_data_formats(self):
         """

@@ -23,7 +23,7 @@ class AVROData(JSONData, BaseData):
         options: Optional[Dict] = None,
     ) -> None:
         """
-        Initialize Data class for loading datasets of type AVRO.
+        Initialize Data class for loading datasets of type AVRO test.
 
         Can be specified by passing in memory data or via a file path.
         Options pertaining to AVRO may also be specified using options dict param.

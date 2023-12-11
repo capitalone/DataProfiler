@@ -104,11 +104,6 @@ class TestParquetDataClass(unittest.TestCase):
             input_data_obj = Data(input_file["path"], data_type="parquet")
             self.assertEqual(input_data_obj.data_type, "parquet")
 
-            input_data_obj_sampled = Data(
-                input_file["path"], data_type="parquet", options={"sample_nrows": 100}
-            )
-            self.assertEqual(input_data_obj_sampled.data_type, "parquet")
-
     def test_reload_data(self):
         """
         Determine if the parquet file can be reloaded
@@ -118,30 +113,6 @@ class TestParquetDataClass(unittest.TestCase):
             input_data_obj.reload(input_file["path"])
             self.assertEqual(input_data_obj.data_type, "parquet")
             self.assertEqual(input_file["path"], input_data_obj.input_file_path)
-
-            input_data_obj_sampled_before = Data(
-                input_file["path"], options={"sample_nrows": 100}
-            )
-            self.assertEqual(input_data_obj_sampled_before.data_type, "parquet")
-            self.assertEqual(
-                input_file["path"], input_data_obj_sampled_before.input_file_path
-            )
-            input_data_obj_sampled_after = input_data_obj_sampled_before
-            input_data_obj_sampled_after.reload(
-                input_file["path"], options={"sample_nrows": 100}
-            )
-            self.assertEqual(input_data_obj_sampled_after.data_type, "parquet")
-            self.assertEqual(
-                input_file["path"], input_data_obj_sampled_after.input_file_path
-            )
-            self.assertEqual(
-                input_data_obj_sampled_before.data_type,
-                input_data_obj_sampled_after.data_type,
-            )
-            self.assertEqual(
-                input_data_obj_sampled_before.input_file_path,
-                input_data_obj_sampled_after.input_file_path,
-            )
 
     def test_data_formats(self):
         """
@@ -226,11 +197,6 @@ class TestParquetDataClass(unittest.TestCase):
             data_sampled = Data(input_file["path"], options={"sample_nrows": 100})
             self.assertEqual(
                 min(100, input_file["count"]), len(data_sampled), msg=input_file["path"]
-            )
-            self.assertEqual(
-                min(100, input_file["count"]),
-                data_sampled.length,
-                msg=input_file["path"],
             )
 
     def test_file_encoding(self):

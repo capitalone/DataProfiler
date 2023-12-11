@@ -480,7 +480,7 @@ def sample_parquet(
     read_in_string: bool = False,
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Read parquet file, sample n row from it and return a dataframe.
+    Read parquet file, sample specified number of rows from it and return a data frame.
 
     :param file_path: path to the Parquet file.
     :type file_path: str

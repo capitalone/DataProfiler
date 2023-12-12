@@ -2,6 +2,8 @@ import os
 import unittest
 from io import BytesIO
 
+import pandas as pd
+
 from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.parquet_data import ParquetData
 
@@ -123,12 +125,23 @@ class TestParquetDataClass(unittest.TestCase):
                 self.assertEqual(input_data_obj.data_format, data_format)
                 data = input_data_obj.data
                 if data_format == "dataframe":
-                    import pandas as pd
-
                     self.assertIsInstance(data, pd.DataFrame)
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)
+
+            input_data_obj_sampled = Data(
+                input_file["path"], options={"sample_nrows": 100}
+            )
+            for data_format in list(input_data_obj_sampled._data_formats.keys()):
+                input_data_obj_sampled.data_format = data_format
+                self.assertEqual(input_data_obj_sampled.data_format, data_format)
+                data_sampled = input_data_obj_sampled.data
+                if data_format == "dataframe":
+                    self.assertIsInstance(data_sampled, pd.DataFrame)
+                elif data_format in ["records", "json"]:
+                    self.assertIsInstance(data_sampled, list)
+                    self.assertIsInstance(data_sampled[0], str)
 
     def test_mixed_string_col(self):
         """
@@ -180,6 +193,11 @@ class TestParquetDataClass(unittest.TestCase):
             data = Data(input_file["path"])
             self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
             self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
+
+            data_sampled = Data(input_file["path"], options={"sample_nrows": 100})
+            self.assertEqual(
+                min(100, input_file["count"]), len(data_sampled), msg=input_file["path"]
+            )
 
     def test_file_encoding(self):
         """Tests to ensure file_encoding set to None"""

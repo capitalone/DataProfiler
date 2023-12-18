@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import random
 import re
 import urllib
 from collections import OrderedDict
@@ -24,6 +25,7 @@ from typing import (
 import boto3
 import botocore
 import dateutil
+import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
@@ -439,8 +441,86 @@ def read_csv_df(
     return data
 
 
+def convert_unicode_col_to_utf8(input_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert all unicode columns in input dataframe to utf-8.
+
+    :param input_df: input dataframe
+    :type input_df: pd.DataFrame
+    :return: corrected dataframe
+    :rtype: pd.DataFrame
+    """
+    # Convert all the unicode columns to utf-8
+    input_column_types = input_df.apply(
+        lambda x: pd.api.types.infer_dtype(x.values, skipna=True)
+    )
+
+    mixed_and_unicode_cols = input_column_types[
+        input_column_types == "unicode"
+    ].index.union(input_column_types[input_column_types == "mixed"].index)
+
+    for iter_column in mixed_and_unicode_cols:
+        # Encode sting to bytes
+        input_df[iter_column] = input_df[iter_column].apply(
+            lambda x: x.encode("utf-8").strip() if isinstance(x, str) else x
+        )
+
+        # Decode bytes back to string
+        input_df[iter_column] = input_df[iter_column].apply(
+            lambda x: x.decode("utf-8").strip() if isinstance(x, bytes) else x
+        )
+
+    return input_df
+
+
+def sample_parquet(
+    file_path: str,
+    sample_nrows: int,
+    selected_columns: Optional[List[str]] = None,
+    read_in_string: bool = False,
+) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Read parquet file, sample specified number of rows from it and return a data frame.
+
+    :param file_path: path to the Parquet file.
+    :type file_path: str
+    :param sample_nrows: number of rows being sampled
+    :type sample_nrows: int
+    :param selected_columns: columns need to be read
+    :type selected_columns: list
+    :param read_in_string: return as string type
+    :type read_in_string: bool
+    :return:
+    :rtype: Iterator(pd.DataFrame)
+    """
+    # read parquet file into table
+    if selected_columns:
+        parquet_table = pq.read_table(file_path, columns=selected_columns)
+    else:
+        parquet_table = pq.read_table(file_path)
+
+    # sample
+    n_rows = parquet_table.num_rows
+    if n_rows > sample_nrows:
+        sample_index = np.array([False] * n_rows)
+        sample_index[random.sample(range(n_rows), sample_nrows)] = True
+    else:
+        sample_index = np.array([True] * n_rows)
+    sample_df = parquet_table.filter(sample_index).to_pandas()
+
+    # Convert all the unicode columns to utf-8
+    sample_df = convert_unicode_col_to_utf8(sample_df)
+
+    original_df_dtypes = sample_df.dtypes
+    if read_in_string:
+        sample_df = sample_df.astype(str)
+
+    return sample_df, original_df_dtypes
+
+
 def read_parquet_df(
     file_path: str,
+    sample_nrows: Optional[int] = None,
     selected_columns: Optional[List[str]] = None,
     read_in_string: bool = False,
 ) -> Tuple[pd.DataFrame, pd.Series]:
@@ -449,42 +529,42 @@ def read_parquet_df(
 
     :param file_path: path to the Parquet file.
     :type file_path: str
+    :param sample_nrows: number of rows being sampled
+    :type sample_nrows: int
+    :param selected_columns: columns need to be read
+    :type selected_columns: list
+    :param read_in_string: return as string type
+    :type read_in_string: bool
     :return:
     :rtype: Iterator(pd.DataFrame)
     """
-    parquet_file = pq.ParquetFile(file_path)
-    data = pd.DataFrame()
-    for i in range(parquet_file.num_row_groups):
+    if sample_nrows is None:
+        parquet_file = pq.ParquetFile(file_path)
+        data = pd.DataFrame()
+        for i in range(parquet_file.num_row_groups):
 
-        data_row_df = parquet_file.read_row_group(i).to_pandas()
+            data_row_df = parquet_file.read_row_group(i).to_pandas()
 
-        # Convert all the unicode columns to utf-8
-        types = data_row_df.apply(
-            lambda x: pd.api.types.infer_dtype(x.values, skipna=True)
+            # Convert all the unicode columns to utf-8
+            data_row_df = convert_unicode_col_to_utf8(data_row_df)
+
+            if selected_columns:
+                data_row_df = data_row_df[selected_columns]
+
+            data = pd.concat([data, data_row_df])
+
+        original_df_dtypes = data.dtypes
+        if read_in_string:
+            data = data.astype(str)
+        return data, original_df_dtypes
+    else:
+        data, original_df_dtypes = sample_parquet(
+            file_path,
+            sample_nrows,
+            selected_columns=selected_columns,
+            read_in_string=read_in_string,
         )
-
-        mixed_and_unicode_cols = types[types == "unicode"].index.union(
-            types[types == "mixed"].index
-        )
-
-        for col in mixed_and_unicode_cols:
-            data_row_df[col] = data_row_df[col].apply(
-                lambda x: x.encode("utf-8").strip() if isinstance(x, str) else x
-            )
-            data_row_df[col] = data_row_df[col].apply(
-                lambda x: x.decode("utf-8").strip() if isinstance(x, bytes) else x
-            )
-
-        if selected_columns:
-            data_row_df = data_row_df[selected_columns]
-
-        data = pd.concat([data, data_row_df])
-
-    original_df_dtypes = data.dtypes
-    if read_in_string:
-        data = data.astype(str)
-
-    return data, original_df_dtypes
+        return data, original_df_dtypes
 
 
 def read_text_as_list_of_strs(

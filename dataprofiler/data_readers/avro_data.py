@@ -67,7 +67,7 @@ class AVROData(JSONData, BaseData):
             # even when the option encoding='utf-8' is added. It may come from
             # some special compression codec, e.g., snappy. Then, binary mode
             # reading is currently used to get the dict-formatted lines.
-            df_reader: fastavro.reader = fastavro.reader(input_file)
+            df_reader = fastavro.reader(input_file)
             lines: List = list()
             for line in df_reader:
                 lines.append(line)

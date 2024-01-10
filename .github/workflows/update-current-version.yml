@@ -15,7 +15,6 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Update README.md
-      run: git fetch --prune --unshallow
 
       run: |
         latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)

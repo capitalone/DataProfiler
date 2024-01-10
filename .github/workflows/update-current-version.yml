@@ -16,6 +16,7 @@ jobs:
 
     - name: Update README.md
       run: |
+        git fetch --prune --unshallow
         latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
         sed "s|<workflow_to_replace_with_live_version_tag>|$latest_tag|g" readme.md > tmp.md && mv tmp.md readme.md
         git config --local user.email "action@github.com"

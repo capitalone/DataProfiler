@@ -5,7 +5,7 @@ name: Update Current Version Tag
 on:
   push:
     branches:
-      - 'main'
+      - 'dynamiclink'
 
 jobs:
   update-readme:
@@ -19,9 +19,9 @@ jobs:
     - name: Update README.md
     
       run: |
-        latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        latest_tag=$(git describe --tags --abbrev=0)
         sed "s|<workflow_to_replace_with_live_version_tag>|$latest_tag|g" README.md > tmp.md && mv tmp.md README.md
-        git config --local user.email "action@github.com"
+        git config --local user.email "mishalksa@hotmail.com"
         git config --local user.name "GitHub Action"
         git commit -am "Update README with latest version tag"
         git push

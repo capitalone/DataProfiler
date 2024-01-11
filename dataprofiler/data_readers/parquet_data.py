@@ -61,6 +61,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self._data_formats["json"] = self._get_data_as_json
         self._selected_data_format: str = options.get("data_format", "dataframe")
         self._selected_columns: List[str] = options.get("selected_columns", list())
+        self._sample_nrows: Optional[int] = options.get("sample_nrows", None)
 
         if data is not None:
             self._load_data(data)
@@ -84,6 +85,11 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         return self._selected_columns
 
     @property
+    def sample_nrows(self) -> Optional[int]:
+        """Return sample_nrows."""
+        return self._sample_nrows
+
+    @property
     def is_structured(self) -> bool:
         """Determine compatibility with StructuredProfiler."""
         return self.data_format == "dataframe"
@@ -100,7 +106,10 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
     def _load_data_from_file(self, input_file_path: str) -> pd.DataFrame:
         """Return data from file."""
         data, original_df_dtypes = data_utils.read_parquet_df(
-            input_file_path, self.selected_columns, read_in_string=True
+            input_file_path,
+            selected_columns=self.selected_columns,
+            read_in_string=True,
+            sample_nrows=self.sample_nrows,
         )
         self._original_df_dtypes = original_df_dtypes
         return data

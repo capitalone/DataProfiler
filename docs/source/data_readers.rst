@@ -113,6 +113,8 @@ Possible `options`:
 
 * data_format - must be a string, choices: "dataframe", "records", "json"
 * selected_keys - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
+* sample_nrows - Random sampling to sample `"n"` rows out of a total of `"M"` rows.
+  Specified for how many rows to sample, default None.
 
 GraphData
 =========

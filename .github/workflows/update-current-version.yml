@@ -5,7 +5,7 @@ name: Update Current Version Tag
 on:
   push:
     branches:
-      - 'dynamiclink'
+      - 'dev'
 
 jobs:
   update-readme:

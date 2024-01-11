@@ -1,0 +1,27 @@
+# This workflow will update the readme file to point to the current version of Data Profiler.
+
+name: Update Current Version Tag
+
+on:
+  push:
+    branches:
+      - 'dynamic-tag-link'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Update README.md
+    
+      run: |
+        latest_tag=$(git describe --tags --abbrev=0)
+        sed "s|<workflow_to_replace_with_live_version_tag>|$latest_tag|g" README.md > tmp.md && mv tmp.md README.md
+        git config --local user.email "mishalksa@hotmail.com"
+        git config --local user.name "GitHub Action"
+        git commit -am "Update README with latest version tag"
+        git push

@@ -1,6 +1,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/DataProfiler)
 ![GitHub](https://img.shields.io/github/license/CapitalOne/DataProfiler)
 ![GitHub last commit](https://img.shields.io/github/last-commit/CapitalOne/DataProfiler)
+[![Downloads](https://static.pepy.tech/badge/dataprofiler)](https://pepy.tech/project/dataprofiler)
 
 <p text-align="left">
     <picture>

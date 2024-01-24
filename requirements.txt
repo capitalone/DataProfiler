@@ -18,3 +18,4 @@ HLL>=2.0.3
 datasketches>=4.1.0
 packaging>=23.0
 boto3>=1.28.61
+polars>=0.20.5

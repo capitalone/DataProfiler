@@ -26,6 +26,7 @@ from typing import (
 )
 
 import numpy as np
+import polars as pl
 import psutil
 import scipy
 from pandas import DataFrame, Series
@@ -331,6 +332,7 @@ def biased_skew(df_series: Series) -> np.float64:
     :return: biased skewness
     :rtype: np.float64
     """
+    df_series = pl.from_pandas(df_series, nan_to_null=False)
     n = len(df_series)
     if n < 1:
         return np.float64(np.nan)
@@ -369,6 +371,7 @@ def biased_kurt(df_series: Series) -> np.float64:
     :return: biased kurtosis
     :rtype: np.float64
     """
+    df_series = pl.from_pandas(df_series, nan_to_null=False)
     n = len(df_series)
     if n < 1:
         return np.float64(np.nan)

@@ -1285,10 +1285,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         """
         if len(np.unique(values)) == 1:
             bin_counts = np.array([len(values)])
-            if isinstance(values, (np.ndarray, list)):
-                unique_value = values[0]
-            else:
-                unique_value = values[0]
+            unique_value = values[0]
             bin_edges = np.array([unique_value, unique_value])
             for bin_method in self.histogram_bin_method_names:
                 self.histogram_methods[bin_method]["histogram"][

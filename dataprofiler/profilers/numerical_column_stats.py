@@ -1355,14 +1355,23 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         :type df_series: pandas.core.series.Series
         :return:
         """
-        df_series = pl.from_pandas(df_series, nan_to_null=True).cast(pl.Float64)
-        df_series = df_series.replace([np.inf, -np.inf], [None])  # type: ignore
-        df_series = df_series.drop_nulls()
-        if df_series.is_empty():
-            return
+        if self._greater_than_64_bit and type(df_series) is pd.Series:
+            df_series = df_series.to_numpy(dtype=float)
+            df_series = df_series[np.isfinite(df_series)]
+            if df_series.size == 0:
+                return
+        else:
+            df_series = pl.from_pandas(df_series, nan_to_null=True).cast(pl.Float64)
+            df_series = df_series.replace([np.inf, -np.inf], [None])  # type: ignore
+            df_series = df_series.drop_nulls()
+            if df_series.is_empty():
+                return
 
         if self._has_histogram:
-            self._merge_histogram(df_series.to_list())
+            if self._greater_than_64_bit:
+                self._merge_histogram(df_series.tolist())
+            else:
+                self._merge_histogram(df_series.to_list())
         else:
             bin_counts, bin_edges = self._get_histogram(df_series)
             self._stored_histogram["histogram"]["bin_counts"] = bin_counts

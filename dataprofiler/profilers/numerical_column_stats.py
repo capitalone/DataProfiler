@@ -1810,8 +1810,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         else:
             df_series = pl.from_pandas(df_series)
             min_value = df_series.min()
-            if self.min is not None:
-                min_value = type(self.min)(min_value)
             self.min = np.float64(
                 min_value if not self.min else min(self.min, min_value)
             )
@@ -1890,15 +1888,13 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         batch_count = subset_properties["match_count"]
         batch_mean = 0.0 if not batch_count else float(sum_value) / batch_count
         subset_properties["mean"] = batch_mean
-        self._biased_variance = np.float64(
-            self._merge_biased_variance(
-                self.match_count,
-                self._biased_variance,
-                prev_dependent_properties["mean"],
-                batch_count,
-                batch_biased_variance,
-                batch_mean,
-            )
+        self._biased_variance = self._merge_biased_variance(
+            self.match_count,
+            self._biased_variance,
+            prev_dependent_properties["mean"],
+            batch_count,
+            batch_biased_variance,
+            batch_mean,
         )
 
     @BaseColumnProfiler._timeit(name="skewness")

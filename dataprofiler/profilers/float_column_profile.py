@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import copy
-import re
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -288,13 +288,14 @@ class FloatColumn(
         :return: string representing its precision print format
         :rtype: int
         """
+        df_series_clean = pl.from_pandas(df_series_clean)
         len_df = len(df_series_clean)
         if not len_df:
             return None
 
         # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
-        r = re.compile(r"^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D")
+        r = r"^[+-.0\s]+|\.?0+(\s|$)|([e].*)|\D"
 
         # DEFAULT: Sample the dataset. If small use full dataset,
         # OR 20k samples or 5% of the dataset which ever is larger.
@@ -305,15 +306,17 @@ class FloatColumn(
 
         # length of sampled cells after all punctuation removed
         len_per_float = (
-            df_series_clean.sample(sample_size).replace(to_replace=r, value="").map(len)
-        ).astype(float)
+            df_series_clean.sample(sample_size)
+            .str.replace_all(pattern=r, value="")
+            .map_elements(len)
+        ).cast(float)
 
         # Determine statistics precision
         precision_sum = len_per_float.sum()
         subset_precision = {
             "min": np.float64(len_per_float.min()),
             "max": np.float64(len_per_float.max()),
-            "biased_var": np.var(len_per_float),
+            "biased_var": np.var([len_per_float]),
             "sum": np.float64(precision_sum),
             "mean": np.float64(precision_sum / sample_size),
             "sample_size": sample_size,

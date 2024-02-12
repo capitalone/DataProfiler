@@ -1234,6 +1234,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "num_zeros": 0,
                     "num_negatives": 0,
                     "_num_quantiles": 1000,
+                    "_greater_than_64_bit": False,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
                         "total_loss": 0.0,

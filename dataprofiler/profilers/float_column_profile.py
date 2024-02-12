@@ -275,7 +275,7 @@ class FloatColumn(
 
     @classmethod
     def _get_float_precision(
-        cls, df_series_clean: pd.Series, sample_ratio: float = None
+        cls, df_series_clean: pl.Series, sample_ratio: float = None
     ) -> dict | None:
         """
         Determine the precision of the numeric value.
@@ -288,7 +288,6 @@ class FloatColumn(
         :return: string representing its precision print format
         :rtype: int
         """
-        df_series_clean = pl.from_pandas(df_series_clean)
         len_df = len(df_series_clean)
         if not len_df:
             return None
@@ -309,13 +308,13 @@ class FloatColumn(
             df_series_clean.sample(sample_size)
             .str.replace_all(pattern=r, value="")
             .map_elements(len)
-        ).cast(float)
+        )
 
         # Determine statistics precision
-        precision_sum = len_per_float.sum()
+        precision_sum = sum(len_per_float)
         subset_precision = {
-            "min": np.float64(len_per_float.min()),
-            "max": np.float64(len_per_float.max()),
+            "min": np.float64(min(len_per_float)),
+            "max": np.float64(max(len_per_float)),
             "biased_var": np.var([len_per_float]),
             "sum": np.float64(precision_sum),
             "mean": np.float64(precision_sum / sample_size),
@@ -325,7 +324,7 @@ class FloatColumn(
         return subset_precision
 
     @classmethod
-    def _is_each_row_float(cls, df_series: pd.Series) -> list[bool] | pd.Series[bool]:
+    def _is_each_row_float(cls, df_series: pl.Series) -> list[bool] | pd.Series[bool]:
         """
         Determine if each value in a dataframe is a float.
 
@@ -341,12 +340,13 @@ class FloatColumn(
         """
         if len(df_series) == 0:
             return list()
-        return df_series.map(NumericStatsMixin.is_float).astype("bool")
+        df_series = df_series.map_elements(NumericStatsMixin.is_float)
+        return df_series.cast(bool)
 
     @BaseColumnProfiler._timeit(name="precision")
     def _update_precision(
         self,
-        df_series: pd.DataFrame,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -397,7 +397,7 @@ class FloatColumn(
                 self._precision["sum"] / self._precision["sample_size"]
             )
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update column profile properties with cleaned dataset and its known profile.
 
@@ -407,13 +407,14 @@ class FloatColumn(
         :type profile: dict
         :return: None
         """
+        df_series_clean = df_series_clean.to_pandas()
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
 
     def _update_numeric_stats(
         self,
-        df_series: pd.DataFrame,
+        df_series: pl.DataFrame,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -442,24 +443,25 @@ class FloatColumn(
         :return: updated FloatColumn
         :rtype: FloatColumn
         """
+        df_series = pl.from_pandas(df_series)
         if len(df_series) == 0:
             return self
 
         is_each_row_float = self._is_each_row_float(df_series)
         sample_size = len(is_each_row_float)
-        float_count = np.sum(is_each_row_float)
+        float_count = np.sum([is_each_row_float])
         profile = dict(match_count=float_count, sample_size=sample_size)
 
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series[is_each_row_float],
+            df_series=df_series.filter(is_each_row_float),
             prev_dependent_properties={},
             subset_properties=profile,
         )
 
         self._update_helper(
-            df_series_clean=df_series[is_each_row_float], profile=profile
+            df_series_clean=df_series.filter(is_each_row_float), profile=profile
         )
 
         return self

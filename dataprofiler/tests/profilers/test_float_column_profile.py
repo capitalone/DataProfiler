@@ -7,6 +7,7 @@ from unittest import mock
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.json_decoder import load_column_profile
@@ -202,7 +203,7 @@ class TestFloatColumn(unittest.TestCase):
         ]
 
         for sample in samples:
-            df_series = pd.Series([sample[0]])
+            df_series = pl.Series([sample[0]])
             min_expected_precision = sample[1]
             precision = FloatColumn._get_float_precision(df_series)
             self.assertEqual(

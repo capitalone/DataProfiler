@@ -671,6 +671,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                     "num_zeros": 0,
                     "num_negatives": 0,
                     "_num_quantiles": 1000,
+                    "_greater_than_64_bit": False,
                     "histogram_methods": {
                         "custom": {
                             "total_loss": 0.0,

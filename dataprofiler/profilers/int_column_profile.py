@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
@@ -113,7 +114,7 @@ class IntColumn(
         return None
 
     @classmethod
-    def _is_each_row_int(cls, df_series: pd.Series) -> list[bool]:
+    def _is_each_row_int(cls, df_series: pl.Series) -> list[bool]:
         """
         Return true if given is numerical and int values.
 
@@ -134,7 +135,7 @@ class IntColumn(
 
         return [NumericStatsMixin.is_int(x) for x in df_series]
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null params.
 
@@ -144,6 +145,7 @@ class IntColumn(
         :type profile: dict
         :return: None
         """
+        df_series_clean = pd.Series(df_series_clean.to_numpy())
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
@@ -157,23 +159,32 @@ class IntColumn(
         :return: updated IntColumn
         :rtype: IntColumn
         """
+        self._greater_than_64_bit = (
+            not df_series.empty
+            and df_series.apply(pd.to_numeric, errors="coerce").dtype == "O"
+        )
+        if self._greater_than_64_bit:
+            df_series = pl.Series(df_series.to_list(), dtype=pl.Object)
+        else:
+            df_series = pl.from_pandas(df_series)
         if len(df_series) == 0:
             return self
 
-        df_series = df_series.reset_index(drop=True)
         is_each_row_int = self._is_each_row_int(df_series)
         sample_size = len(is_each_row_int)
-        match_int_count = np.sum(is_each_row_int)
+        match_int_count = np.sum([is_each_row_int])
         profile = dict(match_count=match_int_count, sample_size=sample_size)
 
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series[is_each_row_int],
+            df_series=df_series.filter(is_each_row_int),
             prev_dependent_properties={},
             subset_properties=profile,
         )
 
-        self._update_helper(df_series_clean=df_series[is_each_row_int], profile=profile)
+        self._update_helper(
+            df_series_clean=df_series.filter(is_each_row_int), profile=profile
+        )
 
         return self

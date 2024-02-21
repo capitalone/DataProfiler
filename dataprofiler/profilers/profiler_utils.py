@@ -26,9 +26,11 @@ from typing import (
 )
 
 import numpy as np
+import polars as pl
 import psutil
 import scipy
-from pandas import DataFrame, Series
+from pandas import DataFrame
+from polars import Series
 
 from ..labelers.data_labelers import DataLabeler
 
@@ -320,7 +322,7 @@ def add_nested_dictionaries(first_dict: dict, second_dict: dict) -> dict:
     return merged_dict
 
 
-def biased_skew(df_series: Series) -> np.float64:
+def biased_skew(df_series: Series | np.ndarray) -> np.float64:
     """
     Calculate the biased estimator for skewness of the given data.
 
@@ -358,7 +360,7 @@ def biased_skew(df_series: Series) -> np.float64:
     return skew
 
 
-def biased_kurt(df_series: Series) -> np.float64:
+def biased_kurt(df_series: Series | np.ndarray) -> np.float64:
     """
     Calculate the biased estimator for kurtosis of the given data.
 
@@ -675,6 +677,8 @@ def get_memory_size(data: list | np.ndarray | DataFrame, unit: str = "M") -> flo
     :type unit: string
     :return: memory size of the input data
     """
+    if type(data) is DataFrame:
+        data = pl.from_pandas(data)
     unit_map: dict = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:
         raise ValueError(

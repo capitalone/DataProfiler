@@ -1924,6 +1924,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
 
+        if self._greater_than_64_bit and type(df_series) is pd.Series:
+            df_series = df_series.to_numpy(dtype=float)
+        else:
+            df_series = pl.from_pandas(df_series, nan_to_null=False)
         batch_biased_skewness = profiler_utils.biased_skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
@@ -1968,6 +1972,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
 
+        if self._greater_than_64_bit and type(df_series) is pd.Series:
+            df_series = df_series.to_numpy(dtype=float)
+        else:
+            df_series = pl.from_pandas(df_series, nan_to_null=False)
         batch_biased_kurtosis = profiler_utils.biased_kurt(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]

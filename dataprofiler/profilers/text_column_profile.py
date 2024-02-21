@@ -5,6 +5,7 @@ import itertools
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -133,7 +134,7 @@ class TextColumn(
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
         self,
-        data: list | np.ndarray | pd.DataFrame,
+        data: list | np.ndarray | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -153,7 +154,7 @@ class TextColumn(
         data_flat = set(itertools.chain(*data))
         self.vocab = profiler_utils._combine_unique_sets(self.vocab, data_flat)
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 
@@ -164,8 +165,8 @@ class TextColumn(
         :return: None
         """
         if self._NumericStatsMixin__calculations:
-            text_lengths = df_series_clean.str.len()
-            NumericStatsMixin._update_helper(self, text_lengths, profile)
+            text_lengths = df_series_clean.str.len_chars()
+            NumericStatsMixin._update_helper(self, text_lengths.to_pandas(), profile)
         self._update_column_base_properties(profile)
         if self.max:
             self.type = "string" if self.max <= 255 else "text"
@@ -179,6 +180,7 @@ class TextColumn(
         :return: updated TextColumn
         :rtype: TextColumn
         """
+        df_series = pl.from_pandas(df_series)
         len_df = len(df_series)
         if len_df == 0:
             return self

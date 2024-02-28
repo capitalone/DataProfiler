@@ -498,7 +498,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "Unsupported operand type(s) for diff: '{}' "
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
-
+        print(self.variance, other_profile.variance)
         differences = {
             "min": profiler_utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": profiler_utils.find_diff_of_numbers(self.max, other_profile.max),
@@ -1151,7 +1151,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Calculate error of each value from bin of the histogram it falls within.
 
         :param input_array: input data used to calculate the histogram
-        :type input_array: Union[np.array, pd.pd.Series]
+        :type input_array: Union[np.array, pd.Series]
         :return: binning error
         :rtype: float
         """
@@ -2063,7 +2063,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         self.num_negatives = self.num_negatives + num_negatives_value
 
     @abc.abstractmethod
-    def update(self, df_series: pd.Series) -> NumericStatsMixin:
+    def update(self, df_series: pl.Series) -> NumericStatsMixin:
         """
         Update the numerical profile properties with an uncleaned dataset.
 

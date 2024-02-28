@@ -4,7 +4,6 @@ from __future__ import annotations
 import copy
 
 import numpy as np
-import pandas as pd
 import polars as pl
 
 from . import profiler_utils
@@ -241,7 +240,6 @@ class FloatColumn(
         var = self._correct_bias_variance(
             self._precision["sample_size"], self._precision["biased_var"]
         )
-
         std = np.sqrt(var)
         margin_of_error = (
             None
@@ -324,7 +322,7 @@ class FloatColumn(
         return subset_precision
 
     @classmethod
-    def _is_each_row_float(cls, df_series: pl.Series) -> list[bool] | pd.Series[bool]:
+    def _is_each_row_float(cls, df_series: pl.Series) -> pl.Series:
         """
         Determine if each value in a dataframe is a float.
 
@@ -339,9 +337,12 @@ class FloatColumn(
         :rtype: Union[List[bool], pandas.Series[bool]]
         """
         if len(df_series) == 0:
-            return list()
+            return pl.Series()
+        if sum(df_series.is_null()) == len(df_series):
+            return df_series
         df_series = df_series.map_elements(NumericStatsMixin.is_float)
-        return df_series.cast(bool)
+        df_series = df_series.cast(bool)
+        return df_series
 
     @BaseColumnProfiler._timeit(name="precision")
     def _update_precision(
@@ -434,7 +435,7 @@ class FloatColumn(
         """
         super()._update_helper(df_series, subset_properties)
 
-    def update(self, df_series: pd.Series) -> FloatColumn:
+    def update(self, df_series: pl.Series) -> FloatColumn:
         """
         Update the column profile.
 
@@ -443,15 +444,12 @@ class FloatColumn(
         :return: updated FloatColumn
         :rtype: FloatColumn
         """
-        df_series = pl.from_pandas(df_series)
         if len(df_series) == 0:
             return self
-
-        is_each_row_float = self._is_each_row_float(df_series)
+        is_each_row_float = self._is_each_row_float(df_series).replace(None, False)
         sample_size = len(is_each_row_float)
         float_count = np.sum([is_each_row_float])
         profile = dict(match_count=float_count, sample_size=sample_size)
-
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,

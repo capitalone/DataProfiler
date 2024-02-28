@@ -4,7 +4,6 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
-import pandas as pd
 import polars as pl
 
 from . import profiler_utils
@@ -166,12 +165,14 @@ class TextColumn(
         """
         if self._NumericStatsMixin__calculations:
             text_lengths = df_series_clean.str.len_chars()
-            NumericStatsMixin._update_helper(self, text_lengths.to_pandas(), profile)
+            NumericStatsMixin._update_helper(
+                self, text_lengths.drop_nulls().to_pandas(), profile
+            )
         self._update_column_base_properties(profile)
         if self.max:
             self.type = "string" if self.max <= 255 else "text"
 
-    def update(self, df_series: pd.Series) -> TextColumn:
+    def update(self, df_series: pl.Series) -> TextColumn:
         """
         Update the column profile.
 
@@ -180,17 +181,17 @@ class TextColumn(
         :return: updated TextColumn
         :rtype: TextColumn
         """
-        df_series = pl.from_pandas(df_series)
         len_df = len(df_series)
         if len_df == 0:
             return self
 
-        profile = dict(match_count=len_df, sample_size=len_df)
+        no_nulls_length = len(df_series.drop_nulls())
+        profile = dict(match_count=no_nulls_length, sample_size=no_nulls_length)
 
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series,
+            df_series=df_series.drop_nulls(),
             prev_dependent_properties={},
             subset_properties=profile,
         )

@@ -150,7 +150,7 @@ class IntColumn(
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
 
-    def update(self, df_series: pd.Series) -> IntColumn:
+    def update(self, df_series: pl.Series) -> IntColumn:
         """
         Update the column profile.
 
@@ -159,14 +159,7 @@ class IntColumn(
         :return: updated IntColumn
         :rtype: IntColumn
         """
-        self._greater_than_64_bit = (
-            not df_series.empty
-            and df_series.apply(pd.to_numeric, errors="coerce").dtype == "O"
-        )
-        if self._greater_than_64_bit:
-            df_series = pl.Series(df_series.to_list(), dtype=pl.Object)
-        else:
-            df_series = pl.from_pandas(df_series)
+        self._greater_than_64_bit = df_series.dtype == pl.Object
         if len(df_series) == 0:
             return self
 

@@ -141,7 +141,7 @@ class TextColumn(
         Find the unique vocabulary used in the text column.
 
         :param data: list or array of data from which to extract vocab
-        :type data: Union[list, numpy.array, pandas.DataFrame]
+        :type data: Union[list, numpy.array, polars.DataFrame]
         :param prev_dependent_properties: Contains all the previous properties
             that the calculations depend on.
         :type prev_dependent_properties: dict
@@ -158,16 +158,14 @@ class TextColumn(
         Update col profile properties with clean dataset and its known null parameters.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: text profile dictionary
         :type profile: dict
         :return: None
         """
         if self._NumericStatsMixin__calculations:
             text_lengths = df_series_clean.str.len_chars()
-            NumericStatsMixin._update_helper(
-                self, text_lengths.drop_nulls().to_pandas(), profile
-            )
+            NumericStatsMixin._update_helper(self, text_lengths.drop_nulls(), profile)
         self._update_column_base_properties(profile)
         if self.max:
             self.type = "string" if self.max <= 255 else "text"
@@ -177,7 +175,7 @@ class TextColumn(
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated TextColumn
         :rtype: TextColumn
         """

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pandas as pd
 import polars as pl
 
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -125,7 +124,7 @@ class IntColumn(
         For column [1.1 1.1 1.1] returns False
 
         :param df_series: series of values to evaluate
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: is_int_col
         :rtype: list
         """
@@ -140,12 +139,11 @@ class IntColumn(
         Update col profile properties with clean dataset and its known null params.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: int profile dictionary
         :type profile: dict
         :return: None
         """
-        df_series_clean = pd.Series(df_series_clean.to_numpy())
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
@@ -155,7 +153,7 @@ class IntColumn(
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated IntColumn
         :rtype: IntColumn
         """

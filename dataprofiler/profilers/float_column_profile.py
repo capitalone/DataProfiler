@@ -280,7 +280,7 @@ class FloatColumn(
 
         :param df_series_clean: df series with nulls removed, assumes all values
             are floats as well
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param sample_ratio: Ratio of samples used for float precision
         :type sample_ratio: float (between 0 and 1)
         :return: string representing its precision print format
@@ -332,9 +332,9 @@ class FloatColumn(
         For column [1.0, np.NaN, 1.0] returns [True, True, True]
         For column [1.0, "a", "b"] returns [True, False, False]
         :param df_series: series of values to evaluate
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: is_float_col
-        :rtype: Union[List[bool], pandas.Series[bool]]
+        :rtype: pl.Series
         """
         if len(df_series) == 0:
             return pl.Series()
@@ -361,7 +361,7 @@ class FloatColumn(
         subset before they are merged into the main data profile.
         :type subset_properties: dict
         :param df_series: Data to be profiled
-        :type df_series: pandas.DataFrame
+        :type df_series: polars.DataFrame
         :return: None
         """
         sample_ratio = None
@@ -403,19 +403,18 @@ class FloatColumn(
         Update column profile properties with cleaned dataset and its known profile.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: float profile dictionary
         :type profile: dict
         :return: None
         """
-        df_series_clean = df_series_clean.to_pandas()
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
 
     def _update_numeric_stats(
         self,
-        df_series: pl.DataFrame,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -430,7 +429,7 @@ class FloatColumn(
         subset before they are merged into the main data profile.
         :type subset_properties: Dict
         :param df_series: Data to be profiled
-        :type df_series: Pandas Dataframe
+        :type df_series: Polars Dataframe
         :return: None
         """
         super()._update_helper(df_series, subset_properties)
@@ -440,7 +439,7 @@ class FloatColumn(
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated FloatColumn
         :rtype: FloatColumn
         """

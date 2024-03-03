@@ -10,7 +10,6 @@ from typing import Any, Callable, Dict, List, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
-import pandas as pd
 import polars as pl
 import scipy.stats
 
@@ -498,7 +497,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "Unsupported operand type(s) for diff: '{}' "
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
-        print(self.variance, other_profile.variance)
         differences = {
             "min": profiler_utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": profiler_utils.find_diff_of_numbers(self.max, other_profile.max),
@@ -1125,10 +1123,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         return var
 
     def _total_histogram_bin_variance(
-        self, input_array: np.ndarray | pd.Series
+        self, input_array: np.ndarray | pl.Series
     ) -> float:
-        if type(input_array) is pd.Series:
-            input_array = pl.from_pandas(input_array)
+        if type(input_array) is pl.Series:
             input_array = input_array.to_numpy()
         # calculate total variance over all bins of a histogram
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
@@ -1146,20 +1143,18 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             sum_var += bin_var
         return sum_var
 
-    def _histogram_bin_error(self, input_array: np.ndarray | pd.Series) -> np.float64:
+    def _histogram_bin_error(self, input_array: np.ndarray | pl.Series) -> np.float64:
         """
         Calculate error of each value from bin of the histogram it falls within.
 
         :param input_array: input data used to calculate the histogram
-        :type input_array: Union[np.array, pd.Series]
+        :type input_array: Union[np.array, pl.Series]
         :return: binning error
         :rtype: float
         """
-        if type(input_array) is pd.Series:
-            input_array = pl.from_pandas(input_array)
+        if type(input_array) == pl.Series:
             input_array = input_array.to_numpy()
-        bin_edges = self._stored_histogram["histogram"]["bin_edges"]
-
+        bin_edges = self._stored_histogram["histogram"]["bin_edges"].astype(float)
         # account ofr digitize which is exclusive
         bin_edges = bin_edges.copy()
 
@@ -1280,7 +1275,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Uses np.histogram.
 
         :param values: input data values
-        :type values: Union[np.array, pd.Series]
+        :type values: Union[np.array, pl.Series]
         :return: bin edges and bin counts
         """
         if len(np.unique(values)) == 1:
@@ -1323,18 +1318,17 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
         return bin_counts, bin_edges
 
-    def _merge_histogram(self, values: np.ndarray | pd.Series) -> None:
+    def _merge_histogram(self, values: np.ndarray | pl.Series) -> None:
         # values is the current array of values,
         # that needs to be updated to the accumulated histogram
-        if type(values) is pd.Series:
-            values = pl.from_pandas(values)
+        if type(values) == pl.Series:
             values = values.to_numpy()
         combined_values = np.concatenate([values, self._histogram_to_array()])
         bin_counts, bin_edges = self._get_histogram(combined_values)
         self._stored_histogram["histogram"]["bin_counts"] = bin_counts
         self._stored_histogram["histogram"]["bin_edges"] = bin_edges
 
-    def _update_histogram(self, df_series: pd.Series | np.ndarray) -> None:
+    def _update_histogram(self, df_series: pl.Series) -> None:
         """
         Update histogram for each method and the combined method.
 
@@ -1352,30 +1346,31 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         accumulated losses, and the best method with minimal loss is picked
 
         :param df_series: a given column
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return:
         """
-        if self._greater_than_64_bit and type(df_series) is pd.Series:
-            df_series = df_series.to_numpy(dtype=float)
-            df_series = df_series[np.isfinite(df_series)]
-            if df_series.size == 0:
+        if self._greater_than_64_bit:
+            df_np_series = df_series.to_numpy()
+            df_np_series = df_np_series[np.isfinite(df_np_series)]
+            if df_np_series.size == 0:
                 return
+            if self._has_histogram:
+                self._merge_histogram(df_np_series)
+            else:
+                bin_counts, bin_edges = self._get_histogram(df_np_series)
+                self._stored_histogram["histogram"]["bin_counts"] = bin_counts
+                self._stored_histogram["histogram"]["bin_edges"] = bin_edges
         else:
-            df_series = pl.from_pandas(df_series, nan_to_null=True).cast(pl.Float64)
-            df_series = df_series.replace([np.inf, -np.inf], [None])  # type: ignore
-            df_series = df_series.drop_nulls()
+            df_series = df_series.filter(~df_series.is_infinite())
+            df_series = df_series.drop_nans()
             if df_series.is_empty():
                 return
-
-        if self._has_histogram:
-            if self._greater_than_64_bit:
-                self._merge_histogram(df_series.tolist())
+            if self._has_histogram:
+                self._merge_histogram(df_series)
             else:
-                self._merge_histogram(df_series.to_list())
-        else:
-            bin_counts, bin_edges = self._get_histogram(df_series)
-            self._stored_histogram["histogram"]["bin_counts"] = bin_counts
-            self._stored_histogram["histogram"]["bin_edges"] = bin_edges
+                bin_counts, bin_edges = self._get_histogram(df_series)
+                self._stored_histogram["histogram"]["bin_counts"] = bin_counts
+                self._stored_histogram["histogram"]["bin_edges"] = bin_edges
 
         # update loss for the stored bins
         histogram_loss = self._histogram_bin_error(df_series)
@@ -1749,36 +1744,30 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update base numerical profile properties w/ clean dataset and known null params.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: numerical profile dictionary
         :type profile: dict
         :return: None
         """
-        self._greater_than_64_bit = (
-            not df_series_clean.empty
-            and df_series_clean.apply(pd.to_numeric, errors="coerce").dtype == "O"
-        )
+        self._greater_than_64_bit = df_series_clean.dtype == pl.Object
         if self._greater_than_64_bit:
-            df_series_clean = df_series_clean.to_numpy()
-            df_series_clean = df_series_clean[df_series_clean != np.nan]
-            if df_series_clean.size == 0:
+            df_np_series_clean = df_series_clean.to_numpy()
+            df_np_series_clean = df_np_series_clean[df_np_series_clean != np.nan]
+            if df_np_series_clean.size == 0:
                 return
-            df_series_clean = pd.Series(df_series_clean)
+            df_series_clean = pl.Series(df_np_series_clean)
         else:
-            df_series_clean = pl.from_pandas(df_series_clean)
             if df_series_clean.dtype == pl.String:
                 df_series_clean = df_series_clean.str.strip_chars().cast(pl.Float64)
             else:
                 df_series_clean = df_series_clean.cast(pl.Float64)
             if df_series_clean.is_empty():
                 return
-            df_series_clean = df_series_clean.to_pandas()
-            df_series_clean = df_series_clean.astype(float)
 
         prev_dependent_properties = {
             "mean": self.mean,
@@ -1800,15 +1789,14 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="min")
     def _get_min(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
         if self._greater_than_64_bit:
-            min_value = np.min(df_series)
+            min_value = min(df_series)
             self.min = min_value if not self.min else min(self.min, min_value)
         else:
-            df_series = pl.from_pandas(df_series)
             min_value = df_series.min()
             self.min = np.float64(
                 min_value if not self.min else min(self.min, min_value)
@@ -1818,15 +1806,14 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="max")
     def _get_max(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
         if self._greater_than_64_bit:
-            max_value = np.max(df_series)
+            max_value = max(df_series)
             self.max = max_value if not self.max else max(self.max, max_value)
         else:
-            df_series = pl.from_pandas(df_series)
             max_value = df_series.max()
             if self.max is not None:
                 max_value = type(self.max)(max_value)
@@ -1838,14 +1825,14 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="sum")
     def _get_sum(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
         if np.isinf(self.sum) or (np.isnan(self.sum) and self.match_count > 0):
             return
         if self._greater_than_64_bit:
-            sum_value = np.sum(df_series)
+            sum_value = float(sum(df_series))
             if len(df_series) > 0 and sum_value == np.nan:
                 warnings.warn(
                     "Infinite or invalid values found in data. "
@@ -1854,7 +1841,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                     RuntimeWarning,
                 )
         else:
-            df_series = pl.from_pandas(df_series)
             sum_value = df_series.sum()
             if np.isinf(sum_value) or (len(df_series) > 0 and np.isnan(sum_value)):
                 warnings.warn(
@@ -1870,7 +1856,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="variance")
     def _get_variance(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -1879,9 +1865,8 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
         if self._greater_than_64_bit:
-            batch_biased_variance = np.var(df_series)
+            batch_biased_variance = np.var(df_series.to_numpy())
         else:
-            df_series = pl.from_pandas(df_series)
             batch_biased_variance = np.var([df_series])
         subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
@@ -1900,7 +1885,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="skewness")
     def _get_skewness(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -1908,7 +1893,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Compute and update skewness of current dataset given new chunk.
 
         :param df_series: incoming data
-        :type df_series: pandas series
+        :type df_series: polars series
         :param prev_dependent_properties: pre-update values needed
             for computation
         :type prev_dependent_properties: dict
@@ -1924,11 +1909,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
 
-        if self._greater_than_64_bit and type(df_series) is pd.Series:
-            df_series = df_series.to_numpy(dtype=float)
+        if self._greater_than_64_bit and type(df_series) is pl.Series:
+            batch_biased_skewness = profiler_utils.biased_skew(df_series.to_numpy())
         else:
-            df_series = pl.from_pandas(df_series, nan_to_null=False)
-        batch_biased_skewness = profiler_utils.biased_skew(df_series)
+            batch_biased_skewness = profiler_utils.biased_skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
         batch_biased_var = subset_properties["biased_variance"]
@@ -1948,7 +1932,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="kurtosis")
     def _get_kurtosis(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -1956,7 +1940,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Compute and update kurtosis of current dataset given new chunk.
 
         :param df_series: incoming data
-        :type df_series: pandas series
+        :type df_series: polars series
         :param prev_dependent_properties: pre-update values needed
             for computation
         :type prev_dependent_properties: dict
@@ -1972,11 +1956,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         ):
             return
 
-        if self._greater_than_64_bit and type(df_series) is pd.Series:
-            df_series = df_series.to_numpy(dtype=float)
+        if self._greater_than_64_bit:
+            batch_biased_kurtosis = profiler_utils.biased_kurt(df_series.to_numpy())
         else:
-            df_series = pl.from_pandas(df_series, nan_to_null=False)
-        batch_biased_kurtosis = profiler_utils.biased_kurt(df_series)
+            batch_biased_kurtosis = profiler_utils.biased_kurt(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]
         batch_biased_var = subset_properties["biased_variance"]
@@ -1999,7 +1982,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _get_histogram_and_quantiles(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -2017,7 +2000,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     @BaseColumnProfiler._timeit(name="num_zeros")
     def _get_num_zeros(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -2025,23 +2008,26 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Get the count of zeros in the numerical column.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :param prev_dependent_properties: previous dependent properties
         :type prev_dependent_properties: dict
         :param subset_properties: subset of properties
         :type subset_properties: dict
         :return: None
         """
-        if not self._greater_than_64_bit:
-            df_series = pl.from_pandas(df_series)
-        num_zeros_value = (df_series == 0).sum()
+        if df_series.is_empty():
+            num_zeros_value = 0
+        elif self._greater_than_64_bit:
+            num_zeros_value = int((df_series.to_numpy() == 0).sum())
+        else:
+            num_zeros_value = int((df_series == 0).sum())
         subset_properties["num_zeros"] = num_zeros_value
         self.num_zeros = self.num_zeros + num_zeros_value
 
     @BaseColumnProfiler._timeit(name="num_negatives")
     def _get_num_negatives(
         self,
-        df_series: pd.Series | np.ndarray,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -2049,16 +2035,19 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Get the count of negative numbers in the numerical column.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :param prev_dependent_properties: previous dependent properties
         :type prev_dependent_properties: dict
         :param subset_properties: subset of properties
         :type subset_properties: dict
         :return: None
         """
-        if not self._greater_than_64_bit:
-            df_series = pl.from_pandas(df_series)
-        num_negatives_value = (df_series < 0).sum()
+        if df_series.is_empty():
+            num_negatives_value = 0
+        elif self._greater_than_64_bit:
+            num_negatives_value = int((df_series.to_numpy() < 0).sum())
+        else:
+            num_negatives_value = int((df_series < 0).sum())
         subset_properties["num_negatives"] = num_negatives_value
         self.num_negatives = self.num_negatives + num_negatives_value
 
@@ -2068,7 +2057,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Update the numerical profile properties with an uncleaned dataset.
 
         :param df_series: df series with nulls removed
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: None
         """
         raise NotImplementedError()

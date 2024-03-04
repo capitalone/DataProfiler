@@ -4,6 +4,7 @@ from __future__ import annotations
 import itertools
 
 import numpy as np
+import pandas as pd
 import polars as pl
 
 from . import profiler_utils
@@ -179,6 +180,9 @@ class TextColumn(
         :return: updated TextColumn
         :rtype: TextColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         len_df = len(df_series)
         if len_df == 0:
             return self

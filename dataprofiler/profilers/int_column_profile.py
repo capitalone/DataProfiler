@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 import polars as pl
 
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -157,6 +158,9 @@ class IntColumn(
         :return: updated IntColumn
         :rtype: IntColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         self._greater_than_64_bit = df_series.dtype == pl.Object
         if len(df_series) == 0:
             return self

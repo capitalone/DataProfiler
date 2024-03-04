@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 
 import numpy as np
+import pandas as pd
 import polars as pl
 
 from . import profiler_utils
@@ -443,6 +444,9 @@ class FloatColumn(
         :return: updated FloatColumn
         :rtype: FloatColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         if len(df_series) == 0:
             return self
         is_each_row_float = self._is_each_row_float(df_series).replace(None, False)

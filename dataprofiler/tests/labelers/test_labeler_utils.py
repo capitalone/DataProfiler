@@ -235,8 +235,9 @@ class TestEvaluateAccuracy(unittest.TestCase):
         self.assertIn("f1-score ", log_output)
         self.assertIn("F1 Score: ", log_output)
 
+    @mock.patch("dataprofiler.labelers.labeler_utils.classification_report")
     @mock.patch("pandas.DataFrame")
-    def test_save_conf_mat(self, mock_dataframe):
+    def test_save_conf_mat(self, mock_dataframe, mock_report):
 
         # ideally mock out the actual contents written to file, but
         # would be difficult to get this completely worked out.

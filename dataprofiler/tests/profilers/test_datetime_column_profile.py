@@ -501,6 +501,47 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         self.assertEqual(serialized, expected)
 
+    def test_json_encode_datetime(self):
+        data = ["1209214"]
+        df = pd.Series(data)
+        profiler = DateTimeColumn("0")
+
+        expected_date_formats = [
+            "%Y-%m-%d %H:%M:%S",
+            "%b %d, %Y",
+            "%m/%d/%y %H:%M",
+        ]
+        with patch.object(
+            profiler, "_combine_unique_sets", return_value=expected_date_formats
+        ):
+            with patch("time.time", return_value=0.0):
+                profiler.update(df)
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "class": "DateTimeColumn",
+                "data": {
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 1,
+                    "metadata": {},
+                    "times": defaultdict(float, {"datetime": 0.0}),
+                    "thread_safe": True,
+                    "match_count": 1,
+                    "date_formats": expected_date_formats,
+                    "min": "1209214",
+                    "max": "1209214",
+                    "_dt_obj_min": "9214-01-20T00:00:00",
+                    "_dt_obj_max": "9214-01-20T00:00:00",
+                    "_DateTimeColumn__calculations": dict(),
+                },
+            }
+        )
+
+        self.assertEqual(serialized, expected)
+
     def test_json_decode(self):
         fake_profile_name = None
         expected_profile = DateTimeColumn(fake_profile_name)

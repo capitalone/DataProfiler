@@ -1,6 +1,7 @@
 """Contains ProfilerEncoder class."""
 
 import json
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -52,7 +53,7 @@ class ProfileEncoder(json.JSONEncoder):
             return int(to_serialize)
         elif isinstance(to_serialize, np.ndarray):
             return to_serialize.tolist()
-        elif isinstance(to_serialize, pd.Timestamp):
+        elif isinstance(to_serialize, (pd.Timestamp, datetime)):
             return to_serialize.isoformat()
         elif isinstance(to_serialize, BaseDataLabeler):
             # TODO: This does not allow the user to serialize a model if it is loaded

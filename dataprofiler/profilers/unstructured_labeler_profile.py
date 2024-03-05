@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
+import polars as pl
 from pandas import Series
 
 from ..labelers.base_data_labeler import BaseDataLabeler
@@ -102,7 +103,7 @@ class UnstructuredLabelerProfile:
 
         return merged_profile
 
-    def report(self, remove_disabled_flag: bool = False) -> dict:
+    def report(self) -> dict:
         """
         Return profile object.
 
@@ -176,6 +177,7 @@ class UnstructuredLabelerProfile:
             df_series_clean, predictions.copy(), self.data_labeler.label_mapping
         )
 
+        df_series_clean = pl.Series(df_series_clean)
         # Update counts and percent values
         self._update_word_label_counts(df_series_clean, format_predictions["pred"])
         self._update_true_char_label_counts(predictions["pred"])
@@ -188,7 +190,7 @@ class UnstructuredLabelerProfile:
         # CHARACTERS/WORDS PROCESSED
         self._update_column_base_properties(profile)
 
-    def update(self, df_series: Series) -> None:
+    def update(self, df_series: Series | pl.Series) -> None:
         """Update profile."""
         if len(df_series) == 0:
             return
@@ -196,6 +198,9 @@ class UnstructuredLabelerProfile:
             char_sample_size=self.char_sample_size,
             word_sample_size=self.word_sample_size,
         )
+
+        if type(df_series) is pl.Series:
+            df_series = df_series.to_pandas()
         self._update_helper(df_series, profile)
 
     @property
@@ -278,7 +283,7 @@ class UnstructuredLabelerProfile:
             self.char_sample_size += len(sample)
 
     def _update_postprocess_char_label_counts(
-        self, df_series_clean: Series, format_predictions: dict
+        self, df_series_clean: Series | pl.Series, format_predictions: dict
     ) -> None:
         """
         Update the postprocess character label counts.
@@ -292,7 +297,8 @@ class UnstructuredLabelerProfile:
         """
         char_label_counts = self.entity_counts["postprocess_char_level"]
 
-        for index, result in enumerate(zip(df_series_clean, format_predictions)):
+        df_series_clean = pl.Series(df_series_clean)
+        for result in zip(df_series_clean, format_predictions):
             text, entities = result
             index = 0
             for entity in entities:
@@ -308,7 +314,7 @@ class UnstructuredLabelerProfile:
             char_label_counts["UNKNOWN"] += len(text) - index
 
     def _update_word_label_counts(
-        self, df_series_clean: Series, format_predictions: dict
+        self, df_series_clean: Series | pl.Series, format_predictions: dict
     ) -> None:
         """
         Update the sorted dictionary of each entity count.
@@ -321,7 +327,8 @@ class UnstructuredLabelerProfile:
         """
         word_label_counts = self.entity_counts["word_level"]
 
-        for index, result in enumerate(zip(df_series_clean, format_predictions)):
+        df_series_clean = pl.Series(df_series_clean)
+        for result in zip(df_series_clean, format_predictions):
             text, entities = result
             begin_word_idx = -1
             index = 0

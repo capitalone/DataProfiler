@@ -3,6 +3,7 @@ from collections import defaultdict
 from unittest import mock
 
 import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import profiler_utils
 from dataprofiler.profilers.unstructured_labeler_profile import (
@@ -15,7 +16,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # setting up objects/profile
         default = UnstructuredLabelerProfile()
 
-        sample = pd.Series(["abc123", "Bob", "!@##$%"])
+        sample = pl.Series(["abc123", "Bob", "!@##$%"])
 
         # running update
         default.update(sample)
@@ -34,7 +35,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # setting up objects/profile
         default = UnstructuredLabelerProfile()
 
-        sample = pd.Series(
+        sample = pl.Series(
             [
                 "Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234."
                 "\tHis\tssn\tis\tnot\t334-97-1234. I'm a BAN: 000043219499392912."
@@ -56,7 +57,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # setting up objects/profile
         default = UnstructuredLabelerProfile()
 
-        sample = pd.Series(
+        sample = pl.Series(
             [
                 "Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234."
                 "\tHis\tssn\tis\tnot\t334-97-1234. I'm a BAN: 000049939232194912."
@@ -78,7 +79,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # setting up objects/profile
         default = UnstructuredLabelerProfile()
 
-        sample = pd.Series(
+        sample = pl.Series(
             [
                 "Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234."
                 "\tHis\tssn\tis\tnot\t334-97-1234. I'm a BAN: 000043219499392912."
@@ -123,7 +124,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # initialize labeler profile
         default = UnstructuredLabelerProfile()
 
-        sample = pd.Series(["a"])
+        sample = pl.Series(["a"])
         expected_profile = dict(
             entity_counts={
                 "postprocess_char_level": defaultdict(int, {"UNKNOWN": 1}),
@@ -163,15 +164,15 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # initialize labeler profile
         profile = UnstructuredLabelerProfile()
 
-        sample = pd.Series(["a"])
+        sample = pl.Series(["a"])
 
         time_array = [float(i) for i in range(4, 0, -1)]
         with mock.patch("time.time", side_effect=lambda: time_array.pop()):
             profile.update(sample)
 
         report1 = profile.profile
-        report2 = profile.report(remove_disabled_flag=False)
-        report3 = profile.report(remove_disabled_flag=True)
+        report2 = profile.report()
+        report3 = profile.report()
         self.assertDictEqual(report1, report2)
         self.assertDictEqual(report1, report3)
 
@@ -192,7 +193,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         profile.entity_counts["true_char_level"]["TEST"] = 16
         profile.entity_counts["word_level"]["UNKNOWN"] = 5
         profile.entity_counts["word_level"]["TEST"] = 5
-        profile.update(pd.Series(["a"]))
+        profile.update(pl.Series(["a"]))
 
         expected_percentages = {
             "postprocess_char_level": defaultdict(int, {"UNKNOWN": 0.3, "TEST": 0.7}),
@@ -275,7 +276,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
         profiler1.entity_counts["word_level"]["TEST"] = 5
         profiler1.entity_counts["word_level"]["UNIQUE1"] = 5
-        profiler1.update(pd.Series(["a"]))
+        profiler1.update(pl.Series(["a"]))
 
         profiler2 = UnstructuredLabelerProfile()
         profiler2.char_sample_size = 20
@@ -289,7 +290,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         profiler2.entity_counts["word_level"]["UNKNOWN"] = 2
         profiler2.entity_counts["word_level"]["TEST"] = 4
         profiler2.entity_counts["word_level"]["UNIQUE2"] = 4
-        profiler2.update(pd.Series(["a"]))
+        profiler2.update(pl.Series(["a"]))
 
         expected_diff = {
             "entity_counts": {
@@ -342,7 +343,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         profiler1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
         profiler1.entity_counts["true_char_level"]["UNKNOWN"] = 5
         profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
-        profiler1.update(pd.Series(["a"]))
+        profiler1.update(pl.Series(["a"]))
 
         profiler2 = UnstructuredLabelerProfile()
         profile2 = profiler2.profile

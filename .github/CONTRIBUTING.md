@@ -106,3 +106,6 @@ the documentation.
 
 ## Updating Dependencies
 If you make changes to the `requirements` text files, please also update the `additional_dependencies` list under the `mypy` hook in `.pre-commit-config.yaml`. This is necessary for accurate type-checking.
+
+## Contributing Documentation Changes and Fixes
+Please see the `gh-pages` and `dev-gh-pages` branches for all documentation.

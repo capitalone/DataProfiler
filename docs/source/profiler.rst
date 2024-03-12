@@ -672,12 +672,15 @@ Below is an breakdown of all the options.
     * **int** - Options for the integer columns
 
       * is_enabled - (Boolean) Enables or disables the integer operations
+
       * min - Finds minimum value in a column
 
-      * is_enabled - (Boolean) Enables or disables min
+        * is_enabled - (Boolean) Enables or disables min
+
       * max - Finds maximum value in a column
 
         * is_enabled - (Boolean) Enables or disables max
+
       * mode - Finds mode(s) in a column
 
         * is_enabled - (Boolean) Enables or disables mode

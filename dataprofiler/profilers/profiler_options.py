@@ -195,6 +195,12 @@ class BooleanOption(BaseOption[BooleanOptionT]):
         self.is_enabled = is_enabled
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         return str(self.is_enabled)
 
     def _validate_helper(self, variable_path: str = "BooleanOption") -> list[str]:
@@ -963,6 +969,12 @@ class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
         self.cms_max_num_heavy_hitters = cms_max_num_heavy_hitters
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         dict_string = {'CategoricalOptions': []}
         for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
             dict_string['CategoricalOptions'].append({str(option): str(getattr(self, option))})
@@ -1193,6 +1205,12 @@ class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
         self.null_count: BooleanOption = BooleanOption(is_enabled=null_count)
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         dict_string = {'RowStatisticsOptions': []}
         for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
             dict_string['RowStatisticsOptions'].append({str(option): str(getattr(self, option))})
@@ -1245,6 +1263,12 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         self.data_labeler_object: BaseDataLabeler | None = None
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         dict_string = {'DataLabelerOptions': []}
         for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
             dict_string['DataLabelerOptions'].append({str(option): str(getattr(self, option))})
@@ -1393,6 +1417,12 @@ class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
         self.words: BooleanOption = BooleanOption(is_enabled=True)
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         dict_string = {'TextProfilerOptions': []}
         for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
             dict_string['TextProfilerOptions'].append({str(option): str(getattr(self, option))})
@@ -1517,6 +1547,12 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
         self.sampling_ratio = sampling_ratio
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         dict_string = {'StructuredOptions': []}
         for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
             dict_string['StructuredOptions'].append({str(option): str(getattr(self, option))})
@@ -1673,6 +1709,12 @@ class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
         self.data_labeler = DataLabelerOptions()
 
     def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form
+
+        :return: str of the option properties
+        :rtype: str
+        """
         dict_string = {'UnstructuredOptions': []}
         for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
             dict_string['UnstructuredOptions'].append({str(option): str(getattr(self, option))})

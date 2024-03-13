@@ -976,9 +976,15 @@ class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {'CategoricalOptions': []}
-        for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
-            dict_string['CategoricalOptions'].append({str(option): str(getattr(self, option))})
+        dict_string = {"CategoricalOptions": []}
+        for option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["CategoricalOptions"].append(
+                {str(option): str(getattr(self, option))}
+            )
         return json.dumps(dict_string, indent=4)
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
@@ -1213,9 +1219,15 @@ class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {'RowStatisticsOptions': []}
-        for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
-            dict_string['RowStatisticsOptions'].append({str(option): str(getattr(self, option))})
+        dict_string = {"RowStatisticsOptions": []}
+        for option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["RowStatisticsOptions"].append(
+                {str(option): str(getattr(self, option))}
+            )
         return json.dumps(dict_string, indent=4)
 
     def _validate_helper(
@@ -1272,9 +1284,15 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {'DataLabelerOptions': []}
-        for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
-            dict_string['DataLabelerOptions'].append({str(option): str(getattr(self, option))})
+        dict_string = {"DataLabelerOptions": []}
+        for option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["DataLabelerOptions"].append(
+                {str(option): str(getattr(self, option))}
+            )
         return json.dumps(dict_string, indent=4)
 
     def __deepcopy__(self, memo: dict) -> DataLabelerOptions:
@@ -1427,9 +1445,15 @@ class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {'TextProfilerOptions': []}
-        for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
-            dict_string['TextProfilerOptions'].append({str(option): str(getattr(self, option))})
+        dict_string = {"TextProfilerOptions": []}
+        for option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["TextProfilerOptions"].append(
+                {str(option): str(getattr(self, option))}
+            )
         return json.dumps(dict_string, indent=4)
 
     def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> list[str]:
@@ -1558,9 +1582,15 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {'StructuredOptions': []}
-        for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
-            dict_string['StructuredOptions'].append({str(option): str(getattr(self, option))})
+        dict_string = {"StructuredOptions": []}
+        for option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["StructuredOptions"].append(
+                {str(option): str(getattr(self, option))}
+            )
         return json.dumps(dict_string, indent=4)
 
     @property
@@ -1721,9 +1751,15 @@ class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {'UnstructuredOptions': []}
-        for option in [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]:
-            dict_string['UnstructuredOptions'].append({str(option): str(getattr(self, option))})
+        dict_string = {"UnstructuredOptions": []}
+        for option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["UnstructuredOptions"].append(
+                {str(option): str(getattr(self, option))}
+            )
         return json.dumps(dict_string, indent=4)
 
     @property

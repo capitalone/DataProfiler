@@ -196,7 +196,7 @@ class BooleanOption(BaseOption[BooleanOptionT]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
         :return: str of the option properties
         :rtype: str
@@ -970,8 +970,9 @@ class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
+        :vartype dict_string: dict
         :return: str of the option properties
         :rtype: str
         """
@@ -1206,8 +1207,9 @@ class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
+        :vartype dict_string: dict
         :return: str of the option properties
         :rtype: str
         """
@@ -1264,8 +1266,9 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
+        :vartype dict_string: dict
         :return: str of the option properties
         :rtype: str
         """
@@ -1418,8 +1421,9 @@ class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
+        :vartype dict_string: dict
         :return: str of the option properties
         :rtype: str
         """
@@ -1548,8 +1552,9 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
+        :vartype dict_string: dict
         :return: str of the option properties
         :rtype: str
         """
@@ -1710,8 +1715,9 @@ class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
+        :vartype dict_string: dict
         :return: str of the option properties
         :rtype: str
         """
@@ -1799,7 +1805,7 @@ class ProfilerOptions(BaseOption["ProfilerOptions"]):
 
     def __str__(self) -> str:
         """
-        Return a human friendly consumable output in string form
+        Return a human friendly consumable output in string form.
 
         :return: str of the option properties
         :rtype: str

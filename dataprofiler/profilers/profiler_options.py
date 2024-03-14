@@ -976,7 +976,7 @@ class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {"CategoricalOptions": []}
+        dict_string: dict = {"CategoricalOptions": []}
         for iter_option in [
             a
             for a in dir(self)
@@ -1219,7 +1219,7 @@ class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {"RowStatisticsOptions": []}
+        dict_string: dict = {"RowStatisticsOptions": []}
         for iter_option in [
             a
             for a in dir(self)
@@ -1284,7 +1284,7 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {"DataLabelerOptions": []}
+        dict_string: dict = {"DataLabelerOptions": []}
         for iter_option in [
             a
             for a in dir(self)
@@ -1445,7 +1445,7 @@ class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {"TextProfilerOptions": []}
+        dict_string: dict = {"TextProfilerOptions": []}
         for iter_option in [
             a
             for a in dir(self)
@@ -1582,7 +1582,7 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {"StructuredOptions": []}
+        dict_string: dict = {"StructuredOptions": []}
         for iter_option in [
             a
             for a in dir(self)
@@ -1751,7 +1751,7 @@ class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
         :return: str of the option properties
         :rtype: str
         """
-        dict_string = {"UnstructuredOptions": []}
+        dict_string: dict = {"UnstructuredOptions": []}
         for iter_option in [
             a
             for a in dir(self)
@@ -1846,7 +1846,9 @@ class ProfilerOptions(BaseOption["ProfilerOptions"]):
         :return: str of the option presets and properties
         :rtype: str
         """
-        return f"Presets: {str(self.presets)}\n {str(self.structured_options)}\n {str(self.unstructured_options)}"
+        return f"Presets: {str(self.presets)}\n \
+            {str(self.structured_options)}\n \
+            {str(self.unstructured_options)}"
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})

@@ -1843,10 +1843,10 @@ class ProfilerOptions(BaseOption["ProfilerOptions"]):
         """
         Return a human friendly consumable output in string form.
 
-        :return: str of the option properties
+        :return: str of the option presets and properties
         :rtype: str
         """
-        return str(self.structured_options) + "\n" + str(self.unstructured_options)
+        return f"Presets: {str(self.presets)}\n {str(self.structured_options)}\n {str(self.unstructured_options)}"
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})

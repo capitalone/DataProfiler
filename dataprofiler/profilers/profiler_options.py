@@ -977,13 +977,13 @@ class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
         :rtype: str
         """
         dict_string = {"CategoricalOptions": []}
-        for option in [
+        for iter_option in [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]:
             dict_string["CategoricalOptions"].append(
-                {str(option): str(getattr(self, option))}
+                {str(iter_option): str(getattr(self, iter_option))}
             )
         return json.dumps(dict_string, indent=4)
 
@@ -1220,13 +1220,13 @@ class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
         :rtype: str
         """
         dict_string = {"RowStatisticsOptions": []}
-        for option in [
+        for iter_option in [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]:
             dict_string["RowStatisticsOptions"].append(
-                {str(option): str(getattr(self, option))}
+                {str(iter_option): str(getattr(self, iter_option))}
             )
         return json.dumps(dict_string, indent=4)
 
@@ -1285,13 +1285,13 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         :rtype: str
         """
         dict_string = {"DataLabelerOptions": []}
-        for option in [
+        for iter_option in [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]:
             dict_string["DataLabelerOptions"].append(
-                {str(option): str(getattr(self, option))}
+                {str(iter_option): str(getattr(self, iter_option))}
             )
         return json.dumps(dict_string, indent=4)
 
@@ -1446,13 +1446,13 @@ class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
         :rtype: str
         """
         dict_string = {"TextProfilerOptions": []}
-        for option in [
+        for iter_option in [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]:
             dict_string["TextProfilerOptions"].append(
-                {str(option): str(getattr(self, option))}
+                {str(iter_option): str(getattr(self, iter_option))}
             )
         return json.dumps(dict_string, indent=4)
 
@@ -1583,13 +1583,13 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
         :rtype: str
         """
         dict_string = {"StructuredOptions": []}
-        for option in [
+        for iter_option in [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]:
             dict_string["StructuredOptions"].append(
-                {str(option): str(getattr(self, option))}
+                {str(iter_option): str(getattr(self, iter_option))}
             )
         return json.dumps(dict_string, indent=4)
 
@@ -1752,13 +1752,13 @@ class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
         :rtype: str
         """
         dict_string = {"UnstructuredOptions": []}
-        for option in [
+        for iter_option in [
             a
             for a in dir(self)
             if not a.startswith("__") and not callable(getattr(self, a))
         ]:
             dict_string["UnstructuredOptions"].append(
-                {str(option): str(getattr(self, option))}
+                {str(iter_option): str(getattr(self, iter_option))}
             )
         return json.dumps(dict_string, indent=4)
 

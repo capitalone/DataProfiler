@@ -93,7 +93,7 @@ repos:
 
             # requirements-test.txt
             coverage>=5.0.1,
-            dask>=2.29.0,
+            dask[dask-expr,dataframe]>=2020.12.0,
             fsspec>=0.3.3,
             pytest>=6.0.1,
             pytest-cov>=2.8.1,

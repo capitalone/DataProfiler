@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import abc
 import copy
+import json
 import re
 import warnings
-import json
 from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler

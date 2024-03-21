@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import copy
-import re
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -241,7 +241,6 @@ class FloatColumn(
         var = self._correct_bias_variance(
             self._precision["sample_size"], self._precision["biased_var"]
         )
-
         std = np.sqrt(var)
         margin_of_error = (
             None
@@ -275,14 +274,14 @@ class FloatColumn(
 
     @classmethod
     def _get_float_precision(
-        cls, df_series_clean: pd.Series, sample_ratio: float = None
+        cls, df_series_clean: pl.Series, sample_ratio: float = None
     ) -> dict | None:
         """
         Determine the precision of the numeric value.
 
         :param df_series_clean: df series with nulls removed, assumes all values
             are floats as well
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param sample_ratio: Ratio of samples used for float precision
         :type sample_ratio: float (between 0 and 1)
         :return: string representing its precision print format
@@ -294,7 +293,7 @@ class FloatColumn(
 
         # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
-        r = re.compile(r"^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D")
+        r = r"^[+-.0\s]+|\.?0+(\s|$)|([e].*)|\D"
 
         # DEFAULT: Sample the dataset. If small use full dataset,
         # OR 20k samples or 5% of the dataset which ever is larger.
@@ -305,15 +304,17 @@ class FloatColumn(
 
         # length of sampled cells after all punctuation removed
         len_per_float = (
-            df_series_clean.sample(sample_size).replace(to_replace=r, value="").map(len)
-        ).astype(float)
+            df_series_clean.sample(sample_size)
+            .str.replace_all(pattern=r, value="")
+            .map_elements(len)
+        )
 
         # Determine statistics precision
-        precision_sum = len_per_float.sum()
+        precision_sum = sum(len_per_float)
         subset_precision = {
-            "min": np.float64(len_per_float.min()),
-            "max": np.float64(len_per_float.max()),
-            "biased_var": np.var(len_per_float),
+            "min": np.float64(min(len_per_float)),
+            "max": np.float64(max(len_per_float)),
+            "biased_var": np.var([len_per_float]),
             "sum": np.float64(precision_sum),
             "mean": np.float64(precision_sum / sample_size),
             "sample_size": sample_size,
@@ -322,7 +323,7 @@ class FloatColumn(
         return subset_precision
 
     @classmethod
-    def _is_each_row_float(cls, df_series: pd.Series) -> list[bool] | pd.Series[bool]:
+    def _is_each_row_float(cls, df_series: pl.Series) -> pl.Series:
         """
         Determine if each value in a dataframe is a float.
 
@@ -332,18 +333,22 @@ class FloatColumn(
         For column [1.0, np.NaN, 1.0] returns [True, True, True]
         For column [1.0, "a", "b"] returns [True, False, False]
         :param df_series: series of values to evaluate
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: is_float_col
-        :rtype: Union[List[bool], pandas.Series[bool]]
+        :rtype: pl.Series
         """
         if len(df_series) == 0:
-            return list()
-        return df_series.map(NumericStatsMixin.is_float).astype("bool")
+            return pl.Series()
+        if sum(df_series.is_null()) == len(df_series):
+            return df_series
+        df_series = df_series.map_elements(NumericStatsMixin.is_float)
+        df_series = df_series.cast(bool)
+        return df_series
 
     @BaseColumnProfiler._timeit(name="precision")
     def _update_precision(
         self,
-        df_series: pd.DataFrame,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -357,7 +362,7 @@ class FloatColumn(
         subset before they are merged into the main data profile.
         :type subset_properties: dict
         :param df_series: Data to be profiled
-        :type df_series: pandas.DataFrame
+        :type df_series: polars.DataFrame
         :return: None
         """
         sample_ratio = None
@@ -394,12 +399,12 @@ class FloatColumn(
                 self._precision["sum"] / self._precision["sample_size"]
             )
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update column profile properties with cleaned dataset and its known profile.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: float profile dictionary
         :type profile: dict
         :return: None
@@ -410,7 +415,7 @@ class FloatColumn(
 
     def _update_numeric_stats(
         self,
-        df_series: pd.DataFrame,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -425,38 +430,39 @@ class FloatColumn(
         subset before they are merged into the main data profile.
         :type subset_properties: Dict
         :param df_series: Data to be profiled
-        :type df_series: Pandas Dataframe
+        :type df_series: Polars Dataframe
         :return: None
         """
         super()._update_helper(df_series, subset_properties)
 
-    def update(self, df_series: pd.Series) -> FloatColumn:
+    def update(self, df_series: pl.Series) -> FloatColumn:
         """
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated FloatColumn
         :rtype: FloatColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         if len(df_series) == 0:
             return self
-
-        is_each_row_float = self._is_each_row_float(df_series)
+        is_each_row_float = self._is_each_row_float(df_series).replace(None, False)
         sample_size = len(is_each_row_float)
-        float_count = np.sum(is_each_row_float)
+        float_count = np.sum([is_each_row_float])
         profile = dict(match_count=float_count, sample_size=sample_size)
-
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series[is_each_row_float],
+            df_series=df_series.filter(is_each_row_float),
             prev_dependent_properties={},
             subset_properties=profile,
         )
 
         self._update_helper(
-            df_series_clean=df_series[is_each_row_float], profile=profile
+            df_series_clean=df_series.filter(is_each_row_float), profile=profile
         )
 
         return self

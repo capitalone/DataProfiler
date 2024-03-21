@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
@@ -113,7 +114,7 @@ class IntColumn(
         return None
 
     @classmethod
-    def _is_each_row_int(cls, df_series: pd.Series) -> list[bool]:
+    def _is_each_row_int(cls, df_series: pl.Series) -> list[bool]:
         """
         Return true if given is numerical and int values.
 
@@ -124,7 +125,7 @@ class IntColumn(
         For column [1.1 1.1 1.1] returns False
 
         :param df_series: series of values to evaluate
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: is_int_col
         :rtype: list
         """
@@ -134,12 +135,12 @@ class IntColumn(
 
         return [NumericStatsMixin.is_int(x) for x in df_series]
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null params.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: int profile dictionary
         :type profile: dict
         :return: None
@@ -148,32 +149,37 @@ class IntColumn(
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
 
-    def update(self, df_series: pd.Series) -> IntColumn:
+    def update(self, df_series: pl.Series) -> IntColumn:
         """
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated IntColumn
         :rtype: IntColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
+        self._greater_than_64_bit = df_series.dtype == pl.Object
         if len(df_series) == 0:
             return self
 
-        df_series = df_series.reset_index(drop=True)
         is_each_row_int = self._is_each_row_int(df_series)
         sample_size = len(is_each_row_int)
-        match_int_count = np.sum(is_each_row_int)
+        match_int_count = np.sum([is_each_row_int])
         profile = dict(match_count=match_int_count, sample_size=sample_size)
 
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series[is_each_row_int],
+            df_series=df_series.filter(is_each_row_int),
             prev_dependent_properties={},
             subset_properties=profile,
         )
 
-        self._update_helper(df_series_clean=df_series[is_each_row_int], profile=profile)
+        self._update_helper(
+            df_series_clean=df_series.filter(is_each_row_int), profile=profile
+        )
 
         return self

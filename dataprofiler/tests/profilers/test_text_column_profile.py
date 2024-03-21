@@ -6,7 +6,7 @@ from collections import defaultdict
 from unittest import mock
 
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import TextColumn, profiler_utils
 from dataprofiler.profilers.json_decoder import load_column_profile
@@ -26,7 +26,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         Checks whether the vocab list for the profiler is correct.
         :return:
         """
-        df1 = pd.Series(
+        df1 = pl.Series(
             [
                 "abcd",
                 "aa",
@@ -39,35 +39,35 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "dfd",
                 "2",
             ]
-        ).apply(str)
-        df2 = pd.Series(
+        ).map_elements(str)
+        df2 = pl.Series(
             ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
-        ).apply(str)
-        df3 = pd.Series(
+        ).map_elements(str)
+        df3 = pl.Series(
             [
                 "NaN",
                 "b",
                 "nan",
                 "c",
             ]
-        ).apply(str)
+        ).map_elements(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
 
-        unique_vocab = dict.fromkeys("".join(df1.tolist())).keys()
+        unique_vocab = dict.fromkeys("".join(df1.to_list())).keys()
         self.assertCountEqual(unique_vocab, text_profiler.vocab)
         self.assertCountEqual(set(text_profiler.vocab), text_profiler.vocab)
 
         text_profiler.update(df2)
-        df = pd.concat([df1, df2])
-        unique_vocab = dict.fromkeys("".join(df.tolist())).keys()
+        df = pl.concat([df1, df2])
+        unique_vocab = dict.fromkeys("".join(df.to_list())).keys()
         self.assertCountEqual(unique_vocab, text_profiler.vocab)
         self.assertCountEqual(set(text_profiler.vocab), text_profiler.vocab)
 
         text_profiler.update(df3)
-        df = pd.concat([df1, df2, df3])
-        unique_vocab = dict.fromkeys("".join(df.tolist())).keys()
+        df = pl.concat([df1, df2, df3])
+        unique_vocab = dict.fromkeys("".join(df.to_list())).keys()
         self.assertCountEqual(unique_vocab, text_profiler.vocab)
 
     def test_profiled_str_numerics(self):
@@ -96,7 +96,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             M2 = m_a + m_b + delta**2 * count_a * count_b / (count_a + count_b)
             return M2 / (count_a + count_b - 1)
 
-        df1 = pd.Series(
+        df1 = pl.Series(
             [
                 "abcd",
                 "aa",
@@ -110,11 +110,11 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "2",
                 np.nan,
             ]
-        ).apply(str)
-        df2 = pd.Series(
+        ).map_elements(str)
+        df2 = pl.Series(
             ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
-        ).apply(str)
-        df3 = pd.Series(
+        ).map_elements(str)
+        df3 = pl.Series(
             [
                 "NaN",
                 "b",
@@ -122,26 +122,28 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "c",
                 None,
             ]
-        ).apply(str)
+        ).map_elements(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
-
-        self.assertEqual(mean(df1.str.len()), text_profiler.mean)
-        self.assertAlmostEqual(var(df1.str.len()), text_profiler.variance)
-        self.assertAlmostEqual(np.sqrt(var(df1.str.len())), text_profiler.stddev)
-
+        self.assertEqual(mean(df1.str.len_chars().drop_nulls()), text_profiler.mean)
+        self.assertAlmostEqual(
+            var(df1.str.len_chars().drop_nulls()), text_profiler.variance
+        )
+        self.assertAlmostEqual(
+            np.sqrt(var(df1.str.len_chars().drop_nulls())), text_profiler.stddev
+        )
         variance = batch_variance(
             mean_a=text_profiler.mean,
             var_a=text_profiler.variance,
             count_a=text_profiler.sample_size,
-            mean_b=mean(df2.str.len()),
-            var_b=var(df2.str.len()),
+            mean_b=mean(df2.str.len_chars()),
+            var_b=var(df2.str.len_chars()),
             count_b=df2.count(),
         )
         text_profiler.update(df2)
-        df = pd.concat([df1, df2])
-        self.assertEqual(df.str.len().mean(), text_profiler.mean)
+        df = pl.concat([df1, df2])
+        self.assertEqual(df.str.len_chars().drop_nulls().mean(), text_profiler.mean)
         self.assertAlmostEqual(variance, text_profiler.variance)
         self.assertAlmostEqual(np.sqrt(variance), text_profiler.stddev)
 
@@ -149,19 +151,19 @@ class TestTextColumnProfiler(unittest.TestCase):
             mean_a=text_profiler.mean,
             var_a=text_profiler.variance,
             count_a=text_profiler.match_count,
-            mean_b=mean(df3.str.len()),
-            var_b=var(df3.str.len()),
+            mean_b=mean(df3.str.len_chars().drop_nulls()),
+            var_b=var(df3.str.len_chars().drop_nulls()),
             count_b=df3.count(),
         )
         text_profiler.update(df3)
 
-        df = pd.concat([df1, df2, df3])
-        self.assertEqual(df.str.len().mean(), text_profiler.mean)
+        df = pl.concat([df1, df2, df3])
+        self.assertEqual(df.str.len_chars().drop_nulls().mean(), text_profiler.mean)
         self.assertAlmostEqual(variance, text_profiler.variance)
         self.assertAlmostEqual(np.sqrt(variance), text_profiler.stddev)
 
     def test_base_case(self):
-        data = pd.Series([], dtype=object)
+        data = pl.Series([], dtype=object)
         profiler = TextColumn(data.name)
         profiler.update(data)
         profiler.update(data)  # intentional to validate no changes if empty
@@ -174,7 +176,7 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     def test_data_ratio(self):
         # should always be 1.0 unless empty
-        df1 = pd.Series(
+        df1 = pl.Series(
             [
                 "abcd",
                 "aa",
@@ -187,7 +189,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "dfd",
                 "2",
             ]
-        ).apply(str)
+        ).map_elements(str)
 
         profiler = TextColumn(df1.name)
         profiler.update(df1)
@@ -198,31 +200,31 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(profiler.data_type_ratio, 1.0)
 
     def test_profiled_min(self):
-        df = pd.Series(["aaa", "aa", "aaaa", "aaa"]).apply(str)
+        df = pl.Series(["aaa", "aa", "aaaa", "aaa"]).map_elements(str)
 
         profiler = TextColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2)
 
-        df = pd.Series(["aa", "a"]).apply(str)
+        df = pl.Series(["aa", "a"]).map_elements(str)
         profiler.update(df)
         self.assertEqual(profiler.min, 1)
 
     def test_profiled_max(self):
-        df = pd.Series(["a", "aa", "a", "a"]).apply(str)
+        df = pl.Series(["a", "aa", "a", "a"]).map_elements(str)
 
         profiler = TextColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 2)
 
-        df = pd.Series(["aa", "aaa", "a"]).apply(str)
+        df = pl.Series(["aa", "aaa", "a"]).map_elements(str)
         profiler.update(df)
         self.assertEqual(profiler.max, 3)
 
     def test_profile(self):
-        df = pd.Series(
+        df = pl.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).apply(str)
+        ).map_elements(str)
         profiler = TextColumn(df.name)
         expected_profile = dict(
             min=1.0,
@@ -302,7 +304,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         `remove_disabled_flag`.
         """
         data = [2.0, 12.5, "not a float", 6.0, "not a float"]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
 
         options = TextOptions()  # With TextOptions and remove_disabled_flag == True
         options.vocab.is_enabled = False
@@ -327,8 +329,8 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertIn("vocab", report_keys)
 
     def test_option_timing(self):
-        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
-        df = pd.Series(data).apply(str)
+        data = ["2.0", "12.5", "not a float", "6.0", "not a float"]
+        df = pl.Series(data).map_elements(str)
 
         options = TextOptions()
         options.set({"min.is_enabled": False})
@@ -376,13 +378,13 @@ class TestTextColumnProfiler(unittest.TestCase):
             self.assertCountEqual(expected, profiler.profile["times"])
 
     def test_merge_profile(self):
-        df = pd.Series(
+        df = pl.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).apply(str)
+        ).map_elements(str)
 
-        df2 = pd.Series(
+        df2 = pl.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
-        ).apply(str)
+        ).map_elements(str)
 
         expected_vocab = [
             "a",
@@ -450,7 +452,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.min.is_enabled = False
         options.histogram_and_quantiles.bin_count_or_method = None
 
-        df = pd.Series(
+        df = pl.Series(
             ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
         )
 
@@ -463,7 +465,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.max.is_enabled = False
         options.vocab.is_enabled = False
         options.histogram_and_quantiles.bin_count_or_method = None
-        df2 = pd.Series(
+        df2 = pl.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
         )
         profiler2 = TextColumn("Text", options=options)
@@ -499,12 +501,12 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = 10
 
         data = ["this", "is", "a", "test"]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
         profiler1 = TextColumn("Float", options)
         profiler1.update(df)
 
         data2 = ["this", "is", "another", "test"]
-        df2 = pd.Series(data2).apply(str)
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = TextColumn("Float", options)
         profiler2.update(df2)
 
@@ -543,13 +545,13 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(["custom"], num_profiler.histogram_bin_method_names)
 
         # case when just 1 unique value, should just set bin size to be 1
-        num_profiler.update(pd.Series(["1", "1"]))
+        num_profiler.update(pl.Series(["1", "1"]))
         self.assertEqual(
             1, len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"])
         )
 
         # case when more than 1 unique value, by virtue of a streaming update
-        num_profiler.update(pd.Series(["22"]))
+        num_profiler.update(pl.Series(["22"]))
         self.assertEqual(
             100, len(num_profiler._stored_histogram["histogram"]["bin_counts"])
         )
@@ -558,13 +560,13 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(100, len(histogram["bin_counts"]))
 
     def test_diff(self):
-        df = pd.Series(
+        df = pl.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).apply(str)
+        ).map_elements(str)
 
-        df2 = pd.Series(
+        df2 = pl.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
-        ).apply(str)
+        ).map_elements(str)
 
         profiler1 = TextColumn(df.name)
         profiler1.update(df)
@@ -616,7 +618,7 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     @mock.patch("time.time", return_value=0.0)
     def test_json_encode_after_update(self, time):
-        df = pd.Series(
+        df = pl.Series(
             [
                 "abcd",
                 "aa",
@@ -630,7 +632,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "2",
                 "12.32",
             ]
-        ).apply(str)
+        ).map_elements(str)
 
         text_options = TextOptions()
         text_options.histogram_and_quantiles.bin_count_or_method = 5
@@ -711,7 +713,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                         "kurtosis": "_get_kurtosis",
                         "histogram_and_quantiles": "_get_histogram_and_quantiles",
                     },
-                    "name": None,
+                    "name": "",
                     "col_index": np.nan,
                     "sample_size": 11,
                     "metadata": {},
@@ -754,7 +756,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         # Actual deserialization
 
         # Build expected IntColumn
-        df_int = pd.Series(
+        df_int = pl.Series(
             [
                 "abcd",
                 "aa",
@@ -784,7 +786,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         deserialized.report()
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-        df_str = pd.Series(
+        df_str = pl.Series(
             [
                 "aa",  # add existing
                 "awsome",  # add new

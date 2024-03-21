@@ -5,6 +5,7 @@ import itertools
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -133,7 +134,7 @@ class TextColumn(
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
         self,
-        data: list | np.ndarray | pd.DataFrame,
+        data: list | np.ndarray | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -141,7 +142,7 @@ class TextColumn(
         Find the unique vocabulary used in the text column.
 
         :param data: list or array of data from which to extract vocab
-        :type data: Union[list, numpy.array, pandas.DataFrame]
+        :type data: Union[list, numpy.array, polars.DataFrame]
         :param prev_dependent_properties: Contains all the previous properties
             that the calculations depend on.
         :type prev_dependent_properties: dict
@@ -153,42 +154,46 @@ class TextColumn(
         data_flat = set(itertools.chain(*data))
         self.vocab = profiler_utils._combine_unique_sets(self.vocab, data_flat)
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: text profile dictionary
         :type profile: dict
         :return: None
         """
         if self._NumericStatsMixin__calculations:
-            text_lengths = df_series_clean.str.len()
-            NumericStatsMixin._update_helper(self, text_lengths, profile)
+            text_lengths = df_series_clean.str.len_chars()
+            NumericStatsMixin._update_helper(self, text_lengths.drop_nulls(), profile)
         self._update_column_base_properties(profile)
         if self.max:
             self.type = "string" if self.max <= 255 else "text"
 
-    def update(self, df_series: pd.Series) -> TextColumn:
+    def update(self, df_series: pl.Series) -> TextColumn:
         """
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated TextColumn
         :rtype: TextColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         len_df = len(df_series)
         if len_df == 0:
             return self
 
-        profile = dict(match_count=len_df, sample_size=len_df)
+        no_nulls_length = len(df_series.drop_nulls())
+        profile = dict(match_count=no_nulls_length, sample_size=no_nulls_length)
 
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series,
+            df_series=df_series.drop_nulls(),
             prev_dependent_properties={},
             subset_properties=profile,
         )

@@ -6,7 +6,7 @@ from collections import defaultdict
 from unittest import mock
 
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import IntColumn
 from dataprofiler.profilers.json_decoder import load_column_profile
@@ -20,7 +20,7 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 class TestIntColumn(unittest.TestCase):
     def test_base_case(self):
-        data = pd.Series([], dtype=object)
+        data = pl.Series([], dtype=object)
         profiler = IntColumn(data.name)
         profiler.update(data)
 
@@ -41,7 +41,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
-        data = pd.Series([1])
+        data = pl.Series([1])
         profiler = IntColumn(data.name)
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1)
@@ -49,7 +49,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.mean, 1)
         self.assertTrue(profiler.variance is np.nan)
 
-        data = pd.Series([2])
+        data = pl.Series([2])
         profiler.update(data)
         self.assertEqual(profiler.match_count, 2)
         self.assertEqual(profiler.sum, 3)
@@ -58,7 +58,7 @@ class TestIntColumn(unittest.TestCase):
 
     def test_profiled_min(self):
         data = np.linspace(-5, 5, 11)
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
 
         profiler = IntColumn(df.name)
         profiler.update(df[1:])
@@ -67,42 +67,42 @@ class TestIntColumn(unittest.TestCase):
         profiler.update(df)
         self.assertEqual(profiler.min, -5)
 
-        profiler.update(pd.Series(["-4"]))
+        profiler.update(pl.Series(["-4"]))
         self.assertEqual(profiler.min, -5)
 
         # empty data
-        data = pd.Series([], dtype=object)
+        data = pl.Series([], dtype=object)
         profiler = IntColumn(data.name)
         profiler.update(data)
         self.assertEqual(profiler.min, None)
 
         # data with None value
-        df = pd.Series([2, 3, None, np.nan]).apply(str)
+        df = pl.Series([2, 3, None, np.nan]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2)
 
         # data with one value
-        df = pd.Series([2]).apply(str)
+        df = pl.Series([2]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2)
 
         # data with unique value
-        df = pd.Series([2, 2, 2, 2, 2]).apply(str)
+        df = pl.Series([2, 2, 2, 2, 2]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2)
 
         # data with unique value as zero
-        df = pd.Series([0, 0, 0, 0, 0]).apply(str)
+        df = pl.Series([0, 0, 0, 0, 0]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 0)
 
     def test_profiled_max(self):
         data = np.linspace(-5, 5, 11)
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
 
         profiler = IntColumn(df.name)
         profiler.update(df[:-1])
@@ -111,42 +111,42 @@ class TestIntColumn(unittest.TestCase):
         profiler.update(df)
         self.assertEqual(profiler.max, 5)
 
-        profiler.update(pd.Series(["4"]))
+        profiler.update(pl.Series(["4"]))
         self.assertEqual(profiler.max, 5)
 
         # empty data
-        data = pd.Series([], dtype=object)
+        data = pl.Series([], dtype=object)
         profiler = IntColumn(data.name)
         profiler.update(data)
         self.assertEqual(profiler.max, None)
 
         # data with None value
-        df = pd.Series([2, 3, None, np.nan]).apply(str)
+        df = pl.Series([2, 3, None, np.nan]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 3)
 
         # data with one value
-        df = pd.Series([2]).apply(str)
+        df = pl.Series([2]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 2)
 
         # data with unique value
-        df = pd.Series([2, 2, 2, 2, 2]).apply(str)
+        df = pl.Series([2, 2, 2, 2, 2]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 2)
 
         # data with unique value as zero
-        df = pd.Series([0, 0, 0, 0, 0]).apply(str)
+        df = pl.Series([0, 0, 0, 0, 0]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 0)
 
     def test_profiled_mode(self):
         # disabled mode
-        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
         options = IntOptions()
         options.mode.is_enabled = False
         profiler = IntColumn(df.name, options)
@@ -154,43 +154,43 @@ class TestIntColumn(unittest.TestCase):
         self.assertListEqual([np.nan], profiler.mode)
 
         # same values
-        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertListEqual([1], profiler.mode)
 
         # multiple modes
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).apply(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([1, 2, 3, 4, 5], profiler.mode, decimal=2)
 
         # with different values
-        df = pd.Series([1, 1, 1, 1, 2]).apply(str)
+        df = pl.Series([1, 1, 1, 1, 2]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([1], profiler.mode, decimal=2)
 
         # with negative values
-        df = pd.Series([-1, 1, 1, 1, 2, 2, 2])
+        df = pl.Series([-1, 1, 1, 1, 2, 2, 2])
         profiler = IntColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([1, 2], profiler.mode, decimal=2)
 
         # all unique values
-        df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).apply(str)
+        df = pl.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         # By default, returns 5 of the possible modes
         np.testing.assert_array_almost_equal([1, 2, 3, 4, 5], profiler.mode, decimal=2)
 
         # Edge case where mode appears later in the dataset
-        df = pd.Series([1, 2, 3, 4, 5, 6, 6]).apply(str)
+        df = pl.Series([1, 2, 3, 4, 5, 6, 6]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([6], profiler.mode, decimal=2)
 
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7]).apply(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([7], profiler.mode, decimal=2)
@@ -198,7 +198,7 @@ class TestIntColumn(unittest.TestCase):
     def test_top_k_modes(self):
         # Default options
         options = IntOptions()
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).map_elements(str)
         profiler = IntColumn(df.name, options)
         profiler.update(df)
         self.assertEqual(5, len(profiler.mode))
@@ -206,7 +206,7 @@ class TestIntColumn(unittest.TestCase):
         # Test if top_k_modes is less than the number of modes
         options = IntOptions()
         options.mode.top_k_modes = 2
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).map_elements(str)
         profiler = IntColumn(df.name, options)
         profiler.update(df)
         self.assertEqual(2, len(profiler.mode))
@@ -214,7 +214,7 @@ class TestIntColumn(unittest.TestCase):
         # Test if top_k_mode is greater than the number of modes
         options = IntOptions()
         options.mode.top_k_modes = 8
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).map_elements(str)
         profiler = IntColumn(df.name, options)
         profiler.update(df)
         # Only 5 possible modes so return 5
@@ -222,7 +222,7 @@ class TestIntColumn(unittest.TestCase):
 
     def test_profiled_median(self):
         # disabled median
-        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
         options = IntOptions()
         options.median.is_enabled = False
         profiler = IntColumn(df.name, options)
@@ -230,31 +230,31 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(profiler.median is np.nan)
 
         # same values
-        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(1, profiler.median)
 
         # median lies between two values s
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).apply(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(3.5, profiler.median, places=2)
 
         # with different values
-        df = pd.Series([1, 1, 1, 1, 2]).apply(str)
+        df = pl.Series([1, 1, 1, 1, 2]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(1, profiler.median, places=2)
 
         # with negative values
-        df = pd.Series([-1, 1, 1, 1, 2, 2, 2])
+        df = pl.Series([-1, 1, 1, 1, 2, 2, 2])
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(1, profiler.median, places=2)
 
         # all unique values
-        df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).apply(str)
+        df = pl.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).map_elements(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(5.5, profiler.median, places=2)
@@ -286,22 +286,22 @@ class TestIntColumn(unittest.TestCase):
             return M2 / (count_a + count_b - 1)
 
         data = np.linspace(-5, 5, 11).tolist()
-        df1 = pd.Series(data)
+        df1 = pl.Series(data)
 
         data = np.linspace(-3, 2, 11).tolist()
-        df2 = pd.Series(data)
+        df2 = pl.Series(data)
 
         data = np.full((10,), 1)
-        df3 = pd.Series(data)
+        df3 = pl.Series(data)
 
         num_profiler = IntColumn(df1.name)
-        num_profiler.update(df1.apply(str))
+        num_profiler.update(df1.map_elements(str))
 
         self.assertEqual(mean(df1), num_profiler.mean)
         self.assertEqual(var(df1), num_profiler.variance)
         self.assertEqual(np.sqrt(var(df1)), num_profiler.stddev)
 
-        df2_ints = df2[df2 == df2.round()]
+        df2_ints = df2.filter(df2 == df2.round())
         variance = batch_variance(
             mean_a=num_profiler.mean,
             var_a=num_profiler.variance,
@@ -310,13 +310,13 @@ class TestIntColumn(unittest.TestCase):
             var_b=var(df2_ints),
             count_b=df2_ints.count(),
         )
-        num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2_ints])
+        num_profiler.update(df2.map_elements(str))
+        df = pl.concat([df1, df2_ints])
         self.assertEqual(mean(df), num_profiler.mean)
         self.assertEqual(variance, num_profiler.variance)
         self.assertEqual(np.sqrt(variance), num_profiler.stddev)
 
-        df3_ints = df3[df3 == df3.round()]
+        df3_ints = df3.filter(df3 == df3)
         variance = batch_variance(
             mean_a=num_profiler.mean,
             var_a=num_profiler.variance,
@@ -325,118 +325,117 @@ class TestIntColumn(unittest.TestCase):
             var_b=var(df3_ints),
             count_b=df3_ints.count(),
         )
-        num_profiler.update(df3.apply(str))
+        num_profiler.update(df3.map_elements(str))
 
-        df = pd.concat([df1, df2_ints, df3_ints])
+        df = pl.concat([df1, df2_ints.cast(pl.Float64), df3_ints.cast(pl.Float64)])
         self.assertEqual(mean(df), num_profiler.mean)
         self.assertAlmostEqual(variance, num_profiler.variance)
         self.assertAlmostEqual(np.sqrt(variance), num_profiler.stddev)
 
     def test_profiled_skewness(self):
         data = np.linspace(-5, 5, 11).tolist()
-        df1 = pd.Series(data)
+        df1 = pl.Series(data)
 
         data = np.linspace(-3, 2, 11).tolist()
-        df2 = pd.Series(data)
+        df2 = pl.Series(data)
 
         data = np.full((10,), 1)
-        df3 = pd.Series(data)
+        df3 = pl.Series(data)
 
         num_profiler = IntColumn(df1.name)
-        num_profiler.update(df1.apply(str))
+        num_profiler.update(df1.map_elements(str))
 
         self.assertEqual(0, num_profiler.skewness)
 
-        df2_ints = df2[df2 == df2.round()]
-        num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2_ints])
+        df2_ints = df2.filter(df2 == df2.round())
+        num_profiler.update(df2.map_elements(str))
+        df = pl.concat([df1, df2_ints])
         self.assertAlmostEqual(11 * np.sqrt(102 / 91) / 91, num_profiler.skewness)
 
-        df3_ints = df3[df3 == df3.round()]
-        num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2_ints, df3_ints])
+        df3_ints = df3.filter(df3 == df3)
+        num_profiler.update(df3.map_elements(str))
+        df = pl.concat([df1, df2_ints.cast(pl.Float64), df3_ints.cast(pl.Float64)])
         self.assertAlmostEqual(-6789 * np.sqrt(39 / 463) / 4630, num_profiler.skewness)
 
     def test_profiled_kurtosis(self):
         data = np.linspace(-5, 5, 11).tolist()
-        df1 = pd.Series(data)
+        df1 = pl.Series(data)
 
         data = np.linspace(-3, 2, 11).tolist()
-        df2 = pd.Series(data)
+        df2 = pl.Series(data)
 
         data = np.full((10,), 1)
-        df3 = pd.Series(data)
+        df3 = pl.Series(data)
 
         num_profiler = IntColumn(df1.name)
-        num_profiler.update(df1.apply(str))
+        num_profiler.update(df1.map_elements(str))
 
         self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
 
-        df2_ints = df2[df2 == df2.round()]
-        num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2_ints])
+        df2_ints = df2.filter(df2 == df2.round())
+        num_profiler.update(df2.map_elements(str))
+        df = pl.concat([df1, df2_ints])
         self.assertAlmostEqual(-29886 / 41405, num_profiler.kurtosis)
 
-        df3_ints = df3[df3 == df3.round()]
-        num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2_ints, df3_ints])
+        df3_ints = df3.filter(df3 == df3)
+        num_profiler.update(df3.map_elements(str))
+        df = pl.concat([df1, df2_ints.cast(pl.Float64), df3_ints.cast(pl.Float64)])
         self.assertAlmostEqual(16015779 / 42873800, num_profiler.kurtosis)
 
     def test_bias_correction_option(self):
         data = np.linspace(-5, 5, 11).tolist()
-        df1 = pd.Series(data)
+        df1 = pl.Series(data)
 
         data = np.linspace(-3, 2, 11).tolist()
-        df2 = pd.Series(data)
+        df2 = pl.Series(data)
 
         data = np.full((10,), 1)
-        df3 = pd.Series(data)
+        df3 = pl.Series(data)
 
         # Disable bias correction
         options = IntOptions()
         options.bias_correction.is_enabled = False
         num_profiler = IntColumn(df1.name, options=options)
-        num_profiler.update(df1.apply(str))
+        num_profiler.update(df1.map_elements(str))
         self.assertAlmostEqual(10, num_profiler.variance)
         self.assertAlmostEqual(0, num_profiler.skewness)
         self.assertAlmostEqual(89 / 50 - 3, num_profiler.kurtosis)
 
-        df2_ints = df2[df2 == df2.round()]
-        num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2_ints])
+        df2_ints = df2.filter(df2 == df2.round())
+        num_profiler.update(df2.map_elements(str))
+        df = pl.concat([df1, df2_ints])
         self.assertAlmostEqual(2184 / 289, num_profiler.variance)
         self.assertAlmostEqual(165 * np.sqrt(3 / 182) / 182, num_profiler.skewness)
         self.assertAlmostEqual(60769 / 28392 - 3, num_profiler.kurtosis)
 
-        df3_ints = df3[df3 == df3.round()]
-        num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2_ints, df3_ints])
+        df3_ints = df3.filter(df3 == df3)
+        num_profiler.update(df3.map_elements(str))
+        df = pl.concat([df1, df2_ints.cast(pl.Float64), df3_ints.cast(pl.Float64)])
         self.assertAlmostEqual(3704 / 729, num_profiler.variance)
         self.assertAlmostEqual(-11315 / (926 * np.sqrt(926)), num_profiler.skewness)
         self.assertAlmostEqual(5305359 / 1714952 - 3, num_profiler.kurtosis)
 
     def test_bias_correction_merge(self):
         data = np.linspace(-5, 5, 11).tolist()
-        df1 = pd.Series(data)
+        df1 = pl.Series(data)
 
         data = np.linspace(-3, 2, 11).tolist()
-        df2 = pd.Series(data)
+        df2 = pl.Series(data)
 
         data = np.full((10,), 1)
-        df3 = pd.Series(data)
+        df3 = pl.Series(data)
 
         # Disable bias correction
         options = IntOptions()
         options.bias_correction.is_enabled = False
         num_profiler1 = IntColumn(df1.name, options=options)
-        num_profiler1.update(df1.apply(str))
+        num_profiler1.update(df1.map_elements(str))
         self.assertAlmostEqual(10, num_profiler1.variance)
         self.assertAlmostEqual(0, num_profiler1.skewness)
         self.assertAlmostEqual(89 / 50 - 3, num_profiler1.kurtosis)
 
-        df2_ints = df2[df2 == df2.round()]
         num_profiler2 = IntColumn(df2.name)
-        num_profiler2.update(df2.apply(str))
+        num_profiler2.update(df2.map_elements(str))
         num_profiler_merged = num_profiler1 + num_profiler2
         # Values should stay biased values
         self.assertFalse(num_profiler_merged.bias_correction)
@@ -446,9 +445,8 @@ class TestIntColumn(unittest.TestCase):
         )
         self.assertAlmostEqual(60769 / 28392 - 3, num_profiler_merged.kurtosis)
 
-        df3_ints = df3[df3 == df3.round()]
         num_profiler3 = IntColumn(df3.name)
-        num_profiler3.update(df3.apply(str))
+        num_profiler3.update(df3.map_elements(str))
         num_profiler_merged = num_profiler1 + num_profiler2 + num_profiler3
         self.assertFalse(num_profiler_merged.bias_correction)
         self.assertAlmostEqual(3704 / 729, num_profiler_merged.variance)
@@ -492,7 +490,7 @@ class TestIntColumn(unittest.TestCase):
         list_data_test.append([data3, expected_histogram3])
 
         for data, expected_histogram in list_data_test:
-            df = pd.Series(data)
+            df = pl.Series(data)
             profiler = IntColumn(df.name)
             profiler.update(df)
 
@@ -510,19 +508,19 @@ class TestIntColumn(unittest.TestCase):
 
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 11)
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
 
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.data_type_ratio, 1.0)
 
-        df = pd.Series(["not a float", "0.1"])
+        df = pl.Series([None, "0.1"])
         profiler.update(df)
         self.assertEqual(profiler.data_type_ratio, 11 / 13.0)
 
     def test_profile(self):
-        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
-        df = pd.Series(data).apply(str)
+        data = [2.0, 12.5, None, 6.0, None]
+        df = pl.Series(data).map_elements(str)
 
         profiler = IntColumn(df.name)
 
@@ -642,8 +640,8 @@ class TestIntColumn(unittest.TestCase):
             self.assertEqual(expected, profiler.profile["times"])
 
     def test_option_timing(self):
-        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
-        df = pd.Series(data).apply(str)
+        data = [2.0, 12.5, None, 6.0, None]
+        df = pl.Series(data).map_elements(str)
 
         options = IntOptions()
         options.set({"min.is_enabled": False})
@@ -694,13 +692,13 @@ class TestIntColumn(unittest.TestCase):
     def test_profile_merge(self):
         # Floats are not included intentionally for the test
         # below as this is an int column
-        data = [2.0, 12.5, "not an int", 6.0, "not an int"]
-        df = pd.Series(data).apply(str)
+        data = [2.0, 12.5, None, 6.0, None]
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn("Int")
         profiler1.update(df)
 
-        data2 = [10.0, 3.5, "not an int", 15.0, "not an int"]
-        df2 = pd.Series(data2).apply(str)
+        data2 = [10.0, 3.5, None, 15.0, None]
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = IntColumn("Int")
         profiler2.update(df2)
 
@@ -749,13 +747,13 @@ class TestIntColumn(unittest.TestCase):
         self.assertCountEqual(histogram["bin_edges"], expected_histogram["bin_edges"])
 
     def test_profile_merge_for_zeros_and_negatives(self):
-        data = [2.0, 8.5, "not an int", 6.0, -3, 0]
-        df = pd.Series(data).apply(str)
+        data = [2.0, 8.5, None, 6.0, -3, 0]
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn("Int")
         profiler1.update(df)
 
-        data2 = [0.0, 3.5, "not an int", 125.0, 0, -0.1, -88]
-        df2 = pd.Series(data2).apply(str)
+        data2 = [0.0, 3.5, None, 125.0, 0, -0.1, -88]
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = IntColumn("Int")
         profiler2.update(df2)
 
@@ -767,14 +765,14 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler3.num_negatives, expected_profile.pop("num_negatives"))
 
     def test_profile_merge_edge_case(self):
-        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
-        df = pd.Series(data).apply(str)
+        data = [2.0, 12.5, None, 6.0, None]
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn(name="Int")
         profiler1.update(df)
         profiler1.match_count = 0
 
-        data2 = [10.0, 3.5, "not a float", 15.0, "not a float"]
-        df2 = pd.Series(data2).apply(str)
+        data2 = [10.0, 3.5, None, 15.0, None]
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = IntColumn(name="Int")
         profiler2.update(df2)
 
@@ -782,11 +780,11 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler3.stddev, profiler2.stddev)
 
         # test merge with empty data
-        df1 = pd.Series([], dtype=object)
+        df1 = pl.Series([], dtype=object)
         profiler1 = IntColumn("Int")
         profiler1.update(df1)
 
-        df2 = pd.Series([], dtype=object)
+        df2 = pl.Series([], dtype=object)
         profiler2 = IntColumn("Int")
         profiler2.update(df2)
 
@@ -797,7 +795,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(np.isnan(profiler.kurtosis))
         self.assertIsNone(profiler.histogram_selection)
 
-        df3 = pd.Series([2, 3]).apply(str)
+        df3 = pl.Series([2, 3]).map_elements(str)
         profiler3 = IntColumn("Int")
         profiler3.update(df3)
 
@@ -809,7 +807,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.num_zeros, 0)
         self.assertEqual(profiler.num_negatives, 0)
 
-        df4 = pd.Series([4, 5]).apply(str)
+        df4 = pl.Series([4, 5]).map_elements(str)
         profiler4 = IntColumn("Int")
         profiler4.update(df4)
 
@@ -821,7 +819,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.num_zeros, 0)
         self.assertEqual(profiler.num_negatives, 0)
 
-        df5 = pd.Series([0, 0, -1]).apply(str)
+        df5 = pl.Series([0, 0, -1]).map_elements(str)
         profiler5 = IntColumn("Int")
         profiler5.update(df5)
 
@@ -836,13 +834,13 @@ class TestIntColumn(unittest.TestCase):
         options = IntOptions()
         options.histogram_and_quantiles.bin_count_or_method = 10
 
-        data = [2, "not an int", 6, "not an int"]
-        df = pd.Series(data).apply(str)
+        data = [2, None, 6, None]
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn("Int", options)
         profiler1.update(df)
 
-        data2 = [10, "not an int", 15, "not an int"]
-        df2 = pd.Series(data2).apply(str)
+        data2 = [10, None, 15, None]
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = IntColumn("Int", options)
         profiler2.update(df2)
 
@@ -866,14 +864,14 @@ class TestIntColumn(unittest.TestCase):
 
     def test_profile_merge_no_bin_overlap(self):
 
-        data = [2, "not an int", 6, "not an int"]
-        df = pd.Series(data).apply(str)
+        data = [2, None, 6, None]
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn("Int")
         profiler1.update(df)
         profiler1.match_count = 0
 
-        data2 = [10, "not an int", 15, "not an int"]
-        df2 = pd.Series(data2).apply(str)
+        data2 = [10, None, 15, None]
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = IntColumn("Int")
         profiler2.update(df2)
 
@@ -895,7 +893,7 @@ class TestIntColumn(unittest.TestCase):
         options.min.is_enabled = False
 
         data = [2, 4, 6, 8]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn("Int", options=options)
         profiler1.update(df)
         profiler1.match_count = 0
@@ -904,7 +902,7 @@ class TestIntColumn(unittest.TestCase):
         options = IntOptions()
         options.min.is_enabled = False
         data2 = [10, 15]
-        df2 = pd.Series(data2).apply(str)
+        df2 = pl.Series(data2).map_elements(str)
         profiler2 = IntColumn("Int", options=options)
         profiler2.update(df2)
 
@@ -950,13 +948,13 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(["custom"], num_profiler.histogram_bin_method_names)
 
         # case when just 1 unique value, should just set bin size to be 1
-        num_profiler.update(pd.Series(["1", "1"]))
+        num_profiler.update(pl.Series(["1", "1"]))
         self.assertEqual(
             1, len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"])
         )
 
         # case when more than 1 unique value, by virtue of a streaming update
-        num_profiler.update(pd.Series(["2"]))
+        num_profiler.update(pl.Series(["2"]))
         self.assertEqual(
             100, len(num_profiler._stored_histogram["histogram"]["bin_counts"])
         )
@@ -978,7 +976,7 @@ class TestIntColumn(unittest.TestCase):
             4948484957575651505156554954485054,
         ]
 
-        data = pd.Series(vals)
+        data = pl.Series(vals, dtype=pl.Object)
         data_1 = data[:5]
         data_2 = data[5:]
 
@@ -995,7 +993,7 @@ class TestIntColumn(unittest.TestCase):
         profile_1 + profile_2
 
     def test_insufficient_counts(self):
-        data = pd.Series(["1"])
+        data = pl.Series(["1"])
         profiler = IntColumn(data.name)
 
         with warnings.catch_warnings(record=True) as w:
@@ -1018,7 +1016,7 @@ class TestIntColumn(unittest.TestCase):
                 )
 
         # Update the data so that the match count is good
-        data2 = pd.Series(["-2", "-1", "1", "2"])
+        data2 = pl.Series(["-2", "-1", "1", "2"])
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
 
@@ -1039,13 +1037,13 @@ class TestIntColumn(unittest.TestCase):
         """
         Makes sure the IntColumn Diff() works appropriately.
         """
-        data = [2, "not an int", 6, 4]
-        df = pd.Series(data).apply(str)
+        data = [2, None, 6, 4]
+        df = pl.Series(data).map_elements(str)
         profiler1 = IntColumn("Int")
         profiler1.update(df)
 
         data = [1, 15]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
         profiler2 = IntColumn("Int")
         profiler2.update(df)
 
@@ -1189,7 +1187,7 @@ class TestIntColumn(unittest.TestCase):
     @mock.patch("time.time", return_value=0.0)
     def test_json_encode_after_update(self, time):
         data = np.array([0, 5, 10])
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).map_elements(str)
 
         int_options = IntOptions()
         int_options.histogram_and_quantiles.bin_count_or_method = 5
@@ -1317,7 +1315,7 @@ class TestIntColumn(unittest.TestCase):
         # Actual deserialization
 
         # Build expected IntColumn
-        df_int = pd.Series([-1, 2, 5, 7, 4, 3, 2, 0, 0, 9])
+        df_int = pl.Series([-1, 2, 5, 7, 4, 3, 2, 0, 0, 9])
         expected_profile = IntColumn(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -1333,7 +1331,7 @@ class TestIntColumn(unittest.TestCase):
         deserialized.report()
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-        df_int = pd.Series(
+        df_int = pl.Series(
             [
                 4,  # add existing
                 15,  # add new

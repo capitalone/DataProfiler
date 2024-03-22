@@ -1,5 +1,9 @@
 coverage>=5.0.1
+<<<<<<< HEAD
 dask>=2.29.0,<2024.2.0
+=======
+dask>=2.29.0, <2024.2.0
+>>>>>>> f4b7f9b (Dask version)
 fsspec>=0.3.3
 pytest>=6.0.1
 pytest-cov>=2.8.1

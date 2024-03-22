@@ -1,7 +1,7 @@
 scikit-learn>=0.23.2
-keras>=2.4.3
+keras>=2.4.3, <3.1.1
 rapidfuzz>=2.6.1
-tensorflow>=2.6.4; sys.platform != 'darwin'
-tensorflow>=2.6.4; sys_platform == 'darwin' and platform_machine != 'arm64'
-tensorflow-macos>=2.6.4; sys_platform == 'darwin' and platform_machine == 'arm64'
+tensorflow>=2.6.4, <2.16.1; sys.platform != 'darwin'
+tensorflow>=2.6.4 <2.16.1; sys_platform == 'darwin' and platform_machine != 'arm64'
+tensorflow-macos>=2.6.4 <2.16.1; sys_platform == 'darwin' and platform_machine == 'arm64'
 tqdm>=4.0.0

@@ -8,6 +8,7 @@ from collections import Counter, defaultdict
 
 from numpy import ndarray
 from pandas import DataFrame, Series
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
@@ -667,7 +668,7 @@ class TextProfiler:
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
         self,
-        data: list | ndarray | DataFrame,
+        data: list | ndarray | DataFrame | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -690,7 +691,7 @@ class TextProfiler:
     @BaseColumnProfiler._timeit(name="words")
     def _update_words(
         self,
-        data: list | ndarray | DataFrame,
+        data: list | ndarray | DataFrame | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -720,7 +721,7 @@ class TextProfiler:
             if w and w.lower() not in self._stop_words:
                 self.word_count.update({w: c})
 
-    def _update_helper(self, data: Series, profile: dict) -> None:
+    def _update_helper(self, data: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 
@@ -733,7 +734,7 @@ class TextProfiler:
         self.sample_size += profile.pop("sample_size")
         self.metadata = profile
 
-    def update(self, data: Series) -> TextProfiler:
+    def update(self, data: pl.Series) -> TextProfiler:
         """
         Update the column profile.
 
@@ -751,7 +752,7 @@ class TextProfiler:
         BaseColumnProfiler._perform_property_calcs(
             self,  # type: ignore
             self.__calculations,
-            df_series=data,
+            df_series=data.to_pandas(),
             prev_dependent_properties={},
             subset_properties=profile,
         )

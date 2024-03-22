@@ -103,7 +103,7 @@ class UnstructuredLabelerProfile:
 
         return merged_profile
 
-    def report(self) -> dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return profile object.
 

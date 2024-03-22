@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import DateTimeColumn
 from dataprofiler.profilers.json_decoder import load_column_profile

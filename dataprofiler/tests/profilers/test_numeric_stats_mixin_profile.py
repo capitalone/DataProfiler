@@ -6,7 +6,7 @@ from collections import defaultdict
 from unittest import mock
 
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import NumericStatsMixin
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
@@ -340,7 +340,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             "biased_skewness": 0,
         }
         data = np.array([0, 0, 0, 0, 0])
-        df_series = pd.Series(data)
+        df_series = pl.Series(data)
         subset_properties = {"min": 0, "match_count": 0}
 
         time_array = [float(i) for i in range(24, 0, -1)]
@@ -547,21 +547,21 @@ class TestNumericStatsMixin(unittest.TestCase):
         prev_dependent_properties = {"mean": 0}
         subset_properties = {"num_zeros": 0}
 
-        df_series = pd.Series([])
+        df_series = pl.Series([])
         num_profiler._get_num_zeros(
             df_series, prev_dependent_properties, subset_properties
         )
         self.assertEqual(subset_properties["num_zeros"], 0)
 
         data = np.array([0, 0, 0, 0, 0])
-        df_series = pd.Series(data)
+        df_series = pl.Series(data)
         num_profiler._get_num_zeros(
             df_series, prev_dependent_properties, subset_properties
         )
         self.assertEqual(subset_properties["num_zeros"], 5)
 
         data = np.array([000.0, 0.00, 0.000, 1.11234, 0, -1])
-        df_series = pd.Series(data)
+        df_series = pl.Series(data)
         num_profiler._get_num_zeros(
             df_series, prev_dependent_properties, subset_properties
         )
@@ -574,21 +574,21 @@ class TestNumericStatsMixin(unittest.TestCase):
         prev_dependent_properties = {"mean": 0}
         subset_properties = {"num_negatives": 0}
 
-        df_series = pd.Series([])
+        df_series = pl.Series([])
         num_profiler._get_num_negatives(
             df_series, prev_dependent_properties, subset_properties
         )
         self.assertEqual(subset_properties["num_negatives"], 0)
 
         data = np.array([0, 0, 0, 0, 0])
-        df_series = pd.Series(data)
+        df_series = pl.Series(data)
         num_profiler._get_num_negatives(
             df_series, prev_dependent_properties, subset_properties
         )
         self.assertEqual(subset_properties["num_negatives"], 0)
 
         data = np.array([1, 0, -0.003, -16, -1.0, -24.45])
-        df_series = pd.Series(data)
+        df_series = pl.Series(data)
         num_profiler._get_num_negatives(
             df_series, prev_dependent_properties, subset_properties
         )
@@ -675,7 +675,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         # Dummy data to make min call
         prev_dependent_properties = {"mean": 0}
         data = np.array([0, 0, 0, 0, 0])
-        df_series = pd.Series(data)
+        df_series = pl.Series(data)
         subset_properties = {"num_zeros": 0, "num_negatives": 0}
 
         time_array = [float(i) for i in range(4, 0, -1)]

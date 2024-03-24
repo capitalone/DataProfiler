@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import abc
 import copy
+import json
 import re
 import warnings
 from typing import Any, Generic, TypeVar, cast
@@ -192,6 +193,15 @@ class BooleanOption(BaseOption[BooleanOptionT]):
         :vartype is_enabled: bool
         """
         self.is_enabled = is_enabled
+
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :return: str of the option properties
+        :rtype: str
+        """
+        return str(self.is_enabled)
 
     def _validate_helper(self, variable_path: str = "BooleanOption") -> list[str]:
         """
@@ -958,6 +968,25 @@ class CategoricalOptions(BaseInspectorOptions["CategoricalOptions"]):
         self.cms_relative_error = cms_relative_error
         self.cms_max_num_heavy_hitters = cms_max_num_heavy_hitters
 
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :vartype dict_string: dict
+        :return: str of the option properties
+        :rtype: str
+        """
+        dict_string: dict = {"CategoricalOptions": []}
+        for iter_option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["CategoricalOptions"].append(
+                {str(iter_option): str(getattr(self, iter_option))}
+            )
+        return json.dumps(dict_string, indent=4)
+
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
@@ -1182,6 +1211,25 @@ class RowStatisticsOptions(BooleanOption["RowStatisticsOptions"]):
         )
         self.null_count: BooleanOption = BooleanOption(is_enabled=null_count)
 
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :vartype dict_string: dict
+        :return: str of the option properties
+        :rtype: str
+        """
+        dict_string: dict = {"RowStatisticsOptions": []}
+        for iter_option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["RowStatisticsOptions"].append(
+                {str(iter_option): str(getattr(self, iter_option))}
+            )
+        return json.dumps(dict_string, indent=4)
+
     def _validate_helper(
         self, variable_path: str = "RowStatisticsOptions"
     ) -> list[str]:
@@ -1227,6 +1275,25 @@ class DataLabelerOptions(BaseInspectorOptions["DataLabelerOptions"]):
         self.data_labeler_dirpath: str | None = None
         self.max_sample_size: int | None = None
         self.data_labeler_object: BaseDataLabeler | None = None
+
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :vartype dict_string: dict
+        :return: str of the option properties
+        :rtype: str
+        """
+        dict_string: dict = {"DataLabelerOptions": []}
+        for iter_option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["DataLabelerOptions"].append(
+                {str(iter_option): str(getattr(self, iter_option))}
+            )
+        return json.dumps(dict_string, indent=4)
 
     def __deepcopy__(self, memo: dict) -> DataLabelerOptions:
         """
@@ -1370,6 +1437,25 @@ class TextProfilerOptions(BaseInspectorOptions["TextProfilerOptions"]):
         self.vocab: BooleanOption = BooleanOption(is_enabled=True)
         self.words: BooleanOption = BooleanOption(is_enabled=True)
 
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :vartype dict_string: dict
+        :return: str of the option properties
+        :rtype: str
+        """
+        dict_string: dict = {"TextProfilerOptions": []}
+        for iter_option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["TextProfilerOptions"].append(
+                {str(iter_option): str(getattr(self, iter_option))}
+            )
+        return json.dumps(dict_string, indent=4)
+
     def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
@@ -1487,6 +1573,25 @@ class StructuredOptions(BaseOption["StructuredOptions"]):
         self.null_values = null_values
         self.column_null_values = column_null_values
         self.sampling_ratio = sampling_ratio
+
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :vartype dict_string: dict
+        :return: str of the option properties
+        :rtype: str
+        """
+        dict_string: dict = {"StructuredOptions": []}
+        for iter_option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["StructuredOptions"].append(
+                {str(iter_option): str(getattr(self, iter_option))}
+            )
+        return json.dumps(dict_string, indent=4)
 
     @property
     def enabled_profiles(self) -> list[str]:
@@ -1638,6 +1743,25 @@ class UnstructuredOptions(BaseOption["UnstructuredOptions"]):
         self.text = TextProfilerOptions()
         self.data_labeler = DataLabelerOptions()
 
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :vartype dict_string: dict
+        :return: str of the option properties
+        :rtype: str
+        """
+        dict_string: dict = {"UnstructuredOptions": []}
+        for iter_option in [
+            a
+            for a in dir(self)
+            if not a.startswith("__") and not callable(getattr(self, a))
+        ]:
+            dict_string["UnstructuredOptions"].append(
+                {str(iter_option): str(getattr(self, iter_option))}
+            )
+        return json.dumps(dict_string, indent=4)
+
     @property
     def enabled_profiles(self) -> list[str]:
         """Return a list of the enabled profilers."""
@@ -1714,6 +1838,17 @@ class ProfilerOptions(BaseOption["ProfilerOptions"]):
                 option_plugins[self.presets](self)
             else:
                 raise ValueError("The preset entered is not a valid preset.")
+
+    def __str__(self) -> str:
+        """
+        Return a human friendly consumable output in string form.
+
+        :return: str of the option presets and properties
+        :rtype: str
+        """
+        return f"Presets: {str(self.presets)}\n \
+            {str(self.structured_options)}\n \
+            {str(self.unstructured_options)}"
 
     def _complete_presets(self) -> None:
         self.set({"*.is_enabled": True})

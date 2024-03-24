@@ -4,8 +4,8 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Protocol, Type, TypeVar, cast
 
-import numpy as np
-from pandas import DataFrame, Series
+import polars as pl
+from polars import Series
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
@@ -24,7 +24,7 @@ class Comparable(Protocol):
 CT = TypeVar("CT", bound=Comparable)
 
 # bc type in class attr causing issues, need to alias
-AliasFloatType = Type[np.float64]
+AliasFloatType = Type[pl.Float64]
 AliasStrType = Type[str]
 
 
@@ -51,9 +51,9 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
                 "OrderColumn parameter 'options' must be of type" " OrderOptions."
             )
         self.order: str | None = None
-        self._last_value: np.float64 | float | str | None = None
-        self._first_value: np.float64 | float | str | None = None
-        self._data_store_type: AliasStrType | AliasFloatType = np.float64
+        self._last_value: pl.Float64 | float | str | None = None
+        self._first_value: pl.Float64 | float | str | None = None
+        self._data_store_type: AliasStrType | AliasFloatType = pl.Float64
         self._piecewise: bool | None = False
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
@@ -161,15 +161,15 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         :type first_value1: Float | String
         :type last_value1: Float | String
         :type piecewise1: Boolean
-        :type data_store_type1: Type[str] | Type[np.float64]
+        :type data_store_type1: Type[str] | Type[pl.Float64]
         :type order2: String
         :type first_value2: Float | String
         :type last_value2: Float | String
-        :type data_store_type2: Type[str] | Type[np.float64]
+        :type data_store_type2: Type[str] | Type[pl.Float64]
         :type piecewise2: Boolean
         :return: order, first_value, last_value, piecewise, merged_data_store_type
         :rtype: String, Float | String, Float | String, Boolean, Type[str]
-            | Type[np.float64]
+            | Type[pl.Float64]
         """
         # Return either order if one is None
         if not order1:
@@ -177,7 +177,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         elif not order2:
             return order1, first_value1, last_value1, piecewise1, data_store_type1
 
-        merged_data_store_type: AliasStrType | AliasFloatType = np.float64
+        merged_data_store_type: AliasStrType | AliasFloatType = pl.Float64
         if data_store_type1 is str or data_store_type2 is str:
             first_value1 = cast(CT, str(first_value1))
             last_value1 = cast(CT, str(last_value1))
@@ -329,13 +329,13 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         """
         # This is an ambiguous call to super classes.
         data["_data_store_type"] = (
-            str if data["_data_store_type"] == "str" else np.float64
+            str if data["_data_store_type"] == "str" else pl.Float64
         )
         profile = super().load_from_dict(data)
         try:
-            if profile.sample_size and profile._data_store_type is np.float64:
-                profile._first_value = np.float64(profile._first_value)
-                profile._last_value = np.float64(profile._last_value)
+            if profile.sample_size and profile._data_store_type is pl.Float64:
+                profile._first_value = profile._first_value
+                profile._last_value = profile._last_value
         except ValueError:
             profile._first_value = data["_first_value"]
             profile._last_value = data["_last_value"]
@@ -379,23 +379,23 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         Additionally, return the first and last value of the series.
 
         :param df_series: a given column
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :param data_store_type: type of value for first_value and last_value
-        :type data_store_type: Type[str] | Type[np.float64]
+        :type data_store_type: Type[str] | Type[pl.Float64]
         :return: order, first_value, last_value, data_store_type
-        :rtype: String, Float, Float, type, Type[str] | Type[np.float64]
+        :rtype: String, Float, Float, type, Type[str] | Type[pl.Float64]
         """
         try:
             if data_store_type is not str:
-                df_series = df_series.astype(float)
-        except ValueError:
+                df_series = df_series.cast(pl.Float64)
+        except pl.exceptions.ComputeError:
             data_store_type = str
 
         order = None
-        last_value = df_series.iloc[0]
-        first_value = df_series.iloc[0]
+        last_value = df_series[0]
+        first_value = df_series[0]
 
-        for value in df_series.values:
+        for value in df_series:
             if value < last_value and order == "ascending":
                 order = "random"
                 break
@@ -414,7 +414,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
 
     def _update_order(
         self,
-        df_series: DataFrame,
+        df_series: Series,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -427,7 +427,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
            order information.
 
         :param df_series: Data to be profiled
-        :type df_series: pandas.DataFrame
+        :type df_series: polars.DataFrame
         :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
         :type prev_dependent_properties: dict
@@ -466,7 +466,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         Update col profile properties with clean dataset and its known null parameters.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.series.series.Series
         :param profile: ordered profile
         :type profile: dict
         :return: None
@@ -478,7 +478,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.series.series.Series
         :return: updated OrderColumn
         :rtype: OrderColumn
         """

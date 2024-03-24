@@ -4,6 +4,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Protocol, Type, TypeVar, cast
 
+import pandas as pd
 import polars as pl
 from polars import Series
 
@@ -482,6 +483,9 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         :return: updated OrderColumn
         :rtype: OrderColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         if len(df_series) == 0:
             return self
 

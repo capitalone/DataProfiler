@@ -48,7 +48,7 @@ To execute unit tests, run the following
 DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
 ```
 
-For more nuanced testing runs, check out more detailed documentation [here](https://capitalone.github.io/DataProfiler/docs/0.8.1/html/install.html#testing).
+For more nuanced testing runs, check out more detailed documentation [here](https://capitalone.github.io/DataProfiler/docs/0.10.9/html/install.html#testing).
 
 ## Creating [Pull Requests](https://github.com/capitalone/DataProfiler/pulls)
 Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:

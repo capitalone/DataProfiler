@@ -41,14 +41,14 @@ class TestFloatColumn(unittest.TestCase):
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
-        data = pl.Series([1.5]).map_elements(str)
+        data = pl.Series([1.5]).cast(str)
         profiler = FloatColumn(data.name)
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1.0)
         self.assertEqual(profiler.mean, 1.5)
         self.assertTrue(profiler.variance is np.nan)
 
-        data = pl.Series([2.5]).map_elements(str)
+        data = pl.Series([2.5]).cast(str)
         profiler.update(data)
         self.assertEqual(profiler.match_count, 2)
         self.assertEqual(profiler.mean, 2.0)
@@ -59,9 +59,9 @@ class TestFloatColumn(unittest.TestCase):
         Checks whether the precision for the profiler is correct.
         :return:
         """
-        df_1 = pl.Series([0.4, 0.3, 0.1, 0.1, 0.1]).map_elements(str)
-        df_2 = pl.Series([0.11, 0.11, 0.12, 2.11]).map_elements(str)
-        df_3 = pl.Series([4.114, 3.161, 2.512, 2.131]).map_elements(str)
+        df_1 = pl.Series([0.4, 0.3, 0.1, 0.1, 0.1]).cast(str)
+        df_2 = pl.Series([0.11, 0.11, 0.12, 2.11]).cast(str)
+        df_3 = pl.Series([4.114, 3.161, 2.512, 2.131]).cast(str)
 
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_3)
@@ -208,7 +208,7 @@ class TestFloatColumn(unittest.TestCase):
     def test_profiled_min(self):
         # test with multiple values
         data = np.linspace(-5, 5, 11)
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         profiler = FloatColumn(df.name)
         profiler.update(df[1:])
@@ -227,32 +227,32 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.min, None)
 
         # data with None value
-        df = pl.Series([2.0, 3.0, None, np.nan]).map_elements(str)
+        df = pl.Series([2.0, 3.0, None, np.nan]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2.0)
 
         # data with one value
-        df = pl.Series([2.0]).map_elements(str)
+        df = pl.Series([2.0]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2.0)
 
         # data with unique value
-        df = pl.Series([2.0, 2.0, 2.0, 2.0, 2.0]).map_elements(str)
+        df = pl.Series([2.0, 2.0, 2.0, 2.0, 2.0]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2.0)
 
         # data with unique value as zero
-        df = pl.Series([0.0, 0.0, 0.0, 0.0, 0.0]).map_elements(str)
+        df = pl.Series([0.0, 0.0, 0.0, 0.0, 0.0]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 0.0)
 
     def test_profiled_max(self):
         data = np.linspace(-5, 5, 11)
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         profiler = FloatColumn(df.name)
         profiler.update(df[:-1])
@@ -271,32 +271,32 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
 
         # data with None value
-        df = pl.Series([2.0, 3.0, None, np.nan]).map_elements(str)
+        df = pl.Series([2.0, 3.0, None, np.nan]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 3.0)
 
         # data with one value
-        df = pl.Series([2.0]).map_elements(str)
+        df = pl.Series([2.0]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 2.0)
 
         # data with unique value
-        df = pl.Series([2.0, 2.0, 2.0, 2.0, 2.0]).map_elements(str)
+        df = pl.Series([2.0, 2.0, 2.0, 2.0, 2.0]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 2.0)
 
         # data with unique value as zero
-        df = pl.Series([0.0, 0.0, 0.0, 0.0, 0.0]).map_elements(str)
+        df = pl.Series([0.0, 0.0, 0.0, 0.0, 0.0]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 0.0)
 
     def test_profiled_mode(self):
         # disabled mode
-        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).cast(str)
         options = FloatOptions()
         options.mode.is_enabled = False
         profiler = FloatColumn(df.name, options)
@@ -304,13 +304,13 @@ class TestFloatColumn(unittest.TestCase):
         self.assertListEqual([np.nan], profiler.mode)
 
         # same values
-        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertListEqual([1], profiler.mode)
 
         # multiple modes
-        df = pl.Series([1.5, 1.5, 2.5, 2.5, 3.5, 3.5, 4.1, 4.1]).map_elements(str)
+        df = pl.Series([1.5, 1.5, 2.5, 2.5, 3.5, 3.5, 4.1, 4.1]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal(
@@ -318,31 +318,31 @@ class TestFloatColumn(unittest.TestCase):
         )
 
         # with different values
-        df = pl.Series([1.25, 1.25, 1.25, 1.25, 2.9]).map_elements(str)
+        df = pl.Series([1.25, 1.25, 1.25, 1.25, 2.9]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([1.25], profiler.mode, decimal=2)
 
         # with negative values
-        df = pl.Series([-1.1, 1.9, 1.9, 1.9, 2.1, 2.01, 2.01, 2.01]).map_elements(str)
+        df = pl.Series([-1.1, 1.9, 1.9, 1.9, 2.1, 2.01, 2.01, 2.01]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([1.9, 2.01], profiler.mode, decimal=2)
 
         # all unique values
-        df = pl.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).map_elements(str)
+        df = pl.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         # By default, returns 5 of the possible modes
         np.testing.assert_array_almost_equal([1, 2, 3, 4, 5], profiler.mode, decimal=2)
 
         # Edge case where mode appears later in the dataset
-        df = pl.Series([1, 2, 3, 4, 5, 6.2, 6.2]).map_elements(str)
+        df = pl.Series([1, 2, 3, 4, 5, 6.2, 6.2]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([6.2], profiler.mode, decimal=2)
 
-        df = pl.Series([2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7.1, 7.1, 7.1]).map_elements(str)
+        df = pl.Series([2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7.1, 7.1, 7.1]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         np.testing.assert_array_almost_equal([7.1], profiler.mode, decimal=2)
@@ -350,7 +350,7 @@ class TestFloatColumn(unittest.TestCase):
     def test_top_k_modes(self):
         # Default options
         options = FloatOptions()
-        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).map_elements(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).cast(str)
         profiler = FloatColumn(df.name, options)
         profiler.update(df)
         self.assertEqual(5, len(profiler.mode))
@@ -358,7 +358,7 @@ class TestFloatColumn(unittest.TestCase):
         # Test if top_k_modes is less than the number of modes
         options = FloatOptions()
         options.mode.top_k_modes = 2
-        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).map_elements(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).cast(str)
         profiler = FloatColumn(df.name, options)
         profiler.update(df)
         self.assertEqual(2, len(profiler.mode))
@@ -366,7 +366,7 @@ class TestFloatColumn(unittest.TestCase):
         # Test if top_k_mode is greater than the number of modes
         options = FloatOptions()
         options.mode.top_k_modes = 8
-        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).map_elements(str)
+        df = pl.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).cast(str)
         profiler = FloatColumn(df.name, options)
         profiler.update(df)
         # Only 5 possible modes so return 5
@@ -374,7 +374,7 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_profiled_median(self):
         # disabled median
-        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).cast(str)
         options = FloatOptions()
         options.median.is_enabled = False
         profiler = FloatColumn(df.name, options)
@@ -382,31 +382,31 @@ class TestFloatColumn(unittest.TestCase):
         self.assertTrue(profiler.median is np.nan)
 
         # same values
-        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).map_elements(str)
+        df = pl.Series([1, 1, 1, 1, 1, 1, 1]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertEqual(1, profiler.median)
 
         # median lies between two values (2.5 and 3.5)
-        df = pl.Series([1.5, 1.5, 2.5, 2.5, 3.5, 3.5, 4.1, 4.1]).map_elements(str)
+        df = pl.Series([1.5, 1.5, 2.5, 2.5, 3.5, 3.5, 4.1, 4.1]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(3, profiler.median, places=2)
 
         # with different values
-        df = pl.Series([1.25, 1.25, 1.25, 1.25, 2.9]).map_elements(str)
+        df = pl.Series([1.25, 1.25, 1.25, 1.25, 2.9]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(1.25, profiler.median, places=2)
 
         # with negative values, median lies in between values
-        df = pl.Series([-1.1, 1.9, 1.9, 1.9, 2.1, 2.1, 2.1, 2.1]).map_elements(str)
+        df = pl.Series([-1.1, 1.9, 1.9, 1.9, 2.1, 2.1, 2.1, 2.1]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(2, profiler.median, places=2)
 
         # all unique values
-        df = pl.Series([1, 2, 3, 4, 5, 6, 7, 8, 9]).map_elements(str)
+        df = pl.Series([1, 2, 3, 4, 5, 6, 7, 8, 9]).cast(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
         self.assertAlmostEqual(5, profiler.median, places=2)
@@ -447,7 +447,7 @@ class TestFloatColumn(unittest.TestCase):
         df3 = pl.Series(data)
 
         num_profiler = FloatColumn(df1.name)
-        num_profiler.update(df1.map_elements(str))
+        num_profiler.update(df1.cast(str))
 
         self.assertEqual(mean(df1), num_profiler.mean)
         self.assertEqual(var(df1), num_profiler.variance)
@@ -461,7 +461,7 @@ class TestFloatColumn(unittest.TestCase):
             var_b=var(df2),
             count_b=df2.count(),
         )
-        num_profiler.update(df2.map_elements(str))
+        num_profiler.update(df2.cast(str))
         df = pl.concat([df1, df2])
         self.assertEqual(mean(df), num_profiler.mean)
         self.assertEqual(variance, num_profiler.variance)
@@ -475,7 +475,7 @@ class TestFloatColumn(unittest.TestCase):
             var_b=var(df3),
             count_b=df3.count(),
         )
-        num_profiler.update(df3.map_elements(str))
+        num_profiler.update(df3.cast(str))
         df = pl.concat([df1, df2, df3.cast(pl.Float64)])
         self.assertEqual(mean(df), num_profiler.mean)
         self.assertEqual(variance, num_profiler.variance)
@@ -492,14 +492,14 @@ class TestFloatColumn(unittest.TestCase):
         df3 = pl.Series(data)
 
         num_profiler = FloatColumn(df1.name)
-        num_profiler.update(df1.map_elements(str))
+        num_profiler.update(df1.cast(str))
 
         self.assertEqual(0, num_profiler.skewness)
 
-        num_profiler.update(df2.map_elements(str))
+        num_profiler.update(df2.cast(str))
         self.assertAlmostEqual(np.sqrt(22 * 21) / 20 * 133 / 750, num_profiler.skewness)
 
-        num_profiler.update(df3.map_elements(str))
+        num_profiler.update(df3.cast(str))
         self.assertAlmostEqual(-0.3109967, num_profiler.skewness)
 
     def test_profiled_kurtosis(self):
@@ -513,14 +513,14 @@ class TestFloatColumn(unittest.TestCase):
         df3 = pl.Series(data)
 
         num_profiler = FloatColumn(df1.name)
-        num_profiler.update(df1.map_elements(str))
+        num_profiler.update(df1.cast(str))
 
         self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
 
-        num_profiler.update(df2.map_elements(str))
+        num_profiler.update(df2.cast(str))
         self.assertAlmostEqual(-0.390358, num_profiler.kurtosis)
 
-        num_profiler.update(df3.map_elements(str))
+        num_profiler.update(df3.cast(str))
         self.assertAlmostEqual(0.3311739, num_profiler.kurtosis)
 
     def test_bias_correction_option(self):
@@ -540,21 +540,21 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.bias_correction.is_enabled = False
         num_profiler = FloatColumn(df1.name, options=options)
-        num_profiler.update(df1.map_elements(str))
+        num_profiler.update(df1.cast(str))
         # Test biased values of variance, skewness, kurtosis
         self.assertAlmostEqual(10, num_profiler.variance)
         self.assertAlmostEqual(0, num_profiler.skewness)
         self.assertAlmostEqual(89 / 50 - 3, num_profiler.kurtosis)
 
         df2_ints = df2.filter(df2 == df2.round())
-        num_profiler.update(df2.map_elements(str))
+        num_profiler.update(df2.cast(str))
         df = pl.concat([df1, df2_ints])
         self.assertAlmostEqual(6.3125, num_profiler.variance)
         self.assertAlmostEqual(0.17733336, num_profiler.skewness)
         self.assertAlmostEqual(-0.56798353, num_profiler.kurtosis)
 
         df3_ints = df3.filter(df3 == df3)
-        num_profiler.update(df3.map_elements(str))
+        num_profiler.update(df3.cast(str))
         df = pl.concat([df1, df2_ints.cast(pl.Float64), df3_ints.cast(pl.Float64)])
         self.assertAlmostEqual(4.6755371, num_profiler.variance)
         self.assertAlmostEqual(-0.29622465, num_profiler.skewness)
@@ -574,13 +574,13 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.bias_correction.is_enabled = False
         num_profiler1 = FloatColumn(df1.name, options=options)
-        num_profiler1.update(df1.map_elements(str))
+        num_profiler1.update(df1.cast(str))
         self.assertAlmostEqual(10, num_profiler1.variance)
         self.assertAlmostEqual(0, num_profiler1.skewness)
         self.assertAlmostEqual(89 / 50 - 3, num_profiler1.kurtosis)
 
         num_profiler2 = FloatColumn(df2.name)
-        num_profiler2.update(df2.map_elements(str))
+        num_profiler2.update(df2.cast(str))
         num_profiler = num_profiler1 + num_profiler2
         self.assertFalse(num_profiler.bias_correction)
         self.assertAlmostEqual(6.3125, num_profiler.variance)
@@ -588,7 +588,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(-0.56798353, num_profiler.kurtosis)
 
         num_profiler3 = FloatColumn(df3.name)
-        num_profiler3.update(df3.map_elements(str))
+        num_profiler3.update(df3.cast(str))
         num_profiler = num_profiler1 + num_profiler2 + num_profiler3
         self.assertFalse(num_profiler.bias_correction)
         self.assertAlmostEqual(4.6755371, num_profiler.variance)
@@ -658,7 +658,7 @@ class TestFloatColumn(unittest.TestCase):
         list_data_test.append([df3, expected_histogram3])
 
         # this data has only one unique value, not overflow
-        df4 = pl.Series([-10.0, -10.0, -10.0]).map_elements(str)
+        df4 = pl.Series([-10.0, -10.0, -10.0]).cast(str)
         expected_histogram4 = {
             "bin_counts": np.array([3]),
             "bin_edges": np.array([-10.0, -10.0]),
@@ -666,7 +666,7 @@ class TestFloatColumn(unittest.TestCase):
         list_data_test.append([df4, expected_histogram4])
 
         # this data has only one unique value, overflow
-        df5 = pl.Series([-(10.0**20)]).map_elements(str)
+        df5 = pl.Series([-(10.0**20)]).cast(str)
         expected_histogram5 = {
             "bin_counts": np.array([1]),
             "bin_edges": np.array([-(10.0**20), -(10.0**20)]),
@@ -764,7 +764,7 @@ class TestFloatColumn(unittest.TestCase):
         Checks the histogram with large number of bins
         """
         # this data use number of bins less than the max limit
-        df1 = pl.Series([1, 2, 3, 4]).map_elements(str)
+        df1 = pl.Series([1, 2, 3, 4]).cast(str)
         profiler1 = FloatColumn(df1.name)
         profiler1.max_histogram_bin = 50
         profiler1.update(df1)
@@ -775,7 +775,7 @@ class TestFloatColumn(unittest.TestCase):
         # the max limit
         df2 = pl.Series(
             [3.195103249264023e18, 9999995.0, 9999999.0, 0.0, -(10**10)]
-        ).map_elements(str)
+        ).cast(str)
         profiler2 = FloatColumn(df2.name)
         profiler2.max_histogram_bin = 50
         profiler2.update(df2)
@@ -1027,7 +1027,7 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 4)
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         profiler = FloatColumn(df.name)
         profiler.update(df)
@@ -1039,7 +1039,7 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_profile(self):
         data = [2.5, 12.5, None, 5, None]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         profiler = FloatColumn(df.name)
 
@@ -1164,7 +1164,7 @@ class TestFloatColumn(unittest.TestCase):
         `remove_disabled_flag`.
         """
         data = [1.1, 2.2, 3.3, 4.4]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         # With FloatOptions and remove_disabled_flag == True
         options = FloatOptions()
@@ -1189,7 +1189,7 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_option_precision(self):
         data = [1.1, 2.2, 3.3, 4.4]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         # Turn off precision
         options = FloatOptions()
@@ -1214,7 +1214,7 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_option_timing(self):
         data = [2.0, 12.5, None, 6.0, None]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         options = FloatOptions()
         options.set({"min.is_enabled": False})
@@ -1266,12 +1266,12 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_profile_merge(self):
         data = [2.0, None, 6.0, None]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn("Float")
         profiler1.update(df)
 
         data2 = [10.0, None, 15.0, None]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = FloatColumn("Float")
         profiler2.update(df2)
 
@@ -1325,12 +1325,12 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_profile_merge_for_zeros_and_negatives(self):
         data = [2.0, 8.5, None, 6.0, -3, 0]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn("Float")
         profiler1.update(df)
 
         data2 = [0.0, 3.5, None, 125.0, 0, -0.1, -88]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = FloatColumn("Float")
         profiler2.update(df2)
 
@@ -1343,13 +1343,13 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_profile_merge_edge_case(self):
         data = [2.0, None, 6.0, None]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn("Float")
         profiler1.update(df)
         profiler1.match_count = 0
 
         data2 = [10.0, None, 15.0, None]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = FloatColumn("Float")
         profiler2.update(df2)
 
@@ -1371,7 +1371,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
 
-        df3 = pl.Series([2.0, 3.0]).map_elements(str)
+        df3 = pl.Series([2.0, 3.0]).cast(str)
         profiler3 = FloatColumn("Float")
         profiler3.update(df3)
 
@@ -1381,7 +1381,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.min, 2.0)
         self.assertEqual(profiler.max, 3.0)
 
-        df4 = pl.Series([4.0, 5.0]).map_elements(str)
+        df4 = pl.Series([4.0, 5.0]).cast(str)
         profiler4 = FloatColumn("Float")
         profiler4.update(df4)
 
@@ -1393,7 +1393,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.num_zeros, 0)
         self.assertEqual(profiler.num_negatives, 0)
 
-        df5 = pl.Series([0.0, 0.0, -1.1, -1.0]).map_elements(str)
+        df5 = pl.Series([0.0, 0.0, -1.1, -1.0]).cast(str)
         profiler5 = FloatColumn("Float")
         profiler5.update(df5)
 
@@ -1409,12 +1409,12 @@ class TestFloatColumn(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = 10
 
         data = [2.0, None, 6.0, None]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn("Float", options)
         profiler1.update(df)
 
         data2 = [10.0, None, 15.0, None]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = FloatColumn("Float", options)
         profiler2.update(df2)
 
@@ -1437,12 +1437,12 @@ class TestFloatColumn(unittest.TestCase):
     def test_profile_merge_no_bin_overlap(self):
 
         data = [2.0, np.nan, 6.0, np.nan]
-        df = pl.Series(data, dtype=pl.Float64).map_elements(str)
+        df = pl.Series(data, dtype=pl.Float64).cast(str)
         profiler1 = FloatColumn("Float")
         profiler1.update(df)
 
         data2 = [10.0, np.nan, 15.0, np.nan]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = FloatColumn("Float")
         profiler2.update(df2)
 
@@ -1465,7 +1465,7 @@ class TestFloatColumn(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = None
 
         data = [2, 4, 6, 8]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn("Float", options=options)
         profiler1.update(df)
 
@@ -1476,7 +1476,7 @@ class TestFloatColumn(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = None
 
         data2 = [10, 15]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = FloatColumn("Float", options=options)
         profiler2.update(df2)
 
@@ -1513,7 +1513,7 @@ class TestFloatColumn(unittest.TestCase):
         options.histogram_and_quantiles.method = None
 
         data = [2, 4, 6, 8]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn("Float", options=options)
         profiler1.update(df)
 
@@ -1661,13 +1661,13 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_diff(self):
         data = [2.5, 12.5, None, 5, None]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = FloatColumn(df.name)
         profiler1.update(df)
         profile1 = profiler1.profile
 
         data = [1, 15, 0.5, 0]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler2 = FloatColumn(df.name)
         profiler2.update(df)
         profile2 = profiler2.profile
@@ -1832,7 +1832,7 @@ class TestFloatColumn(unittest.TestCase):
     @mock.patch("time.time", return_value=0.0)
     def test_json_encode_after_update(self, time):
         data = np.array([0.0, 5.0, 10.0])
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         float_options = FloatOptions()
         float_options.histogram_and_quantiles.bin_count_or_method = 5
@@ -1971,9 +1971,7 @@ class TestFloatColumn(unittest.TestCase):
         # Actual deserialization
 
         # Build expected FloatColumn
-        df_float = pl.Series(
-            [-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]
-        ).map_elements(str)
+        df_float = pl.Series([-1.5, 2.2, 5.0, 7.0, 4.0, 3.0, 2.0, 0, 0, 9.0]).cast(str)
         expected_profile = FloatColumn(fake_profile_name)
 
         with test_utils.mock_timeit():
@@ -1989,7 +1987,7 @@ class TestFloatColumn(unittest.TestCase):
                 4.0,  # add existing
                 15.0,  # add new
             ]
-        ).map_elements(str)
+        ).cast(str)
 
         # validating update after deserialization
         deserialized.update(df_float)

@@ -39,10 +39,10 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "dfd",
                 "2",
             ]
-        ).map_elements(str)
+        ).cast(str)
         df2 = pl.Series(
             ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
-        ).map_elements(str)
+        ).cast(str)
         df3 = pl.Series(
             [
                 "NaN",
@@ -50,7 +50,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "nan",
                 "c",
             ]
-        ).map_elements(str)
+        ).cast(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
@@ -110,10 +110,10 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "2",
                 np.nan,
             ]
-        ).map_elements(str)
+        ).cast(str)
         df2 = pl.Series(
             ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
-        ).map_elements(str)
+        ).cast(str)
         df3 = pl.Series(
             [
                 "NaN",
@@ -122,7 +122,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "c",
                 None,
             ]
-        ).map_elements(str)
+        ).cast(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
@@ -189,7 +189,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "dfd",
                 "2",
             ]
-        ).map_elements(str)
+        ).cast(str)
 
         profiler = TextColumn(df1.name)
         profiler.update(df1)
@@ -200,31 +200,31 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(profiler.data_type_ratio, 1.0)
 
     def test_profiled_min(self):
-        df = pl.Series(["aaa", "aa", "aaaa", "aaa"]).map_elements(str)
+        df = pl.Series(["aaa", "aa", "aaaa", "aaa"]).cast(str)
 
         profiler = TextColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.min, 2)
 
-        df = pl.Series(["aa", "a"]).map_elements(str)
+        df = pl.Series(["aa", "a"]).cast(str)
         profiler.update(df)
         self.assertEqual(profiler.min, 1)
 
     def test_profiled_max(self):
-        df = pl.Series(["a", "aa", "a", "a"]).map_elements(str)
+        df = pl.Series(["a", "aa", "a", "a"]).cast(str)
 
         profiler = TextColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 2)
 
-        df = pl.Series(["aa", "aaa", "a"]).map_elements(str)
+        df = pl.Series(["aa", "aaa", "a"]).cast(str)
         profiler.update(df)
         self.assertEqual(profiler.max, 3)
 
     def test_profile(self):
         df = pl.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).map_elements(str)
+        ).cast(str)
         profiler = TextColumn(df.name)
         expected_profile = dict(
             min=1.0,
@@ -304,7 +304,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         `remove_disabled_flag`.
         """
         data = [2.0, 12.5, "not a float", 6.0, "not a float"]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         options = TextOptions()  # With TextOptions and remove_disabled_flag == True
         options.vocab.is_enabled = False
@@ -330,7 +330,7 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     def test_option_timing(self):
         data = ["2.0", "12.5", "not a float", "6.0", "not a float"]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
 
         options = TextOptions()
         options.set({"min.is_enabled": False})
@@ -380,11 +380,11 @@ class TestTextColumnProfiler(unittest.TestCase):
     def test_merge_profile(self):
         df = pl.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).map_elements(str)
+        ).cast(str)
 
         df2 = pl.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
-        ).map_elements(str)
+        ).cast(str)
 
         expected_vocab = [
             "a",
@@ -501,12 +501,12 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = 10
 
         data = ["this", "is", "a", "test"]
-        df = pl.Series(data).map_elements(str)
+        df = pl.Series(data).cast(str)
         profiler1 = TextColumn("Float", options)
         profiler1.update(df)
 
         data2 = ["this", "is", "another", "test"]
-        df2 = pl.Series(data2).map_elements(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = TextColumn("Float", options)
         profiler2.update(df2)
 
@@ -562,11 +562,11 @@ class TestTextColumnProfiler(unittest.TestCase):
     def test_diff(self):
         df = pl.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).map_elements(str)
+        ).cast(str)
 
         df2 = pl.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
-        ).map_elements(str)
+        ).cast(str)
 
         profiler1 = TextColumn(df.name)
         profiler1.update(df)
@@ -632,7 +632,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "2",
                 "12.32",
             ]
-        ).map_elements(str)
+        ).cast(str)
 
         text_options = TextOptions()
         text_options.histogram_and_quantiles.bin_count_or_method = 5

@@ -110,4 +110,4 @@ If you make changes to the `requirements` text files, please also update the `ad
 ## Contributing Documentation Changes and Fixes
 When making adjustments or contributions to documentation, please use the `dev-gh-pages` branch.  This is where all the documentation lives.
 After you've completed your edits, open a Github Pull Request (PR) to merge into `dev-gh-pages` from your fork.  During a version release, `dev-gh-pages` is merged
-into the `gh-pages` branch and is the version associated with the documentation website and stable version.
+into the `gh-pages` branch (after `update_documentation.py` is run) and is the version associated with the documentation website and stable version.

@@ -2,7 +2,6 @@ import unittest
 from collections import defaultdict
 from unittest import mock
 
-import pandas as pd
 import polars as pl
 
 from dataprofiler.profilers import profiler_utils
@@ -171,8 +170,8 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
             profile.update(sample)
 
         report1 = profile.profile
-        report2 = profile.report()
-        report3 = profile.report()
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
         self.assertDictEqual(report1, report2)
         self.assertDictEqual(report1, report3)
 

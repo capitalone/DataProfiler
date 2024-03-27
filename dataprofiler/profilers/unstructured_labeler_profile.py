@@ -103,7 +103,7 @@ class UnstructuredLabelerProfile:
 
         return merged_profile
 
-    def report(self) -> dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return profile object.
 
@@ -156,7 +156,7 @@ class UnstructuredLabelerProfile:
         return self.data_labeler.labels
 
     @BaseColumnProfiler._timeit(name="data_labeler_predict")
-    def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known profile.
 
@@ -190,7 +190,7 @@ class UnstructuredLabelerProfile:
         # CHARACTERS/WORDS PROCESSED
         self._update_column_base_properties(profile)
 
-    def update(self, df_series: Series | pl.Series) -> None:
+    def update(self, df_series: pl.Series) -> None:
         """Update profile."""
         if len(df_series) == 0:
             return
@@ -283,7 +283,7 @@ class UnstructuredLabelerProfile:
             self.char_sample_size += len(sample)
 
     def _update_postprocess_char_label_counts(
-        self, df_series_clean: Series | pl.Series, format_predictions: dict
+        self, df_series_clean: pl.Series, format_predictions: dict
     ) -> None:
         """
         Update the postprocess character label counts.
@@ -314,7 +314,7 @@ class UnstructuredLabelerProfile:
             char_label_counts["UNKNOWN"] += len(text) - index
 
     def _update_word_label_counts(
-        self, df_series_clean: Series | pl.Series, format_predictions: dict
+        self, df_series_clean: pl.Series, format_predictions: dict
     ) -> None:
         """
         Update the sorted dictionary of each entity count.

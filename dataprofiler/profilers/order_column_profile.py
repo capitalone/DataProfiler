@@ -380,7 +380,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         Additionally, return the first and last value of the series.
 
         :param df_series: a given column
-        :type df_series: polars.series.series.Series
+        :type df_series: polars.Series
         :param data_store_type: type of value for first_value and last_value
         :type data_store_type: Type[str] | Type[pl.Float64]
         :return: order, first_value, last_value, data_store_type
@@ -467,7 +467,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         Update col profile properties with clean dataset and its known null parameters.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: polars.series.series.Series
+        :type df_series_clean: polars.Series
         :param profile: ordered profile
         :type profile: dict
         :return: None
@@ -479,7 +479,7 @@ class OrderColumn(BaseColumnProfiler["OrderColumn"]):
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: polars.series.series.Series
+        :type df_series: polars.Series
         :return: updated OrderColumn
         :rtype: OrderColumn
         """

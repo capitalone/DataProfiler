@@ -7,6 +7,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -256,8 +257,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
         profile: dict = dict()
         activated_date_formats: list = list()
         len_df = len(df_series)
-
-        is_row_datetime = pd.Series(np.full((len(df_series)), False))
+        is_row_datetime = pd.Series(np.full((len_df), False))
 
         min_value = None
         max_value = None
@@ -275,18 +275,19 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
                 )
             )
 
-            df_dates = valid_dates[~valid_dates.isnull()]
+            df_dates = pl.Series(valid_dates[~valid_dates.isnull()])
 
-            if "%b" in date_format and not df_dates.empty:
+            if "%b" in date_format and not df_dates.is_empty():
                 may_month = 5  # May can be %b or %B we want to force, so check
-                all_may = df_dates.apply(lambda x: x.month == may_month).all()
+                all_may = df_dates.map_elements(lambda x: x.month == may_month)
+                all_may = pl.Series(all_may).all()
                 if all_may:
-                    valid_dates[:] = np.nan
-                    df_dates = pd.Series([], dtype=object)
+                    valid_dates[:] = None
+                    df_dates = pl.Series([])
 
             # Create mask to avoid null dates
             null_date_mask = valid_dates.isnull()
-            np_date_array = df_dates.values
+            np_date_array = df_dates.to_numpy()
 
             # check off any values which were found to be datetime
             is_row_datetime[~is_row_datetime] = (~null_date_mask).values
@@ -298,18 +299,18 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
                 max_idx = np.argmax(np_date_array)
 
                 # Selects the min, ma value objects for comparison
-                tmp_min_value_obj = df_dates.iloc[min_idx]
-                tmp_max_value_obj = df_dates.iloc[max_idx]
+                tmp_min_value_obj = df_dates.item(int(min_idx))
+                tmp_max_value_obj = df_dates.item(int(max_idx))
 
                 # If minimum value, keep reference
                 if tmp_min_value_obj < min_value_obj:
                     min_value = df_series[~null_date_mask].iloc[min_idx]
-                    min_value_obj = tmp_min_value_obj
+                    min_value_obj = pd.Timestamp(tmp_min_value_obj)
 
                 # If maximum value, keep reference
                 if tmp_max_value_obj > max_value_obj:
                     max_value = df_series[~null_date_mask].iloc[max_idx]
-                    max_value_obj = tmp_max_value_obj
+                    max_value_obj = pd.Timestamp(tmp_max_value_obj)
 
             df_series = df_series[null_date_mask]
 

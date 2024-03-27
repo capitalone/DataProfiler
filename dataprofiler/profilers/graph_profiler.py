@@ -9,7 +9,7 @@ from typing import cast
 
 import networkx as nx
 import numpy as np
-import pandas as pd
+import polars as pl
 import scipy.stats as st
 from packaging import version
 
@@ -401,7 +401,7 @@ class GraphProfiler:
         for attribute in attributes:
             if attribute in continuous_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
-                df = pd.Series(data_as_list)
+                df = pl.Series(data_as_list)
                 best_fit: str = None  # type: ignore[assignment]
                 best_mle: float = 1000
                 best_fit_properties: tuple = None  # type: ignore[assignment]

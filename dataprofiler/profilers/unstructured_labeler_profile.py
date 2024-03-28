@@ -4,7 +4,6 @@ from __future__ import annotations
 from collections import defaultdict
 
 import polars as pl
-from pandas import Series
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
@@ -161,23 +160,25 @@ class UnstructuredLabelerProfile:
         Update col profile properties with clean dataset and its known profile.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.Series
         :param profile: profile dictionary
         :type profile: dict
         :return: None
         """
+
+        data_ndarray = df_series_clean.to_numpy()
+
         # this will get char_level predictions as output
-        predictions = self.data_labeler.predict(df_series_clean)
+        predictions = self.data_labeler.predict(data_ndarray)
 
         # also store spacy/NER format
         postprocessor = CharPostprocessor(
             use_word_level_argmax=True, output_format="NER"
         )
         format_predictions = postprocessor.process(
-            df_series_clean, predictions.copy(), self.data_labeler.label_mapping
+            data_ndarray, predictions.copy(), self.data_labeler.label_mapping
         )
 
-        df_series_clean = pl.Series(df_series_clean)
         # Update counts and percent values
         self._update_word_label_counts(df_series_clean, format_predictions["pred"])
         self._update_true_char_label_counts(predictions["pred"])
@@ -199,8 +200,6 @@ class UnstructuredLabelerProfile:
             word_sample_size=self.word_sample_size,
         )
 
-        if type(df_series) is pl.Series:
-            df_series = df_series.to_pandas()
         self._update_helper(df_series, profile)
 
     @property
@@ -289,7 +288,7 @@ class UnstructuredLabelerProfile:
         Update the postprocess character label counts.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.Series
         :param format_predictions: contains dict of samples with predictions on
             the character level in congruence with the word level predictions
         :type format_predictions: Dict
@@ -297,7 +296,6 @@ class UnstructuredLabelerProfile:
         """
         char_label_counts = self.entity_counts["postprocess_char_level"]
 
-        df_series_clean = pl.Series(df_series_clean)
         for result in zip(df_series_clean, format_predictions):
             text, entities = result
             index = 0
@@ -320,14 +318,13 @@ class UnstructuredLabelerProfile:
         Update the sorted dictionary of each entity count.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.Series
         :param format_predictions: Dictionary of sample text and entities
         :type format_predictions: dict
         :return: None
         """
         word_label_counts = self.entity_counts["word_level"]
 
-        df_series_clean = pl.Series(df_series_clean)
         for result in zip(df_series_clean, format_predictions):
             text, entities = result
             begin_word_idx = -1

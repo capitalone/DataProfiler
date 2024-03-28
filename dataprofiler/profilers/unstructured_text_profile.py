@@ -8,6 +8,7 @@ from collections import Counter, defaultdict
 
 from numpy import ndarray
 from pandas import DataFrame, Series
+import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
@@ -667,7 +668,7 @@ class TextProfiler:
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
         self,
-        data: list | ndarray | DataFrame,
+        data: list | ndarray | DataFrame | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -675,7 +676,7 @@ class TextProfiler:
         Find the vocabulary counts used in the text samples.
 
         :param data: list or array of data from which to extract vocab
-        :type data: Union[list, numpy.array, pandas.DataFrame]
+        :type data: Union[list, numpy.array, pandas.DataFrame, polars.DataFrame]
         :param prev_dependent_properties: Contains all the previous properties
             that the calculations depend on.
         :type prev_dependent_properties: dict
@@ -690,7 +691,7 @@ class TextProfiler:
     @BaseColumnProfiler._timeit(name="words")
     def _update_words(
         self,
-        data: list | ndarray | DataFrame,
+        data: list | ndarray | DataFrame | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -698,7 +699,7 @@ class TextProfiler:
         Find unique words and word count used in the text samples.
 
         :param data: list or array of data from which to extract vocab
-        :type data: Union[list, numpy.array, pandas.DataFrame]
+        :type data: Union[list, numpy.array, pandas.DataFrame, polars.DataFrame]
         :param prev_dependent_properties: Contains all the previous properties
             that the calculations depend on.
         :type prev_dependent_properties: dict
@@ -720,12 +721,12 @@ class TextProfiler:
             if w and w.lower() not in self._stop_words:
                 self.word_count.update({w: c})
 
-    def _update_helper(self, data: Series, profile: dict) -> None:
+    def _update_helper(self, data: pl.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 
         :param data: df series with nulls removed
-        :type data: pandas.core.series.Series
+        :type data: polars.Series
         :param profile: text profile dictionary
         :type profile: dict
         :return: None
@@ -733,12 +734,12 @@ class TextProfiler:
         self.sample_size += profile.pop("sample_size")
         self.metadata = profile
 
-    def update(self, data: Series) -> TextProfiler:
+    def update(self, data: Series | pl.Series) -> TextProfiler:
         """
         Update the column profile.
 
         :param data: df series
-        :type data: pandas.core.series.Series
+        :type data: polars.Series
         :return: updated TextProfiler
         :rtype: TextProfiler
         """
@@ -747,6 +748,9 @@ class TextProfiler:
             return self
 
         profile = dict(sample_size=len_data)
+
+        if type(data) is pl.Series:
+            data = data.to_pandas()
 
         BaseColumnProfiler._perform_property_calcs(
             self,  # type: ignore

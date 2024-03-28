@@ -1,6 +1,6 @@
 import unittest
 
-import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers.profiler_options import TextProfilerOptions
 from dataprofiler.profilers.unstructured_text_profile import TextProfiler
@@ -9,7 +9,7 @@ from dataprofiler.profilers.unstructured_text_profile import TextProfiler
 class TestUnstructuredTextProfile(unittest.TestCase):
     def test_text_profile_update_and_name(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(
+        sample = pl.Series(
             ["Hello my name is: Grant.!!!", "Bob and \"Grant\", 'are' friends"]
         )
         text_profile.update(sample)
@@ -17,7 +17,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_vocab(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(
+        sample = pl.Series(
             ["Hello my name is: Grant.!!!", "Bob and \"Grant\", 'are' friends"]
         )
         text_profile.update(sample)
@@ -53,7 +53,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertListEqual(sorted(expected_vocab), sorted(profile["vocab"]))
 
         # Update the data again
-        sample = pd.Series(["Grant knows how to code", "Grant will code with Bob"])
+        sample = pl.Series(["Grant knows how to code", "Grant will code with Bob"])
         text_profile.update(sample)
         profile = text_profile.profile
 
@@ -92,7 +92,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_words_and_word_count(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(
+        sample = pl.Series(
             ["Hello my name is: Grant.!!!", "Bob and \"Grant\", 'are' friends"]
         )
         text_profile.update(sample)
@@ -114,7 +114,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile["word_count"])
 
         # Update the data again
-        sample = pd.Series(["Grant knows how to code", "Grant will code with Bob"])
+        sample = pl.Series(["Grant knows how to code", "Grant will code with Bob"])
         text_profile.update(sample)
         profile = text_profile.profile
 
@@ -137,7 +137,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_sample_size(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(
+        sample = pl.Series(
             ["Hello my name is: Grant.!!!", "Bob and \"Grant\", 'are' friends"]
         )
         text_profile.update(sample)
@@ -146,7 +146,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertEqual(2, text_profile.sample_size)
 
         # Update the data again
-        sample = pd.Series(["Grant knows how to code", "Grant will code with Bob"])
+        sample = pl.Series(["Grant knows how to code", "Grant will code with Bob"])
         text_profile.update(sample)
 
         # Assert sample size is accurate
@@ -154,7 +154,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_timing(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(
+        sample = pl.Series(
             ["Hello my name is: Grant.!!!", "Bob and \"Grant\", 'are' friends"]
         )
         text_profile.update(sample)
@@ -166,11 +166,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_merge_profiles(self):
         text_profile1 = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is: Grant.!!!"])
+        sample = pl.Series(["Hello my name is: Grant.!!!"])
         text_profile1.update(sample)
 
         text_profile2 = TextProfiler("Name")
-        sample = pd.Series(["Bob and \"Grant\", 'are' friends"])
+        sample = pl.Series(["Bob and \"Grant\", 'are' friends"])
         text_profile2.update(sample)
 
         text_profile3 = text_profile1 + text_profile2
@@ -231,11 +231,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_diff_profiles(self):
         text_profile1 = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is: Grant.!!!"])
+        sample = pl.Series(["Hello my name is: Grant.!!!"])
         text_profile1.update(sample)
 
         text_profile2 = TextProfiler("Name")
-        sample = pd.Series(["Bob and \"grant\", 'are' friends Grant Grant"])
+        sample = pl.Series(["Bob and \"grant\", 'are' friends Grant Grant"])
         text_profile2.update(sample)
 
         expected_diff = {
@@ -271,13 +271,13 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # Test when one profiler is not case sensitive
         text_profile1 = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is: Grant.!!!"])
+        sample = pl.Series(["Hello my name is: Grant.!!!"])
         text_profile1.update(sample)
 
         options = TextProfilerOptions()
         options.is_case_sensitive = False
         text_profile2 = TextProfiler("Name", options=options)
-        sample = pd.Series(["Bob and \"grant\", 'are' friends Grant Grant"])
+        sample = pl.Series(["Bob and \"grant\", 'are' friends Grant Grant"])
         text_profile2.update(sample)
 
         expected_diff = {
@@ -314,14 +314,14 @@ class TestUnstructuredTextProfile(unittest.TestCase):
     def test_case_sensitivity(self):
         text_profile1 = TextProfiler("Name")
         text_profile1._is_case_sensitive = False
-        sample = pd.Series(["Hello my name is: Grant.!!!"])
+        sample = pl.Series(["Hello my name is: Grant.!!!"])
         text_profile1.update(sample)
         profile = text_profile1.profile
         expected_word_count = {"grant": 1, "hello": 1, "name": 1}
         self.assertDictEqual(expected_word_count, profile["word_count"])
 
         text_profile2 = TextProfiler("Name")
-        sample = pd.Series(["Bob and \"Grant\", 'are' friends"])
+        sample = pl.Series(["Bob and \"Grant\", 'are' friends"])
         text_profile2.update(sample)
         profile = text_profile2.profile
         expected_word_count = {"Grant": 1, "Bob": 1, "friends": 1}
@@ -367,11 +367,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
     def test_merge_most_common_chars_count(self):
         ### default values of most common chars for both profiles
         text_profile1 = TextProfiler("Name")
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
+        sample1 = pl.Series(["this is test,", " this is a test sentence"])
         text_profile1.update(sample1)
 
         text_profile2 = TextProfiler("Name")
-        sample2 = pd.Series(["this is", "this"])
+        sample2 = pl.Series(["this is", "this"])
         text_profile2.update(sample2)
 
         text_profile3 = text_profile1 + text_profile2
@@ -437,12 +437,12 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         ### default values of most common words for both profiles
         text_profile1 = TextProfiler("Name")
         text_profile1._stop_words = set()  # set stop_words to empty for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
+        sample1 = pl.Series(["this is test,", " this is a test sentence"])
         text_profile1.update(sample1)
 
         text_profile2 = TextProfiler("Name")
         text_profile2._stop_words = set()  # set stop_words to empty for easy inspection
-        sample2 = pd.Series(["this is", "this"])
+        sample2 = pl.Series(["this is", "this"])
         text_profile2.update(sample2)
 
         text_profile3 = text_profile1 + text_profile2
@@ -494,7 +494,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"sentence": 1, "Test": 1, "test": 1}
@@ -518,7 +518,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        sample = pl.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"sentence": 1, "Test": 1, "test": 1}
@@ -553,7 +553,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.words.is_enabled = False
 
         profiler = TextProfiler("Name", options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         profiler.update(sample)
 
         report = profiler.report(remove_disabled_flag=True)
@@ -584,7 +584,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.words.is_enabled = False
 
         profiler = TextProfiler("Name", options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         profiler.update(sample)
 
         report = profiler.report(remove_disabled_flag=True)
@@ -600,7 +600,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"sentence": 1, "test": 2}
@@ -624,7 +624,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        sample = pl.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"sentence": 1, "test": 2}
@@ -655,7 +655,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         ## input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"This": 1, "Test": 1, "test": 1}
@@ -679,7 +679,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         ## input with two samples
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        sample = pl.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"This": 1, "Test": 1, "test": 1}
@@ -707,7 +707,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         ## input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {
@@ -738,7 +738,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         ## input with two samples
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        sample = pl.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {
@@ -774,7 +774,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"sentence": 1, "Test": 1, "test": 1}
@@ -784,7 +784,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        sample = pl.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {"sentence": 1, "Test": 1, "test": 1}
@@ -799,7 +799,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pl.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {}
@@ -823,7 +823,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        sample = pl.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
 
         expected_word_count = {}
@@ -851,7 +851,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.top_k_chars = None
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(
+        sample = pl.Series(
             ["this is test,", " this is a test sentence", "this is", "this"]
         )
         text_profile.update(sample)
@@ -875,7 +875,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.top_k_chars = 3
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(
+        sample = pl.Series(
             ["this is test,", " this is a test sentence", "this is", "this"]
         )
         text_profile.update(sample)
@@ -920,7 +920,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.stop_words = []  # set stop_words to empty list for easy inspection
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(
+        sample = pl.Series(
             ["this is test,", " this is a test sentence", "this is", "this"]
         )
         text_profile.update(sample)
@@ -934,7 +934,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.stop_words = []  # set stop_words to empty list for easy inspection
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(
+        sample = pl.Series(
             ["this is test,", " this is a test sentence", "this is", "this"]
         )
         text_profile.update(sample)

@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import OrderColumn
 from dataprofiler.profilers.json_decoder import load_column_profile
@@ -22,7 +23,7 @@ unittest.case._AssertWarnsContext.__enter__ = test_utils.patched_assert_warns
 class TestOrderColumn(unittest.TestCase):
     @staticmethod
     def _update_order(data):
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).cast(str)
 
         profiler = OrderColumn(df.name)
         profiler.update(df)
@@ -30,7 +31,7 @@ class TestOrderColumn(unittest.TestCase):
         return profiler.order
 
     def test_base_case(self):
-        data = pd.Series([], dtype=object)
+        data = pl.Series([], dtype=object)
         profiler = OrderColumn(data.name)
         profiler.update(data)
 
@@ -75,31 +76,31 @@ class TestOrderColumn(unittest.TestCase):
 
     def test_batch_updates(self):
         data = ["a", "a", "a"]
-        df = pd.Series(data)
+        df = pl.Series(data)
         profiler = OrderColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.order, "constant value")
 
         data = ["a", "b", "c"]
-        df = pd.Series(data)
+        df = pl.Series(data)
         profiler.update(df)
         self.assertEqual(profiler.order, "ascending")
 
         # previous was ascending, should stay ascending bc now receiving const
         data = ["c", "c", "c"]
-        df = pd.Series(data)
+        df = pl.Series(data)
         profiler.update(df)
         self.assertEqual(profiler.order, "ascending")
 
         # previous was ascending, should be random now receiving descending
         data = ["c", "b", "a"]
-        df = pd.Series(data)
+        df = pl.Series(data)
         profiler.update(df)
         self.assertEqual(profiler.order, "random")
 
     def test_profile(self):
         data = [1]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).cast(str)
 
         profiler = OrderColumn(df.name)
 
@@ -114,7 +115,7 @@ class TestOrderColumn(unittest.TestCase):
 
     def test_report(self):
         data = [1]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).cast(str)
 
         profile = OrderColumn(df.name)
 
@@ -126,58 +127,58 @@ class TestOrderColumn(unittest.TestCase):
 
     def test_profile_merge(self):
         data = [1, 2, 3, 4, 5, 6]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).cast(str)
         profiler = OrderColumn("placeholder_name")
         profiler.update(df)
 
         data2 = [7, 8, 9, 10]
-        df2 = pd.Series(data2).apply(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = OrderColumn("placeholder_name")
         profiler2.update(df2)
 
         data3 = [2, 3, 4]
-        df3 = pd.Series(data3).apply(str)
+        df3 = pl.Series(data3).cast(str)
         profiler3 = OrderColumn("placeholder_name")
         profiler3.update(df3)
 
         data4 = [3, 3, 3, 3]
-        df4 = pd.Series(data4).apply(str)
+        df4 = pl.Series(data4).cast(str)
         profiler4 = OrderColumn("placeholder_name")
         profiler4.update(df4)
 
         data5 = [4, 2, 3, 1, 5]
-        df5 = pd.Series(data5).apply(str)
+        df5 = pl.Series(data5).cast(str)
         profiler5 = OrderColumn("placeholder_name")
         profiler5.update(df5)
 
         data6 = [10, 9, 8, 7]
-        df6 = pd.Series(data6).apply(str)
+        df6 = pl.Series(data6).cast(str)
         profiler6 = OrderColumn("placeholder_name")
         profiler6.update(df6)
 
         data7 = [3, 3, 3]
-        df7 = pd.Series(data7).apply(str)
+        df7 = pl.Series(data7).cast(str)
         profiler7 = OrderColumn("placeholder_name")
         profiler7.update(df7)
 
         data8 = [7, 7, 7, 7, 7, 7, 7]
-        df8 = pd.Series(data8).apply(str)
+        df8 = pl.Series(data8).cast(str)
         profiler8 = OrderColumn("placeholder_name")
         profiler8.update(df8)
 
         data9 = [7, 6, 5, 4, 3]
-        df9 = pd.Series(data9).apply(str)
+        df9 = pl.Series(data9).cast(str)
         profiler9 = OrderColumn("placeholder_name")
         profiler9.update(df9)
 
         data10 = [1, 5, 6]
-        df10 = pd.Series(data10).apply(str)
+        df10 = pl.Series(data10).cast(str)
         profiler10 = OrderColumn("placeholder_name")
         profiler10.update(df10)
         profiler10._piecewise = True
 
-        data11 = pd.Series([], dtype=object)
-        df11 = pd.Series(data11).apply(str)
+        data11 = pl.Series([], dtype=object)
+        df11 = pl.Series(data11).cast(str)
         profiler11 = OrderColumn("placeholder_name")
         profiler11.update(df11)
 
@@ -322,7 +323,7 @@ class TestOrderColumn(unittest.TestCase):
     def test_random_order_prevents_update_from_occuring(self, mock_get_data_order):
         mock_get_data_order.return_value = ["random", 1, 2, str]
         data = ["a", "b", "ab"]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).cast(str)
 
         # Assert the order is random
         profiler = OrderColumn(df.name)
@@ -342,12 +343,12 @@ class TestOrderColumn(unittest.TestCase):
 
     def test_diff(self):
         data = [1, 2, 3, 4, 5, 6]
-        df = pd.Series(data).apply(str)
+        df = pl.Series(data).cast(str)
         profiler = OrderColumn("placeholder_name")
         profiler.update(df)
 
         data2 = [7, 8, 9, 10]
-        df2 = pd.Series(data2).apply(str)
+        df2 = pl.Series(data2).cast(str)
         profiler2 = OrderColumn("placeholder_name")
         profiler2.update(df2)
 
@@ -355,7 +356,7 @@ class TestOrderColumn(unittest.TestCase):
         self.assertEqual("unchanged", diff["order"])
 
         data3 = [4, 2, 3, 1, 5]
-        df3 = pd.Series(data3).apply(str)
+        df3 = pl.Series(data3).cast(str)
         profiler3 = OrderColumn("placeholder_name")
         profiler3.update(df3)
 
@@ -373,7 +374,7 @@ class TestOrderColumn(unittest.TestCase):
                     "order": None,
                     "_last_value": None,
                     "_first_value": None,
-                    "_data_store_type": "float64",
+                    "_data_store_type": "Float64",
                     "_piecewise": False,
                     "_OrderColumn__calculations": dict(),
                     "name": "0",
@@ -391,7 +392,7 @@ class TestOrderColumn(unittest.TestCase):
     def test_json_encode_after_update(self):
         profile = OrderColumn("0")
 
-        df_order = pd.Series(["za", "z", "c", "a"])
+        df_order = pl.Series(["za", "z", "c", "a"])
         with patch("time.time", side_effect=lambda: 0.0):
             profile.update(df_order)
 
@@ -431,7 +432,7 @@ class TestOrderColumn(unittest.TestCase):
         fake_profile_name = "Fake profile name"
 
         # Build expected orderColumn
-        df_order = pd.Series(["za", "z", "c", "c"])
+        df_order = pl.Series(["za", "z", "c", "c"])
         expected_profile = OrderColumn(fake_profile_name)
 
         with utils.mock_timeit():
@@ -444,7 +445,7 @@ class TestOrderColumn(unittest.TestCase):
 
         # Adding data to update that is in descending order
         # (consistent with previous data)
-        df_order = pd.Series(
+        df_order = pl.Series(
             [
                 "c",  # add existing
                 "a",  # add new
@@ -460,7 +461,7 @@ class TestOrderColumn(unittest.TestCase):
 
         # Adding data to update that is in random order
         # (not consistent with previous data)
-        df_order = pd.Series(
+        df_order = pl.Series(
             [
                 "c",  # add existing
                 "zza",  # add new
@@ -476,7 +477,7 @@ class TestOrderColumn(unittest.TestCase):
         fake_profile_name = "Fake profile name"
 
         # Build expected orderColumn
-        df_order = pd.Series(["1", "4", "6"])
+        df_order = pl.Series(["1", "4", "6"])
         expected_profile = OrderColumn(fake_profile_name)
 
         with utils.mock_timeit():
@@ -488,7 +489,7 @@ class TestOrderColumn(unittest.TestCase):
 
         # Adding data to update that is in descending order
         # (consistent with previous data)
-        df_order = pd.Series(
+        df_order = pl.Series(
             [
                 "6",  # add existing
                 "9",  # add new
@@ -503,7 +504,7 @@ class TestOrderColumn(unittest.TestCase):
 
         # Adding data to update that is in random order
         # (not consistent with previous data)
-        df_order = pd.Series(
+        df_order = pl.Series(
             [
                 "3",  # add existing
                 "1",  # add new

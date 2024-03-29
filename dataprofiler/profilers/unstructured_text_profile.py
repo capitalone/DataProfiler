@@ -6,9 +6,9 @@ import string
 import warnings
 from collections import Counter, defaultdict
 
+import polars as pl
 from numpy import ndarray
 from pandas import DataFrame, Series
-import polars as pl
 
 from . import profiler_utils
 from .base_column_profilers import BaseColumnProfiler
@@ -691,7 +691,7 @@ class TextProfiler:
     @BaseColumnProfiler._timeit(name="words")
     def _update_words(
         self,
-        data: list | ndarray | DataFrame | pl.DataFrame,
+        data: list | ndarray | DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -709,12 +709,29 @@ class TextProfiler:
         :return: None
         """
         if not self._is_case_sensitive:
-            words = (
-                [w.strip(string.punctuation) for w in row.lower().split()]
-                for row in data
-            )
+            if type(data) is pl.DataFrame:
+                words = (
+                    [
+                        w.strip(string.punctuation)
+                        for w in row.str.to_lowercase().str.split(by=" ")
+                    ]
+                    for row in data
+                )
+            else:
+                words = (
+                    [w.strip(string.punctuation) for w in row.lower().split()]
+                    for row in data
+                )
         else:
-            words = ([w.strip(string.punctuation) for w in row.split()] for row in data)
+            if type(data) is pl.DataFrame:
+                words = (
+                    [w.strip(string.punctuation) for w in row.str.split(by=" ")]
+                    for row in data
+                )
+            else:
+                words = (
+                    [w.strip(string.punctuation) for w in row.split()] for row in data
+                )
         word_count = Counter(itertools.chain.from_iterable(words))
 
         for w, c in word_count.items():
@@ -750,16 +767,18 @@ class TextProfiler:
         profile = dict(sample_size=len_data)
 
         if type(data) is pl.Series:
-            data = data.to_pandas()
+            data_pandas = data.to_pandas()
+        else:
+            data_pandas = data
 
         BaseColumnProfiler._perform_property_calcs(
             self,  # type: ignore
             self.__calculations,
-            df_series=data,
+            df_series=data_pandas,
             prev_dependent_properties={},
             subset_properties=profile,
         )
 
-        self._update_helper(data, profile)
+        self._update_helper(pl.Series(data), profile)
 
         return self

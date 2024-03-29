@@ -165,7 +165,6 @@ class UnstructuredLabelerProfile:
         :type profile: dict
         :return: None
         """
-
         data_ndarray = df_series_clean.to_numpy()
 
         # this will get char_level predictions as output

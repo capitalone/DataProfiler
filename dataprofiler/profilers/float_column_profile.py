@@ -306,7 +306,7 @@ class FloatColumn(
         len_per_float = (
             df_series_clean.sample(sample_size)
             .str.replace_all(pattern=r, value="")
-            .map_elements(len)
+            .map_elements(len, return_dtype=pl.Int64)
         )
 
         # Determine statistics precision
@@ -341,7 +341,9 @@ class FloatColumn(
             return pl.Series()
         if sum(df_series.is_null()) == len(df_series):
             return df_series
-        df_series = df_series.map_elements(NumericStatsMixin.is_float)
+        df_series = df_series.map_elements(
+            NumericStatsMixin.is_float, return_dtype=pl.Boolean
+        )
         df_series = df_series.cast(bool)
         return df_series
 

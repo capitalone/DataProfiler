@@ -5,7 +5,9 @@ import operator
 from typing import Dict, cast
 
 import numpy as np
-from pandas import DataFrame, Series
+import pandas as pd
+import polars as pl
+from polars import Series
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
@@ -394,7 +396,7 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
     @BaseColumnProfiler._timeit(name="data_labeler_predict")
     def _update_predictions(
         self,
-        df_series: DataFrame,
+        df_series: Series,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -411,8 +413,9 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         :type df_series: pandas.DataFrame
         :return: None
         """
+        df_series_pd = df_series.to_pandas()
         predictions = self.data_labeler.predict(
-            df_series, predict_options=dict(show_confidences=True)
+            df_series_pd, predict_options=dict(show_confidences=True)
         )
         # remove PAD from output (reserved zero index)
         if self.data_labeler.model.requires_zero_mapping:
@@ -441,7 +444,7 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         Update the column profile properties.
 
         :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :type df_series_clean: polars.Series
         :param profile: float profile dictionary
         :type profile: dict
         :return: None
@@ -453,10 +456,13 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         Update the column profile.
 
         :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.Series
         :return: updated DataLabelerColumn
         :rtype: DataLabelerColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         if len(df_series) == 0:
             return self
 

@@ -5,13 +5,10 @@ from io import BytesIO
 from unittest import mock
 
 import networkx as nx
-import numpy as np
-import pandas as pd
 
 import dataprofiler as dp
 from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfiler
-from dataprofiler.profilers.profiler_options import ProfilerOptions
 
 from . import utils
 

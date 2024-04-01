@@ -752,7 +752,7 @@ def perform_chi_squared_test_for_homogeneity(
     # If one or less categories, we have zero/negative degrees of freedom,
     # which is not an appropriate value for this context
     num_cats = len(cat_counts)
-    if len(cat_counts) <= 1:
+    if num_cats <= 1:
         warnings.warn(
             "Insufficient number of categories. "
             "Chi-squared test cannot be performed.",

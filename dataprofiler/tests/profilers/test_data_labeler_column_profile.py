@@ -4,7 +4,7 @@ from collections import defaultdict
 from unittest import mock
 
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from dataprofiler.labelers import BaseDataLabeler
 from dataprofiler.profilers import profiler_utils
@@ -21,6 +21,8 @@ from . import utils as test_utils
     spec=BaseDataLabeler,
 )
 class TestDataLabelerColumnProfiler(unittest.TestCase):
+    maxDiff = None
+
     @staticmethod
     def _setup_data_labeler_mock(mock_instance):
         mock_DataLabeler = mock_instance.return_value
@@ -46,7 +48,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
     def test_base_case(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
-        data = pd.Series([], dtype=object)
+        data = pl.Series([], dtype=object)
         profiler = DataLabelerColumn(data.name)
 
         time_array = [float(i) for i in range(4, 0, -1)]
@@ -74,7 +76,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
     def test_update(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
-        data = pd.Series(["1", "2", "3"])
+        data = pl.Series(["1", "2", "3"])
         profiler = DataLabelerColumn(data.name)
         profiler.update(data)
 
@@ -93,7 +95,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.reverse_label_mapping = {0: "PAD", 1: "a", 2: "b"}
         mock_DataLabeler.model.num_labels = 3
 
-        data = pd.Series(["1", "2", "3"])
+        data = pl.Series(["1", "2", "3"])
         profiler = DataLabelerColumn(data.name)
         profiler.update(data)
 
@@ -111,7 +113,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         mock_instance.return_value.predict.side_effect = mock_low_predict
 
-        data = pd.Series(["1"])
+        data = pl.Series(["1"])
         profiler = DataLabelerColumn(data.name)
         profiler.update(data)
         self.assertEqual("could not determine", profiler.data_label)
@@ -144,7 +146,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         mock_instance.return_value.predict.side_effect = mock_low_predict
 
-        data = pd.Series(["1"] * 10)
+        data = pl.Series(["1"] * 10)
         profiler = DataLabelerColumn(data.name)
         profiler.update(data)
         self.assertEqual("a|c|b", profiler.data_label)
@@ -152,7 +154,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
     def test_profile(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
-        data = pd.Series(["1", "2", "3"])
+        data = pl.Series(["1", "2", "3"])
         profiler = DataLabelerColumn(data.name)
 
         expected_profile = {
@@ -180,7 +182,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
     def test_report(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
-        data = pd.Series(["1", "2", "3"])
+        data = pl.Series(["1", "2", "3"])
         profile = DataLabelerColumn(data.name)
 
         report1 = profile.profile
@@ -206,7 +208,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.model.num_labels = 4
         mock_DataLabeler.model.requires_zero_mapping = False
 
-        data = pd.Series(["1", "2", "3", "4", "5", "6"])
+        data = pl.Series(["1", "2", "3", "4", "5", "6"])
         profiler = DataLabelerColumn(data.name)
         profiler.sample_size = 1
 
@@ -217,8 +219,8 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
     def test_profile_merge(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
-        data = pd.Series(["1", "2", "3", "11"])
-        data2 = pd.Series(["4", "5", "6", "7", "9", "10", "12"])
+        data = pl.Series(["1", "2", "3", "11"])
+        data2 = pl.Series(["4", "5", "6", "7", "9", "10", "12"])
 
         expected_profile = {
             "data_label": "a|b",
@@ -313,8 +315,8 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         self._setup_data_labeler_mock(mock_instance)
 
         # Different max_sample_size values
-        data = pd.Series(["1", "2", "3", "11"])
-        data2 = pd.Series(["4", "5", "6", "7", "9", "10", "12"])
+        data = pl.Series(["1", "2", "3", "11"])
+        data2 = pl.Series(["4", "5", "6", "7", "9", "10", "12"])
         options = DataLabelerOptions()
         options.max_sample_size = 20
         profiler = DataLabelerColumn(data.name, options=options)
@@ -392,8 +394,8 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
         # Mock out the data_label, avg_predictions, and label_representation
         # properties
-        profiler1.update(pd.Series())
-        profiler2.update(pd.Series())
+        profiler1.update(pl.Series())
+        profiler2.update(pl.Series())
 
         merge_profile = profiler1 + profiler2
         self.assertIsNone(merge_profile._rank_distribution)
@@ -447,7 +449,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
 
     def test_json_encode_after_update(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
-        data = pd.Series(["1", "2", "3", "4"], dtype=object)
+        data = pl.Series(["1", "2", "3", "4"], dtype=object)
         profiler = DataLabelerColumn(data.name)
         profiler.data_labeler._default_model_loc = "this is a test model loc"
         with test_utils.mock_timeit():
@@ -458,7 +460,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             {
                 "class": "DataLabelerColumn",
                 "data": {
-                    "name": None,
+                    "name": "",
                     "col_index": float("nan"),
                     "sample_size": 4,
                     "metadata": {},
@@ -492,7 +494,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         self._setup_data_labeler_mock(mock_BaseDataLabeler)
         mock_utils_DataLabeler.load_from_library.side_effect = mock_BaseDataLabeler
 
-        data = pd.Series(["1", "2", "3", "4"], dtype=object)
+        data = pl.Series(["1", "2", "3", "4"], dtype=object)
         expected = DataLabelerColumn(data.name)
         expected.data_labeler._default_model_loc = "structured_model"
         serialized = json.dumps(expected, cls=ProfileEncoder)
@@ -537,7 +539,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         self._setup_data_labeler_mock(mock_BaseDataLabeler)
         mock_utils_DataLabeler.load_from_library.side_effect = mock_BaseDataLabeler
 
-        data = pd.Series(["1", "2", "3", "4"], dtype=object)
+        data = pl.Series(["1", "2", "3", "4"], dtype=object)
         expected = DataLabelerColumn(data.name)
         expected.data_labeler._default_model_loc = "structured_model"
         with test_utils.mock_timeit():
@@ -547,7 +549,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected)
-        update_data = pd.Series(["4", "5", "6", "7"], dtype=object)
+        update_data = pl.Series(["4", "5", "6", "7"], dtype=object)
         deserialized.update(update_data)
 
         assert deserialized.sample_size == 8

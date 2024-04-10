@@ -100,7 +100,7 @@ repos:
             pytest-xdist>=2.1.0,
             pytest-forked>=1.3.0,
             toolz>=0.10.0,
-            memray>=1.7.0,
+            'memray>=1.7.0,<1.12.0',
           ]
   # Check-manifest: ensures required non-Python files are included in MANIFEST.in
   # https://github.com/mgedmin/check-manifest/blob/master/.pre-commit-hooks.yaml

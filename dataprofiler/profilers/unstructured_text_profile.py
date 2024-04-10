@@ -691,7 +691,7 @@ class TextProfiler:
     @BaseColumnProfiler._timeit(name="words")
     def _update_words(
         self,
-        data: list | ndarray | DataFrame,
+        data: list | ndarray | DataFrame | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -709,7 +709,7 @@ class TextProfiler:
         :return: None
         """
         if not self._is_case_sensitive:
-            if type(data) is pl.DataFrame:
+            if isinstance(data, pl.DataFrame):
                 words = (
                     [
                         w.strip(string.punctuation)
@@ -723,7 +723,7 @@ class TextProfiler:
                     for row in data
                 )
         else:
-            if type(data) is pl.DataFrame:
+            if isinstance(data, pl.DataFrame):
                 words = (
                     [w.strip(string.punctuation) for w in row.str.split(by=" ")]
                     for row in data
@@ -766,7 +766,7 @@ class TextProfiler:
 
         profile = dict(sample_size=len_data)
 
-        if type(data) is pl.Series:
+        if isinstance(data, pl.Series):
             data_pandas = data.to_pandas()
         else:
             data_pandas = data

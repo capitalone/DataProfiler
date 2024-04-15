@@ -305,10 +305,7 @@ class FloatColumn(
 
         # length of sampled cells after all punctuation removed
         len_per_float = (
-            df_series_clean.sample(sample_size)
-            .astype(object)
-            .replace(to_replace=r, value="")
-            .map(len)
+            df_series_clean.sample(sample_size).replace(to_replace=r, value="").map(len)
         ).astype(float)
 
         # Determine statistics precision

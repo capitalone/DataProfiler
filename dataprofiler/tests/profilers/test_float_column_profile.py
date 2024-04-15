@@ -211,6 +211,13 @@ class TestFloatColumn(unittest.TestCase):
                 msg=f"Errored for: {sample[0]}",
             )
 
+        # Validate categorical series with trailing zeros supported
+        categorical_series = pd.Series(
+            [202209, 202210, 202211], dtype="category"
+        ).apply(str)
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(categorical_series)
+
     def test_profiled_min(self):
         # test with multiple values
         data = np.linspace(-5, 5, 11)

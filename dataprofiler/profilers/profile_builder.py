@@ -3003,7 +3003,7 @@ class StructuredProfiler(BaseProfiler):
         notification_str = "Calculating the statistics... "
         pool = None
         if auto_multiprocess_toggle:
-            pool, pool_size = profiler_utils.generate_pool(4, est_data_size)
+            pool, pool_size = profiler_utils.generate_pool(profiler_utils.suggest_pool_size(), est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
 

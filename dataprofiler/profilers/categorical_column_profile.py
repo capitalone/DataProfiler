@@ -7,7 +7,9 @@ from operator import itemgetter
 from typing import cast
 
 import datasketches
-from pandas import DataFrame, Series
+import pandas as pd
+import polars as pl
+from polars import DataFrame, Series
 
 from .. import dp_logging
 from . import profiler_utils
@@ -601,7 +603,8 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: dict of counts for each unique value
         :rtype: dict
         """
-        category_count: dict = df_series.value_counts(dropna=False).to_dict()
+        value_counts = df_series.value_counts(sort=True)
+        category_count: dict = dict(value_counts.iter_rows())
         return category_count
 
     @BaseColumnProfiler._timeit(name="categories")
@@ -678,6 +681,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: updated CategoricalColumn
         :rtype: CategoricalColumn
         """
+        # TODO remove onces profiler builder is updated
+        if type(df_series) == pd.Series:
+            df_series = pl.from_pandas(df_series)  # type: ignore
         # If condition for limiting profile calculations
         if len(df_series) == 0 or self._stop_condition_is_met:
             return self

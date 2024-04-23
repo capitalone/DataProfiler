@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from dataprofiler.profilers import CategoricalColumn
 from dataprofiler.profilers.json_decoder import load_column_profile
@@ -19,6 +20,8 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class TestCategoricalColumn(unittest.TestCase):
+    maxDiff = None
+
     @classmethod
     def setUp(self):
         test_utils.set_seed(seed=0)
@@ -29,10 +32,12 @@ class TestCategoricalColumn(unittest.TestCase):
             test_root_path, "data", "csv/aws_honeypot_marx_geo.csv"
         )
         columns_to_read = ["host", "localeabbr"]
-        cls.aws_dataset = pd.read_csv(cls.input_file_path)[columns_to_read]
+        cls.aws_dataset = pl.read_csv(cls.input_file_path, infer_schema_length=0)[
+            columns_to_read
+        ]
 
     def test_correct_categorical_model_string(self):
-        dataset = self.aws_dataset["host"].dropna()
+        dataset = self.aws_dataset["host"].drop_nulls()
         profile = CategoricalColumn(dataset.name)
         profile.update(dataset)
         self.assertEqual(1.0, profile.is_match)
@@ -51,7 +56,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertCountEqual(categories, profile.categories)
 
     def test_stop_condition_is_met_initially(self):
-        dataset = pd.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
+        dataset = pl.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
         profile = CategoricalColumn("test dataset")
         profile.max_sample_size_to_check_stop_condition = 0
         profile.stop_condition_unique_value_ratio = 0
@@ -64,7 +69,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertFalse(profile.is_match)
 
     def test_stop_condition_is_met_after_initial_profile(self):
-        dataset = pd.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
+        dataset = pl.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
         profile = CategoricalColumn("test dataset")
         profile.max_sample_size_to_check_stop_condition = len(dataset) + 1
         profile.stop_condition_unique_value_ratio = 0
@@ -72,7 +77,7 @@ class TestCategoricalColumn(unittest.TestCase):
 
         self.assertFalse(profile._stop_condition_is_met)
 
-        dataset.loc[len(dataset.index)] = "Testing past ratio"
+        dataset.append(pl.Series(["Testing past ratio"]))
         profile.update(dataset)
 
         self.assertTrue(profile._stop_condition_is_met)
@@ -90,7 +95,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertFalse(profile.is_match)
 
     def test_timeit_profile(self):
-        dataset = self.aws_dataset["host"].dropna()
+        dataset = self.aws_dataset["host"].drop_nulls()
         profile = CategoricalColumn(dataset.name)
 
         time_array = [float(x) for x in range(17, 0, -1)]
@@ -109,7 +114,7 @@ class TestCategoricalColumn(unittest.TestCase):
             self.assertEqual(expected, profile.profile["times"])
 
     def test_mixed_categorical_col_integer_string(self):
-        dataset = self.aws_dataset["localeabbr"].dropna()
+        dataset = self.aws_dataset["localeabbr"].drop_nulls()
         profile = CategoricalColumn(dataset.name)
         profile.update(dataset)
 
@@ -368,7 +373,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertNotEqual(num_nan_count, len(column_profile.null_types_index["NaN"]))
 
     def test_true_categorical_report(self):
-        df_categorical = pd.Series(
+        df_categorical = pl.Series(
             [
                 "a",
                 "a",
@@ -415,7 +420,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(report, expected_profile)
 
     def test_false_categorical_report(self):
-        df_non_categorical = pd.Series(list(map(str, range(0, 20))))
+        df_non_categorical = pl.Series(list(map(str, range(0, 20))))
         profile = CategoricalColumn(df_non_categorical.name)
         profile.update(df_non_categorical)
 
@@ -433,7 +438,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(report, expected_profile)
 
     def test_report(self):
-        df_non_categorical = pd.Series(list(map(str, range(0, 20))))
+        df_non_categorical = pl.Series(list(map(str, range(0, 20))))
         profile = CategoricalColumn(df_non_categorical.name)
         profile.update(df_non_categorical)
 
@@ -444,10 +449,10 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(report1, report3)
 
     def test_categorical_merge(self):
-        df1 = pd.Series(
-            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", np.nan]
+        df1 = pl.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", None]
         )
-        df2 = pd.Series(
+        df2 = pl.Series(
             ["1", "null", "ee", "NaN", "ff", "nan", "gg", "None", "aa", "b", "ee"]
         )
 
@@ -460,7 +465,7 @@ class TestCategoricalColumn(unittest.TestCase):
             "3",
             "2",
             "dfd",
-            np.nan,
+            None,
             "1",
             "null",
             "ee",
@@ -482,7 +487,7 @@ class TestCategoricalColumn(unittest.TestCase):
             "3": 1,
             "2": 2,
             "dfd": 1,
-            np.nan: 1,
+            None: 1,
         }
         self.assertDictEqual(expected_dict, profile._categories)
 
@@ -503,7 +508,7 @@ class TestCategoricalColumn(unittest.TestCase):
             "4": 1,
             "3": 1,
             "2": 2,
-            np.nan: 1,
+            None: 1,
             "dfd": 1,
             "1": 1,
             "ee": 2,
@@ -581,7 +586,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "abcd",
                 "aa",
                 "2",
-                np.nan,
+                None,
                 "4",
                 "b",
                 "3",
@@ -601,7 +606,7 @@ class TestCategoricalColumn(unittest.TestCase):
             "2": 4,
             "abcd": 4,
             "b": 3,
-            np.nan: 2,
+            None: 2,
             "dfd": 2,
             "3": 2,
             "4": 2,
@@ -681,32 +686,32 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_gini_impurity(self):
         # Normal test
-        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        df_categorical = pl.Series(["y", "y", "y", "y", "n", "n", "n"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         expected_val = ((4 / 7) * (3 / 7)) + ((4 / 7) * (3 / 7))
         self.assertAlmostEqual(profile.gini_impurity, expected_val)
 
         # One class only test
-        df_categorical = pd.Series(["y", "y", "y", "y", "y", "y", "y"])
+        df_categorical = pl.Series(["y", "y", "y", "y", "y", "y", "y"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         expected_val = 0
         self.assertEqual(profile.gini_impurity, expected_val)
 
         # Empty test
-        df_categorical = pd.Series([])
+        df_categorical = pl.Series([])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.gini_impurity, None)
 
     def test_categorical_diff(self):
         # test psi new category in another profile
-        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        df_categorical = pl.Series(["y", "y", "y", "y", "n", "n", "n"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
 
-        df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+        df_categorical = pl.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
         profile2 = CategoricalColumn(df_categorical.name)
         profile2.update(df_categorical)
 
@@ -734,7 +739,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(expected_diff, actual_diff)
 
         # Test with one categorical column matching
-        df_not_categorical = pd.Series(
+        df_not_categorical = pl.Series(
             [
                 "THIS",
                 "is",
@@ -759,11 +764,11 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 
         # Test diff with psi enabled
-        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n", "maybe"])
+        df_categorical = pl.Series(["y", "y", "y", "y", "n", "n", "n", "maybe"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
 
-        df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+        df_categorical = pl.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
         profile2 = CategoricalColumn(df_categorical.name)
         profile2.update(df_categorical)
 
@@ -787,32 +792,32 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 
     def test_unalikeability(self):
-        df_categorical = pd.Series(["a", "a"])
+        df_categorical = pl.Series(["a", "a"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.unalikeability, 0)
 
-        df_categorical = pd.Series(["a", "c", "b"])
+        df_categorical = pl.Series(["a", "c", "b"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.unalikeability, 1)
 
-        df_categorical = pd.Series(["a", "a", "a", "b", "b", "b"])
+        df_categorical = pl.Series(["a", "a", "a", "b", "b", "b"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.unalikeability, 18 / 30)
 
-        df_categorical = pd.Series(["a", "a", "b", "b", "b", "a", "c", "c", "a", "a"])
+        df_categorical = pl.Series(["a", "a", "b", "b", "b", "a", "c", "c", "a", "a"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.unalikeability, 2 * (10 + 15 + 6) / 90)
 
-        df_categorical = pd.Series(["a"])
+        df_categorical = pl.Series(["a"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(0, profile.unalikeability)
 
-        df_categorical = pd.Series([])
+        df_categorical = pl.Series([])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(None, profile.unalikeability)
@@ -820,7 +825,7 @@ class TestCategoricalColumn(unittest.TestCase):
     def test_top_k_categories_change(self):
         # Test if top_k_categories is None
         options = CategoricalOptions()
-        df_series = pd.Series(["a", "a", "b", "c", "d", "e", "e", "e", "f", "g"])
+        df_series = pl.Series(["a", "a", "b", "c", "d", "e", "e", "e", "f", "g"])
         profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(len(profile.profile["statistics"]["categorical_count"]), 7)
@@ -831,7 +836,7 @@ class TestCategoricalColumn(unittest.TestCase):
 
         # Test if top_k_categories is greater than the count of categories
         options.top_k_categories = 6
-        df_series = pd.Series(["a", "a", "b", "c", "d"])
+        df_series = pl.Series(["a", "a", "b", "c", "d"])
         profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(len(profile.profile["statistics"]["categorical_count"]), 4)
@@ -883,7 +888,8 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(serialized, expected)
 
     def test_json_encode_after_update(self):
-        df_categorical = pd.Series(
+        df_categorical = pl.Series(
+            None,
             [
                 "a",
                 "a",
@@ -897,7 +903,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "c",
                 "c",
                 "c",
-            ]
+            ],
         )
         profile = CategoricalColumn(df_categorical.name)
 
@@ -909,7 +915,7 @@ class TestCategoricalColumn(unittest.TestCase):
             {
                 "class": "CategoricalColumn",
                 "data": {
-                    "name": None,
+                    "name": "",
                     "col_index": np.nan,
                     "sample_size": 12,
                     "metadata": {},
@@ -947,7 +953,7 @@ class TestCategoricalColumn(unittest.TestCase):
         # Actual deserialization
 
         # Build expected CategoricalColumn
-        df_categorical = pd.Series(
+        df_categorical = pl.Series(
             [
                 "a",
                 "a",
@@ -973,7 +979,7 @@ class TestCategoricalColumn(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
-        df_categorical = pd.Series(
+        df_categorical = pl.Series(
             [
                 "a",  # add existing
                 "d",  # add new
@@ -987,7 +993,7 @@ class TestCategoricalColumn(unittest.TestCase):
         assert deserialized.categorical_counts == {"c": 5, "b": 4, "a": 4, "d": 1}
 
     def test_cms_max_num_heavy_hitters(self):
-        df_categorical = pd.Series(["a"] * 5 + ["b"] * 5 + ["c"] * 10)
+        df_categorical = pl.Series(["a"] * 5 + ["b"] * 5 + ["c"] * 10)
 
         options = CategoricalOptions()
         options.cms = True
@@ -1002,8 +1008,8 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertTrue(profile.sample_size >= 10)
 
     def test_cms_update_hybrid_batch_stream(self):
-        dataset = pd.Series(["a"] * 7 + ["b"] * 9 + ["c"] * 14)
-        dataset1 = pd.Series(["a"] * 9 + ["b"] * 11 + ["c"] * 9 + ["d"] * 1)
+        dataset = pl.Series(["a"] * 7 + ["b"] * 9 + ["c"] * 14)
+        dataset1 = pl.Series(["a"] * 9 + ["b"] * 11 + ["c"] * 9 + ["d"] * 1)
 
         options = CategoricalOptions()
         options.cms = True
@@ -1031,8 +1037,8 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_cms_profile_merge_via_add(self):
 
-        dataset = pd.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
-        dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
+        dataset = pl.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
+        dataset1 = pl.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
 
         expected_categories = ["b", "c"]
         expected_categories_dict = {"b": 22, "c": 23}
@@ -1074,8 +1080,8 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_cms_profile_min_max_num_heavy_hitters(self):
 
-        dataset = pd.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
-        dataset1 = pd.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
+        dataset = pl.Series(["a"] * 9 + ["b"] * 12 + ["c"] * 9)
+        dataset1 = pl.Series(["a"] * 6 + ["b"] * 10 + ["c"] * 14)
 
         options = CategoricalOptions()
         options.cms = True
@@ -1097,8 +1103,8 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_cms_catch_overwriting_with_missing_dict(self):
 
-        dataset = pd.Series(["b"] * 2 + ["c"] * 14)
-        dataset1 = pd.Series(["b"] * 5 + ["c"] * 10)
+        dataset = pl.Series(["b"] * 2 + ["c"] * 14)
+        dataset1 = pl.Series(["b"] * 5 + ["c"] * 10)
 
         options = CategoricalOptions()
         options.cms = True
@@ -1126,7 +1132,7 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_cms_vs_full_mismatch_merge(self):
 
-        dataset = pd.Series(["b"] * 2 + ["c"] * 14)
+        dataset = pl.Series(["b"] * 2 + ["c"] * 14)
 
         options = CategoricalOptions()
         options.cms = True

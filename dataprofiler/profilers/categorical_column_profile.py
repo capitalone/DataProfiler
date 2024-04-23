@@ -7,6 +7,7 @@ from operator import itemgetter
 from typing import cast
 
 import datasketches
+import polars as pl
 from pandas import DataFrame, Series
 
 from .. import dp_logging
@@ -474,7 +475,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             return True
         return False
 
-    def _update_stop_condition(self, data: DataFrame):
+    def _update_stop_condition(self, data: DataFrame | pl.DataFrame):
         """Return value stop_condition_is_met given stop conditions.
 
         :param data: Dataframe currently being processed by categorical profiler
@@ -497,8 +498,8 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         """Return count min sketch and heavy hitters for both the batch and stream case.
 
         :param df_series: Series currently being processed by categorical profiler
-        :type df_series: Series
-        :param len_df: the total number of samples iin df_series
+        :type df_series: polars.Series
+        :param len_df: the total number of samples in df_series
         :type len_df: int
         :return: cms, heavy_hitter_dict, missing_heavy_hitter_dict
         """
@@ -601,13 +602,13 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: dict of counts for each unique value
         :rtype: dict
         """
-        category_count: dict = df_series.value_counts(dropna=False).to_dict()
+        category_count: dict = Series(df_series).value_counts(dropna=False).to_dict()
         return category_count
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
         self,
-        df_series: DataFrame,
+        df_series: DataFrame | pl.DataFrame,
         prev_dependent_properties: dict = None,
         subset_properties: dict = None,
     ) -> None:
@@ -657,7 +658,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             if self._stop_condition_is_met:
                 self._categories = {}
 
-    def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
+    def _update_helper(
+        self, df_series_clean: Series | pl.Series, profile: dict
+    ) -> None:
         """
         Update col profile properties with clean dataset and its known profile.
 
@@ -669,7 +672,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         """
         self._update_column_base_properties(profile)
 
-    def update(self, df_series: Series) -> CategoricalColumn:
+    def update(self, df_series: pl.Series | Series) -> CategoricalColumn:
         """
         Update the column profile.
 
@@ -682,12 +685,17 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         if len(df_series) == 0 or self._stop_condition_is_met:
             return self
 
+        if isinstance(df_series, pl.Series):
+            pandas_df = df_series.to_pandas()
+        else:
+            pandas_df = df_series
+
         profile = dict(sample_size=len(df_series))
         CategoricalColumn._update_categories(self, df_series)
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=df_series,
+            df_series=pandas_df,
             prev_dependent_properties={},
             subset_properties=profile,
         )

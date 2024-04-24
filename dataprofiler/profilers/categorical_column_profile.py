@@ -603,8 +603,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: dict of counts for each unique value
         :rtype: dict
         """
-        value_counts = df_series.value_counts(sort=True)
-        category_count: dict = dict(value_counts.iter_rows())
+        category_count: dict = dict(df_series.value_counts(sort=True).iter_rows())
         return category_count
 
     @BaseColumnProfiler._timeit(name="categories")

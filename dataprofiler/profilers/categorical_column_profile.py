@@ -682,7 +682,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :rtype: CategoricalColumn
         """
         # TODO remove onces profiler builder is updated
-        if type(df_series) == pd.Series:
+        if isinstance(df_series, pd.Series):
             df_series = pl.from_pandas(df_series)  # type: ignore
         # If condition for limiting profile calculations
         if len(df_series) == 0 or self._stop_condition_is_met:

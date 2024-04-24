@@ -20,8 +20,6 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class TestCategoricalColumn(unittest.TestCase):
-    maxDiff = None
-
     @classmethod
     def setUp(self):
         test_utils.set_seed(seed=0)
@@ -889,7 +887,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_json_encode_after_update(self):
         df_categorical = pl.Series(
-            None,
             [
                 "a",
                 "a",

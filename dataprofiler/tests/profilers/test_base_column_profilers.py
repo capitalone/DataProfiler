@@ -261,8 +261,10 @@ class AbstractTestColumnProfiler:
         cls.input_file_path = os.path.join(
             test_root_path, "data", "csv/aws_honeypot_marx_geo.csv"
         )
-        cls.aws_dataset = next(pl.read_csv(cls.input_file_path, batch_size=100))
-        dataset = cls.aws_dataset["datetime"].dropna()
+        cls.aws_dataset = pl.read_csv(
+            cls.input_file_path, batch_size=100, infer_schema_length=0
+        )
+        dataset = cls.aws_dataset["datetime"].drop_nulls()
         cls.column_profile = cls.column_profiler(dataset)
         cls.profilers = cls.column_profile._profilers
 

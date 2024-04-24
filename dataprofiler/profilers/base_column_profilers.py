@@ -9,7 +9,7 @@ from collections import defaultdict
 from typing import Any, Callable, Generic, TypeVar
 
 import numpy as np
-import pandas as pd
+import polars as pl
 
 from . import profiler_utils
 from .profiler_options import BaseInspectorOptions, BaseOption
@@ -97,7 +97,7 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
     def _perform_property_calcs(
         self,
         calculations: dict,
-        df_series: pd.DataFrame,
+        df_series: pl.Series,
         prev_dependent_properties: dict,
         subset_properties: dict,
     ) -> None:
@@ -217,12 +217,12 @@ class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
         return getattr(self, item)
 
     @abc.abstractmethod
-    def _update_helper(self, df_series_clean: pd.DataFrame, profile: dict) -> None:
+    def _update_helper(self, df_series_clean: pl.Series, profile: dict) -> None:
         """Help update the profile."""
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def update(self, df_series: pd.DataFrame) -> BaseColumnProfiler:
+    def update(self, df_series: pl.Series) -> BaseColumnProfiler:
         """
         Update the profile.
 

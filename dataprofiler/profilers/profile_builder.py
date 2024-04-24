@@ -16,7 +16,7 @@ from typing import Any, Generator, List, Optional, TypeVar, cast
 
 import networkx as nx
 import numpy as np
-import pandas as pd
+import polars as pl
 from HLL import HyperLogLog
 
 from .. import data_readers, dp_logging, rng_utils
@@ -52,12 +52,12 @@ BaseProfilerT = TypeVar("BaseProfilerT", bound="BaseProfiler")
 logger = dp_logging.get_child_logger(__name__)
 
 
-class StructuredColProfiler:
+class StructuredColProfiler:  # pragma: no cover
     """For profiling structured data columns."""
 
     def __init__(
         self,
-        df_series: pd.Series = None,
+        df_series: pl.Series = None,
         sample_size: int = None,
         min_sample_size: int = 5000,
         sampling_ratio: float = 0.2,
@@ -142,7 +142,7 @@ class StructuredColProfiler:
             self._update_base_stats(base_stats)
 
     def update_column_profilers(
-        self, clean_sampled_df: pd.Series, pool: Pool = None
+        self, clean_sampled_df: pl.Series, pool: Pool = None
     ) -> None:
         """
         Calculate type statistics and label dataset.
@@ -217,7 +217,7 @@ class StructuredColProfiler:
                 "profiles and cannot be added together."
             )
         merged_profile = StructuredColProfiler(
-            df_series=pd.Series([]),
+            df_series=pl.Series([]),
             min_sample_size=max(self._min_sample_size, other._min_sample_size),
             sampling_ratio=max(self._sampling_ratio, other._sampling_ratio),
             min_true_samples=max(self._min_true_samples, other._min_true_samples),
@@ -434,7 +434,7 @@ class StructuredColProfiler:
         self.null_count += base_stats["null_count"]
         self.null_ratio = base_stats["null_count"] / base_stats["sample_size"]
         self.null_types = profiler_utils._combine_unique_sets(
-            self.null_types, list(base_stats["null_types"].keys())
+            self.null_types, list(base_stats["null_types"])
         )
 
         base_min: int = base_stats["min_id"]
@@ -470,14 +470,12 @@ class StructuredColProfiler:
             self._max_id = max(self._max_id, base_max)
 
         # Update null row indices
-        for null_type, null_rows in base_nti.items():
-            if type(null_rows) is list:
-                null_rows.sort()
-            self.null_types_index.setdefault(null_type, set()).update(null_rows)
+        for null_type in base_nti:
+            self.null_types_index.setdefault(null_type, set())
 
     def update_profile(
         self,
-        df_series: pd.Series,
+        df_series: pl.Series,
         sample_size: int = None,
         min_true_samples: int = None,
         sample_ids: np.ndarray = None,
@@ -487,7 +485,7 @@ class StructuredColProfiler:
         Update the column profiler.
 
         :param df_series: Data to be profiled
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.Series
         :param sample_size: Number of samples to use in generating profile
         :type sample_size: int
         :param min_true_samples: Minimum number of samples required for the
@@ -516,12 +514,12 @@ class StructuredColProfiler:
         self._update_base_stats(base_stats)
         self.update_column_profilers(clean_sampled_df, pool)
 
-    def _get_sample_size(self, df_series: pd.Series) -> int:
+    def _get_sample_size(self, df_series: pl.Series) -> int:
         """
         Determine the minimum sampling size for detecting column type.
 
         :param df_series: a column of data
-        :type df_series: pandas.core.series.Series
+        :type df_series: polars.Series
         :return: integer sampling size
         :rtype: int
         """
@@ -534,12 +532,12 @@ class StructuredColProfiler:
     #  index number in the error as well
     @staticmethod
     def clean_data_and_get_base_stats(
-        df_series: pd.Series,
+        df_series: pl.Series,
         sample_size: int,
         null_values: dict[str, re.RegexFlag | int] = None,
         min_true_samples: int = None,
         sample_ids: np.ndarray | list[list[int]] | None = None,
-    ) -> tuple[pd.Series, dict]:
+    ) -> tuple[pl.Series, dict]:
         """
         Identify null characters and return them in a dictionary.
 
@@ -560,7 +558,7 @@ class StructuredColProfiler:
         :type sample_ids: list(list)
         :return: updated column with null removed and dictionary of null
             parameters
-        :rtype: pd.Series, dict
+        :rtype: pl.Series, dict
         """
         if min_true_samples is None:
             min_true_samples = 0
@@ -584,25 +582,12 @@ class StructuredColProfiler:
             )
 
         # Pandas reads empty values in the csv files as nan
-        df_series = df_series.apply(str)
-
-        # Record min and max index values if index is int
-        is_index_all_ints = True
-        try:
-            min_id = min(df_series.index)
-            max_id = max(df_series.index)
-            if not (isinstance(min_id, int) and isinstance(max_id, int)):
-                is_index_all_ints = False
-        except TypeError:
-            is_index_all_ints = False
-
-        if not is_index_all_ints:
-            min_id = max_id = None
-            warnings.warn(
-                "Unable to detect minimum and maximum index values "
-                "for overlap detection. Updating/merging profiles "
-                "may result in inaccurate null row index reporting "
-                "due to unhandled overlapping indices."
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", category=pl.exceptions.PolarsInefficientMapWarning
+            )
+            df_series = df_series.map_elements(
+                str, skip_nulls=False, return_dtype=pl.String
             )
 
         # Select generator depending if sample_ids availability
@@ -615,62 +600,66 @@ class StructuredColProfiler:
                 sample_ids[0], chunk_size=sample_size
             )
 
-        na_columns: dict = dict()
-        true_sample_set = set()
+        null_types = set()
+        num_samples = min(len(df_series), sample_size)
+        if min_true_samples > 0 or sample_ids is None:
+            true_sample_mask = pl.Series([False] * num_samples)
+        else:
+            true_sample_mask = pl.Series([], dtype=pl.Boolean)
         total_sample_size = 0
         query = "|".join(null_values.keys())
-        regex = f"^(?:{(query)})$"
+        regex = f"^(?i)(?:{(query)})$"
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
 
             # Find subset of series based on randomly selected ids
-            df_subset = df_series.iloc[chunked_sample_ids]
+            df_subset = df_series[chunked_sample_ids]
 
             # Query should search entire cell for all elements at once
-            matches = df_subset.str.match(regex, flags=re.IGNORECASE)
-
-            # Split series into None samples and true samples
-            true_sample_set.update(df_subset[~matches].index)
-
+            matches = df_subset.str.contains(regex)
+            # Split series into None samples and true samples using a mask
+            if min_true_samples > 0 or sample_ids is None:
+                for new_idx, old_idx in enumerate(chunked_sample_ids):
+                    true_sample_mask[old_idx] = not matches[new_idx]
+            else:
+                true_sample_mask.append(matches.not_())
             # Iterate over all the Nones
-            for index, cell in df_subset[matches].items():
-                na_columns.setdefault(cell, list()).append(index)
-
+            for cell in df_subset.filter(matches):
+                null_types.add(cell)
             # Ensure minimum number of true samples met
             # and if total_sample_size >= sample size, exit
             if (
-                len(true_sample_set) >= min_true_samples
+                sum(true_sample_mask) >= min_true_samples
                 and total_sample_size >= sample_size
             ):
                 break
-
         # close the generator in case it is not exhausted.
         if sample_ids is None:
             sample_ind_generator.close()
 
-        # If min_true_samples exists, sort
-        true_sample_list = (
-            sorted(true_sample_set)
-            if min_true_samples > 0 or sample_ids is None
-            else list(true_sample_set)
-        )
+        if num_samples < len(df_series):
+            true_sample_mask.append(pl.Series([False] * (len(df_series) - num_samples)))
 
         # Split out true values for later utilization
-        df_series = df_series.loc[true_sample_list]
-        total_na = total_sample_size - len(true_sample_list)
+        df_series = df_series.filter(true_sample_mask)
+        total_na = total_sample_size - sum(true_sample_mask)
 
         rng = rng_utils.get_random_number_generator()
 
+        warnings.warn(
+            "Base stats about indexes (min_id, max_id, "
+            "and null_types_index) have been depreciated"
+        )
         base_stats = {
             "sample_size": total_sample_size,
             "null_count": total_na,
             "null_ratio": total_na / total_sample_size,
-            "null_types": na_columns,
+            "null_types": null_types,
             "sample": rng.choice(
-                list(df_series.values), (min(len(df_series), 5),), replace=False
+                list(df_series), (min(len(df_series), 5),), replace=False
             ).tolist(),
-            "min_id": min_id,
-            "max_id": max_id,
+            "min_id": "depreciated",
+            "max_id": "depreciated",
         }
 
         return df_series, base_stats
@@ -840,12 +829,14 @@ class BaseProfiler:
 
         return diff_profile
 
-    def _get_sample_size(self, data: pd.Series | pd.DataFrame | list) -> int:
+    def _get_sample_size(
+        self, data: pl.Series | pl.DataFrame | data_readers.base_data.BaseData
+    ) -> int:
         """
         Determine the minimum sampling size for profiling the dataset.
 
         :param data: a dataset
-        :type data: Union[pd.Series, pd.DataFrame, list]
+        :type data: Union[pl.Series, pl.DataFrame, list]
         :return: integer sampling size
         :rtype: int
         """
@@ -919,7 +910,7 @@ class BaseProfiler:
 
     def _update_profile_from_chunk(
         self,
-        data: pd.Series | pd.DataFrame | list,
+        data: pl.Series | pl.DataFrame | list,
         sample_size: int,
         min_true_samples: int = None,
     ) -> None:
@@ -927,7 +918,7 @@ class BaseProfiler:
         Iterate over the dataset and identify its parameters via profiles.
 
         :param data: dataset to be profiled
-        :type data: Union[pd.Series, pd.DataFrame, list]
+        :type data: Union[pl.Series, pl.DataFrame, list]
         :param sample_size: number of samples for df to use for profiling
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
@@ -938,7 +929,7 @@ class BaseProfiler:
 
     def update_profile(
         self,
-        data: data_readers.base_data.BaseData | pd.DataFrame | pd.Series,
+        data: data_readers.base_data.BaseData | pl.DataFrame | pl.Series,
         sample_size: int = None,
         min_true_samples: int = None,
     ) -> None:
@@ -988,7 +979,9 @@ class BaseProfiler:
         if not sample_size:
             sample_size = self._get_sample_size(data)
 
-        self._update_profile_from_chunk(data, sample_size, min_true_samples)
+        self._update_profile_from_chunk(
+            data, sample_size, min_true_samples  # type: ignore[arg-type]
+        )
 
         # set file properties since data will be processed
         if encoding is not None:
@@ -1237,7 +1230,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     _default_labeler_type = "unstructured"
     _option_class = UnstructuredOptions
-    _allowed_external_data_types = (str, list, pd.Series, pd.DataFrame)
+    _allowed_external_data_types = (str, list, pl.Series, pl.DataFrame)
 
     def __init__(
         self,
@@ -1278,7 +1271,7 @@ class UnstructuredProfiler(BaseProfiler):
         self.sample: list[str] = []
 
         if data is not None:
-            self.update_profile(data)
+            self.update_profile(data)  # type: ignore[arg-type]
 
     def _add_error_checks(  # type: ignore[override]
         self, other: UnstructuredProfiler
@@ -1447,8 +1440,8 @@ class UnstructuredProfiler(BaseProfiler):
 
     @profiler_utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(
-        self, data: pd.Series, sample_size: int, min_true_samples: int = None
-    ) -> tuple[pd.Series, dict]:
+        self, data: pl.Series, sample_size: int, min_true_samples: int = None
+    ) -> tuple[pl.Series, dict]:
         """
         Identify empty rows and return clean version of text data without empty rows.
 
@@ -1461,7 +1454,7 @@ class UnstructuredProfiler(BaseProfiler):
         :type min_true_samples: int
         :return: updated column with null removed and dictionary of null
             parameters
-        :rtype: pd.Series, dict
+        :rtype: pl.Series, dict
         """
         if min_true_samples is None:
             min_true_samples = 0
@@ -1479,7 +1472,7 @@ class UnstructuredProfiler(BaseProfiler):
             )
 
         # ensure all data are of type str
-        data = data.apply(str)
+        data = data.cast(str)
 
         # get memory size
         base_stats: dict = {
@@ -1491,26 +1484,27 @@ class UnstructuredProfiler(BaseProfiler):
             len_data, chunk_size=sample_size
         )
 
-        true_sample_list = set()
+        true_sample_mask = pl.Series([False] * len(data))
         total_sample_size = 0
 
-        regex = r"^\s*$"
+        regex = r"^(?i)\s*$"
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
 
             # Find subset of series based on randomly selected ids
-            data_subset = data.iloc[chunked_sample_ids]
+            data_subset = data[chunked_sample_ids]
 
             # Query should search entire cell for all elements at once
-            matches = data_subset.str.match(regex, flags=re.IGNORECASE)
+            matches = data_subset.str.contains(regex)
 
             # Split series into None samples and true samples
-            true_sample_list.update(data_subset[~matches].index)
+            for new_idx, old_idx in enumerate(chunked_sample_ids):
+                true_sample_mask[old_idx] = not matches[new_idx]
 
             # Ensure minimum number of true samples met
             # and if total_sample_size >= sample size, exit
             if (
-                len(true_sample_list) >= min_true_samples
+                sum(true_sample_mask) >= min_true_samples
                 and total_sample_size >= sample_size
             ):
                 break
@@ -1518,17 +1512,15 @@ class UnstructuredProfiler(BaseProfiler):
         # close the generator in case it is not exhausted.
         sample_ind_generator.close()
 
-        true_sample_list = sorted(true_sample_list)  # type: ignore[assignment]
-
         # Split out true values for later utilization
-        data = data.loc[true_sample_list]
-        total_empty = total_sample_size - len(true_sample_list)
+        data = data.filter(true_sample_mask)
+        total_empty = total_sample_size - sum(true_sample_mask)
 
         base_stats.update(
             {
                 "sample_size": total_sample_size,
                 "empty_line_count": total_empty,
-                "sample": random.sample(list(data.values), min(len(data), 5)),
+                "sample": random.sample(list(data), min(len(data), 5)),
             }
         )
 
@@ -1536,7 +1528,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     def _update_profile_from_chunk(
         self,
-        data: pd.Series | pd.DataFrame | list,
+        data: pl.Series | pl.DataFrame | list,
         sample_size: int,
         min_true_samples: int = None,
     ) -> None:
@@ -1544,14 +1536,14 @@ class UnstructuredProfiler(BaseProfiler):
         Iterate over the dataset and identify its parameters via profiles.
 
         :param data: a text dataset
-        :type data: Union[pd.Series, pd.DataFrame, list]
+        :type data: Union[pl.Series, pl.DataFrame, list]
         :param sample_size: number of samples for df to use for profiling
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
         :type min_true_samples: int
         :return: None
         """
-        if isinstance(data, pd.DataFrame):
+        if isinstance(data, pl.DataFrame):
             if len(data.columns) > 1:
                 raise ValueError(
                     "The unstructured cannot handle a dataset "
@@ -1560,11 +1552,13 @@ class UnstructuredProfiler(BaseProfiler):
                     "appropriate."
                 )
             data = data[data.columns[0]]
-        elif isinstance(data, (str, list)):
+        elif isinstance(data, str):
             # we know that if it comes in as a list, it is a 1-d list based
             # bc of our data readers
             # for strings, we just need to put it inside a series for compute.
-            data = pd.Series(data)
+            data = pl.Series([data])
+        elif isinstance(data, list):
+            data = pl.Series(data)
 
         # Format the data
         notification_str = "Finding the empty lines in the data..."
@@ -1622,12 +1616,12 @@ class UnstructuredProfiler(BaseProfiler):
             raise ValueError('save_method must be "json" or "pickle".')
 
 
-class StructuredProfiler(BaseProfiler):
+class StructuredProfiler(BaseProfiler):  # pragma: no cover
     """For profiling structured data."""
 
     _default_labeler_type = "structured"
     _option_class = StructuredOptions
-    _allowed_external_data_types = (list, pd.Series, pd.DataFrame)
+    _allowed_external_data_types = (list, pl.Series, pl.DataFrame)
 
     def __init__(
         self,
@@ -1684,7 +1678,7 @@ class StructuredProfiler(BaseProfiler):
                 sparse=False,
             )
         if data is not None:
-            self.update_profile(data)
+            self.update_profile(data)  # type: ignore[arg-type]
 
     def _add_error_checks(  # type: ignore[override]
         self, other: StructuredProfiler
@@ -2200,7 +2194,7 @@ class StructuredProfiler(BaseProfiler):
 
     @profiler_utils.method_timeit(name="row_stats")
     def _update_row_statistics(
-        self, data: pd.DataFrame, sample_ids: list[int] = None
+        self, data: pl.DataFrame, sample_ids: list[int] = None
     ) -> None:
         """
         Iterate over the provided dataset row by row and calculate row stats.
@@ -2214,26 +2208,14 @@ class StructuredProfiler(BaseProfiler):
         :param sample_ids: list of indices in order they were sampled in data
         :type sample_ids: list(int)
         """
-        if not isinstance(data, pd.DataFrame):
+        if not isinstance(data, pl.DataFrame):
             raise ValueError(
                 "Cannot calculate row statistics on data that is" "not a DataFrame"
             )
 
         if self.options.row_statistics.unique_count.is_enabled:
             if isinstance(self.hashed_row_object, dict):
-                try:
-                    self.hashed_row_object.update(
-                        dict.fromkeys(
-                            pd.util.hash_pandas_object(data, index=False), True
-                        )
-                    )
-                except TypeError:
-                    self.hashed_row_object.update(
-                        dict.fromkeys(
-                            pd.util.hash_pandas_object(data.astype(str), index=False),
-                            True,
-                        )
-                    )
+                self.hashed_row_object.update(dict.fromkeys(data.hash_rows(), True))
             elif isinstance(self.hashed_row_object, HyperLogLog):
                 batch_size = 2048
 
@@ -2242,63 +2224,65 @@ class StructuredProfiler(BaseProfiler):
                     if start_ind >= len(data):
                         break
                     end_ind = (batch_ind + 1) * batch_size
-                    for record in (
-                        data[start_ind : min(end_ind, len(data))]
-                        .to_json(orient="records", lines=True)
-                        .splitlines()
-                    ):
-                        self.hashed_row_object.add(record)
+                    iter_data: pl.DataFrame = data[start_ind : min(end_ind, len(data))]
+                    for record in iter_data.rows(named=True):
+                        self.hashed_row_object.add(str(record))
 
+        warnings.warn(
+            "row_has_null_count and row_is_null_count has "
+            "been depricated due to indexing being depreciated"
+        )
+        # TODO Needs to be handled in some way
         # Calculate Null Column Count
-        if self.options.row_statistics.null_count.is_enabled:
-            null_rows = set()
-            null_in_row_count = set()
-            first_col_flag = True
-            for column in self._profile:
-                null_type_dict = column.null_types_index
-                null_row_indices = set()
-                if null_type_dict:
-                    null_row_indices = set.union(*null_type_dict.values())
+        # if self.options.row_statistics.null_count.is_enabled:
+        #     null_rows = set()
+        #     null_in_row_count = set()
+        #     first_col_flag = True
+        #     for column in self._profile:
+        #         null_type_dict = column.null_types_index
+        #         null_row_indices = set()
+        #         if null_type_dict:
+        #             null_row_indices = set.union(*null_type_dict.values())
 
-                # If sample ids provided, only consider nulls in rows that
-                # were fully sampled
-                if sample_ids is not None:
-                    # This is the amount (integer) indices were shifted by in the
-                    # event of overlap
-                    shift = column._index_shift
-                    if shift is None:
-                        # Shift is None if index is str or if no overlap detected
-                        null_row_indices = null_row_indices.intersection(
-                            data.index[sample_ids[: self._min_sampled_from_batch]]
-                        )
-                    else:
-                        # Only shift if index shift detected (must be ints)
-                        null_row_indices = null_row_indices.intersection(
-                            data.index[sample_ids[: self._min_sampled_from_batch]]
-                            + shift
-                        )
+        #         # If sample ids provided, only consider nulls in rows that
+        #         # were fully sampled
+        #         if sample_ids is not None:
+        #             # This is the amount (integer) indices were shifted by in the
+        #             # event of overlap
+        #             shift = column._index_shift
+        #             if shift is None:
+        #                 # Shift is None if index is str or if no overlap detected
+        #                 null_row_indices = null_row_indices.intersection(
+        #                     data.index[sample_ids[: self._min_sampled_from_batch]]
+        #                 )
+        #             else:
+        #                 # Only shift if index shift detected (must be ints)
+        #                 null_row_indices = null_row_indices.intersection(
+        #                     data.index[sample_ids[: self._min_sampled_from_batch]]
+        #                     + shift
+        #                 )
 
-                # Find the common null indices between the columns
-                if first_col_flag:
-                    null_rows = null_row_indices
-                    null_in_row_count = null_row_indices
-                    first_col_flag = False
-                else:
-                    null_rows = null_rows.intersection(null_row_indices)
-                    null_in_row_count = null_in_row_count.union(null_row_indices)
+        #         # Find the common null indices between the columns
+        #         if first_col_flag:
+        #             null_rows = null_row_indices
+        #             null_in_row_count = null_row_indices
+        #             first_col_flag = False
+        #         else:
+        #             null_rows = null_rows.intersection(null_row_indices)
+        #             null_in_row_count = null_in_row_count.union(null_row_indices)
 
-            # If sample_ids provided,
-            # increment since that means only new data read
-            if sample_ids is not None:
-                self.row_has_null_count += len(null_in_row_count)
-                self.row_is_null_count += len(null_rows)
-            else:
-                self.row_has_null_count = len(null_in_row_count)
-                self.row_is_null_count = len(null_rows)
+        #     # If sample_ids provided,
+        #     # increment since that means only new data read
+        #     if sample_ids is not None:
+        #         self.row_has_null_count += len(null_in_row_count)
+        #         self.row_is_null_count += len(null_rows)
+        #     else:
+        #         self.row_has_null_count = len(null_in_row_count)
+        #         self.row_is_null_count = len(null_rows)
 
     def _get_correlation(
         self, clean_samples: dict, batch_properties: dict
-    ) -> pd.DataFrame:
+    ) -> pl.DataFrame:
         """
         Calculate correlation matrix on the cleaned data.
 
@@ -2308,7 +2292,7 @@ class StructuredProfiler(BaseProfiler):
         for correlation computation
         :type batch_properties: dict()
         :return: correlation matrix
-        :rtype: pd.DataFrame
+        :rtype: pl.DataFrame
         """
         columns = self.options.correlation.columns
         column_ids = list(range(len(self._profile)))
@@ -2326,9 +2310,8 @@ class StructuredProfiler(BaseProfiler):
                 clean_samples.pop(idx)
             else:
                 clean_column_ids.append(idx)
-        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
-        means = {index: mean for index, mean in enumerate(batch_properties["mean"])}
-        data = data.fillna(value=means)
+        data = pl.DataFrame(clean_samples).cast(pl.Float32)
+        data = data.fill_null(strategy="mean")
         data = data[clean_column_ids]
 
         # Update the counts/std if needed (i.e. if null rows or exist)
@@ -2350,7 +2333,7 @@ class StructuredProfiler(BaseProfiler):
         rows = [[id] for id in clean_column_ids]
         corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
 
-        return corr_mat
+        return pl.DataFrame(corr_mat)
 
     @profiler_utils.method_timeit(name="correlation")
     def _update_correlation(
@@ -2366,7 +2349,7 @@ class StructuredProfiler(BaseProfiler):
         batch_corr = self._get_correlation(clean_samples, batch_properties)
 
         self.correlation_matrix = self._merge_correlation_helper(
-            self.correlation_matrix,
+            pl.DataFrame(self.correlation_matrix),
             prev_dependent_properties["mean"],
             prev_dependent_properties["std"],
             self.total_samples - self.row_is_null_count,
@@ -2377,7 +2360,7 @@ class StructuredProfiler(BaseProfiler):
         )
 
     @profiler_utils.method_timeit(name="correlation")
-    def _merge_correlation(self, other: StructuredProfiler) -> pd.DataFrame:
+    def _merge_correlation(self, other: StructuredProfiler) -> pl.DataFrame | None:
         """
         Merge correlation matrix from two profiles.
 
@@ -2389,9 +2372,9 @@ class StructuredProfiler(BaseProfiler):
         n1 = self.total_samples - self.row_is_null_count
         n2 = other.total_samples - other.row_is_null_count
         if n1 == 0:
-            return corr_mat2
+            return pl.DataFrame(corr_mat2)
         if n2 == 0:
-            return corr_mat1
+            return pl.DataFrame(corr_mat1)
 
         if corr_mat1 is None or corr_mat2 is None:
             return None
@@ -2434,8 +2417,17 @@ class StructuredProfiler(BaseProfiler):
                 if idx in col_ids2
             ]
         )
-        return self._merge_correlation_helper(
-            corr_mat1, mean1, std1, n1, corr_mat2, mean2, std2, n2
+        return pl.DataFrame(
+            self._merge_correlation_helper(
+                pl.DataFrame(corr_mat1),
+                mean1,
+                std1,
+                n1,
+                pl.DataFrame(corr_mat2),
+                mean2,
+                std2,
+                n2,
+            )
         )
 
     def _get_correlation_dependent_properties(self, batch: dict = None) -> dict:
@@ -2490,26 +2482,26 @@ class StructuredProfiler(BaseProfiler):
 
     @staticmethod
     def _merge_correlation_helper(
-        corr_mat1: pd.DataFrame,
+        corr_mat1: pl.DataFrame,
         mean1: np.ndarray,
         std1: np.ndarray,
         n1: int,
-        corr_mat2: pd.DataFrame,
+        corr_mat2: pl.DataFrame,
         mean2: np.ndarray,
         std2: np.ndarray,
         n2: int,
-    ) -> pd.DataFrame:
+    ) -> np.ndarray:
         """
         Help merge correlation matrix from two profiles.
 
         :param corr_mat1: correlation matrix of profile1
-        :type corr_mat1: pd.DataFrame
+        :type corr_mat1: np.ndarray
         :param mean1: mean of columns of profile1
         :type mean1: np.array
         :param std1: standard deviation of columns of profile1
         :type std1: np.array
         :param corr_mat2: correlation matrix of profile2
-        :type corr_mat2: pd.DataFrame
+        :type corr_mat2: pl.DataFrame
         :param mean2: mean of columns of profile2
         :type mean2: np.array
         :param std2: standard deviation of columns of profile2
@@ -2517,13 +2509,13 @@ class StructuredProfiler(BaseProfiler):
         :return: merged correlation matrix
         """
         if corr_mat1 is None:
-            return corr_mat2
+            return corr_mat2.to_numpy()
         elif corr_mat2 is None:
-            return corr_mat1
+            return corr_mat1.to_numpy()
         elif len(mean1) == 0:
-            return corr_mat2
+            return corr_mat2.to_numpy()
         elif len(mean2) == 0:
-            return corr_mat1
+            return corr_mat1.to_numpy()
 
         std_mat1 = np.outer(std1, std1)
         std_mat2 = np.outer(std2, std2)
@@ -2545,7 +2537,7 @@ class StructuredProfiler(BaseProfiler):
         std = np.sqrt(M2 / (n - 1))
 
         std_mat = np.outer(std, std)
-        corr_mat = cov / std_mat
+        corr_mat: np.ndarray = cov / std_mat
 
         return corr_mat
 
@@ -2599,7 +2591,7 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: input cleaned dataset
         :type clean_samples: dict
         """
-        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
+        data = pl.DataFrame(clean_samples).cast(pl.Float64)
 
         get_data_type = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
@@ -2646,11 +2638,12 @@ class StructuredProfiler(BaseProfiler):
             # Partition data based on whether target column value is null or not
             # Calculate sum, mean of each partition without including current column
             # in calculation
-            sum_null = (
-                data.loc[data.index.intersection(null_indices), data.columns != col_id]
-                .sum()
-                .to_numpy()
-            )
+            # TODO Need to somehow handle lack of null_indices
+            # df: pl.DataFrame = data[
+            #     data.index.intersection(null_indices), data.columns != col_id
+            # ]
+            df: pl.DataFrame = data.sum()
+            sum_null = df.to_numpy()
 
             # Add old sum_null if exists
             if col_id in self._null_replication_metrics:
@@ -2788,7 +2781,7 @@ class StructuredProfiler(BaseProfiler):
 
     def _update_profile_from_chunk(
         self,
-        data: list | pd.Series | pd.DataFrame,
+        data: list | pl.Series | pl.DataFrame,
         sample_size: int,
         min_true_samples: int = None,
     ) -> None:
@@ -2803,13 +2796,13 @@ class StructuredProfiler(BaseProfiler):
         :type min_true_samples: int
         :return: None
         """
-        if isinstance(data, pd.Series):
+        if isinstance(data, pl.Series):
             data = data.to_frame()
         elif isinstance(data, list):
-            data = pd.DataFrame(data, dtype=object)
+            data = pl.DataFrame(data)
 
         # Calculate schema of incoming data
-        mapping_given = defaultdict(list)
+        mapping_given: dict[str | int, list[int]] = defaultdict(list)
         for col_idx in range(len(data.columns)):
             col = data.columns[col_idx]
             # Pandas columns are int by default, but need to fuzzy match strs
@@ -2882,8 +2875,10 @@ class StructuredProfiler(BaseProfiler):
         # Generate pool and estimate datasize
         pool = None
         if auto_multiprocess_toggle:
-            est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
-            est_data_size = (est_data_size / min(50000, len(data))) * len(data)
+            df: pl.DataFrame = data[:50000]
+            est_data_size = int(
+                (df.estimated_size() / min(50000, len(data))) * len(data)
+            )
             pool, pool_size = profiler_utils.generate_pool(
                 max_pool_size=None, data_size=est_data_size, cols=len(data.columns)
             )
@@ -2909,7 +2904,7 @@ class StructuredProfiler(BaseProfiler):
         if pool is not None:
             # Create a bunch of simultaneous column conversions
             for col_idx in range(data.shape[1]):
-                col_ser = data.iloc[:, col_idx]
+                col_ser = data[:, col_idx]
                 prof_idx = col_idx_to_prof_idx[col_idx]
                 if min_true_samples is None:
                     min_true_samples = self._profile[prof_idx]._min_true_samples
@@ -2955,7 +2950,7 @@ class StructuredProfiler(BaseProfiler):
                     "errors, reprocessing...",
                 )
                 for col_idx in tqdm(single_process_list):
-                    col_ser = data.iloc[:, col_idx]
+                    col_ser = data[:, col_idx]
                     prof_idx = col_idx_to_prof_idx[col_idx]
                     if min_true_samples is None:
                         min_true_samples = self._profile[prof_idx]._min_true_samples
@@ -2979,7 +2974,7 @@ class StructuredProfiler(BaseProfiler):
         else:  # No pool
             logger.info(notification_str)
             for col_idx in tqdm(range(data.shape[1])):
-                col_ser = data.iloc[:, col_idx]
+                col_ser = data[:, col_idx]
                 prof_idx = col_idx_to_prof_idx[col_idx]
                 if min_true_samples is None:
                     min_true_samples = self._profile[prof_idx]._min_true_samples
@@ -3118,10 +3113,10 @@ class Profiler:
             elif isinstance(data, str):
                 profiler_type = "unstructured"
             # the below checks the viable structured formats, on failure raises
-            elif not isinstance(data, (list, nx.Graph, pd.DataFrame, pd.Series)):
+            elif not isinstance(data, (list, nx.Graph, pl.DataFrame, pl.Series)):
                 raise ValueError(
                     "Data must either be imported using the "
-                    "data_readers, nx.Graph, pd.Series, or pd.DataFrame."
+                    "data_readers, nx.Graph, pl.Series, or pl.DataFrame."
                 )
 
         # Construct based off of initial kwarg input or inference

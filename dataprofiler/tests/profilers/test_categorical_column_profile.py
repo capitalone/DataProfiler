@@ -1181,7 +1181,7 @@ class TestCategoricalSentence(unittest.TestCase):
         ]
 
         len_unique = len(set(cat_sentence_list))
-        cat_sentence_df = pd.Series(cat_sentence_list)
+        cat_sentence_df = pl.Series(cat_sentence_list)
         column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"
@@ -1206,7 +1206,7 @@ class TestCategoricalSentence(unittest.TestCase):
         )
         cat_sentence_list = list_unique_values * num_sentences
 
-        cat_sentence_df = pd.Series(cat_sentence_list)
+        cat_sentence_df = pl.Series(cat_sentence_list)
         column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"
@@ -1233,7 +1233,7 @@ class TestCategoricalSentence(unittest.TestCase):
         cat_sentence_list = list_unique_values * num_sentences
 
         len_unique = len(set(cat_sentence_list))
-        cat_sentence_df = pd.Series(cat_sentence_list)
+        cat_sentence_df = pl.Series(cat_sentence_list)
         column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"
@@ -1263,7 +1263,7 @@ class TestCategoricalSentence(unittest.TestCase):
         cat_sentence_list[-3] = self.test_sentence_upper3 + str(num_sentences - 2)
 
         len_unique = len(set(cat_sentence_list))
-        cat_sentence_df = pd.Series(cat_sentence_list)
+        cat_sentence_df = pl.Series(cat_sentence_list)
         column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"
@@ -1288,7 +1288,7 @@ class TestCategoricalSentence(unittest.TestCase):
         ]
 
         len_unique = len(set(cat_sentence_list))
-        cat_sentence_df = pd.Series(cat_sentence_list)
+        cat_sentence_df = pl.Series(cat_sentence_list)
         column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"

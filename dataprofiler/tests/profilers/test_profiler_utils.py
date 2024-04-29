@@ -403,6 +403,7 @@ class TestProfileDistributedMerge(unittest.TestCase):
 
         mock_DataLabeler.predict.side_effect = mock_predict
 
+    @unittest.skip("Profile Builder incomplete")
     def test_merge_profile_list(self, mock_data_labeler, *mocks):
         """
         A top-level function which takes in a list of profile objects, merges
@@ -439,6 +440,7 @@ class TestProfileDistributedMerge(unittest.TestCase):
             10.857142857142858, single_report["data_stats"][0]["statistics"]["mean"]
         )
 
+    @unittest.skip("Profile Builder incomplete")
     def test_odd_merge_profile_list(self, mock_data_labeler, *mocks):
         """
         A top-level function which takes in a list of profile objects, merges

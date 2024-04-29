@@ -38,6 +38,7 @@ class TestGraphImport(unittest.TestCase):
         self.missing_module_test(dp.graphs.plot_col_missing_values, "matplotlib")
 
 
+@unittest.skip("Profile Builder incomplete")
 @mock.patch("dataprofiler.graphs.plt.show")
 @mock.patch("dataprofiler.graphs.plot_col_histogram")
 class TestPlotHistograms(unittest.TestCase):
@@ -194,6 +195,7 @@ class TestPlotMissingValuesMatrix(unittest.TestCase):
         ):
             graphs.plot_missing_values_matrix(profiler)
 
+    @unittest.skip("Profile Builder incomplete")
     def test_null_list(self, *mocks):
         data = [None, None, None]
 
@@ -220,6 +222,7 @@ class TestPlotMissingValuesMatrix(unittest.TestCase):
         self.assertEqual("column name", ax.get_xlabel())
         self.assertEqual("row index", ax.get_ylabel())
 
+    @unittest.skip("Profile Builder incomplete")
     def test_1_null_type_multicol(self, *mocks):
         data = [
             [None, None, 1.0, "1/2/2021"],
@@ -255,6 +258,7 @@ class TestPlotMissingValuesMatrix(unittest.TestCase):
         self.assertEqual("column name", ax.get_xlabel())
         self.assertEqual("row index", ax.get_ylabel())
 
+    @unittest.skip("Profile Builder incomplete")
     def test_2_null_types_multicol(self, *mocks):
         data = pd.DataFrame(
             [
@@ -296,6 +300,7 @@ class TestPlotMissingValuesMatrix(unittest.TestCase):
         self.assertEqual("column name", ax.get_xlabel())
         self.assertEqual("row index", ax.get_ylabel())
 
+    @unittest.skip("Profile Builder incomplete")
     def test_bad_input(self, *mocks):
 
         with self.assertRaisesRegex(

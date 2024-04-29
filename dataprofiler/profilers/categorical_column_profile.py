@@ -7,8 +7,9 @@ from operator import itemgetter
 from typing import cast
 
 import datasketches
+import pandas as pd
 import polars as pl
-from pandas import DataFrame, Series
+from polars import DataFrame, Series
 
 from .. import dp_logging
 from . import profiler_utils
@@ -681,6 +682,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: updated CategoricalColumn
         :rtype: CategoricalColumn
         """
+        # TODO remove onces profiler builder is updated
+        if isinstance(df_series, pd.Series):
+            df_series = pl.from_pandas(df_series)  # type: ignore
         # If condition for limiting profile calculations
         if len(df_series) == 0 or self._stop_condition_is_met:
             return self

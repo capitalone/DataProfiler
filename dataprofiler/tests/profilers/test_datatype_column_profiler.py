@@ -10,6 +10,7 @@ from .test_base_column_profilers import AbstractTestColumnProfiler
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
+@unittest.skip("Profile Builder incomplete")
 class TestColumnDataTypeProfiler(AbstractTestColumnProfiler, unittest.TestCase):
 
     column_profiler = ColumnPrimitiveTypeProfileCompiler

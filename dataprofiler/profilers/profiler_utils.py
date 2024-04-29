@@ -134,7 +134,7 @@ def shuffle_in_chunks(
             indices[j], indices[k] = indices[k], indices[j]
 
             # set the swapped value to the output
-            values[count] = indices[j]
+            values[count] = int(indices[j])
 
             # increment so as not to include values already swapped
             j += 1

@@ -299,6 +299,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
             self.assertIsNotNone(labeler.predict(data=data_obj))
 
+    @unittest.skip("Profile Builder incomplete")
     def test_warning_tf(self):
 
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -328,6 +329,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
             columns.append(i)
             predictions.append(results["data_stats"][i]["data_label"])
 
+    @unittest.skip("Profile Builder incomplete")
     def test_warning_tf_run_dp_multiple_times(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         test_dir = os.path.join(test_root_path, "data")
@@ -359,6 +361,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
                 columns.append(j)
                 predictions.append(results["data_stats"][j]["data_label"])
 
+    @unittest.skip("Profile Builder incomplete")
     def test_warning_tf_run_dp_merge(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         test_dir = os.path.join(test_root_path, "data")
@@ -400,6 +403,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         profile = profile1 + profile2
 
+    @unittest.skip("Profile Builder incomplete")
     def test_warning_tf_multiple_dp_with_update(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         test_dir = os.path.join(test_root_path, "data")

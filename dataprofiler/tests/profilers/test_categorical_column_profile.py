@@ -725,7 +725,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "chi2-test": {
                     "chi2-statistic": 82 / 35,
                     "deg_of_free": 2,
-                    "p-value": 0.3099238764710244,
+                    "p-value": 0.3099238764710245,
                 },
                 "psi": 0.0990210257942779,
             },

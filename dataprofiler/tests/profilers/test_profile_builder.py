@@ -2154,7 +2154,7 @@ class TestStructuredProfiler(unittest.TestCase):
         expected_chi2_test_dict = {
             "chi2-statistic": 2.342857142857143,
             "deg_of_free": 2,
-            "p-value": 0.3099238764710244,
+            "p-value": 0.3099238764710245,
         }
         self.assertDictEqual(
             expected_chi2_test_dict, diff["data_stats"][0]["statistics"]["chi2-test"]

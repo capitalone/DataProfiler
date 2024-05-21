@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath(f'../../{branch_name}/examples'))
 # -- Project information -----------------------------------------------------
 
 project = 'Data Profiler'
-copyright = '2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace'
+copyright = '2024, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace'
 author = 'Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace'
 
 # The full version, including alpha/beta/rc tags

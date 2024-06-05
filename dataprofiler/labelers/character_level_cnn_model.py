@@ -558,7 +558,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         # Add the final Softmax layer
         self._model.add(tf.keras.layers.Dense(num_labels, activation="softmax"))
 
-        # Output the model into a .pb file for TensorFlow
+        # Add argmax layer to get labels directly as an output
         argmax_layer = tf.keras.ops.argmax(self._model.outputs[0], axis=2)
 
         # Create confidence layers
@@ -620,7 +620,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             num_labels, activation="softmax", name="dense_2"
         )(self._model.layers[-3].output)
 
-        # Output the model into a .pb file for TensorFlow
+        # Add argmax layer to get labels directly as an output
         argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
 
         # Create confidence layers

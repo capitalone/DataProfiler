@@ -253,7 +253,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
                 num_labels, activation="softmax", name="softmax_output"
             )(self._model.layers[softmax_layer_ind - 1].output)
 
-        # Output the model into a .pb file for TensorFlow
+        # Add argmax layer to get labels directly as an output
         argmax_layer = tf.keras.ops.argmax(new_softmax_layer, axis=2)
 
         argmax_outputs = [new_softmax_layer, argmax_layer]
@@ -308,7 +308,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             num_labels, activation="softmax", name="softmax_output"
         )(self._model.layers[-2].output)
 
-        # Output the model into a .pb file for TensorFlow
+        # Add argmax layer to get labels directly as an output
         argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
 
         argmax_outputs = [final_softmax_layer, argmax_layer]

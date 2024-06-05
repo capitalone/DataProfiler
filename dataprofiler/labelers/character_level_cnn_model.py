@@ -573,14 +573,20 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
         # Compile the model
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        softmax_output_layer_name = self._model.output_names[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
         )
-        metrics = {softmax_output_layer_name: ["acc", f1_score_training]}
+        metrics = {
+            softmax_output_layer_name: [
+                "categorical_crossentropy",
+                "acc",
+                f1_score_training,
+            ]
+        }
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
@@ -633,14 +639,20 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
         # Compile the model
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        softmax_output_layer_name = self._model.output_names[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
         )
-        metrics = {softmax_output_layer_name: ["acc", f1_score_training]}
+        metrics = {
+            softmax_output_layer_name: [
+                "categorical_crossentropy",
+                "acc",
+                f1_score_training,
+            ]
+        }
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
         self._epoch_id = 0
@@ -692,7 +704,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         f1_report: dict = {}
 
         self._model.reset_metrics()
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        softmax_output_layer_name = self._model.output_names[0]
 
         start_time = time.time()
         batch_id = 0

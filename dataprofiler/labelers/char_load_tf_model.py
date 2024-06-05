@@ -309,7 +309,6 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         )(self._model.layers[-2].output)
 
         # Output the model into a .pb file for TensorFlow
-        # argmax_layer = tf.keras.backend.argmax(final_softmax_layer)
         argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
 
         argmax_outputs = [final_softmax_layer, argmax_layer]

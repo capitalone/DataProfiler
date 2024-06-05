@@ -55,7 +55,7 @@ repos:
             pyarrow>=1.0.1,
             chardet>=3.0.4,
             fastavro>=1.0.0.post1,
-            python-snappy>=0.5.4,
+            cramjam>=2.7.0,
             charset-normalizer>=1.3.6,
             psutil>=4.0.0,
             scipy>=1.4.1,

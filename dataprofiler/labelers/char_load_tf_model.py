@@ -237,7 +237,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         model_loc = self._parameters["model_path"]
 
         self._model: tf.keras.Model = tf.keras.models.load_model(model_loc)
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        self._model = tf.keras.Model(self._model.inputs, self._model.outputs)
+        softmax_output_layer_name = self._model.output_names[0]
         softmax_layer_ind = cast(
             int,
             labeler_utils.get_tf_layer_index_from_name(
@@ -253,20 +254,21 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             )(self._model.layers[softmax_layer_ind - 1].output)
 
         # Output the model into a .pb file for TensorFlow
-        argmax_layer = tf.keras.backend.argmax(new_softmax_layer)
+        argmax_layer = tf.keras.ops.argmax(new_softmax_layer, axis=2)
 
         argmax_outputs = [new_softmax_layer, argmax_layer]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
+        self._model = tf.keras.Model(self._model.inputs, self._model.outputs)
 
         # Compile the model w/ metrics
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        softmax_output_layer_name = self._model.output_names[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
         )
-        metrics = {softmax_output_layer_name: ["acc", f1_score_training]}
+        metrics = {softmax_output_layer_name: ["categorical_crossentropy", "acc", f1_score_training]}
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
@@ -294,30 +296,28 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         num_labels = self.num_labels
         default_ind = self.label_mapping[self._parameters["default_label"]]
 
-        # Remove the 2 output layers ('softmax', 'tf_op_layer_ArgMax')
-        for _ in range(2):
-            self._model.layers.pop()
-
         # Add the final Softmax layer to the previous spot
+        # self._model.layers[-2] to skip: original softmax
         final_softmax_layer = tf.keras.layers.Dense(
             num_labels, activation="softmax", name="softmax_output"
-        )(self._model.layers[-4].output)
+        )(self._model.layers[-2].output)
 
         # Output the model into a .pb file for TensorFlow
-        argmax_layer = tf.keras.backend.argmax(final_softmax_layer)
+        # argmax_layer = tf.keras.backend.argmax(final_softmax_layer)
+        argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
 
         argmax_outputs = [final_softmax_layer, argmax_layer]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
         # Compile the model
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        softmax_output_layer_name = self._model.output_names[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
         )
-        metrics = {softmax_output_layer_name: ["acc", f1_score_training]}
+        metrics = {softmax_output_layer_name: ["categorical_crossentropy", "acc", f1_score_training]}
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
@@ -370,7 +370,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         f1_report: dict = {}
 
         self._model.reset_metrics()
-        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
+        softmax_output_layer_name = self._model.output_names[0]
 
         start_time = time.time()
         batch_id = 0

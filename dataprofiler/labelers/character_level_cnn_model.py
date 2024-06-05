@@ -76,9 +76,25 @@ def create_glove_char(n_dims: int, source_file: str = None) -> None:
 
 @tf.keras.utils.register_keras_serializable(package="CharacterLevelCnnModel")
 class ThreshArgMaxLayer(tf.keras.layers.Layer):
+    """Keras layer applying a thresholded argmax."""
+
     def __init__(
         self, threshold_: float, num_labels_: int, default_ind: int = 1, *args, **kwargs
     ) -> None:
+        """Apply a minimum threshold to the argmax value.
+
+        When below this threshold the index will be the default.
+
+        :param num_labels: number of entities
+        :type num_labels: int
+        :param threshold: default set to 0 so all confidences pass.
+        :type threshold: float
+        :param default_ind: default index
+        :type default_ind: int
+        :return: final argmax threshold layer for the model
+        :return : tensor containing argmax thresholded integers, labels out
+        :rtype: tf.Tensor
+        """
         super().__init__(*args, **kwargs)
         self._threshold_ = threshold_
         self._num_labels_ = num_labels_
@@ -91,6 +107,7 @@ class ThreshArgMaxLayer(tf.keras.layers.Layer):
         )
 
     def get_config(self):
+        """Return a serializable config for saving the layer."""
         config = super().get_config().copy()
         config.update(
             {
@@ -102,6 +119,7 @@ class ThreshArgMaxLayer(tf.keras.layers.Layer):
         return config
 
     def call(self, argmax_layer: tf.Tensor, confidence_layer: tf.Tensor) -> tf.Tensor:
+        """Apply the threshold argmax to the input tensor."""
         threshold_at_argmax = tf.gather(self.thresh_vec, argmax_layer)
 
         confidence_max_layer = tf.keras.backend.max(confidence_layer, axis=2)
@@ -130,6 +148,8 @@ class ThreshArgMaxLayer(tf.keras.layers.Layer):
 
 @tf.keras.utils.register_keras_serializable(package="CharacterLevelCnnModel")
 class EncodingLayer(tf.keras.layers.Layer):
+    """Encodes strings to integers."""
+
     def __init__(
         self, max_char_encoding_id: int, max_len: int, *args, **kwargs
     ) -> None:
@@ -147,6 +167,7 @@ class EncodingLayer(tf.keras.layers.Layer):
         self.max_len = max_len
 
     def get_config(self):
+        """Return a serializable config for saving the layer."""
         config = super().get_config().copy()
         config.update(
             {
@@ -386,7 +407,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
         with open(labels_dirpath, "w") as fp:
             json.dump(self.label_mapping, fp)
-        self._model.save(os.path.join(dirpath))
+        self._model.save(os.path.join(dirpath, "model.keras"))
 
     @classmethod
     def load_from_disk(cls, dirpath: str) -> CharacterLevelCnnModel:
@@ -407,15 +428,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         with open(labels_dirpath) as fp:
             label_mapping = json.load(fp)
 
-        # use f1 score metric
-        custom_objects = {
-            "F1Score": labeler_utils.F1Score(
-                num_classes=max(label_mapping.values()) + 1, average="micro"
-            ),
-            "CharacterLevelCnnModel": cls,
-        }
-        with tf.keras.utils.custom_object_scope(custom_objects):
-            tf_model = tf.keras.models.load_model(dirpath)
+        tf_model = tf.keras.models.load_model(os.path.join(dirpath, "model.keras"))
 
         loaded_model = cls(label_mapping, parameters)
         loaded_model._model = tf_model
@@ -507,7 +520,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         )
         embedding_dict = build_embd_dictionary(embed_file)
 
-        input_shape = tuple([max_length])
         # Fill in the weight matrix: let pad and space be 0s
         for ascii_num in range(max_char_encoding_id):
             if chr(ascii_num) in embedding_dict:
@@ -518,7 +530,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
                 max_char_encoding_id + 2,
                 self._parameters["dim_embed"],
                 weights=[embedding_matrix],
-                input_length=input_shape[0],
                 trainable=True,
             )
         )
@@ -536,7 +547,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             if self._parameters["dropout"]:
                 self._model.add(tf.keras.layers.Dropout(self._parameters["dropout"]))
             # Add batch normalization, set fused = True for compactness
-            self._model.add(tf.keras.layers.BatchNormalization(fused=False, scale=True))
+            self._model.add(tf.keras.layers.BatchNormalization(scale=True))
 
         # Add the fully connected layers
         for size in self._parameters["size_fc"]:
@@ -548,7 +559,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         self._model.add(tf.keras.layers.Dense(num_labels, activation="softmax"))
 
         # Output the model into a .pb file for TensorFlow
-        argmax_layer = tf.keras.backend.argmax(self._model.output)
+        argmax_layer = tf.keras.ops.argmax(self._model.outputs[0], axis=2)
 
         # Create confidence layers
         final_predicted_layer = ThreshArgMaxLayer(
@@ -557,7 +568,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         argmax_outputs = self._model.outputs + [
             argmax_layer,
-            final_predicted_layer(argmax_layer, self._model.output),
+            final_predicted_layer(argmax_layer, self._model.outputs[0]),
         ]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
@@ -608,7 +619,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         )(self._model.layers[-4].output)
 
         # Output the model into a .pb file for TensorFlow
-        argmax_layer = tf.keras.backend.argmax(final_softmax_layer)
+        argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
 
         # Create confidence layers
         final_predicted_layer = ThreshArgMaxLayer(

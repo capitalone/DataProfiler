@@ -614,15 +614,11 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         num_labels = self.num_labels
         default_ind = self.label_mapping[self._parameters["default_label"]]
 
-        # Remove the 3 output layers (dense_2', 'tf_op_layer_ArgMax',
-        #                             'thresh_arg_max_layer')
-        for _ in range(3):
-            self._model.layers.pop()
-
         # Add the final Softmax layer to the previous spot
+        # self._model.layers[-3] to skip: thresh and original softmax
         final_softmax_layer = tf.keras.layers.Dense(
             num_labels, activation="softmax", name="dense_2"
-        )(self._model.layers[-4].output)
+        )(self._model.layers[-3].output)
 
         # Output the model into a .pb file for TensorFlow
         argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
@@ -785,7 +781,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         for x_val, y_val in val_data:
             y_val_pred.append(
                 self._model.predict(
-                    x_val, batch_size=batch_size_test, verbose=verbose_keras
+                    tf.convert_to_tensor(x_val), batch_size=batch_size_test, verbose=verbose_keras
                 )[1]
             )
             y_val_test.append(np.argmax(y_val, axis=-1))

@@ -546,7 +546,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             )
             if self._parameters["dropout"]:
                 self._model.add(tf.keras.layers.Dropout(self._parameters["dropout"]))
-            # Add batch normalization, set fused = True for compactness
             self._model.add(tf.keras.layers.BatchNormalization(scale=True))
 
         # Add the fully connected layers

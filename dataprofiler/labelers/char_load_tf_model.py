@@ -268,7 +268,13 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
         )
-        metrics = {softmax_output_layer_name: ["categorical_crossentropy", "acc", f1_score_training]}
+        metrics = {
+            softmax_output_layer_name: [
+                "categorical_crossentropy",
+                "acc",
+                f1_score_training,
+            ]
+        }
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
@@ -317,7 +323,13 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
         )
-        metrics = {softmax_output_layer_name: ["categorical_crossentropy", "acc", f1_score_training]}
+        metrics = {
+            softmax_output_layer_name: [
+                "categorical_crossentropy",
+                "acc",
+                f1_score_training,
+            ]
+        }
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 

@@ -781,7 +781,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         for x_val, y_val in val_data:
             y_val_pred.append(
                 self._model.predict(
-                    tf.convert_to_tensor(x_val), batch_size=batch_size_test, verbose=verbose_keras
+                    tf.convert_to_tensor(x_val),
+                    batch_size=batch_size_test,
+                    verbose=verbose_keras,
                 )[1]
             )
             y_val_test.append(np.argmax(y_val, axis=-1))

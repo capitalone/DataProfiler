@@ -9,7 +9,10 @@ import pandas as pd
 import pkg_resources
 import tensorflow as tf
 
-from dataprofiler.labelers.character_level_cnn_model import CharacterLevelCnnModel, EncodingLayer
+from dataprofiler.labelers.character_level_cnn_model import (
+    CharacterLevelCnnModel,
+    EncodingLayer,
+)
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")

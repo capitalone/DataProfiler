@@ -272,7 +272,7 @@ class TestCharLoadTFModel(unittest.TestCase):
         )
 
         # predict after fitting on just the text
-        model.predict(data_gen[0][0])
+        model.predict([data_gen[0][0]])
 
     @mock.patch("os.makedirs", return_value=None)
     def test_validation_evaluate_and_classification_report(self, *mocks):

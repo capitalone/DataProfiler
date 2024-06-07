@@ -1,4 +1,5 @@
 global-exclude .DS_Store
+global-exclude */__pycache__/*
 
 include *.txt
 include CODEOWNERS

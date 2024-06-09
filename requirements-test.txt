@@ -1,5 +1,5 @@
 coverage>=5.0.1
-dask[dask-expr,dataframe]>=2.29.0,<2024.2.0
+dask[dask-expr,dataframe]>=2024.4.1
 fsspec>=0.3.3
 pytest>=6.0.1
 pytest-cov>=2.8.1

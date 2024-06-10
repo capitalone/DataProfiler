@@ -247,8 +247,8 @@ class TestEvaluateAccuracy(unittest.TestCase):
                 [0, 1, 2],
             ]
         )
-        expected_columns=["pred:PAD", "pred:UNKNOWN", "pred:OTHER"]
-        expected_index=["true:PAD", "true:UNKNOWN", "true:OTHER"]
+        expected_columns = ["pred:PAD", "pred:UNKNOWN", "pred:OTHER"]
+        expected_index = ["true:PAD", "true:UNKNOWN", "true:OTHER"]
 
         with tempfile.NamedTemporaryFile() as tmpFile:
             # still omit bc confusion mat should include all despite omit
@@ -266,6 +266,7 @@ class TestEvaluateAccuracy(unittest.TestCase):
             self.assertListEqual(list(df1.columns), expected_columns)
             self.assertListEqual(list(df1.index), expected_index)
             np.testing.assert_array_equal(df1.values, expected_conf_mat)
+
 
 class TestTFFunctions(unittest.TestCase):
     def test_get_tf_layer_index_from_name(self):

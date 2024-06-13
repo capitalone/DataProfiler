@@ -19,6 +19,8 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class TestColumn(NumericStatsMixin):
+    __test__ = False
+
     def __init__(self):
         NumericStatsMixin.__init__(self)
         self.match_count = 0
@@ -32,6 +34,7 @@ class TestColumn(NumericStatsMixin):
 
 
 class TestColumnWProps(TestColumn):
+    __test__ = False
     # overrides the property func
     median = None
     mode = None
@@ -52,7 +55,6 @@ class TestNumericStatsMixin(unittest.TestCase):
         create=True,
     )
     def test_base(self):
-
         # validate requires NumericalOptions
         with self.assertRaisesRegex(
             ValueError,
@@ -345,7 +347,6 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         time_array = [float(i) for i in range(24, 0, -1)]
         with mock.patch("time.time", side_effect=lambda: time_array.pop()):
-
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)
 

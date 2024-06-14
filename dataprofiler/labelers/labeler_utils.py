@@ -358,7 +358,7 @@ class FBetaScore(tf.keras.metrics.Metric):
 
         def _zero_wt_init(name: str) -> tf.Variable:
             return self.add_weight(
-                name, shape=self.init_shape, initializer="zeros", dtype=self.dtype
+                name=name, shape=self.init_shape, initializer="zeros", dtype=self.dtype
             )
 
         self.true_positives = _zero_wt_init("true_positives")
@@ -434,11 +434,6 @@ class FBetaScore(tf.keras.metrics.Metric):
 
         base_config = super().get_config()
         return {**base_config, **config}
-
-    def reset_state(self) -> None:
-        """Reset state."""
-        reset_value = tf.zeros(self.init_shape, dtype=self.dtype)
-        tf.keras.backend.batch_set_value([(v, reset_value) for v in self.variables])
 
 
 @protected_register_keras_serializable()

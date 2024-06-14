@@ -141,11 +141,11 @@ class DataLabeler:
         :type trainable: bool
         :return: DataLabeler class
         """
+        for labeler_name, labeler_class_obj in cls.labeler_classes.items():
+            if name == labeler_name:
+                name = labeler_class_obj._default_model_loc
         if trainable:
             return TrainableDataLabeler.load_from_library(name)
-        for _, labeler_class_obj in cls.labeler_classes.items():
-            if name in labeler_class_obj._default_model_loc:
-                return labeler_class_obj()
         return BaseDataLabeler.load_from_library(name)
 
     @classmethod

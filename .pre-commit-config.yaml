@@ -108,7 +108,7 @@ repos:
     rev: "0.48"
     hooks:
       - id: check-manifest
-        additional_dependencies: ['h5py', 'wheel', 'future', 'numpy', 'pandas',
+        additional_dependencies: ['h5py', 'wheel', 'future', 'numpy<2.0.0', 'pandas',
         'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
         'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
         'networkx','typing-extensions', 'HLL', 'datasketches', 'boto3']

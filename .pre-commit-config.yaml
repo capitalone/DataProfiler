@@ -82,9 +82,9 @@ repos:
             scikit-learn>=0.23.2,
             'keras>=2.4.3,<3.0.0',
             rapidfuzz>=2.6.1,
-            "tensorflow>=2.6.4,<2.15.0; sys.platform != 'darwin'",
-            "tensorflow>=2.6.4,<2.15.0; sys_platform == 'darwin' and platform_machine != 'arm64'",
-            "tensorflow-macos>=2.6.4,<2.15.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+            "tensorflow>=2.16.0; sys.platform != 'darwin'",
+            "tensorflow>=2.16.0; sys_platform == 'darwin' and platform_machine != 'arm64'",
+            "tensorflow-macos>=2.16.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
             tqdm>=4.0.0,
 
             # requirements-reports.txt

@@ -17,4 +17,4 @@ recursive-include resources *.json
 recursive-include resources *.pb
 recursive-include resources *.py
 
-recursive-include dataprofiler/labelers/embeddings/ *.txt
+recursive-include dataprofiler/labelers/embeddings *.txt

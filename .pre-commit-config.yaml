@@ -48,7 +48,7 @@ repos:
             # requirements.txt
             h5py>=2.10.0,
             wheel>=0.33.1,
-            numpy>=1.22.0,
+            numpy<2.0.0,
             pandas>=1.1.2,
             python-dateutil>=2.7.5,
             pytz>=2020.1,
@@ -108,7 +108,7 @@ repos:
     rev: "0.48"
     hooks:
       - id: check-manifest
-        additional_dependencies: ['h5py', 'wheel', 'future', 'numpy', 'pandas',
+        additional_dependencies: ['h5py', 'wheel', 'future', 'numpy<2.0.0', 'pandas',
         'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
         'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
         'networkx','typing-extensions', 'HLL', 'datasketches', 'boto3']

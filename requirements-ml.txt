@@ -1,5 +1,5 @@
 scikit-learn>=0.23.2
-keras>=3.0.0
+keras<=3.4.0
 rapidfuzz>=2.6.1
 tensorflow>=2.16.0; sys.platform != 'darwin'
 tensorflow>=2.16.0; sys_platform == 'darwin' and platform_machine != 'arm64'

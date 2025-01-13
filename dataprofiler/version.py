@@ -1,7 +1,7 @@
 """File contains the version number for the package."""
 
 MAJOR = 0
-MINOR = 11
+MINOR = 12
 MICRO = 0
 POST = None  # otherwise None
 

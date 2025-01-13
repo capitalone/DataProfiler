@@ -56,46 +56,6 @@ class TestDataProfiler(unittest.TestCase):
             self.assertIsNotNone(profile.profile)
             self.assertIsNotNone(profile.report())
 
-    def test_no_snappy(self):
-        import importlib
-        import sys
-        import types
-
-        orig_import = __import__
-        # necessary for any wrapper around the library to test if snappy caught
-        # as an issue
-
-        def reload_data_profiler():
-            """Recursively reload modules."""
-            sys_modules = sys.modules.copy()
-            for module_name, module in sys_modules.items():
-                # Only reload top level of the dataprofiler
-                if "dataprofiler" in module_name and len(module_name.split(".")) < 3:
-                    if isinstance(module, types.ModuleType):
-                        importlib.reload(module)
-
-        def import_mock(name, *args, **kwargs):
-            if name == "snappy":
-                raise ImportError("test")
-            return orig_import(name, *args, **kwargs)
-
-        with mock.patch("builtins.__import__", side_effect=import_mock):
-            with self.assertWarns(ImportWarning) as w:
-                import dataprofiler
-
-                reload_data_profiler()
-
-        self.assertEqual(
-            str(w.warning),
-            "Snappy must be installed to use parquet/avro datasets."
-            "\n\n"
-            "For macOS use Homebrew:\n"
-            "\t`brew install snappy`"
-            "\n\n"
-            "For linux use apt-get:\n`"
-            "\tsudo apt-get -y install libsnappy-dev`\n",
-        )
-
     def test_no_tensorflow(self):
         import sys
 

@@ -13,7 +13,7 @@ import numpy.typing as npt
 import pandas as pd
 import scipy.stats
 
-from . import histogram_utils, profiler_utils
+from . import float_column_profile, histogram_utils, profiler_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import NumericalOptions
 
@@ -611,8 +611,8 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     ) -> dict:
         results: dict = {
             "t-statistic": None,
-            "conservative": {"df": None, "p-value": None},
-            "welch": {"df": None, "p-value": None},
+            "conservative": {"deg_of_free": None, "p-value": None},
+            "welch": {"deg_of_free": None, "p-value": None},
         }
 
         invalid_stats = False
@@ -647,17 +647,17 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         s_delta = var1 / n1 + var2 / n2
         t = (mean1 - mean2) / np.sqrt(s_delta)
-        conservative_df = min(n1, n2) - 1
-        welch_df = s_delta**2 / (
+        conservative_deg_of_free = min(n1, n2) - 1
+        welch_deg_of_free = s_delta**2 / (
             (var1 / n1) ** 2 / (n1 - 1) + (var2 / n2) ** 2 / (n2 - 1)
         )
         results["t-statistic"] = t
-        results["conservative"]["df"] = float(conservative_df)
-        results["welch"]["df"] = float(welch_df)
+        results["conservative"]["deg_of_free"] = float(conservative_deg_of_free)
+        results["welch"]["deg_of_free"] = float(welch_deg_of_free)
 
-        conservative_t = scipy.stats.t(conservative_df)
+        conservative_t = scipy.stats.t(conservative_deg_of_free)
         conservative_p_val = (1 - conservative_t.cdf(abs(t))) * 2
-        welch_t = scipy.stats.t(welch_df)
+        welch_t = scipy.stats.t(welch_deg_of_free)
         welch_p_val = (1 - welch_t.cdf(abs(t))) * 2
 
         results["conservative"]["p-value"] = float(conservative_p_val)
@@ -710,6 +710,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                     entity_count_per_bin=self_histogram["bin_counts"],
                     bin_edges=self_histogram["bin_edges"],
                     suggested_bin_count=num_psi_bins,
+                    is_float_histogram=isinstance(
+                        self, float_column_profile.FloatColumn
+                    ),
                     options={
                         "min_edge": min_min_edge,
                         "max_edge": max_max_edge,
@@ -731,6 +734,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                     entity_count_per_bin=other_histogram["bin_counts"],
                     bin_edges=other_histogram["bin_edges"],
                     suggested_bin_count=num_psi_bins,
+                    is_float_histogram=isinstance(
+                        self, float_column_profile.FloatColumn
+                    ),
                     options={
                         "min_edge": min_min_edge,
                         "max_edge": max_max_edge,
@@ -1360,7 +1366,12 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         self._stored_histogram["total_loss"] += histogram_loss
 
     def _regenerate_histogram(
-        self, entity_count_per_bin, bin_edges, suggested_bin_count, options=None
+        self,
+        entity_count_per_bin,
+        bin_edges,
+        suggested_bin_count,
+        is_float_histogram,
+        options=None,
     ) -> tuple[dict[str, np.ndarray], float]:
 
         # create proper binning
@@ -1372,6 +1383,11 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             new_bin_edges = np.linspace(
                 options["min_edge"], options["max_edge"], suggested_bin_count + 1
             )
+
+        # if it's not a float histogram, then assume it only contains integer values
+        if not is_float_histogram:
+            bin_edges = np.round(bin_edges)
+
         return self._assimilate_histogram(
             from_hist_entity_count_per_bin=entity_count_per_bin,
             from_hist_bin_edges=bin_edges,
@@ -1416,11 +1432,6 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 continue
 
             bin_edge = from_hist_bin_edges[bin_id : bin_id + 3]
-
-            # if we know not float, we can assume values in bins are integers.
-            is_float_profile = self.__class__.__name__ == "FloatColumn"
-            if not is_float_profile:
-                bin_edge = np.round(bin_edge)
 
             # loop until we have a new bin which contains the current bin.
             while (
@@ -1513,6 +1524,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             entity_count_per_bin=bin_counts,
             bin_edges=bin_edges,
             suggested_bin_count=suggested_bin_count,
+            is_float_histogram=isinstance(self, float_column_profile.FloatColumn),
         )
 
     def _get_best_histogram_for_profile(self) -> dict:

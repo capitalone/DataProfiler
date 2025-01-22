@@ -48,12 +48,12 @@ To execute unit tests, run the following
 DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
 ```
 
-For more nuanced testing runs, check out more detailed documentation [here](https://capitalone.github.io/DataProfiler/docs/0.8.1/html/install.html#testing).
+For more nuanced testing runs, check out more detailed documentation [here](https://capitalone.github.io/DataProfiler/docs/0.11.0/html/install.html#testing).
 
 ## Creating [Pull Requests](https://github.com/capitalone/DataProfiler/pulls)
 Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:
 
-1. Fork the repo and create your branch from `main`.
+1. Fork the repo and create your branch from `dev`.
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes.
@@ -106,3 +106,8 @@ the documentation.
 
 ## Updating Dependencies
 If you make changes to the `requirements` text files, please also update the `additional_dependencies` list under the `mypy` hook in `.pre-commit-config.yaml`. This is necessary for accurate type-checking.
+
+## Contributing Documentation Changes and Fixes
+When making adjustments or contributions to documentation, please use the `dev-gh-pages` branch.  This is where all the documentation lives.
+After you've completed your edits, open a Github Pull Request (PR) to merge into `dev-gh-pages` from your fork.  During a version release, `dev-gh-pages` is merged
+into the `gh-pages` branch (after `update_documentation.py` is run) and is the version associated with the documentation website and stable version.

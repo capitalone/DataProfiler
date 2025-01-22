@@ -1,8 +1,8 @@
 """File contains the version number for the package."""
 
 MAJOR = 0
-MINOR = 10
-MICRO = 5
+MINOR = 11
+MICRO = 0
 POST = None  # otherwise None
 
 VERSION = "%d.%d.%d" % (MAJOR, MINOR, MICRO)

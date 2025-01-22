@@ -1,6 +1,6 @@
 import logging
+import tempfile
 import unittest
-from unittest import mock
 
 import numpy as np
 import pandas as pd
@@ -235,8 +235,7 @@ class TestEvaluateAccuracy(unittest.TestCase):
         self.assertIn("f1-score ", log_output)
         self.assertIn("F1 Score: ", log_output)
 
-    @mock.patch("pandas.DataFrame")
-    def test_save_conf_mat(self, mock_dataframe):
+    def test_save_conf_mat(self):
 
         # ideally mock out the actual contents written to file, but
         # would be difficult to get this completely worked out.
@@ -247,28 +246,25 @@ class TestEvaluateAccuracy(unittest.TestCase):
                 [0, 1, 2],
             ]
         )
-        expected_row_col_names = dict(
-            columns=["pred:PAD", "pred:UNKNOWN", "pred:OTHER"],
-            index=["true:PAD", "true:UNKNOWN", "true:OTHER"],
-        )
-        mock_instance_df = mock.Mock(spec=pd.DataFrame)()
-        mock_dataframe.return_value = mock_instance_df
+        expected_columns = ["pred:PAD", "pred:UNKNOWN", "pred:OTHER"]
+        expected_index = ["true:PAD", "true:UNKNOWN", "true:OTHER"]
 
-        # still omit bc confusion mat should include all despite omit
-        f1, f1_report = labeler_utils.evaluate_accuracy(
-            self.y_pred,
-            self.y_true,
-            self.num_labels,
-            self.reverse_label_mapping,
-            omitted_labels=["PAD"],
-            verbose=False,
-            confusion_matrix_file="test.csv",
-        )
+        with tempfile.NamedTemporaryFile() as tmpFile:
+            # still omit bc confusion mat should include all despite omit
+            f1, f1_report = labeler_utils.evaluate_accuracy(
+                self.y_pred,
+                self.y_true,
+                self.num_labels,
+                self.reverse_label_mapping,
+                omitted_labels=["PAD"],
+                verbose=False,
+                confusion_matrix_file=tmpFile.name,
+            )
 
-        self.assertTrue((mock_dataframe.call_args[0][0] == expected_conf_mat).all())
-        self.assertDictEqual(expected_row_col_names, mock_dataframe.call_args[1])
-
-        mock_instance_df.to_csv.assert_called()
+            df1 = pd.read_csv(tmpFile.name, index_col=0)
+            self.assertListEqual(list(df1.columns), expected_columns)
+            self.assertListEqual(list(df1.index), expected_index)
+            np.testing.assert_array_equal(df1.values, expected_conf_mat)
 
 
 class TestTFFunctions(unittest.TestCase):

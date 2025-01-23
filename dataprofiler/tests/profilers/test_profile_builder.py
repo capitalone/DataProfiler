@@ -88,6 +88,11 @@ class TestStructuredProfiler(unittest.TestCase):
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
             )
 
+    @classmethod
+    def tearDownClass(cls):
+        from dataprofiler import dp_logging
+        dp_logging.set_verbosity(logging.INFO)
+
     @mock.patch(
         "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
     )

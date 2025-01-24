@@ -134,6 +134,3 @@ venv.bak/
 env3/
 
 *.bak
-
-#ignore Pipfiles
-Pipfile*

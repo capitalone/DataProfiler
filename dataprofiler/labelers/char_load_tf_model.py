@@ -1,4 +1,5 @@
 """Contains class for training data labeler model."""
+
 from __future__ import annotations
 
 import copy
@@ -537,9 +538,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
                 confidences[
                     allocation_index : allocation_index + num_samples_in_batch
                 ] = model_output[0].numpy()
-            predictions[
-                allocation_index : allocation_index + num_samples_in_batch
-            ] = model_output[1].numpy()
+            predictions[allocation_index : allocation_index + num_samples_in_batch] = (
+                model_output[1].numpy()
+            )
 
             allocation_index += num_samples_in_batch
 

@@ -1,4 +1,5 @@
 """Create a random number generator using a manual seed DATAPROFILER_SEED."""
+
 import os
 import warnings
 

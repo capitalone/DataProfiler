@@ -26,6 +26,7 @@ Data Labelers:
         2. structured_model
         3. regex_model
 """
+
 # import data labelers
 # import models
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler

@@ -1,4 +1,5 @@
 """Contains classes for char data labeling."""
+
 from __future__ import annotations
 
 import copy
@@ -877,9 +878,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
                 confidences[
                     allocation_index : allocation_index + num_samples_in_batch
                 ] = model_output[0].numpy()
-            predictions[
-                allocation_index : allocation_index + num_samples_in_batch
-            ] = model_output[1].numpy()
+            predictions[allocation_index : allocation_index + num_samples_in_batch] = (
+                model_output[1].numpy()
+            )
             sentence_lengths[
                 allocation_index : allocation_index + num_samples_in_batch
             ] = list(map(lambda x: len(x[0]), batch_data))

@@ -91,6 +91,7 @@ class TestStructuredProfiler(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         from dataprofiler import dp_logging
+
         dp_logging.set_verbosity(logging.INFO)
 
     @mock.patch(

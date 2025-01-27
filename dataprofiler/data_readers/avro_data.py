@@ -1,6 +1,7 @@
 """Contains class for saving and loading spreadsheet data."""
+
 from io import BytesIO, StringIO
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import fastavro
 
@@ -20,7 +21,7 @@ class AVROData(JSONData, BaseData):
         self,
         input_file_path: Optional[str] = None,
         data: Optional[Any] = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """
         Initialize Data class for loading datasets of type AVRO.
@@ -60,7 +61,7 @@ class AVROData(JSONData, BaseData):
         """
         pass
 
-    def _load_data_from_file(self, input_file_path: str) -> List:
+    def _load_data_from_file(self, input_file_path: str) -> list:
         """Load data from file."""
         with FileOrBufferHandler(input_file_path, "rb") as input_file:
             # Currently, string reading with 'r' option has the unicode issue,
@@ -68,14 +69,14 @@ class AVROData(JSONData, BaseData):
             # some special compression codec, e.g., snappy. Then, binary mode
             # reading is currently used to get the dict-formatted lines.
             df_reader = fastavro.reader(input_file)
-            lines: List = list()
+            lines: list = list()
             for line in df_reader:
                 lines.append(line)
             return lines
 
     @classmethod
     def is_match(
-        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict] = None
+        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[dict] = None
     ) -> bool:
         """
         Test the given file to check if the file has valid AVRO format or not.
@@ -103,7 +104,7 @@ class AVROData(JSONData, BaseData):
         return is_valid_avro
 
     @classmethod
-    def _get_nested_key(cls, dict_line: Dict, nested_key: Dict) -> Dict:
+    def _get_nested_key(cls, dict_line: dict, nested_key: dict) -> dict:
         """
         Update nested keys from a dictionary and the current nested key.
 
@@ -131,7 +132,7 @@ class AVROData(JSONData, BaseData):
         return nested_key
 
     @classmethod
-    def _get_nested_keys_from_dicts(cls, dicts: List[Dict]) -> Dict:
+    def _get_nested_keys_from_dicts(cls, dicts: list[dict]) -> dict:
         """
         Extract nested keys from a list of dictionaries.
 
@@ -143,13 +144,13 @@ class AVROData(JSONData, BaseData):
         :type dicts: list(dict)
         :return: a dictionary containing nested keys
         """
-        nested_keys: Dict = {}
+        nested_keys: dict = {}
         for dict_line in dicts:
             nested_keys = cls._get_nested_key(dict_line, nested_keys)
         return nested_keys
 
     @classmethod
-    def _get_schema_avro(cls, nested_keys: Dict, schema_avro: Dict) -> Dict:
+    def _get_schema_avro(cls, nested_keys: dict, schema_avro: dict) -> dict:
         """
         Update avro schema from the nested keys and the current avro schema.
 
@@ -190,7 +191,7 @@ class AVROData(JSONData, BaseData):
             if type(value) is dict:
                 # here, the null option to specify keys not required
                 # for every lines
-                schema_avro_temp: Dict[str, Any] = {
+                schema_avro_temp: dict[str, Any] = {
                     "name": key,
                     "type": [{"name": key, "type": "record", "fields": []}, "null"],
                 }

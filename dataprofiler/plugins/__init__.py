@@ -1,7 +1,7 @@
 import importlib
 import os
 
-from .decorators import plugin_decorator, plugins_dict
+from dataprofiler.plugins.decorators import plugins_dict
 
 
 def load_plugins():

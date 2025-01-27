@@ -1,4 +1,5 @@
 """Contains pre-built processors for data labeling/processing."""
+
 from __future__ import annotations
 
 import abc
@@ -11,7 +12,8 @@ import random
 import types
 import warnings
 from collections import Counter
-from typing import Any, Generator, Iterable, TypeVar, cast
+from collections.abc import Generator, Iterable
+from typing import Any, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -173,9 +175,11 @@ class BaseDataPreprocessor(BaseDataProcessor):
         labels: np.ndarray | None = None,
         label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
-    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None] | tuple[
-        np.ndarray, np.ndarray
-    ] | np.ndarray:
+    ) -> (
+        Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]
+        | tuple[np.ndarray, np.ndarray]
+        | np.ndarray
+    ):
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -1947,9 +1951,11 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                 # being changed and is already set
                 aggregation_func = parameters.get(
                     "aggregation_func",
-                    self._parameters.get("aggregation_func")
-                    if hasattr(self, "_parameters")
-                    else None,
+                    (
+                        self._parameters.get("aggregation_func")
+                        if hasattr(self, "_parameters")
+                        else None
+                    ),
                 )
                 if value is None and aggregation_func == "priority":
                     errors.append(

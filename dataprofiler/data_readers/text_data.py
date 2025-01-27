@@ -1,7 +1,7 @@
 """Contains class for saving and loading text files."""
 
 from io import StringIO
-from typing import Dict, List, Optional, Union, cast
+from typing import Optional, Union, cast
 
 from . import data_utils
 from .base_data import BaseData
@@ -15,8 +15,8 @@ class TextData(BaseData):
     def __init__(
         self,
         input_file_path: Optional[str] = None,
-        data: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        data: Optional[list[str]] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """
         Initialize Data class for loading datasets of type TEXT.
@@ -74,7 +74,7 @@ class TextData(BaseData):
         """Determine compatibility with StructuredProfiler."""
         return False
 
-    def _load_data(self, data: Optional[List[str]] = None) -> None:
+    def _load_data(self, data: Optional[list[str]] = None) -> None:
         """Load data."""
         if data is not None:
             self._data = data
@@ -83,7 +83,7 @@ class TextData(BaseData):
                 cast(str, self.input_file_path), self.file_encoding
             )
 
-    def _get_data_as_text(self, data: Union[str, List[str]]) -> List[str]:
+    def _get_data_as_text(self, data: Union[str, list[str]]) -> list[str]:
         """Return data as text."""
         if isinstance(data, list) and len(data) and isinstance(data[0], str):
             data = "".join(data)
@@ -105,7 +105,7 @@ class TextData(BaseData):
         raise NotImplementedError("Tokenizing does not currently exist for text data.")
 
     @classmethod
-    def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
+    def is_match(cls, file_path: str, options: Optional[dict] = None) -> bool:
         """
         Return True if all are text files.
 
@@ -127,8 +127,8 @@ class TextData(BaseData):
     def reload(
         self,
         input_file_path: Optional[str] = None,
-        data: Optional[List[str]] = None,
-        options: Optional[Dict] = None,
+        data: Optional[list[str]] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """
         Reload the data class with a new dataset.

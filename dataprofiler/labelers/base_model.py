@@ -1,11 +1,12 @@
 """Contains abstract classes for labeling data."""
+
 from __future__ import annotations
 
 import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Callable, Type, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 from dataprofiler._typing import DataArray
 
@@ -22,7 +23,7 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
     ) -> type[T]:
         """Create auto registration object and return new class."""
         new_class = cast(
-            Type[T],
+            type[T],
             super().__new__(cls, clsname, bases, attrs),
         )
         new_class._register_subclass()

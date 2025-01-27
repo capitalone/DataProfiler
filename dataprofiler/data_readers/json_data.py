@@ -1,10 +1,11 @@
 """Contains class to save and load json data."""
+
 import json
 import re
 import warnings
 from collections import OrderedDict
 from io import StringIO
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -25,7 +26,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self,
         input_file_path: Optional[str] = None,
         data: Optional[Union[str, pd.DataFrame]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ):
         """
         Initialize Data class for loading datasets of type JSON.
@@ -71,23 +72,23 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
-        self._data_formats[
-            "flattened_dataframe"
-        ] = self._get_data_as_flattened_dataframe
+        self._data_formats["flattened_dataframe"] = (
+            self._get_data_as_flattened_dataframe
+        )
         self._selected_data_format: str = options.get(
             "data_format", "flattened_dataframe"
         )
-        self._payload_keys: List[str] = options.get("payload_keys", ["data", "payload"])
+        self._payload_keys: list[str] = options.get("payload_keys", ["data", "payload"])
         if not isinstance(self._payload_keys, list):
             self._payload_keys = [self._payload_keys]
         self._key_separator: str = options.get("key_separator", ".")
-        self._selected_keys: Optional[List[str]] = options.get("selected_keys", list())
+        self._selected_keys: Optional[list[str]] = options.get("selected_keys", list())
         self._metadata: Optional[pd.DataFrame] = None
         if data is not None:
             self._load_data(data)
 
     @property
-    def selected_keys(self) -> Optional[List[str]]:
+    def selected_keys(self) -> Optional[list[str]]:
         """Return selected keys."""
         return self._selected_keys
 
@@ -280,7 +281,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 )
             return data
 
-    def _get_data_as_records(self, data: Union[pd.DataFrame, Dict, List]) -> List[str]:
+    def _get_data_as_records(self, data: Union[pd.DataFrame, dict, list]) -> list[str]:
         """
         Extract the data as a record format.
 
@@ -297,7 +298,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             )
         return super()._get_data_as_records(data)
 
-    def _get_data_as_json(self, data: Union[pd.DataFrame, Dict, List]) -> List[str]:
+    def _get_data_as_json(self, data: Union[pd.DataFrame, dict, list]) -> list[str]:
         """
         Extract the data as a json format.
 
@@ -310,7 +311,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         return list(map("".join, zip(*[iter(data)] * char_per_line)))
 
-    def _get_data_as_df(self, data: Union[pd.DataFrame, Dict, List]) -> pd.DataFrame:
+    def _get_data_as_df(self, data: Union[pd.DataFrame, dict, list]) -> pd.DataFrame:
         """
         Extract the data as pandas formats it.
 
@@ -329,7 +330,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return data
 
     @classmethod
-    def _convert_flat_to_nested_cols(cls, dic: Dict, separator: str = ".") -> Dict:
+    def _convert_flat_to_nested_cols(cls, dic: dict, separator: str = ".") -> dict:
         """
         Convert a flat dict to nested dict.
 
@@ -366,7 +367,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     @classmethod
     def is_match(
-        cls, file_path: Union[str, StringIO], options: Optional[Dict] = None
+        cls, file_path: Union[str, StringIO], options: Optional[dict] = None
     ) -> bool:
         """
         Test whether first 1000 lines of file has valid JSON format or not.
@@ -425,7 +426,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self,
         input_file_path: Optional[str] = None,
         data: Optional[Union[str, pd.DataFrame]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """
         Reload the data class with a new dataset.

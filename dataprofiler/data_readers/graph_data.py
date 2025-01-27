@@ -1,6 +1,7 @@
 """Contains class for identifying, reading, and loading graph data."""
+
 import csv
-from typing import Dict, List, Optional, Union, cast
+from typing import Optional, Union, cast
 
 import networkx as nx
 
@@ -19,7 +20,7 @@ class GraphData(BaseData):
         self,
         input_file_path: Optional[str] = None,
         data: Optional[nx.Graph] = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """
         Initialize Data class for identifying, reading, and loading graph data.
@@ -64,14 +65,14 @@ class GraphData(BaseData):
 
         self._source_node: Optional[int] = options.get("source_node", None)
         self._destination_node: Optional[int] = options.get("destination_node", None)
-        self._target_keywords: List[str] = options.get(
+        self._target_keywords: list[str] = options.get(
             "target_keywords", ["target", "destination", "dst"]
         )
-        self._source_keywords: List[str] = options.get(
+        self._source_keywords: list[str] = options.get(
             "source_keywords", ["source", "src", "origin"]
         )
-        self._graph_keywords: List[str] = options.get("graph_keywords", ["node"])
-        self._column_names: Optional[List[str]] = options.get("column_names", None)
+        self._graph_keywords: list[str] = options.get("graph_keywords", ["node"])
+        self._column_names: Optional[list[str]] = options.get("column_names", None)
         self._delimiter: Optional[str] = options.get("delimiter", None)
         self._quotechar: Optional[str] = options.get("quotechar", None)
         self._header: Optional[Union[str, int]] = options.get("header", "auto")
@@ -82,7 +83,7 @@ class GraphData(BaseData):
 
     @classmethod
     def _find_target_string_in_column(
-        self, column_names: List[str], keyword_list: List[str]
+        self, column_names: list[str], keyword_list: list[str]
     ) -> int:
         """Find out if col name contains keyword that could refer to target node col."""
         column_name_symbols = ["_", ".", "-"]
@@ -116,9 +117,9 @@ class GraphData(BaseData):
         header: Optional[int],
         delimiter: Optional[str],
         encoding: str = "utf-8",
-    ) -> List[str]:
+    ) -> list[str]:
         """Fetch a list of column names from the csv file."""
-        column_names: List[str] = []
+        column_names: list[str] = []
         if delimiter is None:
             delimiter = ","
         if header is None:
@@ -141,7 +142,7 @@ class GraphData(BaseData):
         return column_names
 
     @classmethod
-    def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
+    def is_match(cls, file_path: str, options: Optional[dict] = None) -> bool:
         """
         Determine whether the file is a graph.
 
@@ -157,16 +158,16 @@ class GraphData(BaseData):
         header: int = options.get("header", 0)
         delimiter: str = options.get("delimiter", ",")
         encoding: str = options.get("encoding", "utf-8")
-        column_names: List[str] = cls.csv_column_names(
+        column_names: list[str] = cls.csv_column_names(
             file_path, header, delimiter, encoding
         )
-        source_keywords: List[str] = options.get(
+        source_keywords: list[str] = options.get(
             "source_keywords", ["source", "src", "origin"]
         )
-        target_keywords: List[str] = options.get(
+        target_keywords: list[str] = options.get(
             "target_keywords", ["target", "destination", "dst"]
         )
-        graph_keywords: List[str] = options.get("graph_keywords", ["node"])
+        graph_keywords: list[str] = options.get("graph_keywords", ["node"])
         source_index: int = cls._find_target_string_in_column(
             column_names, source_keywords
         )

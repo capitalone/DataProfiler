@@ -1,7 +1,7 @@
 """Contains factory class reading various kinds of data."""
 
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 from .. import dp_logging
 from .avro_data import AVROData
@@ -18,7 +18,7 @@ logger = dp_logging.get_child_logger(__name__)
 class Data:
     """Factory class for reading various kinds of data."""
 
-    data_classes: List[Dict] = [
+    data_classes: list[dict] = [
         dict(data_class=JSONData, kwargs=dict()),
         dict(data_class=GraphData, kwargs=dict()),
         dict(data_class=CSVData, kwargs=dict()),
@@ -32,7 +32,7 @@ class Data:
         input_file_path: Optional[Union[str, BytesIO]] = None,
         data: Optional[Any] = None,
         data_type: Optional[str] = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ):
         """
         Create Factory Data object.

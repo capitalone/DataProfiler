@@ -1,4 +1,5 @@
 """Contains functions for classification."""
+
 from __future__ import annotations
 
 import warnings

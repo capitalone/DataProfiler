@@ -1,8 +1,9 @@
 """Contains class for for profiling data labeler col."""
+
 from __future__ import annotations
 
 import operator
-from typing import Dict, cast
+from typing import cast
 
 import numpy as np
 from pandas import DataFrame, Series
@@ -264,7 +265,7 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
             map(operator.itemgetter(0), ordered_top_k_rank[is_value_close])
         )
         top_label = ordered_top_k_rank[0][0]
-        if cast(Dict, self.label_representation)[top_label] < self._min_top_label_prob:
+        if cast(dict, self.label_representation)[top_label] < self._min_top_label_prob:
             return "could not determine"
         return data_label
 

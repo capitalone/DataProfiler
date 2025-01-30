@@ -1,4 +1,5 @@
 """Contains class for profiling datetime column."""
+
 from __future__ import annotations
 
 import datetime
@@ -216,7 +217,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
         :return: either the str converted into a date format, or Nan
         """
         try:
-            converted_date: (datetime.datetime | float) = datetime.datetime.strptime(
+            converted_date: datetime.datetime | float = datetime.datetime.strptime(
                 date, date_format
             )
         except (ValueError, TypeError):
@@ -237,7 +238,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
         """
         try:
             new_date: str | float = pattern.sub(r"\1", date)
-        except (TypeError):
+        except TypeError:
             new_date = np.nan
         return new_date
 

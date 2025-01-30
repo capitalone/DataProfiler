@@ -1,4 +1,5 @@
 """Contains helper functions for generating report."""
+
 from __future__ import annotations
 
 import math

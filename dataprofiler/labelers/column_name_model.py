@@ -1,4 +1,5 @@
 """Contains class for column name data labeling model."""
+
 from __future__ import annotations
 
 import json
@@ -175,7 +176,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def _need_to_reconstruct_model(self) -> bool:
-        pass
+        raise NotImplementedError()
 
     def reset_weights(self) -> None:
         """Reset weights function."""

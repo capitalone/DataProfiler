@@ -9,7 +9,7 @@ import warnings
 from typing import Any, Generic, TypeVar, cast
 
 from ..labelers.base_data_labeler import BaseDataLabeler
-from ..plugins.__init__ import get_plugins
+from ..plugins import get_plugins
 from . import profiler_utils
 from .json_decoder import load_option
 
@@ -32,7 +32,7 @@ class BaseOption(Generic[BaseOptionT]):
         """
         return copy.deepcopy(self.__dict__)
 
-    def _set_helper(self, options: dict[str, bool], variable_path: str) -> None:
+    def _set_helper(self, options: dict, variable_path: str) -> None:
         """
         Set all the options.
 
@@ -100,7 +100,7 @@ class BaseOption(Generic[BaseOptionT]):
                     f"type object '{error_path}' has no attribute '{option}'"
                 )
 
-    def set(self, options: dict[str, bool]) -> None:
+    def set(self, options: dict) -> None:
         """
         Set all the options.
 

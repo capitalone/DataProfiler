@@ -1,6 +1,7 @@
 """Contains mixin data class for loading datasets of tye SpreadSheet."""
+
 from logging import Logger
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Optional, Union, cast
 
 import pandas as pd
 
@@ -26,10 +27,10 @@ class SpreadSheetDataMixin:
     """
 
     def __init__(
-        self, input_file_path: Optional[str], data: Any, options: Dict
+        self, input_file_path: Optional[str], data: Any, options: dict
     ) -> None:
         """Initialize spreadsheet mixin object."""
-        self._data_formats: Dict = dict()
+        self._data_formats: dict = dict()
         self._data_formats["dataframe"] = self._get_data_as_df
         self._original_df_dtypes: Optional[pd.Series]
         self.input_file_path: Optional[str] = input_file_path
@@ -69,7 +70,7 @@ class SpreadSheetDataMixin:
             )
         return data
 
-    def _get_data_as_records(self, data: Any) -> List[str]:
+    def _get_data_as_records(self, data: Any) -> list[str]:
         """Return data records."""
         records_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         data = [
@@ -80,4 +81,4 @@ class SpreadSheetDataMixin:
             )
             for i in range((len(data) + records_per_line - 1) // records_per_line)
         ]
-        return cast(List[str], data)
+        return cast(list[str], data)

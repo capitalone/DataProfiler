@@ -1,8 +1,9 @@
 """Contains function for generating plugins data."""
-from collections import defaultdict
-from typing import Any, DefaultDict, Dict
 
-plugins_dict: DefaultDict[str, Dict[str, Any]] = defaultdict(dict)
+from collections import defaultdict
+from typing import Any, DefaultDict
+
+plugins_dict: DefaultDict[str, dict[str, Any]] = defaultdict(dict)
 
 
 def plugin_decorator(typ, name):

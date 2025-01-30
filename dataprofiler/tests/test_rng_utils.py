@@ -1,4 +1,5 @@
 """Validates that generator intakes DATAPROFILER_SEED properly."""
+
 import os
 import unittest
 import unittest.mock

@@ -1,6 +1,7 @@
 """Contains class to save and load parquet data."""
+
 from io import BytesIO, StringIO
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import pandas as pd
 import pyarrow.parquet as pq
@@ -19,7 +20,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self,
         input_file_path: Optional[str] = None,
         data: Optional[Union[pd.DataFrame, str]] = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ):
         """
         Initialize Data class for loading datasets of type PARQUET.
@@ -60,7 +61,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
         self._selected_data_format: str = options.get("data_format", "dataframe")
-        self._selected_columns: List[str] = options.get("selected_columns", list())
+        self._selected_columns: list[str] = options.get("selected_columns", list())
         self._sample_nrows: Optional[int] = options.get("sample_nrows", None)
 
         if data is not None:
@@ -80,7 +81,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         pass
 
     @property
-    def selected_columns(self) -> List[str]:
+    def selected_columns(self) -> list[str]:
         """Return selected columns."""
         return self._selected_columns
 
@@ -114,14 +115,14 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self._original_df_dtypes = original_df_dtypes
         return data
 
-    def _get_data_as_records(self, data: pd.DataFrame) -> List[str]:
+    def _get_data_as_records(self, data: pd.DataFrame) -> list[str]:
         """Return data records."""
         # split into row samples separate by `\n`
         data = data.to_json(orient="records", lines=True)
         data = data.splitlines()
         return super()._get_data_as_records(data)
 
-    def _get_data_as_json(self, data: pd.DataFrame) -> List[str]:
+    def _get_data_as_json(self, data: pd.DataFrame) -> list[str]:
         """Return json data."""
         data = data.to_json(orient="records")
         chars_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
@@ -129,7 +130,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
     @classmethod
     def is_match(
-        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict] = None
+        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[dict] = None
     ) -> bool:
         """
         Test the given file to check if the file has valid Parquet format.
@@ -164,7 +165,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self,
         input_file_path: Optional[str] = None,
         data: Any = None,
-        options: Optional[Dict] = None,
+        options: Optional[dict] = None,
     ) -> None:
         """
         Reload the data class with a new dataset.

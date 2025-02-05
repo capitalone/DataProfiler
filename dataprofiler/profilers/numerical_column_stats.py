@@ -365,7 +365,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             other1._median_abs_dev_is_enabled and other2._median_abs_dev_is_enabled
         )
 
-    def profile(self) -> dict:
+    # TODO: refactor BaseColumnProfiler.profile to not be an @property
+    # NumericStatsMixin inherits from BaseColumnProfile and adding @property to
+    # NumericStatisMixin.profile() results in a breaking change - ignoring [override]
+    def profile(self) -> dict: # type: ignore[override] 
         """
         Return profile of the column.
 

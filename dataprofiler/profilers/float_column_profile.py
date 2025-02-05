@@ -198,7 +198,7 @@ class FloatColumn(
     # NumericStatsMixin inherits from BaseColumnProfile and adding @property to
     # NumericStatisMixin.profile() results in a breaking change - ignoring [override]
     @property
-    def profile(self) -> dict: #type: ignore[override]
+    def profile(self) -> dict:  # type: ignore[override]
         """
         Return the profile of the column.
 

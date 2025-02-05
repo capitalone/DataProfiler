@@ -368,7 +368,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
     # TODO: refactor BaseColumnProfiler.profile to not be an @property
     # NumericStatsMixin inherits from BaseColumnProfile and adding @property to
     # NumericStatisMixin.profile() results in a breaking change - ignoring [override]
-    def profile(self) -> dict: # type: ignore[override] 
+    def profile(self) -> dict:  # type: ignore[override]
         """
         Return profile of the column.
 

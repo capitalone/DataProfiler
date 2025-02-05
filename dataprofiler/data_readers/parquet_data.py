@@ -68,7 +68,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
             self._load_data(data)
 
     @property
-    def file_encoding(self) -> None:
+    def file_encoding(self) -> Optional[str]:
         """Set file encoding to None since not detected for avro."""
         return None
 

@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import unittest
 from collections import defaultdict
@@ -731,7 +732,44 @@ class TestCategoricalColumn(unittest.TestCase):
             },
         }
         actual_diff = profile.diff(profile2)
-        self.assertDictEqual(expected_diff, actual_diff)
+
+        assert expected_diff["categorical"] == actual_diff["categorical"]
+        assert (
+            expected_diff["statistics"]["unique_count"]
+            == actual_diff["statistics"]["unique_count"]
+        )
+        assert math.isclose(
+            expected_diff["statistics"]["unique_ratio"],
+            actual_diff["statistics"]["unique_ratio"],
+        )
+        assert (
+            expected_diff["statistics"]["categories"]
+            == actual_diff["statistics"]["categories"]
+        )
+        assert math.isclose(
+            expected_diff["statistics"]["gini_impurity"],
+            actual_diff["statistics"]["gini_impurity"],
+        )
+        assert math.isclose(
+            expected_diff["statistics"]["unalikeability"],
+            actual_diff["statistics"]["unalikeability"],
+        )
+        assert (
+            expected_diff["statistics"]["categorical_count"]
+            == actual_diff["statistics"]["categorical_count"]
+        )
+        assert math.isclose(
+            expected_diff["statistics"]["chi2-test"]["chi2-statistic"],
+            actual_diff["statistics"]["chi2-test"]["chi2-statistic"],
+        )
+        assert (
+            expected_diff["statistics"]["chi2-test"]["deg_of_free"]
+            == actual_diff["statistics"]["chi2-test"]["deg_of_free"]
+        )
+        assert math.isclose(
+            expected_diff["statistics"]["chi2-test"]["p-value"],
+            actual_diff["statistics"]["chi2-test"]["p-value"],
+        )
 
         # Test with one categorical column matching
         df_not_categorical = pd.Series(

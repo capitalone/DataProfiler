@@ -1,0 +1,52 @@
+# This workflow publishes the package to pypi.
+# For more details:
+# https://docs.github.com/en/actions/guides/building-and-testing-python#publishing-to-package-registries
+name: Publish to PyPi
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      # fetch all tags so `versioneer` can properly determine current version
+      with:
+        fetch-depth: 0
+    - name: Check if current commit is tagged
+      # fails and cancels release if the current commit is not tagged
+      run: |
+        git describe --exact-match --tags
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-ml.txt ]; then pip install -r requirements-ml.txt; fi
+        if [ -f requirements-reports.txt ]; then pip install -r requirements-reports.txt; fi
+        pip install setuptools wheel twine
+    - name: Build
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        TWINE_REPOSITORY: pypi
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Test build
+      # fails and cancels release if the built package fails to import
+      run: |
+        pip install dist/*.whl
+        python -c 'import data_profiler; print(data_profiler.__version__)'
+    - name: Publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        TWINE_REPOSITORY: pypi
+      run: |
+        twine upload dist/*

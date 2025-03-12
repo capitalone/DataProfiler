@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - 'main'
-      - 'feature/**'
-      - 'dev'
 
 jobs:
   build:

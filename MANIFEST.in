@@ -18,3 +18,5 @@ recursive-include resources *.pb
 recursive-include resources *.py
 
 recursive-include dataprofiler/labelers/embeddings/ *.txt
+include versioneer.py
+include dataprofiler/_version.py

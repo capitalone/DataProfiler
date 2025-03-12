@@ -10,7 +10,7 @@ from os import path
 from setuptools import find_packages, setup
 
 # Load package version
-from dataprofiler.version import __version__
+import versioneer
 
 here = path.abspath(path.dirname(__file__))
 
@@ -53,7 +53,8 @@ DESCRIPTION = (
 
 setup(
     name="DataProfiler",
-    version=__version__,
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     python_requires=">=3.9",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,

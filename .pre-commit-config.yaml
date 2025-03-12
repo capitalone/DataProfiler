@@ -5,6 +5,7 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
+        exclude: (versioneer.py|dataprofiler/_version.py)
         types: [file, python]
         language_version: python3
   # Isort: sort import statements
@@ -41,7 +42,7 @@ repos:
     rev: v0.982
     hooks:
       - id: mypy
-        exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/)
+        exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/|versioneer.py|dataprofiler/_version.py)
         language_version: python3
         additional_dependencies: # Keep up-to-date with the respective requirement files
           [
@@ -117,6 +118,7 @@ repos:
     hooks:
       - id: pyupgrade
         args: ["--py38-plus"]
+        exclude: (versioneer.py|dataprofiler/_version.py)
   # Autoflake - cleanup unused variables and imports
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0

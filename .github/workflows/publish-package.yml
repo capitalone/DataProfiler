@@ -42,7 +42,7 @@ jobs:
       # fails and cancels release if the built package fails to import
       run: |
         pip install dist/*.whl
-        python -c 'import data_profiler; print(data_profiler.__version__)'
+        python -c 'import dataprofiler; print(dataprofiler.__version__)'
     - name: Publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}

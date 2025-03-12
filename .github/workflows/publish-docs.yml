@@ -1,0 +1,41 @@
+# This workflow builds and publishes the latest docs to
+# the `gh-pages` branch.
+# For more details: https://github.com/marketplace/actions/deploy-to-github-pages
+name: Publish docs
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # fetch all tags so `versioneer` can properly determine current version
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        pip install pandoc
+        pip install -r requirements.txt
+        pip install -r requirements-ml.txt
+        pip install -r requirements-reports.txt
+
+    - name: Build
+      run: |
+        cd docs/
+        python update_documentation.py
+    - name: Publish
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: docs/build/html

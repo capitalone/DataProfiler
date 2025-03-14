@@ -1,0 +1,7 @@
+Sphinx>=5.0.0
+sphinx-rtd-theme
+furo
+nbsphinx
+nbsphinx-link
+pre-commit
+tornado

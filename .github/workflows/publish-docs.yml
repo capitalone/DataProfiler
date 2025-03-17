@@ -32,7 +32,7 @@ jobs:
 
     - name: Build
       run: |
-        cd docs/
+        cd _docs/docs
         python update_documentation.py
     - name: Publish
       uses: JamesIves/github-pages-deploy-action@v4

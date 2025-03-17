@@ -21,4 +21,10 @@ recursive-include dataprofiler/labelers/embeddings/ *.txt
 include versioneer.py
 include dataprofiler/_version.py
 
-recursive-include _docs
+recursive-exclude docs *.html
+recursive-exclude docs *.md
+recursive-exclude docs *.nojekyll
+recursive-exclude docs *.png
+recursive-exclude docs *.py
+recursive-exclude docs *.rst
+recursive-exclude docs Makefile

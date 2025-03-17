@@ -36,7 +36,7 @@ repos:
         exclude: (^dataprofiler/tests/data/|^dataprofiler/tests/speed_tests/data/|_docs/)
       - id: debug-statements
       - id: end-of-file-fixer
-        exclude: (^dataprofiler/tests/data/)
+        exclude: (^dataprofiler/tests/data/|_docs/)
   # Mypy: Optional static type checking
   # https://github.com/pre-commit/mirrors-mypy
   - repo: https://github.com/pre-commit/mirrors-mypy

@@ -54,7 +54,7 @@ pre-commit install
 
 6. And finally, from the root of `DataProfiler`, run the following commands to generate the sphinx documentation:
 ```bash
-cd docs/docs_
+cd _docs/docs
 python update_documentation.py
 ```
 

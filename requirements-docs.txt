@@ -1,7 +1,7 @@
 Sphinx>=5.0.0
 sphinx-rtd-theme
-furo
 nbsphinx
+furo
 nbsphinx-link
 pre-commit
 tornado

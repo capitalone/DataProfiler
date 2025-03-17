@@ -5,7 +5,7 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
-        exclude: (versioneer.py|dataprofiler/_version.py)
+        exclude: (versioneer.py|dataprofiler/_version.py|_docs/)
         types: [file, python]
         language_version: python3
   # Isort: sort import statements
@@ -16,6 +16,7 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
+        exclude: _docs/
         language_version: python3
   # Flake8: complexity and style checking
   # https://flake8.pycqa.org/en/latest/user/using-hooks.html
@@ -24,7 +25,7 @@ repos:
     hooks:
       - id: flake8
         additional_dependencies: [flake8-docstrings]
-        exclude: (^docs/|^dataprofiler/tests/|^.*/__init__.py)
+        exclude: (^docs/|^dataprofiler/tests/|^.*/__init__.py|_docs/)
         language_version: python3
   # General fixers: format files for white spaces and trailing new lines, warn on debug statements
   # https://github.com/pre-commit/pre-commit-hooks#hooks-available
@@ -32,7 +33,7 @@ repos:
     rev: v4.0.1
     hooks:
       - id: trailing-whitespace
-        exclude: (^dataprofiler/tests/data/|^dataprofiler/tests/speed_tests/data/)
+        exclude: (^dataprofiler/tests/data/|^dataprofiler/tests/speed_tests/data/|_docs/)
       - id: debug-statements
       - id: end-of-file-fixer
         exclude: (^dataprofiler/tests/data/)
@@ -42,7 +43,7 @@ repos:
     rev: v0.982
     hooks:
       - id: mypy
-        exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/|versioneer.py|dataprofiler/_version.py)
+        exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/|versioneer.py|dataprofiler/_version.py|_docs/)
         language_version: python3
         additional_dependencies: # Keep up-to-date with the respective requirement files
           [
@@ -108,6 +109,7 @@ repos:
     rev: "0.48"
     hooks:
       - id: check-manifest
+        exclude: _docs/
         additional_dependencies: ['h5py', 'wheel', 'future', 'numpy<2.0.0', 'pandas',
         'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
         'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
@@ -117,13 +119,14 @@ repos:
     rev: v3.3.0
     hooks:
       - id: pyupgrade
-        args: ["--py38-plus"]
-        exclude: (versioneer.py|dataprofiler/_version.py)
+        args: ["--py38-plus"]        
+        exclude: (versioneer.py|dataprofiler/_version.py| _docs/)
   # Autoflake - cleanup unused variables and imports
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0
     hooks:
       - id: autoflake
+        exclude: _docs/
         args:
           - "--in-place"
           - "--ignore-pass-statements"

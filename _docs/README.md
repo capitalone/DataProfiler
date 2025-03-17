@@ -46,30 +46,13 @@ pip install -r requirements-docs.txt  &&
 pip install -e . 
 
 ```
-
-5. Then install the pre-commit hooks by running the following:
-```bash
-pre-commit install
-```
-
-6. And finally, from the root of `DataProfiler`, run the following commands to generate the sphinx documentation:
+2. And finally, from the root of `DataProfiler`, run the following commands to generate the sphinx documentation:
 ```bash
 cd _docs/docs
 python update_documentation.py
 ```
 
-If you make adjustments to the code comments, you may rerun the command again to overwrite the specified version.
-
-Once the documentation is updated, commit and push the whole
-/docs folder as well as the index.html file. API documentation
-will only update when pushed to the main branch.
-
-If you make a mistake naming the version, you will have to delete it from
-the /docs/source/index.rst file.
-
-To update the documentation of a feature branch, go to the /docs folder
-and run:
-```bash
-cd docs
-python update_documentation.py
+3. View new docs
+``bash
+open index.html
 ```

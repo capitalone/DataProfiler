@@ -1,0 +1,8 @@
+{%- if show_headings %}
+{{- [basename.split(".")[-1].replace("_", " ").title().replace("Csv", "CSV").replace("Json", "JSON")] | join(' ') | e | heading }}
+
+{% endif -%}
+.. automodule:: {{ qualname }}
+{%- for option in automodule_options %}
+   :{{ option }}:
+{%- endfor %}

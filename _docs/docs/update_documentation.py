@@ -12,7 +12,7 @@ from dataprofiler import __version__ as version  # noqa F401
 
 subprocess.run(
     [
-        "../../sphinx-apidoc",
+        "sphinx-apidoc",
         "--templatedir=./source/_templates/",
         "-f",
         "-e",

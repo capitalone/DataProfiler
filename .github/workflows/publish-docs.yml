@@ -37,7 +37,7 @@ jobs:
         cd _docs/docs
         python update_documentation.py
         pwd 
-        ls
+        ls LATEST
     - name: Publish
       uses: JamesIves/github-pages-deploy-action@v4
       with:

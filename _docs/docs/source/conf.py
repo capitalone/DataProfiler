@@ -14,8 +14,7 @@ import os
 import sys
 import re
 
-branch_name = "feature_branch"
-sys.path.insert(0, os.path.abspath(f'../'))
+sys.path.insert(0, os.path.abspath(f'../../../'))
 
 # -- Project information -----------------------------------------------------
 

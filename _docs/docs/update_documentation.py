@@ -4,7 +4,8 @@ import os
 import subprocess
 import sys
 
-branch_folder = "feature_branch"
+sys.path.insert(0, os.path.abspath(f'../../'))
+
 from dataprofiler import __version__ as version  # noqa F401
 
 # Make the rst files from the current repo

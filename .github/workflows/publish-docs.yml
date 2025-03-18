@@ -37,9 +37,10 @@ jobs:
         cd _docs/docs
         python update_documentation.py
         pwd 
+        echo "opening latest"
         ls LATEST
     - name: Publish
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         branch: gh-pages
-        folder: _docs/docs/latest/html
+        folder: _docs/docs/LATEST/html

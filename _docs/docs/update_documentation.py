@@ -62,14 +62,15 @@ if update_index_rst:
 source_index.close()
 
 # Make the html files
-build_directory = "BUILDDIR=" + version
+
+build_directory = "BUILDDIR= LATEST"
 subprocess.run(["make", "html", build_directory])
 
 # update the index file to redirect to the most current version of documentation
 index_file = open("../index.html", "w")
 redirect_link = (
     '<meta http-equiv="refresh" content="0; url=./docs/'
-    + version
+    + "LATEST"
     + '/html/index.html" />'
 )
 index_file.write(redirect_link)
@@ -79,7 +80,7 @@ index_file.close()
 index_file = open("../profiler_options.html", "w")
 redirect_link = (
     '<meta http-equiv="refresh" content="0; url=./docs/'
-    + version
+    + "LATEST"
     + '/html/profiler.html#profile-options" />'
 )
 index_file.write(redirect_link)

@@ -37,9 +37,6 @@ jobs:
       run: |
         cd _docs/docs
         python update_documentation.py
-        pwd 
-        echo "opening latest"
-        ls LATEST
     - name: Publish
       uses: JamesIves/github-pages-deploy-action@v4
       with:

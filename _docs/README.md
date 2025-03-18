@@ -50,9 +50,10 @@ pip install -e .
 ```bash
 cd _docs/docs
 python update_documentation.py
+
 ```
 
 3. View new docs
-``bash
+```bash
 open index.html
 ```

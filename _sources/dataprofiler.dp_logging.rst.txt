@@ -1,0 +1,7 @@
+dataprofiler.dp\_logging module
+===============================
+
+.. automodule:: dataprofiler.dp_logging
+   :members:
+   :undoc-members:
+   :show-inheritance:

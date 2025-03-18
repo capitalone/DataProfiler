@@ -1,3 +1,0 @@
-{
-    "path": "../../feature_branch/examples/data_readers.ipynb"
-}

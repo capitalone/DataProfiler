@@ -1,3 +1,0 @@
-{
-    "path": "../../examples/add_new_model_to_data_labeler.ipynb"
-}

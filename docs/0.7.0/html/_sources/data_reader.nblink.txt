@@ -1,3 +1,0 @@
-{
-    "path": "../../DataProfiler/examples/data_readers.ipynb"
-}

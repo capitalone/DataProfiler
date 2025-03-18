@@ -1,3 +1,0 @@
-{
-    "path": "../../feature_branch/examples/column_name_labeler.ipynb"
-}

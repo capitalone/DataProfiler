@@ -1,0 +1,19 @@
+dataprofiler.reports package
+============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataprofiler.reports.graphs
+   dataprofiler.reports.utils
+
+Module contents
+---------------
+
+.. automodule:: dataprofiler.reports
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,18 @@
+dataprofiler.plugins package
+============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataprofiler.plugins.decorators
+
+Module contents
+---------------
+
+.. automodule:: dataprofiler.plugins
+   :members:
+   :undoc-members:
+   :show-inheritance:

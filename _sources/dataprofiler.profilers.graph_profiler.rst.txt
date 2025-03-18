@@ -1,0 +1,7 @@
+dataprofiler.profilers.graph\_profiler module
+=============================================
+
+.. automodule:: dataprofiler.profilers.graph_profiler
+   :members:
+   :undoc-members:
+   :show-inheritance:

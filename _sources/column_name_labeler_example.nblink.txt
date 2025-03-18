@@ -1,0 +1,3 @@
+{
+    "path": "../../../examples/column_name_labeler.ipynb"
+}

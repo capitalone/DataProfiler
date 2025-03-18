@@ -1,0 +1,7 @@
+dataprofiler.profilers.unstructured\_text\_profile module
+=========================================================
+
+.. automodule:: dataprofiler.profilers.unstructured_text_profile
+   :members:
+   :undoc-members:
+   :show-inheritance:

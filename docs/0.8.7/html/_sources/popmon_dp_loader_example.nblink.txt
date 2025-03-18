@@ -1,3 +1,0 @@
-{
-    "path": "../../feature_branch/examples/popmon_dp_loader_example.ipynb"
-}

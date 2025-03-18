@@ -1,3 +1,0 @@
-{
-    "path": "../../examples/intro_data_profiler.ipynb"
-}

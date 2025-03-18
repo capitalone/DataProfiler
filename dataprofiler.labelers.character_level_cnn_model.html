@@ -1,0 +1,1688 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="dataprofiler.labelers.classification_report_utils module" href="dataprofiler.labelers.classification_report_utils.html" /><link rel="prev" title="dataprofiler.labelers.char_load_tf_model module" href="dataprofiler.labelers.char_load_tf_model.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
+        <title>dataprofiler.labelers.character_level_cnn_model module - Data Profiler v0.13.3</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=60d77cc7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.13.3</div></div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.13.3</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of dataprofiler.data_readers package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">dataprofiler.data_readers.avro_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">dataprofiler.data_readers.base_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">dataprofiler.data_readers.csv_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">dataprofiler.data_readers.data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">dataprofiler.data_readers.data_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">dataprofiler.data_readers.filepath_or_buffer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">dataprofiler.data_readers.graph_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">dataprofiler.data_readers.json_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">dataprofiler.data_readers.parquet_data module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">dataprofiler.data_readers.structured_mixins module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">dataprofiler.data_readers.text_data module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of dataprofiler.profilers package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">dataprofiler.profilers.helpers package</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of dataprofiler.profilers.helpers package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">dataprofiler.profilers.helpers.report_helpers module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">dataprofiler.profilers.base_column_profilers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">dataprofiler.profilers.categorical_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">dataprofiler.profilers.column_profile_compilers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">dataprofiler.profilers.data_labeler_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">dataprofiler.profilers.datetime_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">dataprofiler.profilers.float_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">dataprofiler.profilers.graph_profiler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">dataprofiler.profilers.histogram_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">dataprofiler.profilers.int_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.json_decoder.html">dataprofiler.profilers.json_decoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.json_encoder.html">dataprofiler.profilers.json_encoder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">dataprofiler.profilers.numerical_column_stats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">dataprofiler.profilers.order_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">dataprofiler.profilers.profile_builder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">dataprofiler.profilers.profiler_options module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_utils.html">dataprofiler.profilers.profiler_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">dataprofiler.profilers.text_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">dataprofiler.profilers.unstructured_labeler_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">dataprofiler.profilers.unstructured_text_profile module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of dataprofiler.labelers package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">dataprofiler.labelers.base_data_labeler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">dataprofiler.labelers.base_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">dataprofiler.labelers.char_load_tf_model module</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">dataprofiler.labelers.character_level_cnn_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">dataprofiler.labelers.classification_report_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">dataprofiler.labelers.column_name_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">dataprofiler.labelers.data_labelers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">dataprofiler.labelers.data_processing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">dataprofiler.labelers.labeler_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">dataprofiler.labelers.regex_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">dataprofiler.labelers.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of dataprofiler.validators package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">dataprofiler.validators.base_validators module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/dataprofiler.labelers.character_level_cnn_model.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-dataprofiler.labelers.character_level_cnn_model">
+<span id="dataprofiler-labelers-character-level-cnn-model-module"></span><h1>dataprofiler.labelers.character_level_cnn_model module<a class="headerlink" href="#module-dataprofiler.labelers.character_level_cnn_model" title="Link to this heading">¶</a></h1>
+<p>Contains classes for char data labeling.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">build_embd_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary" title="Link to this definition">¶</a></dt>
+<dd><p>Return a numpy embedding dictionary from embed file with GloVe-like format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to the embed file for loading</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.create_glove_char">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">create_glove_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_dims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.create_glove_char" title="Link to this definition">¶</a></dt>
+<dd><p>Embed GloVe chars embeddings from source file to n_dims principal components.</p>
+<p>Embed in a new file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_dims</strong> (<em>int</em>) – Final number of principal component dims of the embeddings</p></li>
+<li><p><strong>source_file</strong> (<em>str</em>) – Location of original embeddings to factor down</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">ThreshArgMaxLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></p>
+<p>Keras layer applying a thresholded argmax.</p>
+<p>Apply a minimum threshold to the argmax value.</p>
+<p>When below this threshold the index will be the default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_labels</strong> (<em>int</em>) – number of entities</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – default set to 0 so all confidences pass.</p></li>
+<li><p><strong>default_ind</strong> (<em>int</em>) – default index</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>final argmax threshold layer for the model</p>
+</dd>
+</dl>
+<p>:return : tensor containing argmax thresholded integers, labels out
+:rtype: tf.Tensor</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_config" title="Link to this definition">¶</a></dt>
+<dd><p>Return a serializable config for saving the layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argmax_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.call" title="Link to this definition">¶</a></dt>
+<dd><p>Apply the threshold argmax to the input tensor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_loss">
+<span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_loss" title="Link to this definition">¶</a></dt>
+<dd><p>Can be called inside of the <cite>call()</cite> method to add a scalar loss.</p>
+<p>Example:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+class MyLayer(Layer):</p>
+<blockquote>
+<div><p>…
+def call(self, x):</p>
+<blockquote>
+<div><p>self.add_loss(ops.sum(x))
+return x</p>
+</div></blockquote>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_metric">
+<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_metric" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_variable">
+<span class="sig-name descname"><span class="pre">add_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_variable" title="Link to this definition">¶</a></dt>
+<dd><p>Add a weight variable to the layer.</p>
+<p>Alias of <cite>add_weight()</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_weight">
+<span class="sig-name descname"><span class="pre">add_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_weight" title="Link to this definition">¶</a></dt>
+<dd><p>Add a weight variable to the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> – Shape tuple for the variable. Must be fully-defined
+(no <cite>None</cite> entries). Defaults to <cite>()</cite> (scalar) if unspecified.</p></li>
+<li><p><strong>initializer</strong> – Initializer object to use to populate the initial
+variable value, or string name of a built-in initializer
+(e.g. <cite>“random_normal”</cite>). If unspecified, defaults to
+<cite>“glorot_uniform”</cite> for floating-point variables and to <cite>“zeros”</cite>
+for all other types (e.g. int, bool).</p></li>
+<li><p><strong>dtype</strong> – Dtype of the variable to create, e.g. <cite>“float32”</cite>. If
+unspecified, defaults to the layer’s variable dtype
+(which itself defaults to <cite>“float32”</cite> if unspecified).</p></li>
+<li><p><strong>trainable</strong> – Boolean, whether the variable should be trainable via
+backprop or whether its updates are managed manually. Defaults
+to <cite>True</cite>.</p></li>
+<li><p><strong>autocast</strong> – Boolean, whether to autocast layers variables when
+accessing them. Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>regularizer</strong> – Regularizer object to call to apply penalty on the
+weight. These penalties are summed into the loss function
+during optimization. Defaults to <cite>None</cite>.</p></li>
+<li><p><strong>constraint</strong> – Contrainst object to call on the variable after any
+optimizer update, or string name of a built-in constraint.
+Defaults to <cite>None</cite>.</p></li>
+<li><p><strong>aggregation</strong> – String, one of <cite>‘mean’</cite>, <cite>‘sum’</cite>,
+<cite>‘only_first_replica’</cite>. Annotates the variable with the type
+of multi-replica aggregation to be used for this variable
+when writing custom data parallel training loops.</p></li>
+<li><p><strong>name</strong> – String name of the variable. Useful for debugging purposes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.build" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.build_from_config">
+<span class="sig-name descname"><span class="pre">build_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.build_from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Builds the layer’s states with the supplied config dict.</p>
+<p>By default, this method calls the <cite>build(config[“input_shape”])</cite> method,
+which creates weights based on the layer’s input shape in the supplied
+config. If your config contains other information needed to load the
+layer’s state, you should override this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Dict containing the input shape associated with this layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_dtype" title="Link to this definition">¶</a></dt>
+<dd><p>The dtype of the computations performed by the layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_mask">
+<span class="sig-name descname"><span class="pre">compute_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_mask" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_output_shape">
+<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_output_shape" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_output_spec">
+<span class="sig-name descname"><span class="pre">compute_output_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_output_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.count_params">
+<span class="sig-name descname"><span class="pre">count_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.count_params" title="Link to this definition">¶</a></dt>
+<dd><p>Count the total number of scalars composing the weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An integer count.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.dtype" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <cite>layer.variable_dtype</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.dtype_policy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype_policy</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.dtype_policy" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Creates an operation from its config.</p>
+<p>This method is the reverse of <cite>get_config</cite>, capable of instantiating the
+same operation from the config dictionary.</p>
+<p>Note: If you override this method, you might receive a serialized dtype
+config, which is a <cite>dict</cite>. You can deserialize it as follows:</p>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+if “dtype” in config and isinstance(config[“dtype”], dict):</p>
+<blockquote>
+<div><p>policy = dtype_policies.deserialize(config[“dtype”])</p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – A Python dictionary, typically the output of <cite>get_config</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An operation instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_build_config">
+<span class="sig-name descname"><span class="pre">get_build_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_build_config" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the layer’s input shape.</p>
+<p>This method returns a config dict that can be used by
+<cite>build_from_config(config)</cite> to create all states (e.g. Variables and
+Lookup tables) needed by the layer.</p>
+<p>By default, the config only contains the input shape that the layer
+was built with. If you’re writing a custom layer that creates state in
+an unusual way, you should override this method to make sure this state
+is already created when Keras attempts to load its value upon model
+loading.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dict containing the input shape associated with the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_weights">
+<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_weights" title="Link to this definition">¶</a></dt>
+<dd><p>Return the values of <cite>layer.weights</cite> as a list of NumPy arrays.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves the input tensor(s) of a symbolic operation.</p>
+<p>Only returns the tensor(s) corresponding to the <em>first time</em>
+the operation was called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Input tensor or list of input tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input_dtype" title="Link to this definition">¶</a></dt>
+<dd><p>The dtype layer inputs should be converted to.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.load_own_variables">
+<span class="sig-name descname"><span class="pre">load_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.load_own_variables" title="Link to this definition">¶</a></dt>
+<dd><p>Loads the state of the layer.</p>
+<p>You can override this method to take full control of how the state of
+the layer is loaded upon calling <cite>keras.models.load_model()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>store</strong> – Dict from which the state of the model will be loaded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.losses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.losses" title="Link to this definition">¶</a></dt>
+<dd><p>List of scalar losses from <cite>add_loss</cite>, regularizers and sublayers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.metrics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.metrics" title="Link to this definition">¶</a></dt>
+<dd><p>List of all metrics.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.metrics_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.metrics_variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all metric variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.non_trainable_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.non_trainable_variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all non-trainable layer state.</p>
+<p>This extends <cite>layer.non_trainable_weights</cite> to include all state used by
+the layer including state for metrics and <a href="#id17"><span class="problematic" id="id18">`</span></a>SeedGenerator`s.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.non_trainable_weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.non_trainable_weights" title="Link to this definition">¶</a></dt>
+<dd><p>List of all non-trainable weight variables of the layer.</p>
+<p>These are the weights that should not be updated by the optimizer during
+training. Unlike, <cite>layer.non_trainable_variables</cite> this excludes metric
+state and random seeds.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.output">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.output" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves the output tensor(s) of a layer.</p>
+<p>Only returns the tensor(s) corresponding to the <em>first time</em>
+the operation was called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Output tensor or list of output tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.path" title="Link to this definition">¶</a></dt>
+<dd><p>The path of the layer.</p>
+<p>If the layer has not been built yet, it will be <cite>None</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantization_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quantization_mode</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantization_mode" title="Link to this definition">¶</a></dt>
+<dd><p>The quantization mode of this layer, <cite>None</cite> if not quantized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantize">
+<span class="sig-name descname"><span class="pre">quantize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantize" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantized_call">
+<span class="sig-name descname"><span class="pre">quantized_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantized_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.save_own_variables">
+<span class="sig-name descname"><span class="pre">save_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.save_own_variables" title="Link to this definition">¶</a></dt>
+<dd><p>Saves the state of the layer.</p>
+<p>You can override this method to take full control of how the state of
+the layer is saved upon calling <cite>model.save()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>store</strong> – Dict where the state of the model will be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.set_weights">
+<span class="sig-name descname"><span class="pre">set_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.set_weights" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the values of <cite>layer.weights</cite> from a list of NumPy arrays.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.stateless_call">
+<span class="sig-name descname"><span class="pre">stateless_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainable_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_trainable_variables</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.stateless_call" title="Link to this definition">¶</a></dt>
+<dd><p>Call the layer without any side effects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trainable_variables</strong> – List of trainable variables of the model.</p></li>
+<li><p><strong>non_trainable_variables</strong> – List of non-trainable variables of the
+model.</p></li>
+<li><p><strong>*args</strong> – Positional arguments to be passed to <cite>call()</cite>.</p></li>
+<li><p><strong>return_losses</strong> – If <cite>True</cite>, <cite>stateless_call()</cite> will return the list of
+losses created during <cite>call()</cite> as part of its return values.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments to be passed to <cite>call()</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple. By default, returns <cite>(outputs, non_trainable_variables)</cite>.</dt><dd><p>If <cite>return_losses = True</cite>, then returns
+<cite>(outputs, non_trainable_variables, losses)</cite>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+<p>Note: <cite>non_trainable_variables</cite> include not only non-trainable weights
+such as <cite>BatchNormalization</cite> statistics, but also RNG seed state
+(if there are any random operations part of the layer, such as dropout),
+and <cite>Metric</cite> state (if there are any metrics attached to the layer).
+These are all elements of state of the layer.</p>
+<p>Example:</p>
+<p><a href="#id19"><span class="problematic" id="id20">``</span></a><a href="#id21"><span class="problematic" id="id22">`</span></a>python
+model = …
+data = …
+trainable_variables = model.trainable_variables
+non_trainable_variables = model.non_trainable_variables
+# Call the model with zero side effects
+outputs, non_trainable_variables = model.stateless_call(</p>
+<blockquote>
+<div><p>trainable_variables,
+non_trainable_variables,
+data,</p>
+</div></blockquote>
+<p>)
+# Attach the updated state to the model
+# (until you do this, the model is still in its pre-call state).
+for ref_var, value in zip(</p>
+<blockquote>
+<div><p>model.non_trainable_variables, non_trainable_variables</p>
+</div></blockquote>
+<dl class="simple">
+<dt>):</dt><dd><p>ref_var.assign(value)</p>
+</dd>
+</dl>
+<p><a href="#id23"><span class="problematic" id="id24">``</span></a><a href="#id25"><span class="problematic" id="id26">`</span></a></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.supports_masking">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_masking</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.supports_masking" title="Link to this definition">¶</a></dt>
+<dd><p>Whether this layer supports computing a mask using <cite>compute_mask</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.symbolic_call">
+<span class="sig-name descname"><span class="pre">symbolic_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.symbolic_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable" title="Link to this definition">¶</a></dt>
+<dd><p>Settable boolean, whether this layer should be trainable or not.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable_variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all trainable layer state.</p>
+<p>This is equivalent to <cite>layer.trainable_weights</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable_weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable_weights" title="Link to this definition">¶</a></dt>
+<dd><p>List of all trainable weight variables of the layer.</p>
+<p>These are the weights that get updated by the optimizer during training.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.variable_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variable_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.variable_dtype" title="Link to this definition">¶</a></dt>
+<dd><p>The dtype of the state (weights) of the layer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all layer state, including random seeds.</p>
+<p>This extends <cite>layer.weights</cite> to include all state used by the layer
+including <a href="#id27"><span class="problematic" id="id28">`</span></a>SeedGenerator`s.</p>
+<p>Note that metrics variables are not included here, use
+<cite>metrics_variables</cite> to visit all the metric variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.weights" title="Link to this definition">¶</a></dt>
+<dd><p>List of all weight variables of the layer.</p>
+<p>Unlike, <cite>layer.variables</cite> this excludes metric state and random seeds.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">EncodingLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></p>
+<p>Encodes strings to integers.</p>
+<p>Encode characters for the list of sentences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_char_encoding_id</strong> (<em>int</em>) – Maximum integer value for encoding the
+input</p></li>
+<li><p><strong>max_len</strong> (<em>int</em>) – Maximum char length in a sample</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_config" title="Link to this definition">¶</a></dt>
+<dd><p>Return a serializable config for saving the layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_str_tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.call" title="Link to this definition">¶</a></dt>
+<dd><p>Encode characters for the list of sentences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_str_tensor</strong> (<em>tf.tensor</em>) – input list of sentences converted to tensor</p>
+</dd>
+</dl>
+<p>:return : tensor containing encoded list of input sentences
+:rtype: tf.Tensor</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_loss">
+<span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_loss" title="Link to this definition">¶</a></dt>
+<dd><p>Can be called inside of the <cite>call()</cite> method to add a scalar loss.</p>
+<p>Example:</p>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a>python
+class MyLayer(Layer):</p>
+<blockquote>
+<div><p>…
+def call(self, x):</p>
+<blockquote>
+<div><p>self.add_loss(ops.sum(x))
+return x</p>
+</div></blockquote>
+</div></blockquote>
+<p><a href="#id33"><span class="problematic" id="id34">``</span></a><a href="#id35"><span class="problematic" id="id36">`</span></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_metric">
+<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_metric" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_variable">
+<span class="sig-name descname"><span class="pre">add_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_variable" title="Link to this definition">¶</a></dt>
+<dd><p>Add a weight variable to the layer.</p>
+<p>Alias of <cite>add_weight()</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_weight">
+<span class="sig-name descname"><span class="pre">add_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_weight" title="Link to this definition">¶</a></dt>
+<dd><p>Add a weight variable to the layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> – Shape tuple for the variable. Must be fully-defined
+(no <cite>None</cite> entries). Defaults to <cite>()</cite> (scalar) if unspecified.</p></li>
+<li><p><strong>initializer</strong> – Initializer object to use to populate the initial
+variable value, or string name of a built-in initializer
+(e.g. <cite>“random_normal”</cite>). If unspecified, defaults to
+<cite>“glorot_uniform”</cite> for floating-point variables and to <cite>“zeros”</cite>
+for all other types (e.g. int, bool).</p></li>
+<li><p><strong>dtype</strong> – Dtype of the variable to create, e.g. <cite>“float32”</cite>. If
+unspecified, defaults to the layer’s variable dtype
+(which itself defaults to <cite>“float32”</cite> if unspecified).</p></li>
+<li><p><strong>trainable</strong> – Boolean, whether the variable should be trainable via
+backprop or whether its updates are managed manually. Defaults
+to <cite>True</cite>.</p></li>
+<li><p><strong>autocast</strong> – Boolean, whether to autocast layers variables when
+accessing them. Defaults to <cite>True</cite>.</p></li>
+<li><p><strong>regularizer</strong> – Regularizer object to call to apply penalty on the
+weight. These penalties are summed into the loss function
+during optimization. Defaults to <cite>None</cite>.</p></li>
+<li><p><strong>constraint</strong> – Contrainst object to call on the variable after any
+optimizer update, or string name of a built-in constraint.
+Defaults to <cite>None</cite>.</p></li>
+<li><p><strong>aggregation</strong> – String, one of <cite>‘mean’</cite>, <cite>‘sum’</cite>,
+<cite>‘only_first_replica’</cite>. Annotates the variable with the type
+of multi-replica aggregation to be used for this variable
+when writing custom data parallel training loops.</p></li>
+<li><p><strong>name</strong> – String name of the variable. Useful for debugging purposes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.build" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.build_from_config">
+<span class="sig-name descname"><span class="pre">build_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.build_from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Builds the layer’s states with the supplied config dict.</p>
+<p>By default, this method calls the <cite>build(config[“input_shape”])</cite> method,
+which creates weights based on the layer’s input shape in the supplied
+config. If your config contains other information needed to load the
+layer’s state, you should override this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – Dict containing the input shape associated with this layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_dtype" title="Link to this definition">¶</a></dt>
+<dd><p>The dtype of the computations performed by the layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_mask">
+<span class="sig-name descname"><span class="pre">compute_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_mask" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_output_shape">
+<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_output_shape" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_output_spec">
+<span class="sig-name descname"><span class="pre">compute_output_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_output_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.count_params">
+<span class="sig-name descname"><span class="pre">count_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.count_params" title="Link to this definition">¶</a></dt>
+<dd><p>Count the total number of scalars composing the weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An integer count.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.dtype" title="Link to this definition">¶</a></dt>
+<dd><p>Alias of <cite>layer.variable_dtype</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.dtype_policy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype_policy</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.dtype_policy" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Creates an operation from its config.</p>
+<p>This method is the reverse of <cite>get_config</cite>, capable of instantiating the
+same operation from the config dictionary.</p>
+<p>Note: If you override this method, you might receive a serialized dtype
+config, which is a <cite>dict</cite>. You can deserialize it as follows:</p>
+<p><a href="#id37"><span class="problematic" id="id38">``</span></a><a href="#id39"><span class="problematic" id="id40">`</span></a>python
+if “dtype” in config and isinstance(config[“dtype”], dict):</p>
+<blockquote>
+<div><p>policy = dtype_policies.deserialize(config[“dtype”])</p>
+</div></blockquote>
+<p><a href="#id41"><span class="problematic" id="id42">``</span></a><a href="#id43"><span class="problematic" id="id44">`</span></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> – A Python dictionary, typically the output of <cite>get_config</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An operation instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_build_config">
+<span class="sig-name descname"><span class="pre">get_build_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_build_config" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the layer’s input shape.</p>
+<p>This method returns a config dict that can be used by
+<cite>build_from_config(config)</cite> to create all states (e.g. Variables and
+Lookup tables) needed by the layer.</p>
+<p>By default, the config only contains the input shape that the layer
+was built with. If you’re writing a custom layer that creates state in
+an unusual way, you should override this method to make sure this state
+is already created when Keras attempts to load its value upon model
+loading.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dict containing the input shape associated with the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_weights">
+<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_weights" title="Link to this definition">¶</a></dt>
+<dd><p>Return the values of <cite>layer.weights</cite> as a list of NumPy arrays.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves the input tensor(s) of a symbolic operation.</p>
+<p>Only returns the tensor(s) corresponding to the <em>first time</em>
+the operation was called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Input tensor or list of input tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input_dtype" title="Link to this definition">¶</a></dt>
+<dd><p>The dtype layer inputs should be converted to.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input_spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input_spec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.load_own_variables">
+<span class="sig-name descname"><span class="pre">load_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.load_own_variables" title="Link to this definition">¶</a></dt>
+<dd><p>Loads the state of the layer.</p>
+<p>You can override this method to take full control of how the state of
+the layer is loaded upon calling <cite>keras.models.load_model()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>store</strong> – Dict from which the state of the model will be loaded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.losses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.losses" title="Link to this definition">¶</a></dt>
+<dd><p>List of scalar losses from <cite>add_loss</cite>, regularizers and sublayers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.metrics">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.metrics" title="Link to this definition">¶</a></dt>
+<dd><p>List of all metrics.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.metrics_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.metrics_variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all metric variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.non_trainable_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.non_trainable_variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all non-trainable layer state.</p>
+<p>This extends <cite>layer.non_trainable_weights</cite> to include all state used by
+the layer including state for metrics and <a href="#id45"><span class="problematic" id="id46">`</span></a>SeedGenerator`s.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.non_trainable_weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.non_trainable_weights" title="Link to this definition">¶</a></dt>
+<dd><p>List of all non-trainable weight variables of the layer.</p>
+<p>These are the weights that should not be updated by the optimizer during
+training. Unlike, <cite>layer.non_trainable_variables</cite> this excludes metric
+state and random seeds.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.output">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.output" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves the output tensor(s) of a layer.</p>
+<p>Only returns the tensor(s) corresponding to the <em>first time</em>
+the operation was called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Output tensor or list of output tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.path" title="Link to this definition">¶</a></dt>
+<dd><p>The path of the layer.</p>
+<p>If the layer has not been built yet, it will be <cite>None</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantization_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quantization_mode</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantization_mode" title="Link to this definition">¶</a></dt>
+<dd><p>The quantization mode of this layer, <cite>None</cite> if not quantized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantize">
+<span class="sig-name descname"><span class="pre">quantize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantize" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantized_call">
+<span class="sig-name descname"><span class="pre">quantized_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantized_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.save_own_variables">
+<span class="sig-name descname"><span class="pre">save_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.save_own_variables" title="Link to this definition">¶</a></dt>
+<dd><p>Saves the state of the layer.</p>
+<p>You can override this method to take full control of how the state of
+the layer is saved upon calling <cite>model.save()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>store</strong> – Dict where the state of the model will be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.set_weights">
+<span class="sig-name descname"><span class="pre">set_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.set_weights" title="Link to this definition">¶</a></dt>
+<dd><p>Sets the values of <cite>layer.weights</cite> from a list of NumPy arrays.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.stateless_call">
+<span class="sig-name descname"><span class="pre">stateless_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainable_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_trainable_variables</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.stateless_call" title="Link to this definition">¶</a></dt>
+<dd><p>Call the layer without any side effects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trainable_variables</strong> – List of trainable variables of the model.</p></li>
+<li><p><strong>non_trainable_variables</strong> – List of non-trainable variables of the
+model.</p></li>
+<li><p><strong>*args</strong> – Positional arguments to be passed to <cite>call()</cite>.</p></li>
+<li><p><strong>return_losses</strong> – If <cite>True</cite>, <cite>stateless_call()</cite> will return the list of
+losses created during <cite>call()</cite> as part of its return values.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments to be passed to <cite>call()</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple. By default, returns <cite>(outputs, non_trainable_variables)</cite>.</dt><dd><p>If <cite>return_losses = True</cite>, then returns
+<cite>(outputs, non_trainable_variables, losses)</cite>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+<p>Note: <cite>non_trainable_variables</cite> include not only non-trainable weights
+such as <cite>BatchNormalization</cite> statistics, but also RNG seed state
+(if there are any random operations part of the layer, such as dropout),
+and <cite>Metric</cite> state (if there are any metrics attached to the layer).
+These are all elements of state of the layer.</p>
+<p>Example:</p>
+<p><a href="#id47"><span class="problematic" id="id48">``</span></a><a href="#id49"><span class="problematic" id="id50">`</span></a>python
+model = …
+data = …
+trainable_variables = model.trainable_variables
+non_trainable_variables = model.non_trainable_variables
+# Call the model with zero side effects
+outputs, non_trainable_variables = model.stateless_call(</p>
+<blockquote>
+<div><p>trainable_variables,
+non_trainable_variables,
+data,</p>
+</div></blockquote>
+<p>)
+# Attach the updated state to the model
+# (until you do this, the model is still in its pre-call state).
+for ref_var, value in zip(</p>
+<blockquote>
+<div><p>model.non_trainable_variables, non_trainable_variables</p>
+</div></blockquote>
+<dl class="simple">
+<dt>):</dt><dd><p>ref_var.assign(value)</p>
+</dd>
+</dl>
+<p><a href="#id51"><span class="problematic" id="id52">``</span></a><a href="#id53"><span class="problematic" id="id54">`</span></a></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.supports_masking">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_masking</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.supports_masking" title="Link to this definition">¶</a></dt>
+<dd><p>Whether this layer supports computing a mask using <cite>compute_mask</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.symbolic_call">
+<span class="sig-name descname"><span class="pre">symbolic_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.symbolic_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable" title="Link to this definition">¶</a></dt>
+<dd><p>Settable boolean, whether this layer should be trainable or not.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable_variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable_variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all trainable layer state.</p>
+<p>This is equivalent to <cite>layer.trainable_weights</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable_weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable_weights" title="Link to this definition">¶</a></dt>
+<dd><p>List of all trainable weight variables of the layer.</p>
+<p>These are the weights that get updated by the optimizer during training.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.variable_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variable_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.variable_dtype" title="Link to this definition">¶</a></dt>
+<dd><p>The dtype of the state (weights) of the layer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.variables">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.variables" title="Link to this definition">¶</a></dt>
+<dd><p>List of all layer state, including random seeds.</p>
+<p>This extends <cite>layer.weights</cite> to include all state used by the layer
+including <a href="#id55"><span class="problematic" id="id56">`</span></a>SeedGenerator`s.</p>
+<p>Note that metrics variables are not included here, use
+<cite>metrics_variables</cite> to visit all the metric variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.EncodingLayer.weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.weights" title="Link to this definition">¶</a></dt>
+<dd><p>List of all weight variables of the layer.</p>
+<p>Unlike, <cite>layer.variables</cite> this excludes metric state and random seeds.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">CharacterLevelCnnModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseTrainableModel" title="dataprofiler.labelers.base_model.BaseTrainableModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTrainableModel</span></code></a></p>
+<p>Class for training char data labeler.</p>
+<p>Initialize CNN Model.</p>
+<p>Initialize epoch_id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label_mapping</strong> (<em>dict</em>) – maps labels to their encoded integers</p></li>
+<li><p><strong>parameters</strong> (<em>dict</em>) – <p>Contains all the appropriate parameters for the
+model. Must contain num_labels. Other possible parameters are:</p>
+<blockquote>
+<div><p>max_length, max_char_encoding_id, dim_embed, size_fc
+dropout, size_conv, num_fil, optimizer, default_label</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping">
+<span class="sig-name descname"><span class="pre">requires_zero_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping">
+<span class="sig-name descname"><span class="pre">set_label_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping" title="Link to this definition">¶</a></dt>
+<dd><p>Set the labels for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>label_mapping</strong> (<em>dict</em>) – label mapping of the model</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk" title="Link to this definition">¶</a></dt>
+<dd><p>Save whole model to disk with weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dirpath</strong> (<em>str</em>) – directory path where you want to save the model to</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel" title="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel"><span class="pre">CharacterLevelCnnModel</span></a></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk" title="Link to this definition">¶</a></dt>
+<dd><p>Load whole model from disk with weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dirpath</strong> (<em>str</em>) – directory path where you want to load the model from</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights">
+<span class="sig-name descname"><span class="pre">reset_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights" title="Link to this definition">¶</a></dt>
+<dd><p>Reset the weights of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataArray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit" title="Link to this definition">¶</a></dt>
+<dd><p>Train the current model with the training data and validation data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_data</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – Training data used to train model</p></li>
+<li><p><strong>val_data</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – Validation data used to validate the training</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Used to determine number of samples in each batch</p></li>
+<li><p><strong>label_mapping</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>None</em><em>]</em>) – maps labels to their encoded integers</p></li>
+<li><p><strong>reset_weights</strong> (<em>bool</em>) – Flag to determine whether to reset the weights or
+not</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Flag to determine whether to print status or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>history, f1, f1_report</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[dict, float, dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict" title="Link to this definition">¶</a></dt>
+<dd><p>Run model and get predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>numpy.ndarray</em><em>]</em>) – text input</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – number of samples in the batch of data</p></li>
+<li><p><strong>show_confidences</strong> – whether user wants prediction confidences</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Flag to determine whether to print status or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>char level predictions and confidences</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details">
+<span class="sig-name descname"><span class="pre">details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details" title="Link to this definition">¶</a></dt>
+<dd><p>Print the relevant details of the model.</p>
+<p>Details include summary, parameters, and label mapping.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label">
+<span class="sig-name descname"><span class="pre">add_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_as</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label" title="Link to this definition">¶</a></dt>
+<dd><p>Add a label to the data labeler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – new label being added to the data labeler</p></li>
+<li><p><strong>same_as</strong> (<em>str</em>) – label to have the same encoding index as for multi-label
+to single encoding index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><span class="pre">BaseModel</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class" title="Link to this definition">¶</a></dt>
+<dd><p>Get subclasses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help" title="Link to this definition">¶</a></dt>
+<dd><p>Help describe alterable parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping" title="Link to this definition">¶</a></dt>
+<dd><p>Return mapping of labels to their encoded values.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve the label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels" title="Link to this definition">¶</a></dt>
+<dd><p>Return max label mapping.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reverse_label_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping" title="Link to this definition">¶</a></dt>
+<dd><p>Return reversed order of current labels.</p>
+<p>Useful for when needed to extract Labels via indices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params" title="Link to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="dataprofiler.labelers.classification_report_utils.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">dataprofiler.labelers.classification_report_utils module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dataprofiler.labelers.char_load_tf_model.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">dataprofiler.labelers.char_load_tf_model module</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">dataprofiler.labelers.character_level_cnn_model module</a><ul>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary"><code class="docutils literal notranslate"><span class="pre">build_embd_dictionary()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.create_glove_char"><code class="docutils literal notranslate"><span class="pre">create_glove_char()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer</span></code></a><ul>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_config"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.get_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.call"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_loss"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.add_loss()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_metric"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.add_metric()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_variable"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.add_variable()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.add_weight"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.add_weight()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.build"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.build()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.build_from_config"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.build_from_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_dtype"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.compute_dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_mask"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.compute_mask()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_output_shape"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.compute_output_shape()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.compute_output_spec"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.compute_output_spec()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.count_params"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.count_params()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.dtype"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.dtype_policy"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.dtype_policy</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.from_config"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.from_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_build_config"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.get_build_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.get_weights"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.get_weights()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.input</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input_dtype"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.input_dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.input_spec"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.input_spec</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.load_own_variables"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.load_own_variables()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.losses"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.losses</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.metrics"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.metrics</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.metrics_variables"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.metrics_variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.non_trainable_variables"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.non_trainable_variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.non_trainable_weights"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.non_trainable_weights</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.output"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.output</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.path"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.path</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantization_mode"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.quantization_mode</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantize"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.quantize()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.quantized_call"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.quantized_call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.save_own_variables"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.save_own_variables()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.set_weights"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.set_weights()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.stateless_call"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.stateless_call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.supports_masking"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.supports_masking</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.symbolic_call"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.symbolic_call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.trainable</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable_variables"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.trainable_variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.trainable_weights"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.trainable_weights</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.variable_dtype"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.variable_dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.variables"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.ThreshArgMaxLayer.weights"><code class="docutils literal notranslate"><span class="pre">ThreshArgMaxLayer.weights</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer"><code class="docutils literal notranslate"><span class="pre">EncodingLayer</span></code></a><ul>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_config"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.get_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.call"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_loss"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.add_loss()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_metric"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.add_metric()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_variable"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.add_variable()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.add_weight"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.add_weight()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.build"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.build()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.build_from_config"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.build_from_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_dtype"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.compute_dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_mask"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.compute_mask()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_output_shape"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.compute_output_shape()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.compute_output_spec"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.compute_output_spec()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.count_params"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.count_params()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.dtype"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.dtype_policy"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.dtype_policy</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.from_config"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.from_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_build_config"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.get_build_config()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.get_weights"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.get_weights()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.input</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input_dtype"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.input_dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.input_spec"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.input_spec</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.load_own_variables"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.load_own_variables()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.losses"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.losses</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.metrics"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.metrics</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.metrics_variables"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.metrics_variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.non_trainable_variables"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.non_trainable_variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.non_trainable_weights"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.non_trainable_weights</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.output"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.output</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.path"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.path</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantization_mode"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.quantization_mode</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantize"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.quantize()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.quantized_call"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.quantized_call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.save_own_variables"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.save_own_variables()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.set_weights"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.set_weights()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.stateless_call"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.stateless_call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.supports_masking"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.supports_masking</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.symbolic_call"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.symbolic_call()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.trainable</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable_variables"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.trainable_variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.trainable_weights"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.trainable_weights</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.variable_dtype"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.variable_dtype</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.variables"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.variables</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.EncodingLayer.weights"><code class="docutils literal notranslate"><span class="pre">EncodingLayer.weights</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel</span></code></a><ul>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.requires_zero_mapping</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.set_label_mapping()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.save_to_disk()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.load_from_disk()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.reset_weights()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.fit()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.predict()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.details()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.add_label()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.get_class()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.get_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.help()</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.label_mapping</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.labels</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.num_labels</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.reverse_label_mapping</span></code></a></li>
+<li><a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params"><code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel.set_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

@@ -1,0 +1,6 @@
+{
+    "path": "../../../examples/labeler.ipynb",
+    "extra-media": [
+        "../../../examples/DL-Flowchart.png"
+  ]
+}

@@ -1,0 +1,7 @@
+dataprofiler.labelers.column\_name\_model module
+================================================
+
+.. automodule:: dataprofiler.labelers.column_name_model
+   :members:
+   :undoc-members:
+   :show-inheritance:

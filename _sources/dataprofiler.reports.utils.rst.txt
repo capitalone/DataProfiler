@@ -1,0 +1,7 @@
+dataprofiler.reports.utils module
+=================================
+
+.. automodule:: dataprofiler.reports.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

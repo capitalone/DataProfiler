@@ -1,3 +1,0 @@
-{
-    "path": "../../examples/data_readers.ipynb"
-}

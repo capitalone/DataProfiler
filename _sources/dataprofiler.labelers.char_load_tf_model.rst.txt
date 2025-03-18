@@ -1,0 +1,7 @@
+dataprofiler.labelers.char\_load\_tf\_model module
+==================================================
+
+.. automodule:: dataprofiler.labelers.char_load_tf_model
+   :members:
+   :undoc-members:
+   :show-inheritance:

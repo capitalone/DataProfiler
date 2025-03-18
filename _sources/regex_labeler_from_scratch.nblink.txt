@@ -1,0 +1,3 @@
+{
+    "path": "../../../examples/regex_labeler_from_scratch/DataLabeler_from_scratch.ipynb"
+}

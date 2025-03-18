@@ -1,0 +1,7 @@
+dataprofiler.data\_readers.filepath\_or\_buffer module
+======================================================
+
+.. automodule:: dataprofiler.data_readers.filepath_or_buffer
+   :members:
+   :undoc-members:
+   :show-inheritance:

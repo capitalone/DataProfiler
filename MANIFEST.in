@@ -17,6 +17,16 @@ recursive-include resources *.json
 recursive-include resources *.pb
 recursive-include resources *.py
 
-recursive-include dataprofiler/labelers/embeddings/ *.txt
+recursive-include dataprofiler/labelers/embeddings *.txt
 include versioneer.py
 include dataprofiler/_version.py
+
+recursive-exclude _docs *.html
+recursive-exclude _docs *.cfg
+exclude _docs/LICENSE
+recursive-exclude _docs *.md
+recursive-exclude _docs *.nojekyll
+recursive-exclude _docs *.png
+recursive-exclude _docs *.py
+recursive-exclude _docs *.rst
+recursive-exclude _docs Makefile

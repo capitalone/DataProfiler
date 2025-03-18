@@ -9,9 +9,10 @@ sys.path.insert(0, os.path.abspath(f'../../'))
 from dataprofiler import __version__ as version  # noqa F401
 
 # Make the rst files from the current repo
+
 subprocess.run(
     [
-        "sphinx-apidoc",
+        "../../sphinx-apidoc",
         "--templatedir=./source/_templates/",
         "-f",
         "-e",

@@ -19,6 +19,8 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class TestColumn(NumericStatsMixin):
+    __test__ = False
+
     def __init__(self):
         NumericStatsMixin.__init__(self)
         self.match_count = 0
@@ -32,6 +34,7 @@ class TestColumn(NumericStatsMixin):
 
 
 class TestColumnWProps(TestColumn):
+    __test__ = False
     # overrides the property func
     median = None
     mode = None

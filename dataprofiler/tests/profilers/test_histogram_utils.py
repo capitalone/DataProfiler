@@ -33,6 +33,8 @@ def mock_sqrt_return_nan(profile):
 
 
 class TestColumn(NumericStatsMixin):
+    __test__ = False
+
     def __init__(self):
         NumericStatsMixin.__init__(self)
         self.times = defaultdict(float)

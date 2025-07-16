@@ -71,7 +71,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if (
+        if (  # noqa E721
             type(self) != type(other)
             or not isinstance(other, BaseDataProcessor)
             or self._parameters != other._parameters
@@ -1589,7 +1589,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if (
+        if (  # noqa E721
             type(self) != type(other)
             or not isinstance(other, StructCharPostprocessor)
             or self._parameters["default_label"] != other._parameters["default_label"]

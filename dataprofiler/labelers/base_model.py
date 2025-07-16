@@ -78,7 +78,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if (
+        if (  # noqa E721
             type(self) != type(other)
             or not isinstance(other, BaseModel)
             or self._parameters != other._parameters

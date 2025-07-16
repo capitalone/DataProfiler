@@ -19,7 +19,7 @@ repos:
   # Flake8: complexity and style checking
   # https://flake8.pycqa.org/en/latest/user/using-hooks.html
   - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+    rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies: [flake8-docstrings]
@@ -80,11 +80,11 @@ repos:
 
             # requirements-ml.txt
             scikit-learn>=0.23.2,
-            'keras>=2.4.3,<=3.4.0',
+            'keras>=3.0.0,<=3.4.0',
             rapidfuzz>=2.6.1,
-            "tensorflow>=2.6.4,<2.15.0; sys.platform != 'darwin'",
-            "tensorflow>=2.6.4,<2.15.0; sys_platform == 'darwin' and platform_machine != 'arm64'",
-            "tensorflow-macos>=2.6.4,<2.15.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+            "tensorflow>=2.16.0; sys.platform != 'darwin'",
+            "tensorflow>=2.16.0; sys_platform == 'darwin' and platform_machine != 'arm64'",
+            "tensorflow-macos>=2.16.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
             tqdm>=4.0.0,
 
             # requirements-reports.txt

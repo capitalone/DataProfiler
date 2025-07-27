@@ -7,8 +7,9 @@ https://github.com/numpy/numpy/tree/main
 A copy of the license for numpy is available here:
 https://github.com/numpy/numpy/blob/main/LICENSE.txt
 """
+
 import operator
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from numpy.lib.histograms import (  # type: ignore[attr-defined]
@@ -238,10 +239,10 @@ _hist_bin_width_selectors_for_profile = {
 
 def _get_bin_edges(
     a: np.ndarray,
-    bins: Union[str, int, List],
-    range: Optional[Tuple[int, int]],
+    bins: Union[str, int, list],
+    range: Optional[tuple[int, int]],
     weights: Optional[np.ndarray],
-) -> Tuple[None, int]:
+) -> tuple[None, int]:
     """
     Compute the bins used internally by `histogram`.
 

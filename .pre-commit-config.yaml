@@ -2,7 +2,7 @@ repos:
   # Black: format Python code
   # https://github.com/psf/black/blob/master/.pre-commit-hooks.yaml
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 24.10.0
     hooks:
       - id: black
         types: [file, python]
@@ -19,7 +19,7 @@ repos:
   # Flake8: complexity and style checking
   # https://flake8.pycqa.org/en/latest/user/using-hooks.html
   - repo: https://github.com/pycqa/flake8
-    rev: 4.0.1
+    rev: 5.0.4
     hooks:
       - id: flake8
         additional_dependencies: [flake8-docstrings]
@@ -38,7 +38,7 @@ repos:
   # Mypy: Optional static type checking
   # https://github.com/pre-commit/mirrors-mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.982
+    rev: v1.11.2
     hooks:
       - id: mypy
         exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/)
@@ -48,7 +48,7 @@ repos:
             # requirements.txt
             h5py>=2.10.0,
             wheel>=0.33.1,
-            numpy>=1.22.0,
+            numpy<2.0.0,
             pandas>=1.1.2,
             python-dateutil>=2.7.5,
             pytz>=2020.1,
@@ -80,7 +80,7 @@ repos:
 
             # requirements-ml.txt
             scikit-learn>=0.23.2,
-            'keras>=2.4.3,<3.0.0',
+            'keras>=2.4.3,<=3.4.0',
             rapidfuzz>=2.6.1,
             "tensorflow>=2.6.4,<2.15.0; sys.platform != 'darwin'",
             "tensorflow>=2.6.4,<2.15.0; sys_platform == 'darwin' and platform_machine != 'arm64'",
@@ -108,16 +108,19 @@ repos:
     rev: "0.48"
     hooks:
       - id: check-manifest
-        additional_dependencies: ['h5py', 'wheel', 'future', 'numpy<2.0.0', 'pandas',
-        'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
-        'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
-        'networkx','typing-extensions', 'HLL', 'datasketches', 'boto3']
+        additional_dependencies:
+          [
+            'matplotlib', 'h5py', 'wheel', 'future', 'numpy<2.0.0', 'pandas',
+            'python-dateutil', 'pytz', 'pyarrow', 'chardet', 'fastavro',
+            'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
+            'networkx','typing-extensions', 'HLL', 'datasketches', 'boto3',
+          ]
   # Pyupgrade - standardize and modernize Python syntax for newer versions of the language
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.0
     hooks:
       - id: pyupgrade
-        args: ["--py38-plus"]
+        args: ["--py39-plus"]
   # Autoflake - cleanup unused variables and imports
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0

@@ -1,4 +1,5 @@
 """Contains functions for profilers."""
+
 from __future__ import annotations
 
 import collections
@@ -10,20 +11,10 @@ import multiprocessing as mp
 import time
 import warnings
 from abc import abstractmethod
+from collections.abc import Generator, Iterator
 from itertools import islice
 from multiprocessing.pool import Pool
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    Iterator,
-    Protocol,
-    TypeVar,
-    cast,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Callable, Protocol, TypeVar, cast, overload
 
 import numpy as np
 import psutil
@@ -51,7 +42,7 @@ def recursive_dict_update(d: dict, update_d: dict) -> dict:
         if isinstance(v, collections.abc.Mapping) and isinstance(
             d.get(k, None), collections.abc.Mapping
         ):
-            d[k] = recursive_dict_update(d.get(k, {}), cast(Dict, v))
+            d[k] = recursive_dict_update(d.get(k, {}), cast(dict, v))
         else:
             d[k] = v
     return d
@@ -417,13 +408,11 @@ T = TypeVar("T", bound=Subtractable)
 def find_diff_of_numbers(
     stat1: int | float | np.float64 | np.int64 | None,
     stat2: int | float | np.float64 | np.int64 | None,
-) -> Any:
-    ...
+) -> Any: ...
 
 
 @overload
-def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any:
-    ...
+def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any: ...
 
 
 def find_diff_of_numbers(stat1, stat2):

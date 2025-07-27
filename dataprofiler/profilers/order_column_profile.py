@@ -1,8 +1,9 @@
 """Index profile analysis for individual col within structured profiling."""
+
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Protocol, Type, TypeVar, cast
+from typing import Protocol, TypeVar, cast
 
 import numpy as np
 from pandas import DataFrame, Series
@@ -24,8 +25,8 @@ class Comparable(Protocol):
 CT = TypeVar("CT", bound=Comparable)
 
 # bc type in class attr causing issues, need to alias
-AliasFloatType = Type[np.float64]
-AliasStrType = Type[str]
+AliasFloatType = type[np.float64]
+AliasStrType = type[str]
 
 
 class OrderColumn(BaseColumnProfiler["OrderColumn"]):

@@ -1,4 +1,5 @@
 """Contains functions for data readers."""
+
 import json
 import logging
 import os
@@ -6,21 +7,12 @@ import random
 import re
 import urllib
 from collections import OrderedDict
+from collections.abc import Generator, Iterator
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
 from math import floor, log, log1p
-from typing import (
-    Any,
-    Dict,
-    Generator,
-    Iterator,
-    List,
-    Optional,
-    Pattern,
-    Tuple,
-    Union,
-    cast,
-)
+from re import Pattern
+from typing import Any, Optional, Union, cast
 
 import boto3
 import botocore
@@ -39,7 +31,7 @@ from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 logger = dp_logging.get_child_logger(__name__)
 
 
-def data_generator(data_list: List[str]) -> Generator[str, None, None]:
+def data_generator(data_list: list[str]) -> Generator[str, None, None]:
     """
     Take a list and return a generator on the list.
 
@@ -122,10 +114,10 @@ def unicode_to_str(data: JSONType, ignore_dicts: bool = False) -> JSONType:
 
 
 def json_to_dataframe(
-    json_lines: List[JSONType],
-    selected_columns: Optional[List[str]] = None,
+    json_lines: list[JSONType],
+    selected_columns: Optional[list[str]] = None,
     read_in_string: bool = False,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> tuple[pd.DataFrame, pd.Series]:
     """
     Take list of json objects and return dataframe representing json list.
 
@@ -165,9 +157,9 @@ def json_to_dataframe(
 
 def read_json_df(
     data_generator: Generator,
-    selected_columns: Optional[List[str]] = None,
+    selected_columns: Optional[list[str]] = None,
     read_in_string: bool = False,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> tuple[pd.DataFrame, pd.Series]:
     """
     Return an iterator that returns a chunk of data as dataframe in each call.
 
@@ -193,7 +185,7 @@ def read_json_df(
         each call as well as original dtypes of the dataframe columns.
     :rtype: tuple(pd.DataFrame, pd.Series(dtypes))
     """
-    lines: List[JSONType] = list()
+    lines: list[JSONType] = list()
     k = 0
     while True:
         try:
@@ -222,9 +214,9 @@ def read_json_df(
 
 def read_json(
     data_generator: Iterator,
-    selected_columns: Optional[List[str]] = None,
+    selected_columns: Optional[list[str]] = None,
     read_in_string: bool = False,
-) -> List[JSONType]:
+) -> list[JSONType]:
     """
     Return the lines of a json.
 
@@ -249,7 +241,7 @@ def read_json(
     :return: returns the lines of a json file
     :rtype: list(dict)
     """
-    lines: List[JSONType] = list()
+    lines: list[JSONType] = list()
     k = 0
     while True:
         try:
@@ -372,7 +364,7 @@ def read_csv_df(
     delimiter: Optional[str],
     header: Optional[int],
     sample_nrows: Optional[int] = None,
-    selected_columns: List[str] = [],
+    selected_columns: list[str] = [],
     read_in_string: bool = False,
     encoding: Optional[str] = "utf-8",
 ) -> pd.DataFrame:
@@ -393,7 +385,7 @@ def read_csv_df(
     :return: Iterator
     :rtype: pd.DataFrame
     """
-    args: Dict[str, Any] = {
+    args: dict[str, Any] = {
         "delimiter": delimiter,
         "header": header,
         "iterator": True,
@@ -476,9 +468,9 @@ def convert_unicode_col_to_utf8(input_df: pd.DataFrame) -> pd.DataFrame:
 def sample_parquet(
     file_path: str,
     sample_nrows: int,
-    selected_columns: Optional[List[str]] = None,
+    selected_columns: Optional[list[str]] = None,
     read_in_string: bool = False,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> tuple[pd.DataFrame, pd.Series]:
     """
     Read parquet file, sample specified number of rows from it and return a data frame.
 
@@ -521,9 +513,9 @@ def sample_parquet(
 def read_parquet_df(
     file_path: str,
     sample_nrows: Optional[int] = None,
-    selected_columns: Optional[List[str]] = None,
+    selected_columns: Optional[list[str]] = None,
     read_in_string: bool = False,
-) -> Tuple[pd.DataFrame, pd.Series]:
+) -> tuple[pd.DataFrame, pd.Series]:
     """
     Return an iterator that returns one row group each time.
 
@@ -569,7 +561,7 @@ def read_parquet_df(
 
 def read_text_as_list_of_strs(
     file_path: str, encoding: Optional[str] = None
-) -> List[str]:
+) -> list[str]:
     """
     Return list of strings relative to the chunk size.
 
@@ -744,7 +736,7 @@ def find_nth_loc(
     search_query: Optional[str] = None,
     n: int = 0,
     ignore_consecutive: bool = True,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """
     Search string via search_query and return nth index in which query occurs.
 
@@ -877,7 +869,7 @@ def is_valid_url(url_as_string: Any) -> TypeGuard[Url]:
     return all([result.scheme, result.netloc])
 
 
-def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
+def url_to_bytes(url_as_string: Url, options: dict) -> BytesIO:
     """
     Read in URL and converts it to a byte stream.
 

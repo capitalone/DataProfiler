@@ -1,10 +1,11 @@
 """Contains space and time analysis tests for the Dataprofiler"""
+
 import json
 import os
 import random
 import time
 from collections import defaultdict
-from typing import Dict, List, Optional
+from typing import Optional
 
 import memray
 import numpy as np
@@ -32,7 +33,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 def dp_profile_space_analysis(
     data: pd.DataFrame,
     path: str,
-    options: Optional[Dict] = None,
+    options: Optional[dict] = None,
 ) -> StructuredProfiler:
     """
     Generate memray bin file of the space analysis of dp.Profiler function
@@ -68,12 +69,12 @@ def dp_merge_space_analysis(profile: StructuredProfiler, path: str):
 
 def dp_space_time_analysis(
     rng: Generator,
-    sample_sizes: List,
+    sample_sizes: list,
     data: pd.DataFrame,
     path: str = "./time_analysis/structured_profiler_times.json",
     percent_to_nan: float = 0.0,
     allow_subsampling: bool = True,
-    options: Optional[Dict] = None,
+    options: Optional[dict] = None,
     space_analysis=True,
     time_analysis=True,
 ):

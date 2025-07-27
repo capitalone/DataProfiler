@@ -1,10 +1,11 @@
 """Contains functions for generating graph data report."""
+
 # !/usr/bin/env python3
 from __future__ import annotations
 
 import math
 import warnings
-from typing import TYPE_CHECKING, List, Union, cast
+from typing import TYPE_CHECKING, Union, cast
 
 if TYPE_CHECKING:
     from ..profilers.float_column_profile import FloatColumn
@@ -17,6 +18,7 @@ try:
     import matplotlib.patches
     import matplotlib.pyplot as plt
     import seaborn as sns
+    from matplotlib.pyplot.figure import Figure, SubFigure
 except ImportError:
     # don't require if using graphs will below recommend to install if not
     # installed
@@ -32,7 +34,7 @@ def plot_histograms(
     profiler: StructuredProfiler,
     column_names: list[int | str] | None = None,
     column_inds: list[int] | None = None,
-) -> matplotlib.pyplot.figure:
+) -> Figure | SubFigure | None:
     """
     Plot the histograms of column names that are int or float columns.
 
@@ -72,7 +74,7 @@ def plot_histograms(
     if not column_names and not column_inds:
         inds_to_graph = list(range(len(profile_list)))
     elif not column_inds:
-        for column in cast(List[Union[str, int]], column_names):
+        for column in cast(list[Union[str, int]], column_names):
             col = column
             if isinstance(col, str):
                 col = col.lower()
@@ -108,7 +110,7 @@ def plot_histograms(
             "No plots were constructed"
             " because no int or float columns were found in columns"
         )
-        return
+        return None
 
     # get proper tile format for graph
     n = len(inds_to_graph)
@@ -153,7 +155,7 @@ def plot_col_histogram(
     data_type_profiler: IntColumn | FloatColumn,
     ax: matplotlib.axes.Axes | None = None,
     title: str | None = None,
-) -> matplotlib.axes.Axes:
+) -> matplotlib.axes.Axes | None:
     """
     Take input of a Int or Float Column and plot the histogram.
 
@@ -179,10 +181,11 @@ def plot_col_histogram(
         ax=ax,
     )
 
-    ax.set(xlabel="bins")
-    if title is None:
-        title = str(data_type_profiler.name)
-    ax.set_title(title)
+    if ax:
+        ax.set(xlabel="bins")
+        if title is None:
+            title = str(data_type_profiler.name)
+        ax.set_title(title)
     return ax
 
 
@@ -191,7 +194,7 @@ def plot_missing_values_matrix(
     profiler: StructuredProfiler,
     ax: matplotlib.axes.Axes | None = None,
     title: str | None = None,
-) -> matplotlib.pyplot.figure:
+) -> Figure | SubFigure | None:
     """
     Generate matrix of bar graphs for missing value locations in cols of struct dataset.
 
@@ -215,7 +218,7 @@ def plot_col_missing_values(
     col_profiler_list: list[StructuredColProfiler],
     ax: matplotlib.axes.Axes | None = None,
     title: str | None = None,
-) -> matplotlib.pyplot.figure:
+) -> Figure | SubFigure | None:
     """
     Generate bar graph of missing value locations within a col.
 
@@ -243,7 +246,7 @@ def plot_col_missing_values(
         warnings.warn(
             "There was no data in the profiles to plot missing " "column values."
         )
-        return
+        return None
 
     # bar width settings and height settings for each null value
     # width = 1, height = 1 would be no gaps
@@ -262,7 +265,8 @@ def plot_col_missing_values(
         ax = fig.add_subplot(111)
         is_own_fig = True
     # in case user passed their own axes
-    fig = ax.figure
+    else:
+        fig = cast(Figure, ax.figure)
 
     # loop through eac column plotting their null values
     for col_id, col_profiler in enumerate(col_profiler_list):

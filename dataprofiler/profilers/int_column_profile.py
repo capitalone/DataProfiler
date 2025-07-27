@@ -1,4 +1,5 @@
 """Int profile analysis for individual col within structured profiling."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -91,8 +92,11 @@ class IntColumn(
         profile._reformat_numeric_stats_types_on_serialized_profiles()
         return profile
 
+    # TODO: refactor BaseColumnProfiler.profile to not be an @property
+    # NumericStatsMixin inherits from BaseColumnProfile and adding @property to
+    # NumericStatisMixin.profile() results in a breaking change - ignoring [override]
     @property
-    def profile(self) -> dict:
+    def profile(self) -> dict:  # type: ignore[override]
         """
         Return the profile of the column.
 

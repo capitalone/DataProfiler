@@ -1,7 +1,8 @@
 """Contains functions for checking for installations/dependencies."""
+
 import sys
 import warnings
-from typing import Any, Callable, List
+from typing import Any, Callable
 
 
 def warn_missing_module(labeler_function: str, module_name: str) -> None:
@@ -22,7 +23,7 @@ def warn_missing_module(labeler_function: str, module_name: str) -> None:
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
 
 
-def require_module(names: List[str]) -> Callable:
+def require_module(names: list[str]) -> Callable:
     """
     Check if a set of modules exists in sys.modules prior to running function.
 

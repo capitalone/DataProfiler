@@ -1,7 +1,8 @@
 """Contains functions for checking for installations/dependencies."""
+
 import sys
 import warnings
-from typing import Any, Callable, List, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 # Generic type for the return of the function "require_module()"
 F = TypeVar("F", bound=Callable[..., Any])
@@ -25,7 +26,7 @@ def warn_missing_module(graph_func: str, module_name: str) -> None:
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
 
 
-def require_module(names: List[str]) -> Callable[[F], F]:
+def require_module(names: list[str]) -> Callable[[F], F]:
     """
     Check if a set of modules exists in sys.modules prior to running function.
 

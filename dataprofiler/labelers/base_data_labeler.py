@@ -1,4 +1,5 @@
 """Contains abstract classes from which labeler classes will inherit."""
+
 from __future__ import annotations
 
 import json

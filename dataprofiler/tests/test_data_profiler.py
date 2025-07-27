@@ -18,6 +18,7 @@ project_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 class TestDataProfiler(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        import dataprofiler as dp
 
         test_dir = os.path.join(MODULE_PATH, "data")
         cls.input_file_names = [
@@ -25,6 +26,7 @@ class TestDataProfiler(unittest.TestCase):
                 path=os.path.join(test_dir, "csv/aws_honeypot_marx_geo.csv"), type="csv"
             ),
         ]
+        dp.settings._seed = None
 
     def test_set_seed(self):
         import dataprofiler as dp

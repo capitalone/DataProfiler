@@ -82,7 +82,8 @@ repos:
 
             # requirements-ml.txt
             scikit-learn>=0.23.2,
-            'keras>=3.11.0',
+            "keras<=3.4.0; python_version <='3.9'",
+            "keras>=3.11.0; python_version > '3.9'",
             rapidfuzz>=2.6.1,
             tensorflow>=2.15.0,
             tqdm>=4.0.0,

@@ -573,7 +573,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         # Compile the model
         softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
+        losses = ["categorical_crossentropy", None, None]
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
@@ -635,7 +635,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         # Compile the model
         softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
+        losses = ["categorical_crossentropy", None, None]
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
@@ -699,13 +699,14 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         f1_report: dict = {}
 
         self._model.reset_metrics()
-        softmax_output_layer_name = self._model.output_names[0]
+        # softmax_output_layer_name = self._model.output_names[0]
 
         start_time = time.time()
         batch_id = 0
         for x_train, y_train in train_data:
             model_results = self._model.train_on_batch(
-                x_train, {softmax_output_layer_name: y_train}
+                x_train,
+                y_train,
             )
             sys.stdout.flush()
             if verbose:

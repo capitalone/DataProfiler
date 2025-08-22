@@ -1,4 +1,5 @@
 """Contains pre-built processors for data labeling/processing."""
+
 from __future__ import annotations
 
 import abc
@@ -70,7 +71,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, BaseDataProcessor)
             or self._parameters != other._parameters
         ):
@@ -173,9 +174,11 @@ class BaseDataPreprocessor(BaseDataProcessor):
         labels: np.ndarray | None = None,
         label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
-    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None] | tuple[
-        np.ndarray, np.ndarray
-    ] | np.ndarray:
+    ) -> (
+        Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]
+        | tuple[np.ndarray, np.ndarray]
+        | np.ndarray
+    ):
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -377,7 +380,16 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         sentence: str,
         start_ind: int,
         min_ind: int = 0,
-        separators: tuple[str, ...] = (" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
+        separators: tuple[str, ...] = (
+            " ",
+            "\n",
+            ",",
+            "\t",
+            "\r",
+            "\x00",
+            "\x01",
+            ";",
+        ),
     ) -> int:
         """
         Find nearest separator before the start_ind and return the index.
@@ -531,7 +543,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
                     # pad the data until fits maximum length
                     pad_len = max(
-                        max_length - separate_ind + buffer_ind, max_length - sample_len
+                        max_length - separate_ind + buffer_ind,
+                        max_length - sample_len,
                     )
 
                     # Only add the buffer up until maximum length
@@ -891,7 +904,17 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         flatten_separator: str = " ",
         use_word_level_argmax: bool = False,
         output_format: str = "character_argmax",
-        separators: tuple[str, ...] = (" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
+        separators: tuple[str, ...] = (
+            " ",
+            ",",
+            ";",
+            "'",
+            '"',
+            ":",
+            "\n",
+            "\t",
+            ".",
+        ),
         word_level_min_percent: float = 0.75,
     ) -> None:
         """
@@ -1185,7 +1208,11 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
             if begin_idx != -1:
                 # Add last sample
                 sample_output.append(
-                    (begin_idx, curr_idx + 1, reverse_label_mapping[(int(curr_label))])
+                    (
+                        begin_idx,
+                        curr_idx + 1,
+                        reverse_label_mapping[(int(curr_label))],
+                    )
                 )
             # Add to total output list
             output_result.append(sample_output)
@@ -1194,7 +1221,10 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     @staticmethod
     def match_sentence_lengths(
-        data: np.ndarray, results: dict, flatten_separator: str, inplace: bool = True
+        data: np.ndarray,
+        results: dict,
+        flatten_separator: str,
+        inplace: bool = True,
     ) -> dict:
         """
         Convert results from model into same ragged data shapes as original data.
@@ -1516,7 +1546,10 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
             np_unstruct_labels = None
 
         return super().process(
-            np.array(unstructured_data), np_unstruct_labels, label_mapping, batch_size
+            np.array(unstructured_data),
+            np_unstruct_labels,
+            label_mapping,
+            batch_size,
         )
 
 
@@ -1586,7 +1619,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, StructCharPostprocessor)
             or self._parameters["default_label"] != other._parameters["default_label"]
             or self._parameters["pad_label"] != other._parameters["pad_label"]
@@ -1662,7 +1695,10 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     @staticmethod
     def match_sentence_lengths(
-        data: np.ndarray, results: dict, flatten_separator: str, inplace: bool = True
+        data: np.ndarray,
+        results: dict,
+        flatten_separator: str,
+        inplace: bool = True,
     ) -> dict:
         """
         Convert results from model into same ragged data shapes as original data.
@@ -1947,9 +1983,11 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                 # being changed and is already set
                 aggregation_func = parameters.get(
                     "aggregation_func",
-                    self._parameters.get("aggregation_func")
-                    if hasattr(self, "_parameters")
-                    else None,
+                    (
+                        self._parameters.get("aggregation_func")
+                        if hasattr(self, "_parameters")
+                        else None
+                    ),
                 )
                 if value is None and aggregation_func == "priority":
                     errors.append(

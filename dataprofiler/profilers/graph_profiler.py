@@ -53,6 +53,7 @@ class GraphProfiler:
         self._global_max_component_size = None
         self._continuous_distribution = None
         self._categorical_distribution = None
+        self._graph_density = None
         self.metadata: dict = dict()
 
         self.__calculations = {
@@ -64,6 +65,7 @@ class GraphProfiler:
             "global_max_component_size": GraphProfiler._update_global_max_comp_size,
             "continuous_distribution": GraphProfiler._update_continuous_distribution,
             "categorical_distribution": GraphProfiler._update_categorical_distribution,
+            "graph_density": GraphProfiler._update_graph_density,
         }
 
     def __add__(self, other: GraphProfiler) -> GraphProfiler:
@@ -95,6 +97,7 @@ class GraphProfiler:
             global_max_component_size=self._global_max_component_size,
             continuous_distribution=self._continuous_distribution,
             categorical_distribution=self._categorical_distribution,
+            graph_density=self._graph_density,
             times=self.times,
         )
         return profile
@@ -145,6 +148,9 @@ class GraphProfiler:
                 self._categorical_distribution,
                 other_profile._categorical_distribution,
             ),
+            "graph_density": profiler_utils.find_diff_of_numbers(
+                self._graph_density, other_profile._graph_density
+            ),
             "times": profiler_utils.find_diff_of_dicts(self.times, other_profile.times),
         }
 
@@ -167,6 +173,7 @@ class GraphProfiler:
             "global_max_component_size",
             "continuous_distribution",
             "categorical_distribution",
+            "graph_density",
         ]
 
         if remove_disabled_flag:
@@ -326,6 +333,15 @@ class GraphProfiler:
             graph, subset_properties.get("categorical_attributes", [])
         )
 
+    def _update_graph_density(
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: dict = None,
+        subset_properties: dict = None,
+    ) -> None:
+        """Update graph_density for profile."""
+        self._graph_density = self._get_graph_density(graph)
+
     """
     Get functions to calculate props
     """
@@ -464,6 +480,11 @@ class GraphProfiler:
                 categorical_distributions[attribute] = None
         return categorical_distributions
 
+    @BaseColumnProfiler._timeit(name="graph_density")
+    def _get_graph_density(self, graph: nx.Graph) -> float:
+        """Compute the graph density of a directed graph."""
+        return cast(float, nx.density(graph))
+
     @staticmethod
     def _get_categorical_and_continuous_attributes(
         graph: nx.Graph,
@@ -549,6 +570,7 @@ class GraphProfiler:
             "_global_max_component_size": self._global_max_component_size,
             "_continuous_distribution": self._continuous_distribution,
             "_categorical_distribution": self._categorical_distribution,
+            "_graph_density": self._graph_density,
             "metadata": self.metadata,
         }
 

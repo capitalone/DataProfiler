@@ -83,6 +83,7 @@ class TestGraphProfiler(unittest.TestCase):
                 },
                 "weight": None,
             },
+            graph_density=0.8333333333333334,
             times=defaultdict(
                 float,
                 dict(
@@ -94,6 +95,7 @@ class TestGraphProfiler(unittest.TestCase):
                     global_max_component_size=1.0,
                     continuous_distribution=1.0,
                     categorical_distribution=1.0,
+                    graph_density=1.0,
                 ),
             ),
         )
@@ -151,6 +153,7 @@ class TestGraphProfiler(unittest.TestCase):
                     }
                 },
             ],
+            "graph_density": 0.16666666666666674,
             "times": {
                 "num_nodes": "unchanged",
                 "num_edges": "unchanged",
@@ -160,6 +163,7 @@ class TestGraphProfiler(unittest.TestCase):
                 "global_max_component_size": "unchanged",
                 "continuous_distribution": "unchanged",
                 "categorical_distribution": "unchanged",
+                "graph_density": "unchanged",
             },
         }
         cls.expected_diff_2 = {
@@ -208,6 +212,7 @@ class TestGraphProfiler(unittest.TestCase):
                 },
                 {},
             ],
+            "graph_density": 0.16666666666666663,
             "times": {
                 "num_nodes": "unchanged",
                 "num_edges": "unchanged",
@@ -217,6 +222,7 @@ class TestGraphProfiler(unittest.TestCase):
                 "global_max_component_size": "unchanged",
                 "continuous_distribution": "unchanged",
                 "categorical_distribution": "unchanged",
+                "graph_density": "unchanged",
             },
         }
 

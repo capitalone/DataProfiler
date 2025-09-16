@@ -36,4 +36,4 @@ jobs:
         pre-commit run --all-files
     - name: Test with pytest
       run: |
-        DATAPROFILER_SEED=0 pytest dataprofiler/tests/ --cov=dataprofiler --cov-fail-under=80 --cov-report=xml:coverage.xml --cov-omit dataprofiler/tests/*
+        DATAPROFILER_SEED=0 pytest dataprofiler/tests/ --cov=dataprofiler --cov-fail-under=80 --cov-report=xml:coverage.xml

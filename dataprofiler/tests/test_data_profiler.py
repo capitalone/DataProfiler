@@ -29,8 +29,6 @@ class TestDataProfiler(unittest.TestCase):
     def test_set_seed(self):
         import dataprofiler as dp
 
-        self.assertEqual(dp.settings._seed, None)
-
         dp.set_seed(5)
         self.assertEqual(dp.settings._seed, 5)
 

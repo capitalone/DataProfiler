@@ -20,7 +20,7 @@ recursive-include resources *.py
 recursive-include dataprofiler/labelers/embeddings *.txt
 include versioneer.py
 include dataprofiler/_version.py
-include whitesource.config
+include .whitesource
 
 recursive-exclude _docs *.html
 recursive-exclude _docs *.cfg

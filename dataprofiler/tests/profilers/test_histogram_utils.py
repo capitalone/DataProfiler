@@ -32,7 +32,7 @@ def mock_sqrt_return_nan(profile):
     return float("nan")
 
 
-class TestColumn(NumericStatsMixin):
+class MockColumn(NumericStatsMixin):
     def __init__(self):
         NumericStatsMixin.__init__(self)
         self.times = defaultdict(float)
@@ -75,7 +75,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_doane_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         with mock.patch(
             "dataprofiler.profilers.NumericStatsMixin.stddev", new_callable=mock_stddev
@@ -177,7 +177,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_rice_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         # Case 1: min, max, and match_count are set
         expected_dataset_size = profile.match_count
@@ -230,7 +230,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_sturges_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         # Case 1: min, max, and match_count are set
         expected_dataset_size = profile.match_count
@@ -283,7 +283,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_sqrt_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         # Case 1: min, max, and match_count are set
         expected_dataset_size = profile.match_count
@@ -336,7 +336,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_fd_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         with mock.patch(
             "dataprofiler.profilers.NumericStatsMixin._get_percentile",
@@ -359,7 +359,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_auto_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         with mock.patch(
             "dataprofiler.profilers.histogram_utils._calc_fd_bin_width_from_profile"
@@ -396,7 +396,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calc_scott_bin_width_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         with mock.patch(
             "dataprofiler.profilers.NumericStatsMixin.stddev", new_callable=mock_stddev
@@ -418,7 +418,7 @@ class TestHistogramUtils(unittest.TestCase):
 
     def test_calculate_bins_from_profile(self):
         # Initial setup of profile
-        profile = TestColumn()
+        profile = MockColumn()
 
         # Case 1: bin method not in set of valid bin methods
         with self.assertRaises(ValueError):
@@ -457,7 +457,7 @@ class TestHistogramUtils(unittest.TestCase):
             dataprofiler.profilers.histogram_utils._hist_bin_width_selectors_for_profile,
             {"sqrt": mock_sqrt_return_none},
         ):
-            profile = TestColumn()
+            profile = MockColumn()
             actual = histogram_utils._calculate_bins_from_profile(profile, "sqrt")
             self.assertEqual(1, actual)
 
@@ -466,6 +466,6 @@ class TestHistogramUtils(unittest.TestCase):
             dataprofiler.profilers.histogram_utils._hist_bin_width_selectors_for_profile,
             {"sqrt": mock_sqrt_return_nan},
         ):
-            profile = TestColumn()
+            profile = MockColumn()
             actual = histogram_utils._calculate_bins_from_profile(profile, "sqrt")
             self.assertEqual(1, actual)

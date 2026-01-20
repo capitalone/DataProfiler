@@ -18,7 +18,7 @@ from . import utils as test_utils
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
-class TestColumn(NumericStatsMixin):
+class MockColumn(NumericStatsMixin):
     def __init__(self):
         NumericStatsMixin.__init__(self)
         self.match_count = 0
@@ -31,7 +31,7 @@ class TestColumn(NumericStatsMixin):
         pass
 
 
-class TestColumnWProps(TestColumn):
+class MockColumnWProps(MockColumn):
     # overrides the property func
     median = None
     mode = None
@@ -117,9 +117,9 @@ class TestNumericStatsMixin(unittest.TestCase):
 
     def test_hist_loss_on_merge(self):
         # Initial setup of profiles
-        profile3 = TestColumn()
-        profile1 = TestColumn()
-        profile2 = TestColumn()
+        profile3 = MockColumn()
+        profile1 = MockColumn()
+        profile2 = MockColumn()
         mock_histogram1 = {
             "bin_counts": np.array([1, 1, 1, 1]),
             "bin_edges": np.array([2, 4, 6, 8, 10]),
@@ -161,7 +161,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks update variance
         :return:
         """
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # test update variance
         data1 = [-3.0, 2.0, 11.0]
@@ -209,7 +209,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         data1 = []
         mean1, var1, count1 = 0, np.nan, 0
 
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
         num_profiler._biased_variance = num_profiler._update_variance(
             mean1, var1, count1
         )
@@ -221,7 +221,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         data2 = [5.0]
         mean2, var2, count2 = 5.0, 0, 1
 
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
         num_profiler._biased_variance = num_profiler._update_variance(
             mean2, var2, count2
         )
@@ -239,7 +239,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             + (-11.0 - mean3) ** 2
         ) / 3
 
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
         num_profiler._biased_variance = num_profiler._update_variance(
             mean3, var3 * 3 / 4, count3
         )
@@ -252,7 +252,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks update variance
         :return:
         """
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         data1 = [-3.0, 2.0, 11.0]
         mean1 = (-3.0 + 2.0 + 11.0) / 3
@@ -284,7 +284,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks profiles have been merged and timed
         :return:
         """
-        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        num_profiler, other1, other2 = MockColumn(), MockColumn(), MockColumn()
         mock_histogram = {
             "bin_counts": np.array([1, 1, 1, 1]),
             "bin_edges": np.array([2.0, 5.25, 8.5, 11.75, 15.0]),
@@ -331,7 +331,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks stat properties have been timed
         :return:
         """
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # Dummy data to make min call
         prev_dependent_properties = {
@@ -402,8 +402,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         fake_profile_name = "Fake profile name"
 
         # Build expected CategoricalColumn
-        actual_profile = TestColumn()
-        expected_profile = TestColumn()
+        actual_profile = MockColumn()
+        expected_profile = MockColumn()
         mock_saved_profile = dict(
             {
                 "quantiles": None,
@@ -429,7 +429,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         test_utils.assert_profiles_equal(expected_profile, actual_profile)
 
     def test_histogram_bin_error(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # Dummy data for calculating bin error
         num_profiler._stored_histogram = {
@@ -475,7 +475,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         assert sum_error == np.inf
 
     def test_get_best_histogram_profile(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         num_profiler._histogram_for_profile = mock.MagicMock(
             side_effect=[("hist_1", 3), ("hist_2", 2), ("hist_3", 1)]
@@ -509,7 +509,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         assert best_histogram == "hist_3"
 
     def test_get_best_histogram_profile_infinite_loss(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         num_profiler._histogram_for_profile = mock.MagicMock(return_value=("hist_1", 3))
 
@@ -529,7 +529,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         assert best_histogram == "hist_1"
 
     def test_get_percentile_median(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
         # Dummy data for calculating bin error
         num_profiler._stored_histogram = {
             "histogram": {
@@ -541,7 +541,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertListEqual([10, 10], median)
 
     def test_num_zeros(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # Dummy data to make num_zeros call
         prev_dependent_properties = {"mean": 0}
@@ -568,7 +568,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(subset_properties["num_zeros"], 4)
 
     def test_num_negatives(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # Dummy data to make num_negatives call
         prev_dependent_properties = {"mean": 0}
@@ -595,7 +595,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(subset_properties["num_negatives"], 4)
 
     def test_fold_histogram(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # the break point is at the mid point of a bin
         bin_counts = np.array([1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6])
@@ -670,7 +670,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks num_zeros and num_negatives have been timed
         :return:
         """
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         # Dummy data to make min call
         prev_dependent_properties = {"mean": 0}
@@ -702,14 +702,14 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks num_zeros and num_negatives can be merged
         :return:
         """
-        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        num_profiler, other1, other2 = MockColumn(), MockColumn(), MockColumn()
         other1.num_zeros, other1.num_negatives = 3, 1
         other2.num_zeros, other2.num_negatives = 7, 1
         num_profiler._add_helper(other1, other2)
         self.assertEqual(num_profiler.num_zeros, 10)
         self.assertEqual(num_profiler.num_negatives, 2)
 
-        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        num_profiler, other1, other2 = MockColumn(), MockColumn(), MockColumn()
         other1.num_zeros, other1.num_negatives = 0, 0
         other2.num_zeros, other2.num_negatives = 0, 0
         num_profiler._add_helper(other1, other2)
@@ -717,7 +717,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(num_profiler.num_negatives, 0)
 
     def test_profile(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         mock_profile = dict(
             min=1.0,
@@ -815,7 +815,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertIn(disabled_key, report_keys)
 
     def test_report_no_numerical_options(self):
-        num_profiler = TestColumn()
+        num_profiler = MockColumn()
 
         num_profiler.match_count = 0
         num_profiler.times = defaultdict(float)
@@ -833,7 +833,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks _diff_helper() works appropriately.
         """
 
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 1
@@ -881,7 +881,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertDictEqual(expected_diff, difference)
 
         # Invalid statistics
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = np.nan  # NaN variance
@@ -931,7 +931,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
 
         # Insufficient match count
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 1
@@ -980,7 +980,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
 
         # Constant values
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 0  # constant value has 0 variance
@@ -1028,7 +1028,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertDictEqual(expected_diff, difference)
 
         # Small p-value
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 1
@@ -1075,11 +1075,11 @@ class TestNumericStatsMixin(unittest.TestCase):
             other1.diff("Inproper input")
         self.assertEqual(
             str(exc.exception),
-            "Unsupported operand type(s) for diff: 'TestColumnWProps' and" " 'str'",
+            "Unsupported operand type(s) for diff: 'MockColumnWProps' and" " 'str'",
         )
 
         # PSI same distribution test
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.match_count = 55
         other1._stored_histogram = {
             "total_loss": 0,
@@ -1112,7 +1112,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(expected_psi_value, psi_value)
 
         # PSI min_min_edge == max_max_edge
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.match_count = 10
         other1._stored_histogram = {
             "total_loss": 0,
@@ -1139,7 +1139,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(expected_psi_value, psi_value)
 
         # PSI regen other / not self
-        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1, other2 = MockColumnWProps(), MockColumnWProps()
         other1.match_count = 55
         other1._stored_histogram = {
             "total_loss": 0,

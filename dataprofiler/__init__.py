@@ -1,6 +1,7 @@
 """Package for dataprofiler."""
 
 from . import settings
+from ._version import get_versions
 from .data_readers.data import Data
 from .dp_logging import get_logger, set_verbosity
 from .labelers.data_labelers import (
@@ -19,8 +20,8 @@ from .profilers.profile_builder import (
 from .profilers.profiler_options import ProfilerOptions
 from .reports import graphs
 from .validators.base_validators import Validator
-from .version import __version__
 
+__version__ = get_versions()["version"]
 
 def set_seed(seed=None):
     # also check it's an integer

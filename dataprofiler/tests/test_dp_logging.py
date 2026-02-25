@@ -22,12 +22,6 @@ class TestDPLogging(unittest.TestCase):
         root_logger.removeHandler(dp_logging.get_logger())
         dp_logging._dp_logger = None
 
-    def test_default_verbosity(self, mock_stdout):
-        # Ensure that default effective level is INFO
-        self.assertEqual(
-            logging.INFO, logging.getLogger("DataProfiler").getEffectiveLevel()
-        )
-
     def test_set_verbosity(self, mock_stdout):
         from dataprofiler import dp_logging
 

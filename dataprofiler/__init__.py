@@ -1,4 +1,5 @@
 """Package for dataprofiler."""
+
 from . import settings
 from ._version import get_versions
 from .data_readers.data import Data
@@ -21,7 +22,6 @@ from .reports import graphs
 from .validators.base_validators import Validator
 
 __version__ = get_versions()["version"]
-
 
 def set_seed(seed=None):
     # also check it's an integer

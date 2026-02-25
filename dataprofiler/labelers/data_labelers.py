@@ -1,4 +1,5 @@
 """Module to train and choose between structured and unstructured data labelers."""
+
 from __future__ import annotations
 
 import os

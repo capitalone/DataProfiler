@@ -1,6 +1,7 @@
 """Contains functions and classes for handling filepaths and buffers."""
+
 from io import BytesIO, StringIO, TextIOWrapper
-from typing import IO, Any, Optional, Type, Union, cast
+from typing import IO, Any, Optional, Union, cast
 
 from typing_extensions import TypeGuard
 
@@ -54,7 +55,7 @@ class FileOrBufferHandler:
         self.seek_whence: int = seek_whence
         self._encoding: Optional[str] = encoding
         self.original_type: Union[
-            Type[str], Type[StringIO], Type[BytesIO], Type[IO]
+            type[str], type[StringIO], type[BytesIO], type[IO]
         ] = type(filepath_or_buffer)
         self._is_wrapped: bool = False
 

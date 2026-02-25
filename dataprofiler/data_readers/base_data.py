@@ -1,9 +1,11 @@
 """Contains abstract class for data loading and saving."""
+
 import locale
 import sys
 from collections import OrderedDict
+from collections.abc import Generator
 from io import StringIO
-from typing import Any, Dict, Generator, List, Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -21,7 +23,7 @@ class BaseData:
     info: Optional[str] = None
 
     def __init__(
-        self, input_file_path: Optional[str], data: Any, options: Dict
+        self, input_file_path: Optional[str], data: Any, options: dict
     ) -> None:
         """
         Initialize Base class for loading a dataset.
@@ -42,7 +44,7 @@ class BaseData:
 
         # Public properties
         self.input_file_path = input_file_path
-        self.options: Optional[Dict] = options
+        self.options: Optional[dict] = options
 
         # 'Private' properties
         #  _data_formats: dict containing data_formats (key) and function
@@ -56,10 +58,10 @@ class BaseData:
         #               constant across function calls.
         #  _tmp_file_name: randomly set variables for file name usable by system
         #  _file_encoding: contains the suggested file encoding for reading data
-        self._data_formats: Dict[str, Any] = OrderedDict()
+        self._data_formats: dict[str, Any] = OrderedDict()
         self._selected_data_format: Optional[str] = None
         self._data: Optional[Any] = data
-        self._batch_info: Dict = dict(perm=list(), iter=0)
+        self._batch_info: dict = dict(perm=list(), iter=0)
         self._tmp_file_name: Optional[str] = None
         self._file_encoding: Optional[str] = options.get("encoding", None)
 
@@ -137,7 +139,7 @@ class BaseData:
         self._file_encoding = value
 
     @staticmethod
-    def _check_and_return_options(options: Optional[Dict]) -> Dict:
+    def _check_and_return_options(options: Optional[dict]) -> dict:
         """Return options or raise error."""
         if not options:
             options = dict()
@@ -151,7 +153,7 @@ class BaseData:
 
     def get_batch_generator(
         self, batch_size: int
-    ) -> Generator[Union[pd.DataFrame, List], None, None]:
+    ) -> Generator[Union[pd.DataFrame, list], None, None]:
         """Get batch generator."""
         data_length = len(self.data)
         indices = np.random.permutation(data_length)
@@ -162,12 +164,12 @@ class BaseData:
                 yield list(self.data[k] for k in indices[i : i + batch_size])
 
     @classmethod
-    def is_match(cls, input_file_path: str, options: Optional[Dict]) -> bool:
+    def is_match(cls, input_file_path: str, options: Optional[dict]) -> bool:
         """Return true if match, false otherwise."""
         raise NotImplementedError()
 
     def reload(
-        self, input_file_path: Optional[str], data: Any, options: Optional[Dict]
+        self, input_file_path: Optional[str], data: Any, options: Optional[dict]
     ) -> None:
         """
         Reload the data class with a new dataset.

@@ -1,4 +1,5 @@
 """Profile analysis for applying labels within unstructured profiling."""
+
 from __future__ import annotations
 
 from collections import defaultdict

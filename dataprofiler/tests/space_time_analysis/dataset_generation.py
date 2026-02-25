@@ -1,7 +1,7 @@
 import copy
 import json
 import string
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -55,7 +55,7 @@ def convert_data_to_df(
     np_data: np.array,
     path: Optional[str] = None,
     index: bool = False,
-    column_names: Optional[List[str]] = None,
+    column_names: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """
     Converts np array to a pandas dataframe
@@ -129,7 +129,7 @@ def random_floats(
 
 def random_string(
     rng: Generator,
-    chars: Optional[List[str]] = None,
+    chars: Optional[list[str]] = None,
     num_rows: int = 1,
     str_len_min: int = 1,
     str_len_max: int = 256,
@@ -244,7 +244,7 @@ def random_datetimes(
 
 
 def random_categorical(
-    rng: Generator, categories: Optional[List[str]] = None, num_rows: int = 1
+    rng: Generator, categories: Optional[list[str]] = None, num_rows: int = 1
 ) -> np.array:
     """
     Randomly generates an array of categorical chosen out of categories
@@ -311,7 +311,7 @@ def random_text(
 
 def generate_dataset_by_class(
     rng: Generator,
-    columns_to_generate: Optional[List[dict]] = None,
+    columns_to_generate: Optional[list[dict]] = None,
     dataset_length: int = 100000,
     path: Optional[str] = None,
 ) -> pd.DataFrame:

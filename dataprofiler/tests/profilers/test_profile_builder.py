@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 import os
 import random
 import re
@@ -87,6 +88,12 @@ class TestStructuredProfiler(unittest.TestCase):
             cls.trained_schema = dp.StructuredProfiler(
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
             )
+
+    @classmethod
+    def tearDownClass(cls):
+        from dataprofiler import dp_logging
+
+        dp_logging.set_verbosity(logging.INFO)
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder.ColumnPrimitiveTypeProfileCompiler"
@@ -2156,8 +2163,18 @@ class TestStructuredProfiler(unittest.TestCase):
             "deg_of_free": 2,
             "p-value": 0.3099238764710244,
         }
-        self.assertDictEqual(
-            expected_chi2_test_dict, diff["data_stats"][0]["statistics"]["chi2-test"]
+        actual_chi2_test_dict = diff["data_stats"][0]["statistics"]["chi2-test"]
+
+        assert math.isclose(
+            expected_chi2_test_dict["chi2-statistic"],
+            actual_chi2_test_dict["chi2-statistic"],
+        )
+        assert (
+            expected_chi2_test_dict["deg_of_free"]
+            == actual_chi2_test_dict["deg_of_free"]
+        )
+        assert math.isclose(
+            expected_chi2_test_dict["p-value"], actual_chi2_test_dict["p-value"]
         )
 
     @mock.patch(

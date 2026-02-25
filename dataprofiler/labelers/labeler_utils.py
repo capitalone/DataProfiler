@@ -1,10 +1,11 @@
 """Contains functions for the data labeler."""
+
 from __future__ import annotations
 
 import logging
 import os
 import warnings
-from typing import Any, Callable, Dict, cast
+from typing import Any, Callable, cast
 
 import numpy as np
 import scipy
@@ -169,7 +170,7 @@ def evaluate_accuracy(
         conf_mat_pd.to_csv(confusion_matrix_file)
 
     f1_report: dict = cast(
-        Dict,
+        dict,
         classification_report(
             conf_mat, labels=label_indexes, target_names=label_names, output_dict=True
         ),

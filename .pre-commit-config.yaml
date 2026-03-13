@@ -51,7 +51,7 @@ repos:
             h5py>=2.10.0,
             wheel>=0.33.1,
             numpy<2.0.0,
-            pandas>=1.1.2,
+            'pandas>=1.1.2,<3.0.0',
             python-dateutil>=2.7.5,
             pytz>=2020.1,
             pyarrow>=1.0.1,

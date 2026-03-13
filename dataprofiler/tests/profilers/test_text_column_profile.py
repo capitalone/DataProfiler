@@ -608,6 +608,11 @@ class TestTextColumnProfiler(unittest.TestCase):
                 sorted(expected_diff_mode[i]), sorted(diff_mode[i]), 2
             )
         self.assertAlmostEqual(
+            expected_diff.get("t-test").get("welch").pop("p-value"),
+            profile_diff.get("t-test").get("welch").pop("p-value"),
+            places=10,
+        )
+        self.assertAlmostEqual(
             expected_diff.pop("median_absolute_deviation"),
             profile_diff.pop("median_absolute_deviation"),
             places=2,

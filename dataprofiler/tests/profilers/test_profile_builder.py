@@ -2156,9 +2156,13 @@ class TestStructuredProfiler(unittest.TestCase):
             "deg_of_free": 2,
             "p-value": 0.3099238764710244,
         }
-        self.assertDictEqual(
-            expected_chi2_test_dict, diff["data_stats"][0]["statistics"]["chi2-test"]
+        chi2_diff = diff["data_stats"][0]["statistics"]["chi2-test"]
+        self.assertAlmostEqual(
+            expected_chi2_test_dict.pop("p-value"),
+            chi2_diff.pop("p-value"),
+            places=10,
         )
+        self.assertDictEqual(expected_chi2_test_dict, chi2_diff)
 
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"

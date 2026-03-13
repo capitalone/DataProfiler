@@ -256,6 +256,19 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
         )
+        self.assertAlmostEqual(
+            expected_diff["statistics"].get("t-test").get("welch").pop("p-value"),
+            profile_diff["statistics"].get("t-test").get("welch").pop("p-value"),
+            places=10,
+        )
+        self.assertAlmostEqual(
+            expected_diff["statistics"]
+            .get("t-test")
+            .get("conservative")
+            .pop("p-value"),
+            profile_diff["statistics"].get("t-test").get("conservative").pop("p-value"),
+            places=10,
+        )
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Test different compilers
@@ -353,6 +366,22 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
             expected_diff["statistics"].pop("median_absolute_deviation"),
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
+        )
+        self.assertAlmostEqual(
+            expected_diff.get("statistics").get("t-test").get("welch").pop("p-value"),
+            profile_diff.get("statistics").get("t-test").get("welch").pop("p-value"),
+            places=10,
+        )
+        self.assertAlmostEqual(
+            expected_diff.get("statistics")
+            .get("t-test")
+            .get("conservative")
+            .pop("p-value"),
+            profile_diff.get("statistics")
+            .get("t-test")
+            .get("conservative")
+            .pop("p-value"),
+            places=10,
         )
         self.assertDictEqual(expected_diff, profile_diff)
 

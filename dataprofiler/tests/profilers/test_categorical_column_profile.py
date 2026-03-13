@@ -731,6 +731,11 @@ class TestCategoricalColumn(unittest.TestCase):
             },
         }
         actual_diff = profile.diff(profile2)
+        self.assertAlmostEqual(
+            expected_diff.get("statistics").get("chi2-test").pop("p-value"),
+            actual_diff.get("statistics").get("chi2-test").pop("p-value"),
+            places=10,
+        )
         self.assertDictEqual(expected_diff, actual_diff)
 
         # Test with one categorical column matching
@@ -784,11 +789,6 @@ class TestCategoricalColumn(unittest.TestCase):
                 "categorical_count": {"y": 1, "n": 1, "maybe": -1},
             },
         }
-        self.assertAlmostEqual(
-            expected_diff.get("statistics").get("chi2-test").pop("p-value"),
-            actual_diff.get("statistics").get("chi2-test").pop("p-value"),
-            places=10,
-        )
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 
     def test_unalikeability(self):

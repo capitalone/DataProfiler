@@ -29,7 +29,7 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
-from chardet import UniversalDetector
+from chardet.universaldetector import UniversalDetector
 from typing_extensions import TypeGuard
 
 from .. import dp_logging, rng_utils

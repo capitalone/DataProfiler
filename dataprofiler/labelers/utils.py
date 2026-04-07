@@ -57,7 +57,9 @@ def require_module(names: List[str]) -> Callable:
 
 def find_resources_dir() -> Path:
     """Return the path to the package resources for the labeler."""
-    with importlib.resources.as_file(importlib.resources.files("resources")) as base:
+    with importlib.resources.as_file(
+        importlib.resources.files("dataprofiler").joinpath("resources")
+    ) as base:
         return Path(base)
 
     raise FileNotFoundError("Could not locate resources (installed or source tree).")

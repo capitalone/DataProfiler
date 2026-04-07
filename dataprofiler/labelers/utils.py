@@ -1,6 +1,9 @@
 """Contains functions for checking for installations/dependencies."""
+
 import sys
+import sysconfig
 import warnings
+from pathlib import Path
 from typing import Any, Callable, List
 
 
@@ -50,3 +53,23 @@ def require_module(names: List[str]) -> Callable:
         return new_f
 
     return check_module
+
+
+def find_resources_dir() -> Path:
+    """Return the path to the package resources for the labeler."""
+    # 1) Installed location from data_files: <prefix>/resources
+    prefix = Path(sysconfig.get_path("data"))
+    installed = prefix / "resources"
+    if installed.exists():
+        return installed
+
+    # 2) Source tree fallback (works in editable installs / tests)
+    # Adjust the anchor file to something inside your package.
+    here = Path(__file__).resolve()
+    # Walk upwards to find repo root that contains "resources/labelers"
+    for parent in [here, *here.parents]:
+        candidate = parent / "resources"
+        if candidate.exists():
+            return candidate
+
+    raise FileNotFoundError("Could not locate resources (installed or source tree).")

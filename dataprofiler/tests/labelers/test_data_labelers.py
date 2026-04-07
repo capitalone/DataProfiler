@@ -149,13 +149,9 @@ class TestDataLabeler(unittest.TestCase):
 
     @mock.patch("tensorflow.keras.models.load_model")
     def test_load_from_disk(self, *mocks):
-        import importlib
-        from pathlib import Path
+        from dataprofiler.labelers import utils as labeler_utils
 
-        with importlib.resources.as_file(
-            importlib.resources.files("resources")
-        ) as base:
-            default_labeler_dir = Path(base) / "labelers/structured_model"
+        default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
 
         data_labeler = dp.DataLabeler.load_from_disk(default_labeler_dir)
         self.assertIsInstance(data_labeler, BaseDataLabeler)

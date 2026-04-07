@@ -1,23 +1,21 @@
-import importlib
 import json
 import os
 import unittest
 from io import StringIO
-from pathlib import Path
 from unittest import mock
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
+from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.character_level_cnn_model import (
     CharacterLevelCnnModel,
     EncodingLayer,
 )
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-with importlib.resources.as_file(importlib.resources.files("resources")) as base:
-    _resource_labeler_dir = Path(base) / "labelers"
+_resource_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
 
 
 mock_model_parameters = {

@@ -1,18 +1,16 @@
-import importlib
 import json
 import os
 import unittest
 from io import StringIO
-from pathlib import Path
 from unittest import mock
 
 import numpy as np
 
+from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.regex_model import RegexModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-with importlib.resources.as_file(importlib.resources.files("resources")) as base:
-    _resource_labeler_dir = Path(base) / "labelers"
+_resource_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
 
 
 mock_model_parameters = {
@@ -163,7 +161,8 @@ class TestRegexModel(unittest.TestCase):
         for invalid_param_set in invalid_parameters:
             with self.assertRaises(ValueError):
                 RegexModel(
-                    label_mapping=self.label_mapping, parameters=invalid_param_set
+                    label_mapping=self.label_mapping,
+                    parameters=invalid_param_set,
                 )
 
     @mock.patch("sys.stdout", new_callable=StringIO)

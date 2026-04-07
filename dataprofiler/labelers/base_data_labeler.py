@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import importlib.resources
 import json
 import os
 import sys
 import warnings
-from pathlib import Path
 from typing import cast
 
 import numpy as np
@@ -16,11 +14,10 @@ import pandas as pd
 from dataprofiler._typing import DataArray
 
 from .. import data_readers
-from . import data_processing
+from . import data_processing, utils
 from .base_model import BaseModel
 
-with importlib.resources.as_file(importlib.resources.files("resources")) as base:
-    default_labeler_dir = Path(base) / "labelers"
+default_labeler_dir = utils.find_resources_dir() / "labelers"
 
 
 class BaseDataLabeler:

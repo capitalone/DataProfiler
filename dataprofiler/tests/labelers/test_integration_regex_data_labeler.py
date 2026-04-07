@@ -1,21 +1,26 @@
-import importlib
 import os
 import unittest
-from pathlib import Path
 
 import numpy as np
 
+from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
-with importlib.resources.as_file(importlib.resources.files("resources")) as base:
-    default_labeler_dir = Path(base) / "labelers"
+default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
 
 
 class TestRegexDataLabeler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.data = np.array(
-            ["123 Fake St.", "1/2/2020", "nice.", "4/3/22", "abc", "333-44-2341"]
+            [
+                "123 Fake St.",
+                "1/2/2020",
+                "nice.",
+                "4/3/22",
+                "abc",
+                "333-44-2341",
+            ]
         ).reshape((-1,))
         cls.data_labeler = BaseDataLabeler.load_from_disk(
             os.path.join(default_labeler_dir, "regex_model")

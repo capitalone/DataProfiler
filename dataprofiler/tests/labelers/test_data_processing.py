@@ -1,15 +1,17 @@
-import importlib
+pass
 import json
 import os
 import random
 import re
 import unittest
 from io import StringIO
-from pathlib import Path
+
+pass
 from unittest import mock
 
 import numpy as np
 
+from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.data_processing import (
     BaseDataProcessor,
     CharEncodedPreprocessor,
@@ -225,10 +227,8 @@ class TestBaseDataProcessor(unittest.TestCase):
         BaseDataProcessor.load_from_library("default")
 
         # assert called with proper load_processor dirpath
-        with importlib.resources.as_file(
-            importlib.resources.files("resources")
-        ) as base:
-            default_labeler_dir = Path(base) / "labelers"
+
+        default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
 
         mocked_load.assert_called_with(os.path.join(default_labeler_dir, "default"))
 

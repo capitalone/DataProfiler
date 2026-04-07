@@ -1,4 +1,3 @@
-pass
 import json
 from unittest import mock
 

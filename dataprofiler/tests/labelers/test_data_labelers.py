@@ -151,7 +151,7 @@ class TestDataLabeler(unittest.TestCase):
     def test_load_from_disk(self, *mocks):
         from dataprofiler.labelers import utils as labeler_utils
 
-        default_labeler_dir = (
+        default_labeler_dir = str(
             labeler_utils.find_resources_dir() / "labelers/structured_model"
         )
 

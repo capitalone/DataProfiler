@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import abc
 import copy
-import importlib
 import inspect
 import json
 import math
@@ -13,14 +12,14 @@ import random
 import types
 import warnings
 from collections import Counter
-from pathlib import Path
 from typing import Any, Generator, Iterable, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
 
-with importlib.resources.as_file(importlib.resources.files("resources")) as base:
-    default_labeler_dir = Path(base) / "labelers"
+from . import utils
+
+default_labeler_dir = utils.find_resources_dir() / "labelers"
 
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")

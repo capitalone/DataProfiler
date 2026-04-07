@@ -151,7 +151,9 @@ class TestDataLabeler(unittest.TestCase):
     def test_load_from_disk(self, *mocks):
         from dataprofiler.labelers import utils as labeler_utils
 
-        default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+        default_labeler_dir = (
+            labeler_utils.find_resources_dir() / "labelers/structured_model"
+        )
 
         data_labeler = dp.DataLabeler.load_from_disk(default_labeler_dir)
         self.assertIsInstance(data_labeler, BaseDataLabeler)

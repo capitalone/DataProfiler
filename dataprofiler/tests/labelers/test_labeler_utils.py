@@ -1,12 +1,13 @@
 import logging
 import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from dataprofiler.labelers import labeler_utils
+from dataprofiler.labelers import labeler_utils, utils
 
 
 class TestEvaluateAccuracy(unittest.TestCase):
@@ -294,3 +295,17 @@ class TestTFFunctions(unittest.TestCase):
         # make change and validate updated filter
         labeler_utils.hide_tf_logger_warnings()
         self.assertEqual(1 + num_loggers, len(logger.filters))
+
+
+class TestFindResourcesDir(unittest.TestCase):
+    def test_find_resources_dir(self):
+        resource_dir = utils.find_resources_dir()
+        self.assertTrue(resource_dir.is_dir())
+        self.assertEqual(Path("resources").name, Path(str(resource_dir)).name)
+
+        labeler_dir = utils.find_resources_dir("labelers")
+        self.assertTrue(labeler_dir.is_dir())
+        self.assertEqual(Path("labelers").name, Path(str(labeler_dir)).name)
+
+        with self.assertRaisesRegex(FileNotFoundError, "Resource not found"):
+            utils.find_resources_dir("does/not/exist")

@@ -3,9 +3,16 @@
 import importlib.resources
 import sys
 import warnings
-from importlib.resources.abc import Traversable
 from pathlib import Path
-from typing import Any, Callable, List
+from typing import TYPE_CHECKING, Any, Callable, List
+
+if TYPE_CHECKING:
+    try:
+        # Newer Pythons / newer typeshed
+        from importlib.resources.abc import Traversable
+    except ModuleNotFoundError:
+        # Older Pythons
+        from importlib.abc import Traversable
 
 
 def warn_missing_module(labeler_function: str, module_name: str) -> None:

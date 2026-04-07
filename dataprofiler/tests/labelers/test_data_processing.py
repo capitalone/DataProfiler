@@ -225,7 +225,10 @@ class TestBaseDataProcessor(unittest.TestCase):
         BaseDataProcessor.load_from_library("default")
 
         # assert called with proper load_processor dirpath
-        default_labeler_dir = Path(importlib.resources.files("resources")) / "labelers"
+        with importlib.resources.as_file(
+            importlib.resources.files("resources")
+        ) as base:
+            default_labeler_dir = Path(base) / "labelers"
 
         mocked_load.assert_called_with(os.path.join(default_labeler_dir, "default"))
 

@@ -152,9 +152,10 @@ class TestDataLabeler(unittest.TestCase):
         import importlib
         from pathlib import Path
 
-        default_labeler_dir = (
-            Path(importlib.resources.files("resources")) / "labelers/structured_model"
-        )
+        with importlib.resources.as_file(
+            importlib.resources.files("resources")
+        ) as base:
+            default_labeler_dir = Path(base) / "labelers/structured_model"
 
         data_labeler = dp.DataLabeler.load_from_disk(default_labeler_dir)
         self.assertIsInstance(data_labeler, BaseDataLabeler)

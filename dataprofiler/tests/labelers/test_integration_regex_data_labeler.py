@@ -7,7 +7,8 @@ import numpy as np
 
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
-default_labeler_dir = Path(importlib.resources.files("resources")) / "labelers"
+with importlib.resources.as_file(importlib.resources.files("resources")) as base:
+    default_labeler_dir = Path(base) / "labelers"
 
 
 class TestRegexDataLabeler(unittest.TestCase):

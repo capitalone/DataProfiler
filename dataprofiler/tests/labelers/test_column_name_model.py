@@ -13,7 +13,8 @@ import dataprofiler as dp
 from dataprofiler.labelers.column_name_model import ColumnNameModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = Path(importlib.resources.files("resources")) / "labelers"
+with importlib.resources.as_file(importlib.resources.files("resources")) as base:
+    _resource_labeler_dir = Path(base) / "labelers"
 
 
 mock_model_parameters = {

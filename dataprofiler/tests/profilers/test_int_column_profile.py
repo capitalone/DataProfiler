@@ -1097,11 +1097,6 @@ class TestIntColumn(unittest.TestCase):
             profile_diff.pop("median_absolute_deviation"),
             places=2,
         )
-        self.assertAlmostEqual(
-            expected_diff.get("t-test").get("welch").pop("p-value"),
-            profile_diff.get("t-test").get("welch").pop("p-value"),
-            places=10,
-        )
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Assert type error is properly called

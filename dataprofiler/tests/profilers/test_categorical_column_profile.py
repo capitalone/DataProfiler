@@ -324,7 +324,15 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(num_nan_count, len(column_profile.null_types_index["nan"]))
-        expected = {"abcd": 2, "aa": 2, "b": 1, "4": 1, "3": 1, "2": 2, "dfd": 1}
+        expected = {
+            "abcd": 2,
+            "aa": 2,
+            "b": 1,
+            "4": 1,
+            "3": 1,
+            "2": 2,
+            "dfd": 1,
+        }
         self.assertDictEqual(expected, cat_profiler._categories)
         num_null_types = 4
         num_nan_count = 2
@@ -448,7 +456,19 @@ class TestCategoricalColumn(unittest.TestCase):
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", np.nan]
         )
         df2 = pd.Series(
-            ["1", "null", "ee", "NaN", "ff", "nan", "gg", "None", "aa", "b", "ee"]
+            [
+                "1",
+                "null",
+                "ee",
+                "NaN",
+                "ff",
+                "nan",
+                "gg",
+                "None",
+                "aa",
+                "b",
+                "ee",
+            ]
         )
 
         # Expected is based off insertion order
@@ -673,10 +693,12 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_count)
         self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_ratio)
         self.assertEqual(
-            0.99, merge_stop_conditions_not_met.stop_condition_unique_value_ratio
+            0.99,
+            merge_stop_conditions_not_met.stop_condition_unique_value_ratio,
         )
         self.assertEqual(
-            12, merge_stop_conditions_not_met.max_sample_size_to_check_stop_condition
+            12,
+            merge_stop_conditions_not_met.max_sample_size_to_check_stop_condition,
         )
 
     def test_gini_impurity(self):
@@ -759,7 +781,10 @@ class TestCategoricalColumn(unittest.TestCase):
         profile2.update(df_not_categorical)
         expected_diff = {
             "categorical": [True, False],
-            "statistics": {"unique_count": -10, "unique_ratio": -0.7142857142857143},
+            "statistics": {
+                "unique_count": -10,
+                "unique_ratio": -0.7142857142857143,
+            },
         }
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 
@@ -989,7 +1014,12 @@ class TestCategoricalColumn(unittest.TestCase):
         deserialized.update(df_categorical)
 
         assert deserialized.sample_size == 14
-        assert deserialized.categorical_counts == {"c": 5, "b": 4, "a": 4, "d": 1}
+        assert deserialized.categorical_counts == {
+            "c": 5,
+            "b": 4,
+            "a": 4,
+            "d": 1,
+        }
 
     def test_cms_max_num_heavy_hitters(self):
         df_categorical = pd.Series(["a"] * 5 + ["b"] * 5 + ["c"] * 10)

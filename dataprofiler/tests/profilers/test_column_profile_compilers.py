@@ -64,7 +64,8 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         compiler1.name = "compiler1"
         compiler2.name = "compiler2"
         with self.assertRaisesRegex(
-            ValueError, "Column profile names are unmatched: " "compiler1 != compiler2"
+            ValueError,
+            "Column profile names are unmatched: " "compiler1 != compiler2",
         ):
             compiler1 + compiler2
 
@@ -95,7 +96,9 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertEqual("Must add profilers.", str(e.exception))
 
     @mock.patch.multiple(
-        col_pro_compilers.BaseCompiler, __abstractmethods__=set(), _profilers="mock"
+        col_pro_compilers.BaseCompiler,
+        __abstractmethods__=set(),
+        _profilers="mock",
     )
     def test_no_options_error(self):
         with self.assertRaisesRegex(
@@ -230,7 +233,10 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
                 "stddev": 3.285085839971525,
                 "t-test": {
                     "t-statistic": 0.4155260166386663,
-                    "conservative": {"deg_of_free": 1.0, "p-value": 0.749287157907667},
+                    "conservative": {
+                        "deg_of_free": 1.0,
+                        "p-value": 0.749287157907667,
+                    },
                     "welch": {
                         "deg_of_free": 3.6288111187629117,
                         "p-value": 0.7011367179395704,
@@ -605,7 +611,10 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
                 "data": {
                     "name": "test",
                     "_profiles": {
-                        "order": {"class": "OrderColumn", "data": {"an": "order"}},
+                        "order": {
+                            "class": "OrderColumn",
+                            "data": {"an": "order"},
+                        },
                         "category": {
                             "class": "CategoricalColumn",
                             "data": {"this": "category"},
@@ -742,7 +751,11 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             expected_diff = {
                 "statistics": {
                     "avg_predictions": {"a": "unchanged", "b": -0.7, "c": 0.7},
-                    "label_representation": {"a": -0.84, "b": "unchanged", "c": 0.84},
+                    "label_representation": {
+                        "a": -0.84,
+                        "b": "unchanged",
+                        "c": 0.84,
+                    },
                 },
                 "data_label": [["a"], [], ["b"]],
             }
@@ -791,7 +804,9 @@ class TestColumnDataLabelerCompiler(unittest.TestCase):
             compiler = col_pro_compilers.ColumnDataLabelerCompiler(data)
 
         with mock.patch.object(
-            compiler._profiles["data_labeler"], "__dict__", {"data_label": "INTEGER"}
+            compiler._profiles["data_labeler"],
+            "__dict__",
+            {"data_label": "INTEGER"},
         ):
             serialized = json.dumps(compiler, cls=ProfileEncoder)
 
@@ -1045,7 +1060,20 @@ class TestUnstructuredCompiler(unittest.TestCase):
             "statistics": {
                 "vocab": [
                     ["H", "l"],
-                    ["e", "o", " ", "T", "h", "i", "s", "a", "t", "g", "r", "n"],
+                    [
+                        "e",
+                        "o",
+                        " ",
+                        "T",
+                        "h",
+                        "i",
+                        "s",
+                        "a",
+                        "t",
+                        "g",
+                        "r",
+                        "n",
+                    ],
                     ["u", "k", "w", "m", "y", "9"],
                 ],
                 "vocab_count": [
@@ -1066,7 +1094,11 @@ class TestUnstructuredCompiler(unittest.TestCase):
                     },
                     {"m": 2, "9": 2, "u": 1, "k": 1, "w": 1, "y": 1},
                 ],
-                "words": [["Hello", "test"], ["grant"], ["unknown", "name", "9"]],
+                "words": [
+                    ["Hello", "test"],
+                    ["grant"],
+                    ["unknown", "name", "9"],
+                ],
                 "word_count": [
                     {"Hello": 2, "test": 1},
                     {"grant": "unchanged"},
@@ -1126,7 +1158,20 @@ class TestUnstructuredCompiler(unittest.TestCase):
             "statistics": {
                 "vocab": [
                     ["H", "l"],
-                    ["e", "o", " ", "T", "h", "i", "s", "a", "t", "g", "r", "n"],
+                    [
+                        "e",
+                        "o",
+                        " ",
+                        "T",
+                        "h",
+                        "i",
+                        "s",
+                        "a",
+                        "t",
+                        "g",
+                        "r",
+                        "n",
+                    ],
                     ["u", "k", "w", "m", "y", "9"],
                 ],
                 "vocab_count": [
@@ -1147,7 +1192,11 @@ class TestUnstructuredCompiler(unittest.TestCase):
                     },
                     {"m": 2, "9": 2, "u": 1, "k": 1, "w": 1, "y": 1},
                 ],
-                "words": [["Hello", "test"], ["grant"], ["unknown", "name", "9"]],
+                "words": [
+                    ["Hello", "test"],
+                    ["grant"],
+                    ["unknown", "name", "9"],
+                ],
                 "word_count": [
                     {"Hello": 2, "test": 1},
                     {"grant": "unchanged"},

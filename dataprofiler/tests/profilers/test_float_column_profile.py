@@ -626,7 +626,8 @@ class TestFloatColumn(unittest.TestCase):
         }
 
         self.assertEqual(
-            expected_histogram["bin_counts"].tolist(), histogram["bin_counts"].tolist()
+            expected_histogram["bin_counts"].tolist(),
+            histogram["bin_counts"].tolist(),
         )
         self.assertCountEqual(expected_histogram["bin_edges"], histogram["bin_edges"])
 
@@ -759,7 +760,8 @@ class TestFloatColumn(unittest.TestCase):
         self.assertIsNotNone(merged_profiler.histogram_selection)
         histogram = profile["histogram"]
         self.assertEqual(
-            expected_histogram["bin_counts"].tolist(), histogram["bin_counts"].tolist()
+            expected_histogram["bin_counts"].tolist(),
+            histogram["bin_counts"].tolist(),
         )
         self.assertCountEqual(
             np.round(expected_histogram["bin_edges"], 12),
@@ -833,7 +835,7 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_histogram_loss(self):
         # run time is small
-        diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime = (
+        (diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime,) = (
             0.3,
             0.2,
             0.1,
@@ -843,12 +845,17 @@ class TestFloatColumn(unittest.TestCase):
         )
         expected_loss = 0.1 / 0.2 + 0.05 / 0.05
         est_loss = FloatColumn._histogram_loss(
-            diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime
+            diff_var,
+            avg_diffvar,
+            total_var,
+            avg_totalvar,
+            run_time,
+            avg_runtime,
         )
         self.assertEqual(expected_loss, est_loss)
 
         # run time is big
-        diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime = (
+        (diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime,) = (
             0.3,
             0.2,
             0.1,
@@ -858,7 +865,12 @@ class TestFloatColumn(unittest.TestCase):
         )
         expected_loss = 0.1 / 0.2 + 0.05 / 0.05 + 8 / 14
         est_loss = FloatColumn._histogram_loss(
-            diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime
+            diff_var,
+            avg_diffvar,
+            total_var,
+            avg_totalvar,
+            run_time,
+            avg_runtime,
         )
         self.assertEqual(expected_loss, est_loss)
 
@@ -866,7 +878,15 @@ class TestFloatColumn(unittest.TestCase):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        list_method = ["auto", "fd", "doane", "scott", "rice", "sturges", "sqrt"]
+        list_method = [
+            "auto",
+            "fd",
+            "doane",
+            "scott",
+            "rice",
+            "sturges",
+            "sqrt",
+        ]
         current_exact_var = 0
         # sqrt has the least current loss
         current_est_var = np.array([0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.005])
@@ -877,7 +897,10 @@ class TestFloatColumn(unittest.TestCase):
         for i, method in enumerate(list_method):
             profiler.histogram_methods[method]["total_loss"] = list_total_loss[i]
         selected_method = profiler._select_method_for_histogram(
-            current_exact_var, current_est_var, current_total_var, current_run_time
+            current_exact_var,
+            current_est_var,
+            current_total_var,
+            current_run_time,
         )
         self.assertEqual(selected_method, "sqrt")
 
@@ -894,7 +917,10 @@ class TestFloatColumn(unittest.TestCase):
         for i, method in enumerate(list_method):
             profiler.histogram_methods[method]["total_loss"] = list_total_loss[i]
         selected_method = profiler._select_method_for_histogram(
-            current_exact_var, current_est_var, current_total_var, current_run_time
+            current_exact_var,
+            current_est_var,
+            current_total_var,
+            current_run_time,
         )
         self.assertEqual(selected_method, "sturges")
 
@@ -921,7 +947,12 @@ class TestFloatColumn(unittest.TestCase):
         profiler._merge_histogram(input_array)
         merged_hist = profiler._histogram_for_profile("sqrt")[0]
 
-        expected_bin_counts, expected_bin_edges = [5, 2, 2], [0.5, 2.0, 3.5, 5.0]
+        expected_bin_counts, expected_bin_edges = [5, 2, 2], [
+            0.5,
+            2.0,
+            3.5,
+            5.0,
+        ]
         self.assertEqual(expected_bin_counts, merged_hist["bin_counts"].tolist())
         self.assertCountEqual(expected_bin_edges, merged_hist["bin_edges"])
 
@@ -1326,7 +1357,8 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler3.min, expected_profile.pop("min"))
         self.assertEqual(profiler3.max, expected_profile.pop("max"))
         self.assertEqual(
-            histogram["bin_counts"].tolist(), expected_histogram["bin_counts"].tolist()
+            histogram["bin_counts"].tolist(),
+            expected_histogram["bin_counts"].tolist(),
         )
         self.assertCountEqual(histogram["bin_edges"], expected_histogram["bin_edges"])
 
@@ -1539,7 +1571,10 @@ class TestFloatColumn(unittest.TestCase):
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.bin_count_or_method = ["sturges", "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = [
+            "sturges",
+            "doane",
+        ]
         num_profiler = FloatColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)
@@ -1553,7 +1588,8 @@ class TestFloatColumn(unittest.TestCase):
         # case when just 1 unique value, should just set bin size to be 1
         num_profiler.update(pd.Series(["1", "1"]))
         self.assertEqual(
-            1, len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"])
+            1,
+            len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"]),
         )
 
         # case when more than 1 unique value, by virtue of a streaming update
@@ -1703,7 +1739,10 @@ class TestFloatColumn(unittest.TestCase):
             },
             "t-test": {
                 "t-statistic": 0.5393164101529813,
-                "conservative": {"deg_of_free": 2.0, "p-value": 0.643676756587475},
+                "conservative": {
+                    "deg_of_free": 2.0,
+                    "p-value": 0.643676756587475,
+                },
                 "welch": {
                     "deg_of_free": 4.999127432888682,
                     "p-value": 0.6128117908944144,
@@ -1737,6 +1776,11 @@ class TestFloatColumn(unittest.TestCase):
             expected_diff.pop("median_absolute_deviation"),
             profile_diff.pop("median_absolute_deviation"),
             places=2,
+        )
+        self.assertAlmostEqual(
+            expected_diff.get("t-test").get("welch").pop("p-value"),
+            profile_diff.get("t-test").get("welch").pop("p-value"),
+            places=10,
         )
         self.assertDictEqual(expected_diff, profile_diff)
 

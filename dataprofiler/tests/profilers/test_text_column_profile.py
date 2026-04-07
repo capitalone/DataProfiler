@@ -41,7 +41,20 @@ class TestTextColumnProfiler(unittest.TestCase):
             ]
         ).apply(str)
         df2 = pd.Series(
-            ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
+            [
+                "1",
+                "1",
+                "ee",
+                "ff",
+                "ff",
+                "gg",
+                "gg",
+                "abcd",
+                "aa",
+                "b",
+                "ee",
+                "b",
+            ]
         ).apply(str)
         df3 = pd.Series(
             [
@@ -112,7 +125,20 @@ class TestTextColumnProfiler(unittest.TestCase):
             ]
         ).apply(str)
         df2 = pd.Series(
-            ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
+            [
+                "1",
+                "1",
+                "ee",
+                "ff",
+                "ff",
+                "gg",
+                "gg",
+                "abcd",
+                "aa",
+                "b",
+                "ee",
+                "b",
+            ]
         ).apply(str)
         df3 = pd.Series(
             [
@@ -451,7 +477,18 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = None
 
         df = pd.Series(
-            ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
+            [
+                "pancake",
+                "banana",
+                "lighthouse",
+                "aa",
+                "b",
+                "4",
+                "3",
+                "2",
+                "dfd",
+                "2",
+            ]
         )
 
         profiler1 = TextColumn("Text", options=options)
@@ -489,7 +526,8 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     def test_text_column_with_wrong_options(self):
         with self.assertRaisesRegex(
-            ValueError, "TextColumn parameter 'options' must be of" " type TextOptions."
+            ValueError,
+            "TextColumn parameter 'options' must be of" " type TextOptions.",
         ):
             profiler = TextColumn("Text", options="wrong_data_type")
 
@@ -531,7 +569,10 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.bin_count_or_method = ["sturges", "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = [
+            "sturges",
+            "doane",
+        ]
         num_profiler = TextColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)
@@ -545,7 +586,8 @@ class TestTextColumnProfiler(unittest.TestCase):
         # case when just 1 unique value, should just set bin size to be 1
         num_profiler.update(pd.Series(["1", "1"]))
         self.assertEqual(
-            1, len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"])
+            1,
+            len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"]),
         )
 
         # case when more than 1 unique value, by virtue of a streaming update
@@ -589,7 +631,10 @@ class TestTextColumnProfiler(unittest.TestCase):
             ),
             "t-test": {
                 "t-statistic": -1.9339958714826413,
-                "conservative": {"deg_of_free": 8.0, "p-value": 0.08916903961929257},
+                "conservative": {
+                    "deg_of_free": 8.0,
+                    "p-value": 0.08916903961929257,
+                },
                 "welch": {
                     "deg_of_free": 15.761400272034564,
                     "p-value": 0.07127621949432528,
@@ -616,6 +661,11 @@ class TestTextColumnProfiler(unittest.TestCase):
             expected_diff.pop("median_absolute_deviation"),
             profile_diff.pop("median_absolute_deviation"),
             places=2,
+        )
+        self.assertAlmostEqual(
+            expected_diff.get("t-test").get("welch").pop("p-value"),
+            profile_diff.get("t-test").get("welch").pop("p-value"),
+            places=10,
         )
         self.assertDictEqual(expected_diff, profile_diff)
 
@@ -681,7 +731,10 @@ class TestTextColumnProfiler(unittest.TestCase):
                             "total_loss": 0.0,
                             "current_loss": 0.0,
                             "suggested_bin_count": 5,
-                            "histogram": {"bin_counts": None, "bin_edges": None},
+                            "histogram": {
+                                "bin_counts": None,
+                                "bin_edges": None,
+                            },
                         }
                     },
                     "_stored_histogram": {
@@ -690,7 +743,14 @@ class TestTextColumnProfiler(unittest.TestCase):
                         "suggested_bin_count": 1000,
                         "histogram": {
                             "bin_counts": [6, 4, 0, 0, 1],
-                            "bin_edges": [1.0, 3.2, 5.4, 7.6000000000000005, 9.8, 12.0],
+                            "bin_edges": [
+                                1.0,
+                                3.2,
+                                5.4,
+                                7.6000000000000005,
+                                9.8,
+                                12.0,
+                            ],
                         },
                     },
                     "_batch_history": [

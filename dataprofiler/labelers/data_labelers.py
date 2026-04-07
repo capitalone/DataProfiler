@@ -1,17 +1,20 @@
 """Module to train and choose between structured and unstructured data labelers."""
+
 from __future__ import annotations
 
+import importlib.resources
 import os
+from pathlib import Path
 
 import pandas as pd
-import pkg_resources
 
 from .. import data_readers
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
 from .base_model import BaseModel
 from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+with importlib.resources.as_file(importlib.resources.files("resources")) as base:
+    default_labeler_dir = Path(base) / "labelers"
 
 
 def train_structured_labeler(

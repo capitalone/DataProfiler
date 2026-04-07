@@ -1,18 +1,20 @@
+import importlib
 import json
 import os
 import sys
 import unittest
 from io import StringIO
+from pathlib import Path
 from unittest import mock
 
 import numpy as np
-import pkg_resources
 
 import dataprofiler as dp
 from dataprofiler.labelers.column_name_model import ColumnNameModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+_resource_labeler_dir = Path(importlib.resources.files("resources")) / "labelers"
+
 
 mock_model_parameters = {
     "true_positive_dict": [

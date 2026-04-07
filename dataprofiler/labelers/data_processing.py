@@ -1,8 +1,10 @@
 """Contains pre-built processors for data labeling/processing."""
+
 from __future__ import annotations
 
 import abc
 import copy
+import importlib
 import inspect
 import json
 import math
@@ -11,13 +13,15 @@ import random
 import types
 import warnings
 from collections import Counter
+from pathlib import Path
 from typing import Any, Generator, Iterable, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
-import pkg_resources
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+with importlib.resources.as_file(importlib.resources.files("resources")) as base:
+    default_labeler_dir = Path(base) / "labelers"
+
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")
 

@@ -1,15 +1,17 @@
 """Contains abstract classes from which labeler classes will inherit."""
+
 from __future__ import annotations
 
+import importlib.resources
 import json
 import os
 import sys
 import warnings
+from pathlib import Path
 from typing import cast
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 
 from dataprofiler._typing import DataArray
 
@@ -17,7 +19,8 @@ from .. import data_readers
 from . import data_processing
 from .base_model import BaseModel
 
-default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+with importlib.resources.as_file(importlib.resources.files("resources")) as base:
+    default_labeler_dir = Path(base) / "labelers"
 
 
 class BaseDataLabeler:
@@ -246,7 +249,8 @@ class BaseDataLabeler:
             self._postprocessor.set_params(**params["postprocessor"])
 
         self.check_pipeline(
-            skip_postprocessor=self._postprocessor is None, error_on_mismatch=False
+            skip_postprocessor=self._postprocessor is None,
+            error_on_mismatch=False,
         )
 
     def add_label(self, label: str, same_as: str = None) -> None:
@@ -438,7 +442,9 @@ class BaseDataLabeler:
                 messages.append(
                     "Preprocessor and postprocessor value for `{}` do not "
                     "match. {} != {}".format(
-                        param, preprocessor_params[param], postprocessor_params[param]
+                        param,
+                        preprocessor_params[param],
+                        postprocessor_params[param],
                     )
                 )
         if messages:
@@ -490,7 +496,8 @@ class BaseDataLabeler:
                     "The load_options preprocessor class does not "
                     "match the required DataLabeler preprocessor."
                     "\n {} != {}".format(
-                        processor_class.__class__.__name__, param_processor_class
+                        processor_class.__class__.__name__,
+                        param_processor_class,
                     )
                 )
             params["preprocessor"]["class"] = load_options.get("preprocessor_class")
@@ -505,7 +512,8 @@ class BaseDataLabeler:
                 raise ValueError(
                     "The load_options postprocessor class does not match "
                     "the required DataLabeler postprocessor.\n {} != {}".format(
-                        processor_class.__class__.__name__, param_processor_class
+                        processor_class.__class__.__name__,
+                        param_processor_class,
                     )
                 )
             params["postprocessor"]["class"] = load_options.get("postprocessor_class")

@@ -1,13 +1,14 @@
+import importlib
 import json
 import os
 import random
 import re
 import unittest
 from io import StringIO
+from pathlib import Path
 from unittest import mock
 
 import numpy as np
-import pkg_resources
 
 from dataprofiler.labelers.data_processing import (
     BaseDataProcessor,
@@ -224,7 +225,8 @@ class TestBaseDataProcessor(unittest.TestCase):
         BaseDataProcessor.load_from_library("default")
 
         # assert called with proper load_processor dirpath
-        default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+        default_labeler_dir = Path(importlib.resources.files("resources")) / "labelers"
+
         mocked_load.assert_called_with(os.path.join(default_labeler_dir, "default"))
 
     @mock.patch("builtins.open")

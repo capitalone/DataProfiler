@@ -16,6 +16,7 @@ recursive-include dataprofiler *.txt
 recursive-include resources *.json
 recursive-include resources *.pb
 recursive-include resources *.py
+recursive-include resources *.keras
 
 recursive-include dataprofiler/labelers/embeddings *.txt
 include versioneer.py

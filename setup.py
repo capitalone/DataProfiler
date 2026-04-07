@@ -1,7 +1,5 @@
 """A setuptools for the Data Profiler Application and Python Libraries."""
 
-import os
-
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -42,9 +40,6 @@ with open(path.join(here, "requirements-reports.txt"), encoding="utf-8") as f:
     reports_packages = f.read().splitlines()
 
 resource_dir = "resources"
-default_labeler_files = [
-    (d, [os.path.join(d, f) for f in files]) for d, _, files in os.walk(resource_dir)
-]
 
 
 DESCRIPTION = (
@@ -110,15 +105,14 @@ setup(
     # # If there are data files included in your packages that need to be
     # # installed, specify them here.  If using Python 2.6 or less, then these
     # # have to be included in MANIFEST.in as well.
-    # package_data={
-    #     'data': [],
-    # },
+    package_data={
+        "data": [f"{resource_dir}/*"],
+    },
     #
     # # Although 'package_data' is the preferred approach, in some case you may
     # # need to place data files outside of your packages. See:
     # # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
     # # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=default_labeler_files,
     include_package_data=True,
 )
 

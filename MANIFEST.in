@@ -13,10 +13,10 @@ recursive-include dataprofiler *.parquet
 recursive-include dataprofiler *.py
 recursive-include dataprofiler *.txt
 
-recursive-include resources *.json
-recursive-include resources *.pb
-recursive-include resources *.py
-recursive-include resources *.keras
+recursive-include dataprofiler/resources *.json
+recursive-include dataprofiler/resources *.pb
+recursive-include dataprofiler/resources *.py
+recursive-include dataprofiler/resources *.keras
 
 recursive-include dataprofiler/labelers/embeddings *.txt
 include versioneer.py

@@ -15,7 +15,7 @@ from dataprofiler.labelers.character_level_cnn_model import (
 )
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+_resource_labeler_dir = labeler_utils.find_resources_dir("labelers")
 
 
 mock_model_parameters = {

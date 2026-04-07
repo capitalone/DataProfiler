@@ -19,7 +19,7 @@ import numpy.typing as npt
 
 from . import utils
 
-default_labeler_dir = utils.find_resources_dir() / "labelers"
+default_labeler_dir = utils.find_resources_dir("labelers")
 
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")

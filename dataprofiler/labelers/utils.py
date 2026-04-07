@@ -3,6 +3,7 @@
 import importlib.resources
 import sys
 import warnings
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any, Callable, List
 
@@ -55,11 +56,13 @@ def require_module(names: List[str]) -> Callable:
     return check_module
 
 
-def find_resources_dir() -> Path:
-    """Return the path to the package resources for the labeler."""
-    with importlib.resources.as_file(
-        importlib.resources.files("dataprofiler").joinpath("resources")
-    ) as base:
-        return Path(base)
+def find_resources_dir(resource_path: str | Path | None = None) -> Traversable:
+    """Return the path to the package resources."""
+    resource = importlib.resources.files("dataprofiler") / "resources"
+    if resource_path:
+        resource /= resource_path
 
-    raise FileNotFoundError("Could not locate resources (installed or source tree).")
+    if not (resource.is_file() or resource.is_dir()):
+        raise FileNotFoundError(f"Resource not found: {resource_path}")
+
+    return resource

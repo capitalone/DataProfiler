@@ -10,7 +10,7 @@ from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.regex_model import RegexModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-_resource_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+_resource_labeler_dir = labeler_utils.find_resources_dir("labelers")
 
 
 mock_model_parameters = {

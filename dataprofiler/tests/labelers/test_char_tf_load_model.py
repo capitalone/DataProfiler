@@ -12,7 +12,7 @@ from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.char_load_tf_model import CharLoadTFModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+default_labeler_dir = labeler_utils.find_resources_dir("labelers")
 
 mock_model_parameters = {
     "model_path": "project/example/path/fake_model.h5",

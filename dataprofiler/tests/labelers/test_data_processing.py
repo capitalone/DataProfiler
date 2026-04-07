@@ -228,7 +228,7 @@ class TestBaseDataProcessor(unittest.TestCase):
 
         # assert called with proper load_processor dirpath
 
-        default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+        default_labeler_dir = labeler_utils.find_resources_dir("labelers")
 
         mocked_load.assert_called_with(os.path.join(default_labeler_dir, "default"))
 

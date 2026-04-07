@@ -11,7 +11,7 @@ from dataprofiler.labelers.data_processing import (
     DirectPassPreprocessor,
 )
 
-default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+default_labeler_dir = labeler_utils.find_resources_dir("labelers")
 
 
 class TestColumnNameDataLabeler(unittest.TestCase):

@@ -6,7 +6,7 @@ import numpy as np
 from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
-default_labeler_dir = labeler_utils.find_resources_dir() / "labelers"
+default_labeler_dir = labeler_utils.find_resources_dir("labelers")
 
 
 class TestRegexDataLabeler(unittest.TestCase):

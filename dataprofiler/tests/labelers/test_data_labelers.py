@@ -152,7 +152,7 @@ class TestDataLabeler(unittest.TestCase):
         from dataprofiler.labelers import utils as labeler_utils
 
         default_labeler_dir = str(
-            labeler_utils.find_resources_dir() / "labelers/structured_model"
+            labeler_utils.find_resources_dir("labelers/structured_model")
         )
 
         data_labeler = dp.DataLabeler.load_from_disk(default_labeler_dir)

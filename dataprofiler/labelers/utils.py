@@ -2,7 +2,6 @@
 
 import importlib.resources
 import sys
-import sysconfig
 import warnings
 from pathlib import Path
 from typing import Any, Callable, List

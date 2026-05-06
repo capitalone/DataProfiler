@@ -3,6 +3,7 @@
 import importlib.resources
 import sys
 import warnings
+from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any, Callable, List
 

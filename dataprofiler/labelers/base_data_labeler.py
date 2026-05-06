@@ -17,7 +17,6 @@ from .. import data_readers
 from . import data_processing, utils
 from .base_model import BaseModel
 
-
 default_labeler_dir = utils.find_resources_dir("labelers")
 
 

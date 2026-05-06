@@ -1,7 +1,9 @@
+import importlib.resources
 import json
 import os
 import unittest
 from io import StringIO
+from pathlib import Path
 from unittest import mock
 
 import numpy as np

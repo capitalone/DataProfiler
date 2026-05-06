@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import importlib.resources
 import json
 import os
 import sys
 import warnings
+from pathlib import Path
 from typing import cast
 
 import numpy as np
@@ -16,6 +18,7 @@ from dataprofiler._typing import DataArray
 from .. import data_readers
 from . import data_processing, utils
 from .base_model import BaseModel
+
 
 default_labeler_dir = utils.find_resources_dir("labelers")
 

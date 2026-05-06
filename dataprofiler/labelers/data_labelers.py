@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import importlib.resources
 import os
-from pathlib import Path
 
 import pandas as pd
 

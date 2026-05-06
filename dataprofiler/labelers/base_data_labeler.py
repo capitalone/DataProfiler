@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import importlib.resources
 import json
 import os
 import sys
 import warnings
-from pathlib import Path
 from typing import cast
 
 import numpy as np

@@ -13,13 +13,6 @@ except ModuleNotFoundError:
     # Older Pythons
     from importlib.abc import Traversable
 
-try:
-    # Newer Pythons / newer typeshed
-    from importlib.resources.abc import Traversable
-except ModuleNotFoundError:
-    # Older Pythons
-    from importlib.abc import Traversable
-
 
 def warn_missing_module(labeler_function: str, module_name: str) -> None:
     """

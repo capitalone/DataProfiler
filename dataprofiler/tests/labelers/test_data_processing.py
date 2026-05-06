@@ -1,12 +1,9 @@
-pass
 import json
 import os
 import random
 import re
 import unittest
 from io import StringIO
-
-pass
 from unittest import mock
 
 import numpy as np

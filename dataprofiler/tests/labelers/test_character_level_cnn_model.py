@@ -430,7 +430,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         StringIO.close(mock_file)
 
     @mock.patch("tensorflow.keras.Model.save", return_value=None)
-    @mock.patch("tensorflow.keras.models.load_model", return_value=mock.Mock())
+    @mock.patch("tensorflow.keras.models.load_model", return_value=mock.MagicMock())
     @mock.patch("builtins.open", side_effect=mock_open)
     def test_load(self, *mocks):
         dir = os.path.join(_resource_labeler_dir, "unstructured_model/")

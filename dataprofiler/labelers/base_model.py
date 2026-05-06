@@ -78,7 +78,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, BaseModel)
             or self._parameters != other._parameters
             or self._label_mapping != other._label_mapping

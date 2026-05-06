@@ -450,6 +450,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         loaded_model._model_default_ind = loaded_model.label_mapping[
             loaded_model._parameters["default_label"]
         ]
+        loaded_model._compile_loss(loaded_model._model, loaded_model.num_labels)
         return loaded_model
 
     @staticmethod
@@ -474,6 +475,28 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         # Initialize the thresholds vector variable and create the threshold
         # matrix.
         return ThreshArgMaxLayer(threshold, num_labels, default_ind)
+
+    @staticmethod
+    def _compile_loss(model: tf.keras.Model, num_labels: int) -> None:
+        """Compiles the loss for the given model and number of labels."""
+        # Compile the model
+        softmax_output_layer_name = model.output_names[0]
+        # losses = {softmax_output_layer_name: "categorical_crossentropy"}
+        losses = ["categorical_crossentropy", None, None]
+
+        # use f1 score metric
+        f1_score_training = labeler_utils.F1Score(
+            num_classes=num_labels, average="micro"
+        )
+        metrics = {
+            softmax_output_layer_name: [
+                "categorical_crossentropy",
+                "acc",
+                f1_score_training,
+            ]
+        }
+
+        model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
     def _construct_model(self) -> None:
         """
@@ -570,24 +593,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             final_predicted_layer(argmax_layer, self._model.outputs[0]),
         ]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
-
-        # Compile the model
-        softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
-
-        # use f1 score metric
-        f1_score_training = labeler_utils.F1Score(
-            num_classes=num_labels, average="micro"
-        )
-        metrics = {
-            softmax_output_layer_name: [
-                "categorical_crossentropy",
-                "acc",
-                f1_score_training,
-            ]
-        }
-
-        self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
+        self._compile_loss(self._model, num_labels)
 
         self._epoch_id = 0
         self._model_num_labels = num_labels
@@ -632,24 +638,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             final_predicted_layer(argmax_layer, final_softmax_layer),
         ]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
-
-        # Compile the model
-        softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
-
-        # use f1 score metric
-        f1_score_training = labeler_utils.F1Score(
-            num_classes=num_labels, average="micro"
-        )
-        metrics = {
-            softmax_output_layer_name: [
-                "categorical_crossentropy",
-                "acc",
-                f1_score_training,
-            ]
-        }
-
-        self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
+        self._compile_loss(self._model, num_labels)
         self._epoch_id = 0
         self._model_num_labels = num_labels
         self._model_default_ind = default_ind
@@ -699,14 +688,11 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         f1_report: dict = {}
 
         self._model.reset_metrics()
-        softmax_output_layer_name = self._model.output_names[0]
 
         start_time = time.time()
         batch_id = 0
         for x_train, y_train in train_data:
-            model_results = self._model.train_on_batch(
-                x_train, {softmax_output_layer_name: y_train}
-            )
+            model_results = self._model.train_on_batch(x_train, y_train)
             sys.stdout.flush()
             if verbose:
                 sys.stdout.write(

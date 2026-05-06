@@ -73,7 +73,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, BaseDataProcessor)
             or self._parameters != other._parameters
         ):
@@ -1589,7 +1589,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, StructCharPostprocessor)
             or self._parameters["default_label"] != other._parameters["default_label"]
             or self._parameters["pad_label"] != other._parameters["pad_label"]

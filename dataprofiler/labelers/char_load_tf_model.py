@@ -262,8 +262,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         # Compile the model w/ metrics
         softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
-
+        losses = ["categorical_crossentropy", None, None]
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
             num_classes=num_labels, average="micro"
@@ -316,7 +315,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         # Compile the model
         softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
+        losses = ["categorical_crossentropy", None, None]
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(

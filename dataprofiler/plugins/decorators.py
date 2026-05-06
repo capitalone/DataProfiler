@@ -1,4 +1,5 @@
 """Contains function for generating plugins data."""
+
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict
 
@@ -21,7 +22,6 @@ def plugin_decorator(typ, name):
         :param fn: Plugin function
         :return: function
         """
-        global plugins_dict
         plugins_dict[typ][name] = fn
         return fn
 

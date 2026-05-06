@@ -4,15 +4,14 @@ import importlib.resources
 import sys
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, List
+from typing import Any, Callable, List
 
-if TYPE_CHECKING:
-    try:
-        # Newer Pythons / newer typeshed
-        from importlib.resources.abc import Traversable
-    except ModuleNotFoundError:
-        # Older Pythons
-        from importlib.abc import Traversable
+try:
+    # Newer Pythons / newer typeshed
+    from importlib.resources.abc import Traversable
+except ModuleNotFoundError:
+    # Older Pythons
+    from importlib.abc import Traversable
 
 try:
     # Newer Pythons / newer typeshed

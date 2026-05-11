@@ -623,19 +623,17 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 RuntimeWarning,
             )
             invalid_stats = True
-        if np.isnan(
-            [
-                profiler_utils.as_float_scalar(mean1),
-                profiler_utils.as_float_scalar(mean2),
-                profiler_utils.as_float_scalar(var1),
-                profiler_utils.as_float_scalar(var2),
-            ]
-        ).any() or None in [
-            mean1,
-            mean2,
-            var1,
-            var2,
-        ]:
+        if (
+            None in [mean1, mean2, var1, var2]
+            or np.isnan(
+                [
+                    profiler_utils.as_float_scalar(mean1),
+                    profiler_utils.as_float_scalar(mean2),
+                    profiler_utils.as_float_scalar(var1),
+                    profiler_utils.as_float_scalar(var2),
+                ]
+            ).any()
+        ):
             warnings.warn(
                 "Null value(s) found in mean and/or variance values. "
                 "T-test cannot be performed.",

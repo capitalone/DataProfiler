@@ -304,9 +304,9 @@ def _get_bin_edges(
             n_equal_bins = 1
         else:
             # Do not call selectors on empty arrays
-            width = profiler_utils.as_float_scalar(
-                _hist_bin_selectors[bin_name](a, (first_edge, last_edge))
-            )
+            width = _hist_bin_selectors[bin_name](a, (first_edge, last_edge))
+            if width is not None:
+                width = profiler_utils.as_float_scalar(width)
             if width:
                 n_equal_bins = int(
                     np.ceil(_unsigned_subtract(last_edge, first_edge) / width)
@@ -357,9 +357,9 @@ def _calculate_bins_from_profile(profile, bin_method):
         n_equal_bins = 1
     else:
         # Do not call selectors on empty arrays
-        width = profiler_utils.as_float_scalar(
-            _hist_bin_width_selectors_for_profile[bin_method](profile)
-        )
+        width = _hist_bin_width_selectors_for_profile[bin_method](profile)
+        if width is not None:
+            width = profiler_utils.as_float_scalar(width)
         if width and not np.isnan(width):
             n_equal_bins = int(np.ceil(_ptp(maximum, minimum) / width))
         else:

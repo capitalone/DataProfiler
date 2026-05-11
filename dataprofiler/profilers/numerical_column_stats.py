@@ -634,7 +634,12 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             )
             invalid_stats = True
         if np.isnan(
-            [float(mean1), float(mean2), float(var1), float(var2)]
+            [
+                _as_float_scalar(mean1),
+                _as_float_scalar(mean2),
+                _as_float_scalar(var1),
+                _as_float_scalar(var2),
+            ]
         ).any() or None in [
             mean1,
             mean2,
@@ -1836,7 +1841,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
-        batch_mean = 0.0 if not batch_count else float(sum_value) / batch_count
+        batch_mean = (
+            0.0 if not batch_count else _as_float_scalar(sum_value) / batch_count
+        )
         subset_properties["mean"] = batch_mean
         self._biased_variance = self._merge_biased_variance(
             self.match_count,

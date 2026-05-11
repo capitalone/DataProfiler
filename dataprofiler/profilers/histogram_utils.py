@@ -12,6 +12,8 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
+from . import profiler_utils
+
 try:
     # numpy v2+
     from numpy.lib._histograms_impl import (  # type: ignore[attr-defined]
@@ -90,7 +92,7 @@ def _ptp(maximum: float, minimum: float):
 
     :return: the difference between the maximum and minimum
     """
-    return np.subtract(maximum, minimum)
+    return profiler_utils.as_float_scalar(np.subtract(maximum, minimum))
 
 
 def _calc_doane_bin_width_from_profile(profile):
@@ -191,7 +193,9 @@ def _calc_fd_bin_width_from_profile(profile):
 
     :return: An estimate of the optimal bin width for the given data.
     """
-    iqr = np.subtract(profile._get_percentile([75]), profile._get_percentile([25]))
+    iqr = profiler_utils.as_float_scalar(
+        np.subtract(profile._get_percentile([75]), profile._get_percentile([25]))
+    )
     dataset_size = _get_dataset_size_from_profile(profile)
 
     return 2.0 * iqr * dataset_size ** (-1.0 / 3.0)
@@ -300,7 +304,9 @@ def _get_bin_edges(
             n_equal_bins = 1
         else:
             # Do not call selectors on empty arrays
-            width = _hist_bin_selectors[bin_name](a, (first_edge, last_edge))
+            width = profiler_utils.as_float_scalar(
+                _hist_bin_selectors[bin_name](a, (first_edge, last_edge))
+            )
             if width:
                 n_equal_bins = int(
                     np.ceil(_unsigned_subtract(last_edge, first_edge) / width)
@@ -351,7 +357,9 @@ def _calculate_bins_from_profile(profile, bin_method):
         n_equal_bins = 1
     else:
         # Do not call selectors on empty arrays
-        width = _hist_bin_width_selectors_for_profile[bin_method](profile)
+        width = profiler_utils.as_float_scalar(
+            _hist_bin_width_selectors_for_profile[bin_method](profile)
+        )
         if width and not np.isnan(width):
             n_equal_bins = int(np.ceil(_ptp(maximum, minimum) / width))
         else:

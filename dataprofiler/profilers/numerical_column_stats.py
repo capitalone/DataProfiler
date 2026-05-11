@@ -35,16 +35,6 @@ NumericStatsMixinT = TypeVar("NumericStatsMixinT", bound="NumericStatsMixin")
 Numeric: TypeAlias = int | float | np.float64 | np.int64
 
 
-def _as_float_scalar(value: Numeric | np.ndarray) -> float:
-    """Convert a scalar-like numeric value to a Python float."""
-    array_value = np.asarray(value)
-    if array_value.ndim == 0:
-        return float(array_value)
-    if array_value.size == 1:
-        return float(array_value.item())
-    raise TypeError("Expected a scalar numeric value.")
-
-
 class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.ABCMeta):
     """
     Abstract numerical column profile subclass of BaseColumnProfiler.
@@ -209,7 +199,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         # calculate the min of the first edge and the max of the last edge
         # between two arrays
         global_min_of_histogram_edges = (
-            _as_float_scalar(self.min)
+            profiler_utils.as_float_scalar(self.min)
             if self.min is not None
             else min(
                 other1._stored_histogram["histogram"]["bin_edges"][0],
@@ -218,7 +208,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         )
 
         global_max_of_histogram_edges = (
-            _as_float_scalar(self.max)
+            profiler_utils.as_float_scalar(self.max)
             if self.max is not None
             else max(
                 other1._stored_histogram["histogram"]["bin_edges"][-1],
@@ -635,10 +625,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             invalid_stats = True
         if np.isnan(
             [
-                _as_float_scalar(mean1),
-                _as_float_scalar(mean2),
-                _as_float_scalar(var1),
-                _as_float_scalar(var2),
+                profiler_utils.as_float_scalar(mean1),
+                profiler_utils.as_float_scalar(mean2),
+                profiler_utils.as_float_scalar(var1),
+                profiler_utils.as_float_scalar(var2),
             ]
         ).any() or None in [
             mean1,
@@ -1842,7 +1832,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
         batch_mean = (
-            0.0 if not batch_count else _as_float_scalar(sum_value) / batch_count
+            0.0
+            if not batch_count
+            else profiler_utils.as_float_scalar(sum_value) / batch_count
         )
         subset_properties["mean"] = batch_mean
         self._biased_variance = self._merge_biased_variance(

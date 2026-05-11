@@ -39,6 +39,18 @@ if TYPE_CHECKING:
 from .. import rng_utils
 
 
+def as_float_scalar(
+    value: int | float | np.integer | np.floating | np.ndarray | list[float],
+) -> float:
+    """Convert a scalar-like value to a Python float."""
+    array_value = np.asarray(value)
+    if array_value.ndim == 0:
+        return float(array_value)
+    if array_value.size == 1:
+        return float(array_value.item())
+    raise TypeError("Expected a scalar-like numeric value.")
+
+
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
     """
     Recursive updates nested dictionaries. Updating d with update_d.

@@ -6,7 +6,7 @@ import abc
 import copy
 import itertools
 import warnings
-from typing import Any, Callable, Dict, List, TypeVar, cast
+from typing import Any, Callable, Dict, List, TypeAlias, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -32,6 +32,7 @@ class abstractstaticmethod(staticmethod):
 
 
 NumericStatsMixinT = TypeVar("NumericStatsMixinT", bound="NumericStatsMixin")
+Numeric: TypeAlias = int | float | np.float64 | np.int64
 
 
 class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.ABCMeta):
@@ -56,10 +57,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "NumericalStatsMixin parameter 'options' must be "
                 "of type NumericalOptions."
             )
-        self.min: int | float | np.float64 | np.int64 | None = None
-        self.max: int | float | np.float64 | np.int64 | None = None
+        self.min: Numeric | None = None
+        self.max: Numeric | None = None
         self._top_k_modes: int = 5  # By default, return at max 5 modes
-        self.sum: int | float | np.float64 | np.int64 = np.float64(0)
+        self.sum: Numeric = np.float64(0)
         self._biased_variance: float | np.float64 = np.nan
         self._biased_skewness: float | np.float64 = np.nan
         self._biased_kurtosis: float | np.float64 = np.nan
@@ -298,14 +299,14 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             )
         if "min" in self.__calculations.keys():
             if other1.min is not None and other2.min is not None:
-                self.min = min(other1.min, other2.min)
+                self.min = min(other1.min, other2.min)  # type: ignore[type-var]
             elif other2.min is None:
                 self.min = other1.min
             else:
                 self.min = other2.min
         if "max" in self.__calculations.keys():
             if other1.max is not None and other2.max is not None:
-                self.max = max(other1.max, other2.max)
+                self.max = max(other1.max, other2.max)  # type: ignore[type-var]
             elif other2.max is None:
                 self.max = other1.max
             else:
@@ -1403,7 +1404,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         dest_hist_entity_count_per_bin: np.ndarray,
         dest_hist_bin_edges: np.ndarray,
         dest_hist_num_bin: int,
-    ) -> tuple[dict[str, np.ndarray[Any, Any]], float]:
+    ) -> tuple[dict[str, np.ndarray], float]:
         """
         Assimilates a histogram into another histogram using specifications.
 
@@ -1821,7 +1822,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         # Suppress any numpy warnings as we have a custom warning for invalid
         # or infinite data already
         with np.errstate(all="ignore"):
-            batch_biased_variance = np.var(df_series)  # Obtains biased variance
+            batch_biased_variance = cast(float | np.float64, np.var(df_series))
         subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]

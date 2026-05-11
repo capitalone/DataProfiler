@@ -602,7 +602,7 @@ def find_diff_of_matrices(
         mat1 = np.array(matrix1, dtype=np.float64)
         mat2 = np.array(matrix2, dtype=np.float64)
 
-        if mat1.shape == mat2.shape:
+        if np.shape(mat1) == np.shape(mat2):
             diff: np.ndarray = mat1 - mat2
             if ((diff == 0) | np.isnan(diff)).all():
                 return "unchanged"

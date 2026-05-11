@@ -78,8 +78,8 @@ def f1_report_dict_to_str(f1_report: dict, label_names: list[str]) -> str:
 
 
 def evaluate_accuracy(
-    predicted_entities_in_index: list[list[int]],
-    true_entities_in_index: list[list[int]],
+    predicted_entities_in_index: list[list[int]] | np.ndarray,
+    true_entities_in_index: list[list[int]] | np.ndarray,
     num_labels: int,
     entity_rev_dict: dict[int, str],
     verbose: bool = True,
@@ -119,13 +119,16 @@ def evaluate_accuracy(
             if x[1] not in omitted_labels
         ]
 
-    max_len = len(predicted_entities_in_index[0])
-    true_labels_padded = np.zeros((len(true_entities_in_index), max_len))
-    for i, true_labels_row in enumerate(true_entities_in_index):
+    predicted_entities = [np.asarray(row) for row in predicted_entities_in_index]
+    true_entities = [np.asarray(row) for row in true_entities_in_index]
+
+    max_len = len(predicted_entities[0])
+    true_labels_padded = np.zeros((len(true_entities), max_len))
+    for i, true_labels_row in enumerate(true_entities):
         true_labels_padded[i][: len(true_labels_row)] = true_labels_row
 
     true_labels_flatten = np.hstack(true_labels_padded)  # type: ignore
-    predicted_labels_flatten = np.hstack(predicted_entities_in_index)
+    predicted_labels_flatten = np.hstack(predicted_entities)
 
     all_labels: list[str] = []
     if entity_rev_dict:

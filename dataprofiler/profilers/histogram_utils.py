@@ -11,11 +11,22 @@ import operator
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from numpy.lib.histograms import (  # type: ignore[attr-defined]
-    _get_outer_edges,
-    _hist_bin_selectors,
-    _unsigned_subtract,
-)
+
+try:
+    # numpy v2+
+    from numpy.lib._histograms_impl import (  # type: ignore[attr-defined]
+        _get_outer_edges,
+        _hist_bin_selectors,
+        _unsigned_subtract,
+    )
+
+except ModuleNotFoundError:
+    # numpy v1+
+    from numpy.lib.histograms import (
+        _get_outer_edges,
+        _hist_bin_selectors,
+        _unsigned_subtract,
+    )
 
 
 def _get_maximum_from_profile(profile):

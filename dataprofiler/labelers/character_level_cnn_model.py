@@ -708,11 +708,11 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             f1, f1_report = self._validate_training(val_data)  # type: ignore
             history["f1_report"] = f1_report
 
-            val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
+            val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.nan
             val_precision = (
-                f1_report["weighted avg"]["precision"] if f1_report else np.NAN
+                f1_report["weighted avg"]["precision"] if f1_report else np.nan
             )
-            val_recall = f1_report["weighted avg"]["recall"] if f1_report else np.NAN
+            val_recall = f1_report["weighted avg"]["recall"] if f1_report else np.nan
             epoch_time = time.time() - start_time
             logger.info(
                 "\rEPOCH %d (%ds), loss: %f - acc: %f - f1_score %f -- "

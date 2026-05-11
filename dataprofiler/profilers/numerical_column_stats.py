@@ -541,7 +541,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         """Return mean value."""
         if self.match_count == 0:
             return 0.0
-        return self.sum / self.match_count
+        return cast(float | np.float64, self.sum / self.match_count)
 
     @property
     def mode(self) -> list[float]:

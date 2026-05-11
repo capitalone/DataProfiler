@@ -1216,7 +1216,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         pred_buffer: np.ndarray = np.array([])
         conf_buffer: np.ndarray = np.array([])
         result_ind = 0
-        buffer_add_inds = np.cumsum(list(map(len, results["pred"]))).tolist()
+        buffer_add_inds: list[int] = np.cumsum(list(map(len, results["pred"]))).tolist()
         separator_len = len(flatten_separator)
 
         if not inplace:
@@ -1684,7 +1684,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         pred_buffer: np.ndarray = np.array([])
         conf_buffer: np.ndarray = np.array([])
         result_ind = 0
-        buffer_add_inds = np.cumsum(list(map(len, results["pred"]))).tolist()
+        buffer_add_inds: list[int] = np.cumsum(list(map(len, results["pred"]))).tolist()
         separator_len = len(flatten_separator)
 
         if not inplace:

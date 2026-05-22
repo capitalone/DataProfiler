@@ -481,7 +481,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         """Compiles the loss for the given model and number of labels."""
         # Compile the model
         softmax_output_layer_name = model.output_names[0]
-        # losses = {softmax_output_layer_name: "categorical_crossentropy"}
         losses = ["categorical_crossentropy", None, None]
 
         # use f1 score metric

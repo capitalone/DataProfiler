@@ -750,11 +750,15 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         start_time = time.time()
         batch_id = 0
-        target_output = self._SOFTMAX_OUTPUT
         for x_train, y_train in train_data:
+            y_train_dict = {
+                self._SOFTMAX_OUTPUT: y_train,
+                self._ARGMAX_OUTPUT: None,
+                self._THRESH_OUTPUT: None,
+            }
             model_results = self._model.train_on_batch(
                 x_train,
-                {target_output: y_train},
+                y_train_dict,
                 return_dict=True,
             )
             acc_value = next(

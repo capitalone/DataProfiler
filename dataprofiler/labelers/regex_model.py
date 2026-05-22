@@ -1,4 +1,5 @@
 """Contains class for regex data labeling model."""
+
 from __future__ import annotations
 
 import copy

@@ -1,4 +1,5 @@
 """Contains class for column name data labeling model."""
+
 from __future__ import annotations
 
 import json

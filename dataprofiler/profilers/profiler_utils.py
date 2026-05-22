@@ -1,4 +1,5 @@
 """Contains functions for profilers."""
+
 from __future__ import annotations
 
 import collections
@@ -429,13 +430,11 @@ T = TypeVar("T", bound=Subtractable)
 def find_diff_of_numbers(
     stat1: int | float | np.float64 | np.int64 | None,
     stat2: int | float | np.float64 | np.int64 | None,
-) -> Any:
-    ...
+) -> Any: ...
 
 
 @overload
-def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any:
-    ...
+def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any: ...
 
 
 def find_diff_of_numbers(stat1, stat2):

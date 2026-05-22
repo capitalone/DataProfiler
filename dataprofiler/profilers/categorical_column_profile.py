@@ -1,4 +1,5 @@
 """Contains class for categorical column profiler."""
+
 from __future__ import annotations
 
 import math
@@ -277,28 +278,28 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
 
         # These stats are only diffed if both profiles are categorical
         if self.is_match and other_profile.is_match:
-            differences["statistics"][
-                "chi2-test"
-            ] = profiler_utils.perform_chi_squared_test_for_homogeneity(
-                self._categories,
-                self.sample_size,
-                other_profile._categories,
-                other_profile.sample_size,
+            differences["statistics"]["chi2-test"] = (
+                profiler_utils.perform_chi_squared_test_for_homogeneity(
+                    self._categories,
+                    self.sample_size,
+                    other_profile._categories,
+                    other_profile.sample_size,
+                )
             )
-            differences["statistics"][
-                "categories"
-            ] = profiler_utils.find_diff_of_lists_and_sets(
-                self.categories, other_profile.categories
+            differences["statistics"]["categories"] = (
+                profiler_utils.find_diff_of_lists_and_sets(
+                    self.categories, other_profile.categories
+                )
             )
-            differences["statistics"][
-                "gini_impurity"
-            ] = profiler_utils.find_diff_of_numbers(
-                self.gini_impurity, other_profile.gini_impurity
+            differences["statistics"]["gini_impurity"] = (
+                profiler_utils.find_diff_of_numbers(
+                    self.gini_impurity, other_profile.gini_impurity
+                )
             )
-            differences["statistics"][
-                "unalikeability"
-            ] = profiler_utils.find_diff_of_numbers(
-                self.unalikeability, other_profile.unalikeability
+            differences["statistics"]["unalikeability"] = (
+                profiler_utils.find_diff_of_numbers(
+                    self.unalikeability, other_profile.unalikeability
+                )
             )
             cat_count1 = dict(
                 sorted(self._categories.items(), key=itemgetter(1), reverse=True)
@@ -326,9 +327,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                     )
                 differences["statistics"]["psi"] = total_psi
 
-            differences["statistics"][
-                "categorical_count"
-            ] = profiler_utils.find_diff_of_dicts(self_cat_count, other_cat_count)
+            differences["statistics"]["categorical_count"] = (
+                profiler_utils.find_diff_of_dicts(self_cat_count, other_cat_count)
+            )
 
         return differences
 

@@ -1,4 +1,5 @@
 """Contains abstract class for data loading and saving."""
+
 import locale
 import sys
 from collections import OrderedDict

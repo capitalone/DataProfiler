@@ -1,4 +1,5 @@
 """Contains functions for the data labeler."""
+
 from __future__ import annotations
 
 import logging

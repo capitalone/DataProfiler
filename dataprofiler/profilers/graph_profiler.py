@@ -1,4 +1,5 @@
 """Class and functions to calculate and profile properties of graph data."""
+
 from __future__ import annotations
 
 import importlib

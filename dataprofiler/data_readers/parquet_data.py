@@ -1,4 +1,5 @@
 """Contains class to save and load parquet data."""
+
 from io import BytesIO, StringIO
 from typing import Any, Dict, List, Optional, Union
 

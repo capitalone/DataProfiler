@@ -1,4 +1,5 @@
 """Contains class for saving and loading spreadsheet data."""
+
 from io import BytesIO, StringIO
 from typing import Any, Dict, List, Optional, Union
 

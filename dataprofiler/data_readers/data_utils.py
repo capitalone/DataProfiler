@@ -1,4 +1,5 @@
 """Contains functions for data readers."""
+
 import json
 import logging
 import os

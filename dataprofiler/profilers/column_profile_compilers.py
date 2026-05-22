@@ -1,4 +1,5 @@
 """For generating a report."""
+
 from __future__ import annotations
 
 import abc

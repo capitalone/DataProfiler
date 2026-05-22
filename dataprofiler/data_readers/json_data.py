@@ -1,4 +1,5 @@
 """Contains class to save and load json data."""
+
 import json
 import re
 import warnings
@@ -71,9 +72,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
-        self._data_formats[
-            "flattened_dataframe"
-        ] = self._get_data_as_flattened_dataframe
+        self._data_formats["flattened_dataframe"] = (
+            self._get_data_as_flattened_dataframe
+        )
         self._selected_data_format: str = options.get(
             "data_format", "flattened_dataframe"
         )

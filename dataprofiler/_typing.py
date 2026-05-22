@@ -1,4 +1,5 @@
 """Contains typing aliases."""
+
 from typing import Dict, List, NewType, Union
 
 import numpy as np

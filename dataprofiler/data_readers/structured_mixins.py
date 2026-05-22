@@ -1,4 +1,5 @@
 """Contains mixin data class for loading datasets of tye SpreadSheet."""
+
 from logging import Logger
 from typing import Any, Dict, List, Optional, Union, cast
 

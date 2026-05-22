@@ -1,4 +1,5 @@
 """Contains abstract classes for labeling data."""
+
 from __future__ import annotations
 
 import abc

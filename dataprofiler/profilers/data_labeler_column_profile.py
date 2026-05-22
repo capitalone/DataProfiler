@@ -1,4 +1,5 @@
 """Contains class for for profiling data labeler col."""
+
 from __future__ import annotations
 
 import operator

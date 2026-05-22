@@ -258,9 +258,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         if self.user_set_histogram_bin is None:
             for method in self.histogram_bin_method_names:
-                self.histogram_methods[method][
-                    "suggested_bin_count"
-                ] = histogram_utils._calculate_bins_from_profile(self, method)
+                self.histogram_methods[method]["suggested_bin_count"] = (
+                    histogram_utils._calculate_bins_from_profile(self, method)
+                )
 
         self._get_quantiles()
 
@@ -1044,10 +1044,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             / N**3
         )
         third_term = (
-            6
-            * delta**2
-            * (match_count1**2 * M2_2 + match_count2**2 * M2_1)
-            / N**2
+            6 * delta**2 * (match_count1**2 * M2_2 + match_count2**2 * M2_1) / N**2
         )
         fourth_term = 4 * delta * (match_count1 * M3_2 - match_count2 * M3_1) / N
         M4 = first_term + second_term + third_term + fourth_term

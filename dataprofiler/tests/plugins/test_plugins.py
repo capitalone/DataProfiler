@@ -28,8 +28,8 @@ class TestPlugins(unittest.TestCase):
     @mock.patch("dataprofiler.plugins.__init__.os.path.isdir")
     @mock.patch("dataprofiler.plugins.__init__.os.listdir")
     def test_load_plugin(self, mock_listdir, mock_isdir, mock_importlib_util):
-        mock_listdir.side_effect = (
-            lambda folder_dir: ["__pycache__", "py"]
+        mock_listdir.side_effect = lambda folder_dir: (
+            ["__pycache__", "py"]
             if folder_dir.endswith("plugins")
             else ["stillnotrealpy", "a.json", None]
         )
@@ -38,10 +38,8 @@ class TestPlugins(unittest.TestCase):
         load_plugins()
         mock_importlib_util.spec_from_file_location.assert_not_called()
 
-        mock_listdir.side_effect = (
-            lambda folder_dir: ["folder"]
-            if folder_dir.endswith("plugins")
-            else ["file.py"]
+        mock_listdir.side_effect = lambda folder_dir: (
+            ["folder"] if folder_dir.endswith("plugins") else ["file.py"]
         )
         mock_spec = mock.Mock()
         mock_importlib_util.spec_from_file_location.return_value = mock_spec

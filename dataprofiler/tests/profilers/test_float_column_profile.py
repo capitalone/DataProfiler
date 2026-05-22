@@ -835,7 +835,14 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_histogram_loss(self):
         # run time is small
-        (diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime,) = (
+        (
+            diff_var,
+            avg_diffvar,
+            total_var,
+            avg_totalvar,
+            run_time,
+            avg_runtime,
+        ) = (
             0.3,
             0.2,
             0.1,
@@ -855,7 +862,14 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(expected_loss, est_loss)
 
         # run time is big
-        (diff_var, avg_diffvar, total_var, avg_totalvar, run_time, avg_runtime,) = (
+        (
+            diff_var,
+            avg_diffvar,
+            total_var,
+            avg_totalvar,
+            run_time,
+            avg_runtime,
+        ) = (
             0.3,
             0.2,
             0.1,

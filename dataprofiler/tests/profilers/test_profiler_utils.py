@@ -472,7 +472,6 @@ class TestProfileDistributedMerge(unittest.TestCase):
 
 
 class TestAutoMultiProcessToggle(unittest.TestCase):
-
     """
     Validate profile_utils.auto_multiprocess_toggle is properly working.
     """

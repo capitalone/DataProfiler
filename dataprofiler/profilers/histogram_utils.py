@@ -7,6 +7,7 @@ https://github.com/numpy/numpy/tree/main
 A copy of the license for numpy is available here:
 https://github.com/numpy/numpy/blob/main/LICENSE.txt
 """
+
 import operator
 from typing import List, Optional, Tuple, Union
 
@@ -16,6 +17,10 @@ from . import profiler_utils
 
 try:
     # numpy v2+
+    # NOTE: `numpy.lib._histograms_impl` is a private module, so this import may
+    # need to be revisited if NumPy exposes a public replacement for these
+    # helpers. NumPy's 2.4.0 release notes discuss public APIs replacing modules
+    # that moved private in 2.x: https://numpy.org/doc/stable/release/2.4.0-notes.html
     from numpy.lib._histograms_impl import (  # type: ignore[attr-defined]
         _get_outer_edges,
         _hist_bin_selectors,

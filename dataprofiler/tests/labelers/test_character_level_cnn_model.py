@@ -10,8 +10,10 @@ import tensorflow as tf
 
 from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.character_level_cnn_model import (
+    ArgMaxLayer,
     CharacterLevelCnnModel,
     EncodingLayer,
+    ThreshArgMaxLayer,
 )
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -252,6 +254,36 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         self.assertIsNotNone(f1)
         self.assertIsNotNone(f1_report)
         self.assertEqual(11, f1_report["ADDRESS"]["support"])
+
+    def test_normalize_old_list_output_model(self):
+        default_ind = self.label_mapping["UNKNOWN"]
+        num_labels = max(self.label_mapping.values()) + 1
+        inputs = tf.keras.Input(shape=(2, 4))
+        hidden = tf.keras.layers.Dense(8, activation="relu")(inputs)
+        softmax_output = tf.keras.layers.Dense(num_labels, activation="softmax")(hidden)
+        argmax_output = ArgMaxLayer()(softmax_output)
+        threshold_output = ThreshArgMaxLayer(
+            threshold_=0.0,
+            num_labels_=num_labels,
+            default_ind=default_ind,
+        )(argmax_output, softmax_output)
+        old_format_model = tf.keras.Model(
+            inputs, [softmax_output, argmax_output, threshold_output]
+        )
+
+        normalized_model = CharacterLevelCnnModel._normalize_model_outputs(
+            old_format_model, default_ind, num_labels
+        )
+
+        self.assertIsInstance(normalized_model.output, dict)
+        self.assertSetEqual(
+            set(normalized_model.output.keys()),
+            {
+                CharacterLevelCnnModel._SOFTMAX_OUTPUT,
+                CharacterLevelCnnModel._ARGMAX_OUTPUT,
+                CharacterLevelCnnModel._THRESH_OUTPUT,
+            },
+        )
 
     def test_fit_and_predict_with_new_labels(self):
         # Initialize model

@@ -446,8 +446,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cnn_model.details()
 
         expected_layers = [
-            "input_1",
-            "lambda",
+            "input_layer",
+            "encoding_layer",
             "embedding",
             "conv1d",
             "dropout",
@@ -465,8 +465,9 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
             "dropout_4",
             "dense_1",
             "dropout_5",
-            "dense_2",
-            "thresh_arg_max_layer",
+            "softmax_output",
+            "argmax_output",
+            "thresh_argmax_output",
         ]
         model_layers = [layer.name for layer in cnn_model._model.layers]
         self.assertEqual(len(expected_layers), len(model_layers))

@@ -231,6 +231,64 @@ def get_tf_layer_index_from_name(model: tf.keras.Model, layer_name: str) -> int 
     return None
 
 
+def normalize_tf_model_outputs(
+    model: tf.keras.Model,
+    output_names: list[str],
+    create_outputs_fn: Callable[
+        [tf.Tensor, list[tf.Tensor | None]], dict[str, tf.Tensor]
+    ],
+) -> tf.keras.Model:
+    """Convert a model's outputs into a named dict-output structure when possible."""
+    try:
+        model_output = model.output
+    except (AttributeError, IndexError):
+        model_output = None
+
+    try:
+        model_outputs_list = list(model.outputs)
+    except (AttributeError, IndexError, TypeError):
+        model_outputs_list = []
+
+    if isinstance(model_output, dict):
+        if set(model_output) == set(output_names):
+            return model
+        softmax_output = model_output.get(
+            output_names[0], next(iter(model_output.values()))
+        )
+        extra_outputs = [model_output.get(name) for name in output_names[1:]]
+    else:
+        if not model_outputs_list:
+            try:
+                last_output = model.layers[-1].output
+            except (AttributeError, IndexError):
+                return model
+            if not hasattr(last_output, "_keras_history"):
+                return model
+            model_outputs_list = [last_output]
+        softmax_output = model_outputs_list[0]
+        extra_outputs = [
+            model_outputs_list[index] if len(model_outputs_list) > index else None
+            for index in range(1, len(output_names))
+        ]
+
+    try:
+        output_dict = create_outputs_fn(softmax_output, extra_outputs)
+        return tf.keras.Model(model.inputs, output_dict)
+    except (AttributeError, TypeError, ValueError):
+        return model
+
+
+def get_tf_rebuild_layer_name(model: tf.keras.Model, base_name: str) -> str:
+    """Return a layer name unique within the current model graph."""
+    existing_names = {layer.name for layer in getattr(model, "layers", [])}
+    if base_name not in existing_names:
+        return base_name
+    suffix = 1
+    while f"{base_name}_{suffix}" in existing_names:
+        suffix += 1
+    return f"{base_name}_{suffix}"
+
+
 def hide_tf_logger_warnings() -> None:
     """Filter out a set of warnings from the tf logger."""
 

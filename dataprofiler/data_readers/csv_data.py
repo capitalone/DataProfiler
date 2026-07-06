@@ -730,9 +730,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if not count_percent.size:
             return False
 
-        max_count_index = count_percent.argmax()
+        max_count_index = int(count_percent.argmax())
         max_count_value = list(delimiter_count.keys())[max_count_index]
-        max_count_percent = count_percent[max_count_index]
+        max_count_percent = float(count_percent[max_count_index])
 
         # Inferred the file was a CSV
         if (max_count_value > 0 or delimiter is None) and (

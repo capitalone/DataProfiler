@@ -1108,11 +1108,12 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             elif bin_counts[i] == cur_max and count < self._top_k_modes:
                 highest_idxs.append(i)
                 count += 1
-        highest_idxs = np.array(highest_idxs)  # type: ignore
+        highest_idx_array = cast(np.ndarray, np.array(highest_idxs))
 
-        mode: npt.NDArray[np.float64] = (
-            bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]  # type: ignore
-        ) / 2
+        mode = cast(
+            np.ndarray,
+            (bin_edges[highest_idx_array] + bin_edges[highest_idx_array + 1]) / 2,
+        )
         return cast(List[float], mode.tolist())
 
     def _estimate_stats_from_histogram(self) -> np.float64:
@@ -1135,9 +1136,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         bin_edges = bin_edges.copy()
         bin_edges[-1] += 1e-3
 
-        inds = np.digitize(input_array, bin_edges)
+        inds = cast(np.ndarray, np.digitize(input_array, bin_edges))
         sum_var = 0
-        non_zero_bins = np.where(bin_counts)[0] + 1
+        non_zero_bins = cast(np.ndarray, np.where(bin_counts)[0] + 1)
         for i in non_zero_bins:
             elements_in_bin = input_array[inds == i]
             bin_var = elements_in_bin.var()

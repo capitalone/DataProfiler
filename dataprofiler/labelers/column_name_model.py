@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 import numpy as np
 
@@ -199,7 +199,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             list_of_column_names, check_values_list, processor=processor, scorer=scorer
         )
 
-        for iter_value, ngram_match_results in enumerate(model_outputs):
+        for _, ngram_match_results in enumerate(model_outputs):
+            ngram_match_results = cast(np.ndarray, ngram_match_results)
             column_result = [np.max(ngram_match_results)]
             if include_label:
                 index_max_result = ngram_match_results.argmax(axis=0)

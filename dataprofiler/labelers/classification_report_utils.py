@@ -42,7 +42,7 @@ def convert_confusion_matrix_to_MCM(conf_matrix: list | np.ndarray) -> np.ndarra
 
     # False Negatives
     non_diagonal_mask = cast(
-        np.ndarray, np.ones((num_labels, num_labels)) - np.eye(num_labels)
+        np.ndarray, np.logical_not(np.eye(num_labels, dtype=bool)).astype(np.int64)
     )
     MCM[:, 1, 0] = np.sum(conf_matrix * non_diagonal_mask, axis=1)
 

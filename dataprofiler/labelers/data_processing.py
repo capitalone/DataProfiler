@@ -482,6 +482,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             sample_buffer = str(sample_buffer)
             # buffer is empty, add sample to the buffer.
             sample_len = len(sample_buffer)
+            label_buffer_list: list[int] = []
 
             if label_set is not None:
                 # Create an entity buffer for sample, assign the default entity

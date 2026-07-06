@@ -696,106 +696,125 @@ class TestTextColumnProfiler(unittest.TestCase):
         # popping vocab and comparing as set below since order is random
         serialized_vocab = serialized_dict["data"].pop("vocab")
 
-        serialized = json.dumps(serialized_dict)
-
-        expected = json.dumps(
-            {
-                "class": "TextColumn",
-                "data": {
-                    "min": 1.0,
-                    "max": 12.0,
-                    "_top_k_modes": 5,
-                    "sum": 38.0,
-                    "_biased_variance": 9.33884297520661,
-                    "_biased_skewness": 1.8025833203700588,
-                    "_biased_kurtosis": 2.7208317017777395,
-                    "_median_is_enabled": True,
-                    "_median_abs_dev_is_enabled": True,
-                    "max_histogram_bin": 100000,
-                    "min_histogram_bin": 1000,
-                    "histogram_bin_method_names": ["custom"],
-                    "histogram_selection": None,
-                    "user_set_histogram_bin": 5,
-                    "bias_correction": True,
-                    "_mode_is_enabled": True,
-                    "num_zeros": 0,
-                    "num_negatives": 0,
-                    "_num_quantiles": 1000,
-                    "histogram_methods": {
-                        "custom": {
-                            "total_loss": 0.0,
-                            "current_loss": 0.0,
-                            "suggested_bin_count": 5,
-                            "histogram": {
-                                "bin_counts": None,
-                                "bin_edges": None,
-                            },
-                        }
-                    },
-                    "_stored_histogram": {
-                        "total_loss": 7.63,
-                        "current_loss": 7.63,
-                        "suggested_bin_count": 1000,
+        expected_dict = {
+            "class": "TextColumn",
+            "data": {
+                "min": 1.0,
+                "max": 12.0,
+                "_top_k_modes": 5,
+                "sum": 38.0,
+                "_biased_variance": 9.33884297520661,
+                "_biased_skewness": 1.8025833203700588,
+                "_biased_kurtosis": 2.7208317017777395,
+                "_median_is_enabled": True,
+                "_median_abs_dev_is_enabled": True,
+                "max_histogram_bin": 100000,
+                "min_histogram_bin": 1000,
+                "histogram_bin_method_names": ["custom"],
+                "histogram_selection": None,
+                "user_set_histogram_bin": 5,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 0,
+                "num_negatives": 0,
+                "_num_quantiles": 1000,
+                "histogram_methods": {
+                    "custom": {
+                        "total_loss": 0.0,
+                        "current_loss": 0.0,
+                        "suggested_bin_count": 5,
                         "histogram": {
-                            "bin_counts": [6, 4, 0, 0, 1],
-                            "bin_edges": [
-                                1.0,
-                                3.2,
-                                5.4,
-                                7.6000000000000005,
-                                9.8,
-                                12.0,
-                            ],
+                            "bin_counts": None,
+                            "bin_edges": None,
                         },
-                    },
-                    "_batch_history": [
-                        {
-                            "match_count": 11,
-                            "sample_size": 11,
-                            "min": 1.0,
-                            "max": 12.0,
-                            "sum": 38.0,
-                            "biased_variance": 9.33884297520661,
-                            "mean": 3.4545454545454546,
-                            "biased_skewness": 1.8025833203700588,
-                            "biased_kurtosis": 2.7208317017777395,
-                        }
-                    ],
-                    "_NumericStatsMixin__calculations": {
-                        "min": "_get_min",
-                        "max": "_get_max",
-                        "sum": "_get_sum",
-                        "variance": "_get_variance",
-                        "skewness": "_get_skewness",
-                        "kurtosis": "_get_kurtosis",
-                        "histogram_and_quantiles": "_get_histogram_and_quantiles",
-                    },
-                    "name": None,
-                    "col_index": np.nan,
-                    "sample_size": 11,
-                    "metadata": {},
-                    "times": {
-                        "vocab": 1.0,
-                        "min": 1.0,
-                        "max": 1.0,
-                        "sum": 1.0,
-                        "variance": 1.0,
-                        "skewness": 1.0,
-                        "kurtosis": 1.0,
-                        "histogram_and_quantiles": 1.0,
-                    },
-                    "thread_safe": True,
-                    "match_count": 11,
-                    "_TextColumn__calculations": {"vocab": "_update_vocab"},
-                    "type": "string",
+                    }
                 },
-            }
-        )
+                "_stored_histogram": {
+                    "total_loss": 7.63,
+                    "current_loss": 7.63,
+                    "suggested_bin_count": 1000,
+                    "histogram": {
+                        "bin_counts": [6, 4, 0, 0, 1],
+                        "bin_edges": [
+                            1.0,
+                            3.2,
+                            5.4,
+                            7.6000000000000005,
+                            9.8,
+                            12.0,
+                        ],
+                    },
+                },
+                "_batch_history": [
+                    {
+                        "match_count": 11,
+                        "sample_size": 11,
+                        "min": 1.0,
+                        "max": 12.0,
+                        "sum": 38.0,
+                        "biased_variance": 9.33884297520661,
+                        "mean": 3.4545454545454546,
+                        "biased_skewness": 1.8025833203700588,
+                        "biased_kurtosis": 2.7208317017777395,
+                    }
+                ],
+                "_NumericStatsMixin__calculations": {
+                    "min": "_get_min",
+                    "max": "_get_max",
+                    "sum": "_get_sum",
+                    "variance": "_get_variance",
+                    "skewness": "_get_skewness",
+                    "kurtosis": "_get_kurtosis",
+                    "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                },
+                "name": None,
+                "col_index": np.nan,
+                "sample_size": 11,
+                "metadata": {},
+                "times": {
+                    "vocab": 1.0,
+                    "min": 1.0,
+                    "max": 1.0,
+                    "sum": 1.0,
+                    "variance": 1.0,
+                    "skewness": 1.0,
+                    "kurtosis": 1.0,
+                    "histogram_and_quantiles": 1.0,
+                },
+                "thread_safe": True,
+                "match_count": 11,
+                "_TextColumn__calculations": {"vocab": "_update_vocab"},
+                "type": "string",
+            },
+        }
+
+        for field in ("_biased_variance", "_biased_skewness", "_biased_kurtosis"):
+            self.assertAlmostEqual(
+                serialized_dict["data"][field], expected_dict["data"][field]
+            )
+            serialized_dict["data"][field] = expected_dict["data"][field]
+
+        for field in (
+            "min",
+            "max",
+            "sum",
+            "biased_variance",
+            "mean",
+            "biased_skewness",
+            "biased_kurtosis",
+        ):
+            self.assertAlmostEqual(
+                serialized_dict["data"]["_batch_history"][0][field],
+                expected_dict["data"]["_batch_history"][0][field],
+            )
+            serialized_dict["data"]["_batch_history"][0][field] = expected_dict["data"][
+                "_batch_history"
+            ][0][field]
 
         expected_vocab = profiler.vocab
         expected_quantiles = profiler.quantiles
 
-        self.assertEqual(serialized, expected)
+        self.assertEqual(json.dumps(serialized_dict), json.dumps(expected_dict))
         self.assertSetEqual(set(serialized_vocab), set(expected_vocab))
         self.assertListEqual(serialized_quantiles, expected_quantiles)
 

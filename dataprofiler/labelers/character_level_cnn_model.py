@@ -8,6 +8,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from typing import cast
 
 import numpy as np
 import tensorflow as tf
@@ -608,8 +609,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             _file_dir,
             "embeddings/glove-reduced-{}D.txt".format(self._parameters["dim_embed"]),
         )
-        embedding_matrix = np.zeros(
-            (max_char_encoding_id + 2, self._parameters["dim_embed"])
+        embedding_matrix = cast(
+            np.ndarray,
+            np.zeros((max_char_encoding_id + 2, self._parameters["dim_embed"])),
         )
         embedding_dict = build_embd_dictionary(embed_file)
 

@@ -191,7 +191,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         scorer: Callable,
         include_label: bool = False,
     ) -> list:
-        scores = []
+        scores: list[list[float | int]] = []
 
         check_values_list = [dict["attribute"] for dict in check_values_dict]
 

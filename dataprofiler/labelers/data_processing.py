@@ -15,7 +15,6 @@ from collections import Counter
 from typing import Any, Generator, Iterable, TypeVar, cast
 
 import numpy as np
-import numpy.typing as npt
 
 from . import utils
 
@@ -382,7 +381,16 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         sentence: str,
         start_ind: int,
         min_ind: int = 0,
-        separators: tuple[str, ...] = (" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
+        separators: tuple[str, ...] = (
+            " ",
+            "\n",
+            ",",
+            "\t",
+            "\r",
+            "\x00",
+            "\x01",
+            ";",
+        ),
     ) -> int:
         """
         Find nearest separator before the start_ind and return the index.
@@ -486,13 +494,16 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
             if label_set is not None:
                 # Create an entity buffer for sample, assign the default entity
-                label_buffer = np.full(sample_len, label_mapping[default_label])
+                label_buffer: np.ndarray = cast(
+                    np.ndarray,
+                    np.full(sample_len, label_mapping[default_label], dtype=int),
+                )
 
                 # Map the entity to the corresponding character
                 for start, end, label in label_set:
                     label_index = label_mapping[label]
                     label_buffer[start:end] = label_index
-                label_buffer_list = label_buffer.tolist()
+                label_buffer_list = cast(list[int], label_buffer.tolist())
 
             # loop until the buffer is empty and placed as requested
             buffer_ind = 0
@@ -537,7 +548,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
                     # pad the data until fits maximum length
                     pad_len = max(
-                        max_length - separate_ind + buffer_ind, max_length - sample_len
+                        max_length - separate_ind + buffer_ind,
+                        max_length - sample_len,
                     )
 
                     # Only add the buffer up until maximum length
@@ -897,7 +909,17 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         flatten_separator: str = " ",
         use_word_level_argmax: bool = False,
         output_format: str = "character_argmax",
-        separators: tuple[str, ...] = (" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
+        separators: tuple[str, ...] = (
+            " ",
+            ",",
+            ";",
+            "'",
+            '"',
+            ":",
+            "\n",
+            "\t",
+            ".",
+        ),
         word_level_min_percent: float = 0.75,
     ) -> None:
         """
@@ -1191,7 +1213,11 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
             if begin_idx != -1:
                 # Add last sample
                 sample_output.append(
-                    (begin_idx, curr_idx + 1, reverse_label_mapping[(int(curr_label))])
+                    (
+                        begin_idx,
+                        curr_idx + 1,
+                        reverse_label_mapping[(int(curr_label))],
+                    )
                 )
             # Add to total output list
             output_result.append(sample_output)
@@ -1200,7 +1226,10 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     @staticmethod
     def match_sentence_lengths(
-        data: np.ndarray, results: dict, flatten_separator: str, inplace: bool = True
+        data: np.ndarray,
+        results: dict,
+        flatten_separator: str,
+        inplace: bool = True,
     ) -> dict:
         """
         Convert results from model into same ragged data shapes as original data.
@@ -1219,7 +1248,9 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         pred_buffer: np.ndarray = np.array([])
         conf_buffer: np.ndarray = np.array([])
         result_ind = 0
-        buffer_add_inds: list[int] = np.cumsum(list(map(len, results["pred"]))).tolist()
+        buffer_add_inds = cast(
+            list[int], np.cumsum(list(map(len, results["pred"]))).tolist()
+        )
         separator_len = len(flatten_separator)
 
         if not inplace:
@@ -1409,7 +1440,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         return params
 
     def convert_to_unstructured_format(
-        self, data: np.ndarray, labels: list[str] | npt.NDArray[np.str_] | None
+        self, data: np.ndarray, labels: list[str] | np.ndarray | None
     ) -> tuple[str, list[tuple[int, int, str]] | None]:
         """
         Convert data samples list to StructCharPreprocessor required input data format.
@@ -1501,7 +1532,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         # with rework, can be tuned to be batches > size 1
         for ind in range(len(data)):
             batch_data: np.ndarray = data[ind : ind + 1]
-            batch_labels: npt.NDArray[np.str_] | list[str] | None = (
+            batch_labels: np.ndarray | list[str] | None = (
                 None if labels is None else labels[ind : ind + 1]
             )
             (
@@ -1522,7 +1553,10 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
             np_unstruct_labels = None
 
         return super().process(
-            np.array(unstructured_data), np_unstruct_labels, label_mapping, batch_size
+            np.array(unstructured_data),
+            np_unstruct_labels,
+            label_mapping,
+            batch_size,
         )
 
 
@@ -1668,7 +1702,10 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     @staticmethod
     def match_sentence_lengths(
-        data: np.ndarray, results: dict, flatten_separator: str, inplace: bool = True
+        data: np.ndarray,
+        results: dict,
+        flatten_separator: str,
+        inplace: bool = True,
     ) -> dict:
         """
         Convert results from model into same ragged data shapes as original data.
@@ -1687,7 +1724,9 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         pred_buffer: np.ndarray = np.array([])
         conf_buffer: np.ndarray = np.array([])
         result_ind = 0
-        buffer_add_inds: list[int] = np.cumsum(list(map(len, results["pred"]))).tolist()
+        buffer_add_inds = cast(
+            list[int], np.cumsum(list(map(len, results["pred"]))).tolist()
+        )
         separator_len = len(flatten_separator)
 
         if not inplace:
@@ -1775,9 +1814,13 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         ignore_value = label_mapping[pad_label]
         num_labels = max(label_mapping.values()) + 1
 
-        labels_out = np.ones((len(results["pred"]),))
+        labels_out: np.ndarray = cast(
+            np.ndarray, np.full((len(results["pred"]),), None, dtype=object)
+        )
         if "conf" in results:
-            confs_out = np.zeros((len(results["pred"]), num_labels))
+            confs_out: np.ndarray = cast(
+                np.ndarray, np.zeros((len(results["pred"]), num_labels))
+            )
 
         for i, label_samples in enumerate(zip(results["pred"], sentences)):
             column_labels, sample = label_samples

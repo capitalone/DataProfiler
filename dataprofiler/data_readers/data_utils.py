@@ -506,10 +506,10 @@ def sample_parquet(
     # sample
     n_rows = parquet_table.num_rows
     if n_rows > sample_nrows:
-        sample_index = np.array([False] * n_rows)
+        sample_index = cast(np.ndarray, np.array([False] * n_rows))
         sample_index[random.sample(range(n_rows), sample_nrows)] = True
     else:
-        sample_index = np.array([True] * n_rows)
+        sample_index = cast(np.ndarray, np.array([True] * n_rows))
     sample_df = parquet_table.filter(sample_index).to_pandas()
 
     # Convert all the unicode columns to utf-8

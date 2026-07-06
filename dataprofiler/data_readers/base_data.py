@@ -155,7 +155,7 @@ class BaseData:
     ) -> Generator[Union[pd.DataFrame, List], None, None]:
         """Get batch generator."""
         data_length = len(self.data)
-        indices = np.random.permutation(data_length)
+        indices: np.ndarray = np.random.permutation(data_length)
         for i in range(0, data_length, batch_size):
             if isinstance(self.data, pd.DataFrame):
                 yield self.data.iloc[indices[i : i + batch_size], :]

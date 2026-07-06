@@ -9,7 +9,6 @@ import warnings
 from typing import Any, Callable, Dict, List, TypeAlias, TypeVar, cast
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 import scipy.stats
 
@@ -1216,9 +1215,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             self.histogram_methods[method]["current_loss"] = self._histogram_loss(
                 current_diff_var[method_id],
                 current_avg_diff_var,
-                current_total_var[method_id],
+                cast(float, current_total_var[method_id]),
                 current_avg_total_var,
-                current_run_time[method_id],
+                cast(float, current_run_time[method_id]),
                 current_avg_run_time,
             )
             self.histogram_methods[method]["total_loss"] += self.histogram_methods[
@@ -1319,7 +1318,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 ] = suggested_bin_count
 
             # calculate the stored histogram bins
-            bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
+            bin_counts, bin_edges = cast(
+                tuple[np.ndarray, np.ndarray], np.histogram(values, bins=n_equal_bins)
+            )
         return bin_counts, bin_edges
 
     def _merge_histogram(self, values: np.ndarray | pd.Series) -> None:
@@ -1571,7 +1572,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
-        cumsum_bin_counts = np.cumsum(normalized_bin_counts)
+        cumsum_bin_counts = cast(np.ndarray, np.cumsum(normalized_bin_counts))
 
         median_value = None
         median_bin_inds = np.abs(cumsum_bin_counts - 0.5) < 1e-10
@@ -1579,6 +1580,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             median_value = np.mean(bin_edges[np.append([False], median_bin_inds)])
 
         # use the floor by slightly increasing cases where no bin exist.
+        cumsum_bin_counts = cast(np.ndarray, cumsum_bin_counts.copy())
         cumsum_bin_counts[zero_inds] += 1e-15
 
         # add initial zero bin
@@ -1703,18 +1705,24 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             np.append([True], np.diff(bin_edges_impose) > 1e-14)
         ]
 
-        bin_counts_impose_pos: npt.NDArray[np.float64] = np.interp(
-            bin_edges_impose,
-            bin_edges_pos,
-            np.cumsum(np.append([0], bin_counts_pos)),
+        bin_counts_impose_pos = cast(
+            np.ndarray,
+            np.interp(
+                bin_edges_impose,
+                bin_edges_pos,
+                np.cumsum(np.append([0], bin_counts_pos)),
+            ),
         )
-        bin_counts_impose_neg: npt.NDArray[np.float64] = np.interp(
-            bin_edges_impose,
-            bin_edges_neg,
-            np.cumsum(np.append([0], bin_counts_neg)),
+        bin_counts_impose_neg = cast(
+            np.ndarray,
+            np.interp(
+                bin_edges_impose,
+                bin_edges_neg,
+                np.cumsum(np.append([0], bin_counts_neg)),
+            ),
         )
-        bin_counts_impose: npt.NDArray[np.float64] = (
-            bin_counts_impose_pos + bin_counts_impose_neg
+        bin_counts_impose = cast(
+            np.ndarray, bin_counts_impose_pos + bin_counts_impose_neg
         )
 
         median_inds = np.abs(bin_counts_impose - 0.5) < 1e-10
@@ -1729,9 +1737,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         :return: list of quantiles
         """
-        percentiles: np.ndarray = np.linspace(0, 100, (self._num_quantiles - 1) + 2)[
-            1:-1
-        ]
+        percentile_range = cast(
+            np.ndarray, np.linspace(0, 100, (self._num_quantiles - 1) + 2)
+        )
+        percentiles: np.ndarray = percentile_range[1:-1]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:

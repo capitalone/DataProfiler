@@ -198,9 +198,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         model_outputs = rapidfuzz.process.cdist(
             list_of_column_names, check_values_list, processor=processor, scorer=scorer
         )
+        model_outputs = cast(np.ndarray, model_outputs)
 
-        for _, ngram_match_results in enumerate(model_outputs):
-            ngram_match_results = cast(np.ndarray, ngram_match_results)
+        for i in range(len(model_outputs)):
+            ngram_match_results: np.ndarray = cast(np.ndarray, model_outputs[i])
             column_result = [np.max(ngram_match_results)]
             if include_label:
                 index_max_result = ngram_match_results.argmax(axis=0)

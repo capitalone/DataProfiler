@@ -26,12 +26,12 @@ from typing import (
 
 import boto3
 import botocore
-import dateutil
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
 from chardet.universaldetector import UniversalDetector
+from dateutil import parser as dateutil_parser  # type: ignore[import-untyped]
 from typing_extensions import TypeGuard
 
 from .. import dp_logging, rng_utils
@@ -694,7 +694,7 @@ def detect_cell_type(cell: str) -> str:
 
         try:
             # need to ingore type bc https://github.com/python/mypy/issues/8878
-            if dateutil.parser.parse(cell, fuzzy=False):  # type:ignore
+            if dateutil_parser.parse(cell, fuzzy=False):  # type: ignore[attr-defined]
                 cell_type = "date"
         except (ValueError, OverflowError, TypeError):
             pass

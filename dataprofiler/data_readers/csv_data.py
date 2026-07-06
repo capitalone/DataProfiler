@@ -724,8 +724,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             active_line_count - max_deviation_count
         ) / active_line_count
 
-        delimiter_count_values = np.array(list(delimiter_count.values()))
-        count_percent = delimiter_count_values / np.sum(delimiter_count_values)
+        delimiter_count_values = cast(
+            np.ndarray, np.array(list(delimiter_count.values()))
+        )
+        count_percent = cast(
+            np.ndarray, delimiter_count_values / np.sum(delimiter_count_values)
+        )
 
         if not count_percent.size:
             return False

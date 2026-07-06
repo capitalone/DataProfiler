@@ -456,10 +456,13 @@ class GraphProfiler:
         for attribute in attributes:
             if attribute in categorical_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
-                hist, edges = np.histogram(data_as_list, bins="auto", density=False)
+                hist, edges = cast(
+                    tuple[np.ndarray, np.ndarray],
+                    np.histogram(data_as_list, bins="auto", density=False),
+                )
                 categorical_distributions[attribute] = {
-                    "bin_counts": list(hist),
-                    "bin_edges": list(edges),
+                    "bin_counts": cast(list[float], hist.tolist()),
+                    "bin_edges": cast(list[float], edges.tolist()),
                 }
             else:
                 categorical_distributions[attribute] = None
@@ -493,9 +496,11 @@ class GraphProfiler:
     @staticmethod
     def _find_all_attributes(graph: nx.Graph) -> list[str]:
         """Compute the number of attributes for each edge."""
-        attribute_list = set(
-            np.array([list(graph.edges[n].keys()) for n in graph.edges()]).flatten()
-        )
+        attribute_list = {
+            attribute
+            for edge in graph.edges()
+            for attribute in graph.edges[edge].keys()
+        }
         return list(attribute_list)
 
     def _attribute_data_as_list(self, graph: nx.Graph, attribute: str) -> list:

@@ -251,18 +251,27 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
             return None
 
         ranks_items = self.rank_distribution.items()
-        ordered_top_k_rank = np.array(
-            sorted(ranks_items, key=operator.itemgetter(1), reverse=True)
+        ordered_top_k_rank = sorted(
+            ranks_items, key=operator.itemgetter(1), reverse=True
         )[: self._top_k_labels]
-        top_k_probabilities = np.fromiter(
-            map(operator.itemgetter(1), ordered_top_k_rank), dtype=float
-        ) / sum(self.rank_distribution.values())
+        top_k_probabilities = cast(
+            np.ndarray,
+            np.fromiter(map(operator.itemgetter(1), ordered_top_k_rank), dtype=float)
+            / sum(self.rank_distribution.values()),
+        )
         is_value_close = (
             top_k_probabilities - top_k_probabilities[0] >= -self._min_prob_differential
         )
 
         data_label = "|".join(
-            map(operator.itemgetter(0), ordered_top_k_rank[is_value_close])
+            map(
+                operator.itemgetter(0),
+                [
+                    rank_item
+                    for rank_item, keep_value in zip(ordered_top_k_rank, is_value_close)
+                    if keep_value
+                ],
+            )
         )
         top_label = ordered_top_k_rank[0][0]
         if cast(Dict, self.label_representation)[top_label] < self._min_top_label_prob:

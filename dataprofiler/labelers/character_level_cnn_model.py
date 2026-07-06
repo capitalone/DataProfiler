@@ -911,8 +911,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             )
         # Pre-allocate space for predictions
         confidences: list | np.ndarray = []
-        sentence_lengths = np.zeros((batch_size,), dtype=int)
-        predictions = np.zeros((batch_size, self._parameters["max_length"]))
+        sentence_lengths: np.ndarray = np.zeros((batch_size,), dtype=int)
+        predictions: np.ndarray = np.zeros((batch_size, self._parameters["max_length"]))
         if show_confidences:
             confidences = np.zeros(
                 (batch_size, self._parameters["max_length"], self.num_labels)

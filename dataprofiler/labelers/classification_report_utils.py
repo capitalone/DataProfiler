@@ -210,6 +210,7 @@ def precision_recall_fscore_support(
     support: np.ndarray | None = true_sum
     if average == "weighted":
         weights = true_sum
+        assert weights is not None
         if weights.sum() == 0:
             return np.array([0.0]), np.array([0.0]), np.array([0.0]), None
     elif average == "samples":

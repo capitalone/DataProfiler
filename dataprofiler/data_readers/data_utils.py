@@ -6,6 +6,7 @@ import os
 import random
 import re
 import urllib
+import urllib.parse
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
@@ -676,7 +677,7 @@ def detect_file_encoding(
     # If no encoding is still found, default to utf-8
     if not encoding:
         encoding = "utf-8"
-    return encoding.lower()
+    return str(encoding).lower()
 
 
 def detect_cell_type(cell: str) -> str:

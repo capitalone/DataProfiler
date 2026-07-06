@@ -43,7 +43,9 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/|versioneer.py|dataprofiler/_version.py|_docs/)
+        # Let mypy own target selection and exclusions via setup.cfg.
+        args: [--config-file=setup.cfg, dataprofiler]
+        pass_filenames: false
         language_version: python3
         additional_dependencies: # Keep up-to-date with the respective requirement files
           [

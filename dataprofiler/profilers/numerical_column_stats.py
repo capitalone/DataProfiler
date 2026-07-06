@@ -565,7 +565,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         :rtype: float
         """
         if not self._has_histogram or not self._median_is_enabled:
-            return np.nan
+            return float(np.nan)
         return self._get_percentile([50])[0]
 
     @property

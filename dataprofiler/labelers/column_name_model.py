@@ -176,7 +176,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def _need_to_reconstruct_model(self) -> bool:
-        pass
+        return False
 
     def reset_weights(self) -> None:
         """Reset weights function."""

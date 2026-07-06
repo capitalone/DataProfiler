@@ -674,8 +674,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         empty_line_count = 0
         delimiter_count = dict()
 
-        delimiter_regex = data_utils.get_delimiter_regex(delimiter, quotechar)
-        space_regex = data_utils.get_delimiter_regex(" ", quotechar)
+        delimiter_regex = data_utils.get_delimiter_regex(
+            delimiter or ",", quotechar or '"'
+        )
+        space_regex = data_utils.get_delimiter_regex(" ", quotechar or '"')
 
         # Count the possible delimiters
         for line in data_as_str.split("\n")[header:]:

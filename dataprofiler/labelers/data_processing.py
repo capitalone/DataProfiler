@@ -19,7 +19,7 @@ import numpy.typing as npt
 
 from . import utils
 
-default_labeler_dir = utils.find_resources_dir("labelers")
+default_labeler_dir = str(utils.find_resources_dir("labelers"))
 
 
 Processor = TypeVar("Processor", bound="BaseDataProcessor")
@@ -491,7 +491,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                 for start, end, label in label_set:
                     label_index = label_mapping[label]
                     label_buffer[start:end] = label_index
-                label_buffer = label_buffer.tolist()
+                label_buffer_list = label_buffer.tolist()
 
             # loop until the buffer is empty and placed as requested
             buffer_ind = 0
@@ -543,7 +543,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                     batch_data["samples"].append(sample_buffer[buffer_ind:separate_ind])
                     if label_set is not None:
                         batch_data["labels"].append(
-                            label_buffer[buffer_ind:separate_ind]
+                            label_buffer_list[buffer_ind:separate_ind]
                             + [label_mapping[pad_label]] * pad_len
                         )
 
@@ -610,7 +610,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
                         if label_set is not None:
                             flattened_entities.extend(
-                                label_buffer[buffer_ind:separate_ind]
+                                label_buffer_list[buffer_ind:separate_ind]
                             )
 
                         buffer_ind = separate_ind

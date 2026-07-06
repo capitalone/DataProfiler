@@ -277,7 +277,7 @@ def read_json(
     return lines
 
 
-def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
+def reservoir(file: TextIOWrapper | StringIO, sample_nrows: int) -> list:
     """
     Implement the mathematical logic of Reservoir sampling.
 
@@ -344,7 +344,9 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     return values
 
 
-def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> StringIO:
+def rsample(
+    file_path: TextIOWrapper | StringIO, sample_nrows: int, args: dict
+) -> StringIO:
     """
     Implement Reservoir Sampling to sample n rows out of a total of M rows.
 
@@ -369,7 +371,7 @@ def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> StringIO
 
 
 def read_csv_df(
-    file_path: Union[str, BytesIO, TextIOWrapper],
+    file_path: Union[str, StringIO, BytesIO, TextIOWrapper],
     delimiter: Optional[str],
     header: Optional[int],
     sample_nrows: Optional[int] = None,
@@ -425,7 +427,7 @@ def read_csv_df(
         file_path = open(file_path, encoding=encoding)
         is_file_open = True
 
-    file_data = file_path
+    file_data: TextIOWrapper | StringIO = file_path
     if sample_nrows:
         file_data = rsample(file_path, sample_nrows, args)
     fo = pd.read_csv(file_data, **args)

@@ -366,6 +366,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             other1._median_abs_dev_is_enabled and other2._median_abs_dev_is_enabled
         )
 
+    @property
     def profile(self) -> dict:
         """
         Return profile of the column.
@@ -408,7 +409,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         :rtype: Profile
         """
         calcs_dict_keys = self._NumericStatsMixin__calculations.keys()
-        profile = self.profile()
+        profile = self.profile
 
         if remove_disabled_flag:
             profile_keys = list(profile.keys())

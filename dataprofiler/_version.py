@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+from typing import Any, Callable
 
 
 def get_keywords():
@@ -52,7 +53,7 @@ class NotThisMethod(Exception):
 
 
 LONG_VERSION_PY = {} # type: ignore
-HANDLERS = {}
+HANDLERS: dict[str, dict[str, Callable[..., Any]]] = {}
 
 
 def register_vcs_handler(vcs, method):  # decorator

@@ -12,7 +12,7 @@ from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
 from .base_model import BaseModel
 from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
-default_labeler_dir = utils.find_resources_dir("labelers")
+default_labeler_dir = str(utils.find_resources_dir("labelers"))
 
 
 def train_structured_labeler(

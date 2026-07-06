@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import re
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -201,7 +202,7 @@ class FloatColumn(
 
         :return:
         """
-        profile = NumericStatsMixin.profile(self)
+        profile = cast(dict, NumericStatsMixin.profile.__get__(self, type(self)))
         profile.update(
             dict(
                 precision=dict(

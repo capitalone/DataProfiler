@@ -93,7 +93,7 @@ class FileOrBufferHandler:
                 TextIOWrapper, self._filepath_or_buffer
             )  # guaranteed by self._is_wrapped
             wrapper = self._filepath_or_buffer
-            self._filepath_or_buffer = wrapper.buffer
+            self._filepath_or_buffer = cast(BytesIO, wrapper.buffer)
             wrapper.detach()
 
         if isinstance(self._filepath_or_buffer, (StringIO, BytesIO)):

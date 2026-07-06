@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -91,7 +92,7 @@ class TextColumn(
 
         :return:
         """
-        profile = NumericStatsMixin.profile(self)
+        profile = cast(dict, NumericStatsMixin.profile.__get__(self, type(self)))
         # remove num_zeros and num_negative updated from numeric profile
         profile.pop("num_zeros")
         profile.pop("num_negatives")

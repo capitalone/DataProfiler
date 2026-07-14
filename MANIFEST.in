@@ -2,6 +2,7 @@ global-exclude .DS_Store
 global-exclude */__pycache__/*
 
 include *.txt
+include CHANGELOG.md
 include CODEOWNERS
 recursive-include dataprofiler *.avro
 recursive-include dataprofiler *.csv

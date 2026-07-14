@@ -6,7 +6,7 @@ import abc
 import copy
 import itertools
 import warnings
-from typing import Any, Callable, Dict, List, TypeVar, cast
+from typing import Any, Callable, Dict, List, TypeAlias, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -32,6 +32,7 @@ class abstractstaticmethod(staticmethod):
 
 
 NumericStatsMixinT = TypeVar("NumericStatsMixinT", bound="NumericStatsMixin")
+Numeric: TypeAlias = int | float | np.float64 | np.int64
 
 
 class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.ABCMeta):
@@ -56,10 +57,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "NumericalStatsMixin parameter 'options' must be "
                 "of type NumericalOptions."
             )
-        self.min: int | float | np.float64 | np.int64 | None = None
-        self.max: int | float | np.float64 | np.int64 | None = None
+        self.min: Numeric | None = None
+        self.max: Numeric | None = None
         self._top_k_modes: int = 5  # By default, return at max 5 modes
-        self.sum: int | float | np.float64 | np.int64 = np.float64(0)
+        self.sum: Numeric = np.float64(0)
         self._biased_variance: float | np.float64 = np.nan
         self._biased_skewness: float | np.float64 = np.nan
         self._biased_kurtosis: float | np.float64 = np.nan
@@ -198,7 +199,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         # calculate the min of the first edge and the max of the last edge
         # between two arrays
         global_min_of_histogram_edges = (
-            float(self.min)
+            profiler_utils.as_float_scalar(self.min)
             if self.min is not None
             else min(
                 other1._stored_histogram["histogram"]["bin_edges"][0],
@@ -207,7 +208,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         )
 
         global_max_of_histogram_edges = (
-            float(self.max)
+            profiler_utils.as_float_scalar(self.max)
             if self.max is not None
             else max(
                 other1._stored_histogram["histogram"]["bin_edges"][-1],
@@ -257,9 +258,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
 
         if self.user_set_histogram_bin is None:
             for method in self.histogram_bin_method_names:
-                self.histogram_methods[method][
-                    "suggested_bin_count"
-                ] = histogram_utils._calculate_bins_from_profile(self, method)
+                self.histogram_methods[method]["suggested_bin_count"] = (
+                    histogram_utils._calculate_bins_from_profile(self, method)
+                )
 
         self._get_quantiles()
 
@@ -298,14 +299,14 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             )
         if "min" in self.__calculations.keys():
             if other1.min is not None and other2.min is not None:
-                self.min = min(other1.min, other2.min)
+                self.min = min(other1.min, other2.min)  # type: ignore[type-var]
             elif other2.min is None:
                 self.min = other1.min
             else:
                 self.min = other2.min
         if "max" in self.__calculations.keys():
             if other1.max is not None and other2.max is not None:
-                self.max = max(other1.max, other2.max)
+                self.max = max(other1.max, other2.max)  # type: ignore[type-var]
             elif other2.max is None:
                 self.max = other1.max
             else:
@@ -540,7 +541,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         """Return mean value."""
         if self.match_count == 0:
             return 0.0
-        return self.sum / self.match_count
+        return cast(float | np.float64, self.sum / self.match_count)
 
     @property
     def mode(self) -> list[float]:
@@ -622,14 +623,17 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 RuntimeWarning,
             )
             invalid_stats = True
-        if np.isnan(
-            [float(mean1), float(mean2), float(var1), float(var2)]
-        ).any() or None in [
-            mean1,
-            mean2,
-            var1,
-            var2,
-        ]:
+        if (
+            None in [mean1, mean2, var1, var2]
+            or np.isnan(
+                [
+                    profiler_utils.as_float_scalar(mean1),
+                    profiler_utils.as_float_scalar(mean2),
+                    profiler_utils.as_float_scalar(var1),
+                    profiler_utils.as_float_scalar(var2),
+                ]
+            ).any()
+        ):
             warnings.warn(
                 "Null value(s) found in mean and/or variance values. "
                 "T-test cannot be performed.",
@@ -1040,10 +1044,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             / N**3
         )
         third_term = (
-            6
-            * delta**2
-            * (match_count1**2 * M2_2 + match_count2**2 * M2_1)
-            / N**2
+            6 * delta**2 * (match_count1**2 * M2_2 + match_count2**2 * M2_1) / N**2
         )
         fourth_term = 4 * delta * (match_count1 * M3_2 - match_count2 * M3_1) / N
         M4 = first_term + second_term + third_term + fourth_term
@@ -1403,7 +1404,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         dest_hist_entity_count_per_bin: np.ndarray,
         dest_hist_bin_edges: np.ndarray,
         dest_hist_num_bin: int,
-    ) -> tuple[dict[str, np.ndarray[Any, Any]], float]:
+    ) -> tuple[dict[str, np.ndarray], float]:
         """
         Assimilates a histogram into another histogram using specifications.
 
@@ -1821,11 +1822,15 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         # Suppress any numpy warnings as we have a custom warning for invalid
         # or infinite data already
         with np.errstate(all="ignore"):
-            batch_biased_variance = np.var(df_series)  # Obtains biased variance
+            batch_biased_variance = cast(float | np.float64, np.var(df_series))
         subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
-        batch_mean = 0.0 if not batch_count else float(sum_value) / batch_count
+        batch_mean = (
+            0.0
+            if not batch_count
+            else profiler_utils.as_float_scalar(sum_value) / batch_count
+        )
         subset_properties["mean"] = batch_mean
         self._biased_variance = self._merge_biased_variance(
             self.match_count,

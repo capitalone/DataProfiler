@@ -1919,10 +1919,10 @@ class StructuredProfiler(BaseProfiler):
             col_name = other_profile._profile[i].name
             other_profile_schema[col_name].append(i)
 
-        report["global_stats"][
-            "profile_schema"
-        ] = profiler_utils.find_diff_of_dicts_with_diff_keys(
-            self_profile_schema, other_profile_schema
+        report["global_stats"]["profile_schema"] = (
+            profiler_utils.find_diff_of_dicts_with_diff_keys(
+                self_profile_schema, other_profile_schema
+            )
         )
 
         # Only find the diff of columns if the schemas are exactly the same
@@ -2101,9 +2101,9 @@ class StructuredProfiler(BaseProfiler):
                 self.options.null_replication_metrics.is_enabled
                 and i in self._null_replication_metrics
             ):
-                report["data_stats"][i][
-                    "null_replication_metrics"
-                ] = self._null_replication_metrics[i]
+                report["data_stats"][i]["null_replication_metrics"] = (
+                    self._null_replication_metrics[i]
+                )
 
         return _prepare_report(report, output_format, omit_keys)
 
@@ -2610,9 +2610,11 @@ class StructuredProfiler(BaseProfiler):
 
         total_row_sum = np.asarray(
             [
-                get_data_type_profiler(profile).sum
-                if get_data_type(profile) not in [None, "datetime"]
-                else np.nan
+                (
+                    get_data_type_profiler(profile).sum
+                    if get_data_type(profile) not in [None, "datetime"]
+                    else np.nan
+                )
                 for profile in self._profile
             ]
         )
@@ -2704,17 +2706,21 @@ class StructuredProfiler(BaseProfiler):
 
         self_row_sum = np.asarray(
             [
-                get_data_type_profiler(profile).sum
-                if get_data_type(profile)
-                else np.nan
+                (
+                    get_data_type_profiler(profile).sum
+                    if get_data_type(profile)
+                    else np.nan
+                )
                 for profile in self._profile
             ]
         )
         other_row_sum = np.asarray(
             [
-                get_data_type_profiler(profile).sum
-                if get_data_type(profile)
-                else np.nan
+                (
+                    get_data_type_profiler(profile).sum
+                    if get_data_type(profile)
+                    else np.nan
+                )
                 for profile in other._profile
             ]
         )

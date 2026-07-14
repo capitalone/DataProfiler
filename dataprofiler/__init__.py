@@ -1,4 +1,5 @@
 """Package for dataprofiler."""
+
 from . import settings
 from ._version import get_versions
 from .data_readers.data import Data

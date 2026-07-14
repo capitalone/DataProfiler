@@ -73,7 +73,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, BaseDataProcessor)
             or self._parameters != other._parameters
         ):
@@ -176,9 +176,11 @@ class BaseDataPreprocessor(BaseDataProcessor):
         labels: np.ndarray | None = None,
         label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
-    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None] | tuple[
-        np.ndarray, np.ndarray
-    ] | np.ndarray:
+    ) -> (
+        Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]
+        | tuple[np.ndarray, np.ndarray]
+        | np.ndarray
+    ):
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -692,7 +694,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :return batch_data: A dict containing samples of size batch_size
         :rtype batch_data: dicts
         """
-        num_dim = sum([dim > 1 for dim in data.shape])
+        num_dim = sum(dim > 1 for dim in np.shape(data))
         if num_dim > 1:
             raise ValueError(
                 "Multidimensional data given to "
@@ -1213,10 +1215,10 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         :type inplace: bool
         :return: dict(pred=...) or dict(pred=..., conf=...)
         """
-        pred_buffer = []
-        conf_buffer = []
+        pred_buffer: np.ndarray = np.array([])
+        conf_buffer: np.ndarray = np.array([])
         result_ind = 0
-        buffer_add_inds = np.cumsum(list(map(len, results["pred"]))).tolist()
+        buffer_add_inds: list[int] = np.cumsum(list(map(len, results["pred"]))).tolist()
         separator_len = len(flatten_separator)
 
         if not inplace:
@@ -1469,14 +1471,14 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
                     "If `labels` are specified, `label_mapping` "
                     "must also be specified."
                 )
-            if data.shape != labels.shape:
+            if np.shape(data) != np.shape(labels):
                 raise ValueError(
                     f"Data and labels given to "
                     f"StructCharPreprocessor are of different "
-                    f"shapes, {data.shape} != {labels.shape}"
+                    f"shapes, {np.shape(data)} != {np.shape(labels)}"
                 )
 
-        num_dim = sum([dim > 1 for dim in data.shape])
+        num_dim = sum(dim > 1 for dim in np.shape(data))
         if num_dim > 1:
             warnings.warn(
                 "Data given to StructCharPreprocessor was "
@@ -1589,7 +1591,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :rtype: bool
         """
         if (
-            type(self) != type(other)
+            type(self) is not type(other)
             or not isinstance(other, StructCharPostprocessor)
             or self._parameters["default_label"] != other._parameters["default_label"]
             or self._parameters["pad_label"] != other._parameters["pad_label"]
@@ -1681,10 +1683,10 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :type inplace: bool
         :return: dict(pred=...) or dict(pred=..., conf=...)
         """
-        pred_buffer = []
-        conf_buffer = []
+        pred_buffer: np.ndarray = np.array([])
+        conf_buffer: np.ndarray = np.array([])
         result_ind = 0
-        buffer_add_inds = np.cumsum(list(map(len, results["pred"]))).tolist()
+        buffer_add_inds: list[int] = np.cumsum(list(map(len, results["pred"]))).tolist()
         separator_len = len(flatten_separator)
 
         if not inplace:
@@ -1950,9 +1952,11 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                 # being changed and is already set
                 aggregation_func = parameters.get(
                     "aggregation_func",
-                    self._parameters.get("aggregation_func")
-                    if hasattr(self, "_parameters")
-                    else None,
+                    (
+                        self._parameters.get("aggregation_func")
+                        if hasattr(self, "_parameters")
+                        else None
+                    ),
                 )
                 if value is None and aggregation_func == "priority":
                     errors.append(

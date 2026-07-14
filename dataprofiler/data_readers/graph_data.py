@@ -1,4 +1,5 @@
 """Contains class for identifying, reading, and loading graph data."""
+
 import csv
 from typing import Dict, List, Optional, Union, cast
 

@@ -227,6 +227,26 @@ class TestCharLoadTFModel(unittest.TestCase):
         self.assertIn("conf", result)
         self.assertEqual((2, 2, model.num_labels), np.array(result["conf"]).shape)
 
+    def test_normalize_old_list_output_model(self, *mocks):
+        inputs = tf.keras.Input(shape=(2,), dtype=tf.int64)
+        embedded = tf.keras.layers.Embedding(input_dim=100, output_dim=8)(inputs)
+        softmax_output = tf.keras.layers.Dense(
+            self.label_mapping["ADDRESS"] + 1,
+            activation="softmax",
+        )(embedded)
+        argmax_output = tf.keras.layers.Lambda(
+            lambda x: tf.cast(tf.argmax(x, axis=2), tf.int64)
+        )(softmax_output)
+        old_format_model = tf.keras.Model(inputs, [softmax_output, argmax_output])
+
+        normalized_model = CharLoadTFModel._normalize_model_outputs(old_format_model)
+
+        self.assertIsInstance(normalized_model.output, dict)
+        self.assertSetEqual(
+            set(normalized_model.output.keys()),
+            {CharLoadTFModel._SOFTMAX_OUTPUT, CharLoadTFModel._ARGMAX_OUTPUT},
+        )
+
     def test_fit_and_predict(self, *mocks):
         # model
         model = CharLoadTFModel(self.model_path, self.label_mapping)

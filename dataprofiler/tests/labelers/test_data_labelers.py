@@ -399,7 +399,7 @@ class TestLoadedDataLabeler(unittest.TestCase):
 
     @staticmethod
     def _setup_mock_load_model(mock_load_model):
-        mock_load_model.return_value = mock.Mock()
+        mock_load_model.return_value = mock.MagicMock()
 
     def test_load_labeler(self, mock_open, mock_load_model):
 

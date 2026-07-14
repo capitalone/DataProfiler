@@ -1,4 +1,5 @@
 """Contains class for for profiling data labeler col."""
+
 from __future__ import annotations
 
 import operator
@@ -427,7 +428,7 @@ class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
         start_index = 0
         if self.data_labeler.model.requires_zero_mapping:
             start_index = 1
-        for i in range(rank_predictions.shape[0]):
+        for i in range(len(rank_predictions)):
             sorted_rank = rank_predictions[i][-self._top_k_voting :]
             sorted_rank = sorted_rank[np.argsort(predictions["conf"][i][sorted_rank])]
             for rank_position, value in enumerate(sorted_rank):

@@ -1,4 +1,5 @@
 """Contains functions for profilers."""
+
 from __future__ import annotations
 
 import collections
@@ -37,6 +38,18 @@ if TYPE_CHECKING:
     from . import profile_builder
 
 from .. import rng_utils
+
+
+def as_float_scalar(
+    value: int | float | np.integer | np.floating | np.ndarray | list[float],
+) -> float:
+    """Convert a scalar-like value to a Python float."""
+    array_value = np.asarray(value)
+    if array_value.ndim == 0:
+        return float(array_value)
+    if array_value.size == 1:
+        return float(array_value.item())
+    raise TypeError("Expected a scalar-like numeric value.")
 
 
 def recursive_dict_update(d: dict, update_d: dict) -> dict:
@@ -417,13 +430,11 @@ T = TypeVar("T", bound=Subtractable)
 def find_diff_of_numbers(
     stat1: int | float | np.float64 | np.int64 | None,
     stat2: int | float | np.float64 | np.int64 | None,
-) -> Any:
-    ...
+) -> Any: ...
 
 
 @overload
-def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any:
-    ...
+def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any: ...
 
 
 def find_diff_of_numbers(stat1, stat2):
@@ -602,7 +613,7 @@ def find_diff_of_matrices(
         mat1 = np.array(matrix1, dtype=np.float64)
         mat2 = np.array(matrix2, dtype=np.float64)
 
-        if mat1.shape == mat2.shape:
+        if np.shape(mat1) == np.shape(mat2):
             diff: np.ndarray = mat1 - mat2
             if ((diff == 0) | np.isnan(diff)).all():
                 return "unchanged"

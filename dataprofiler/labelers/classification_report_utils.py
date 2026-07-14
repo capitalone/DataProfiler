@@ -1,4 +1,5 @@
 """Contains functions for classification."""
+
 from __future__ import annotations
 
 import warnings
@@ -31,8 +32,8 @@ def convert_confusion_matrix_to_MCM(conf_matrix: list | np.ndarray) -> np.ndarra
     """
     if not isinstance(conf_matrix, np.ndarray):
         conf_matrix = np.array(conf_matrix)
-    num_labels = conf_matrix.shape[0]
-    num_samples = np.sum(conf_matrix)
+    num_labels = len(conf_matrix)
+    num_samples: int = int(np.sum(conf_matrix))
     MCM = np.zeros((num_labels, 2, 2), dtype=np.int64)
 
     # True Positives
@@ -205,6 +206,8 @@ def precision_recall_fscore_support(
     f_score = (1 + beta2) * precision * recall / denom
 
     # Average the results
+    weights: np.ndarray | None
+    support: np.ndarray | None = true_sum
     if average == "weighted":
         weights = true_sum
         if weights.sum() == 0:
@@ -219,9 +222,9 @@ def precision_recall_fscore_support(
         precision = np.average(precision, weights=weights)
         recall = np.average(recall, weights=weights)
         f_score = np.average(f_score, weights=weights)
-        true_sum = None  # return no support
+        support = None  # return no support
 
-    return precision, recall, f_score, true_sum
+    return precision, recall, f_score, support
 
 
 def classification_report(
@@ -300,7 +303,7 @@ def classification_report(
     """
     # ALTERATION: replaced the _check_targets with this if statement since
     # no y_true, y_pred
-    y_type = "multiclass" if conf_matrix.shape[0] > 2 else "binary"
+    y_type = "multiclass" if len(conf_matrix) > 2 else "binary"
 
     labels_given = True
     if labels is None:

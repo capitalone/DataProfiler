@@ -1,4 +1,5 @@
 """Contains class for training data labeler model."""
+
 from __future__ import annotations
 
 import copy
@@ -17,6 +18,7 @@ from dataprofiler._typing import DataArray
 from .. import dp_logging
 from . import labeler_utils
 from .base_model import AutoSubRegistrationMeta, BaseModel, BaseTrainableModel
+from .character_level_cnn_model import ArgMaxLayer
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,6 +31,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     # boolean if the label mapping requires the mapping for index 0 reserved
     requires_zero_mapping = False
+    _SOFTMAX_OUTPUT = "softmax_output"
+    _ARGMAX_OUTPUT = "argmax_output"
 
     def __init__(
         self, model_path: str, label_mapping: dict[str, int], parameters: dict = None
@@ -60,6 +64,35 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         self._model_default_ind = -1
 
         BaseModel.__init__(self, label_mapping, parameters)
+
+    @classmethod
+    def _create_model_outputs(
+        cls, softmax_output: tf.Tensor, argmax_output: tf.Tensor | None = None
+    ) -> dict[str, tf.Tensor]:
+        """Return normalized dict outputs for training and inference."""
+        if argmax_output is None:
+            argmax_output = ArgMaxLayer(name=cls._ARGMAX_OUTPUT)(softmax_output)
+        return {
+            cls._SOFTMAX_OUTPUT: softmax_output,
+            cls._ARGMAX_OUTPUT: argmax_output,
+        }
+
+    @classmethod
+    def _normalize_model_outputs(cls, model: tf.keras.Model) -> tf.keras.Model:
+        """Convert list-style outputs to the normalized dict structure."""
+        return labeler_utils.normalize_tf_model_outputs(
+            model,
+            [cls._SOFTMAX_OUTPUT, cls._ARGMAX_OUTPUT],
+            lambda softmax_output, extra_outputs: cls._create_model_outputs(
+                softmax_output, extra_outputs[0]
+            ),
+        )
+
+    def _new_softmax_head_name(self) -> str:
+        """Return a layer name unique within the current model graph."""
+        return labeler_utils.get_tf_rebuild_layer_name(
+            self._model, f"{self._SOFTMAX_OUTPUT}_rebuild"
+        )
 
     def __eq__(self, other: object) -> bool:
         """
@@ -215,14 +248,33 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             tf_model = tf.keras.models.load_model(dirpath)
 
         loaded_model = cls(dirpath, label_mapping, parameters)
-        loaded_model._model = tf_model
+        loaded_model._model = cls._normalize_model_outputs(tf_model)
 
         # load self
         loaded_model._model_num_labels = loaded_model.num_labels
         loaded_model._model_default_ind = loaded_model.label_mapping[
             loaded_model._parameters["default_label"]
         ]
+        loaded_model._compile_model(loaded_model.num_labels)
         return loaded_model
+
+    def _compile_model(self, num_labels: int) -> None:
+        """Compile the model with dict-based losses and metrics."""
+        losses = {
+            self._SOFTMAX_OUTPUT: "categorical_crossentropy",
+            self._ARGMAX_OUTPUT: None,
+        }
+        f1_score_training = labeler_utils.F1Score(
+            num_classes=num_labels, average="micro"
+        )
+        metrics = {
+            self._SOFTMAX_OUTPUT: [
+                "categorical_crossentropy",
+                "acc",
+                f1_score_training,
+            ]
+        }
+        self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
     def _construct_model(self) -> None:
         """
@@ -237,46 +289,28 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         model_loc = self._parameters["model_path"]
 
         self._model: tf.keras.Model = tf.keras.models.load_model(model_loc)
-        self._model = tf.keras.Model(self._model.inputs, self._model.outputs)
-        softmax_output_layer_name = self._model.output_names[0]
+        self._model = self._normalize_model_outputs(self._model)
+        softmax_output = self._model.output[self._SOFTMAX_OUTPUT]
+        softmax_layer = softmax_output._keras_history[0]
+        softmax_output_layer_name = softmax_layer.name
         softmax_layer_ind = cast(
             int,
             labeler_utils.get_tf_layer_index_from_name(
                 self._model, softmax_output_layer_name
             ),
         )
-        softmax_layer = self._model.get_layer(softmax_output_layer_name)
 
-        new_softmax_layer = softmax_layer.output
+        new_softmax_layer = softmax_output
         if softmax_layer.weights[0].shape[-1] != num_labels:
             new_softmax_layer = tf.keras.layers.Dense(
-                num_labels, activation="softmax", name="softmax_output"
+                num_labels,
+                activation="softmax",
+                name=self._new_softmax_head_name(),
             )(self._model.layers[softmax_layer_ind - 1].output)
 
-        # Add argmax layer to get labels directly as an output
-        argmax_layer = tf.keras.ops.argmax(new_softmax_layer, axis=2)
-
-        argmax_outputs = [new_softmax_layer, argmax_layer]
-        self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
-        self._model = tf.keras.Model(self._model.inputs, self._model.outputs)
-
-        # Compile the model w/ metrics
-        softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
-
-        # use f1 score metric
-        f1_score_training = labeler_utils.F1Score(
-            num_classes=num_labels, average="micro"
-        )
-        metrics = {
-            softmax_output_layer_name: [
-                "categorical_crossentropy",
-                "acc",
-                f1_score_training,
-            ]
-        }
-
-        self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
+        output_dict = self._create_model_outputs(new_softmax_layer)
+        self._model = tf.keras.Model(self._model.inputs, output_dict)
+        self._compile_model(num_labels)
 
         self._epoch_id = 0
         self._model_num_labels = num_labels
@@ -305,32 +339,14 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         # Add the final Softmax layer to the previous spot
         # self._model.layers[-2] to skip: original softmax
         final_softmax_layer = tf.keras.layers.Dense(
-            num_labels, activation="softmax", name="softmax_output"
+            num_labels,
+            activation="softmax",
+            name=self._new_softmax_head_name(),
         )(self._model.layers[-2].output)
 
-        # Add argmax layer to get labels directly as an output
-        argmax_layer = tf.keras.ops.argmax(final_softmax_layer, axis=2)
-
-        argmax_outputs = [final_softmax_layer, argmax_layer]
-        self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
-
-        # Compile the model
-        softmax_output_layer_name = self._model.output_names[0]
-        losses = {softmax_output_layer_name: "categorical_crossentropy"}
-
-        # use f1 score metric
-        f1_score_training = labeler_utils.F1Score(
-            num_classes=num_labels, average="micro"
-        )
-        metrics = {
-            softmax_output_layer_name: [
-                "categorical_crossentropy",
-                "acc",
-                f1_score_training,
-            ]
-        }
-
-        self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
+        output_dict = self._create_model_outputs(final_softmax_layer)
+        self._model = tf.keras.Model(self._model.inputs, output_dict)
+        self._compile_model(num_labels)
 
         self._epoch_id = 0
         self._model_num_labels = num_labels
@@ -381,34 +397,53 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         f1_report: dict = {}
 
         self._model.reset_metrics()
-        softmax_output_layer_name = self._model.output_names[0]
 
         start_time = time.time()
         batch_id = 0
         for x_train, y_train in train_data:
+            y_train_dict = {
+                self._SOFTMAX_OUTPUT: y_train,
+                self._ARGMAX_OUTPUT: None,
+            }
             model_results = self._model.train_on_batch(
-                x_train, {softmax_output_layer_name: y_train}
+                x_train,
+                y_train_dict,
+                return_dict=True,
+            )
+            acc_value = next(
+                (value for key, value in model_results.items() if key.endswith("acc")),
+                np.nan,
+            )
+            f1_value = next(
+                (value for key, value in model_results.items() if "f1" in key.lower()),
+                np.nan,
             )
             sys.stdout.flush()
             if verbose:
                 sys.stdout.write(
                     "\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
-                    "f1_score %f" % (self._epoch_id, batch_id, *model_results[1:])
+                    "f1_score %f"
+                    % (
+                        self._epoch_id,
+                        batch_id,
+                        model_results.get("loss", np.nan),
+                        acc_value,
+                        f1_value,
+                    )
                 )
             batch_id += 1
 
-        for i, metric_label in enumerate(self._model.metrics_names):
-            history[metric_label] = model_results[i]
+        history.update(model_results)
 
         if val_data:
             f1, f1_report = self._validate_training(val_data)  # type: ignore
             history["f1_report"] = f1_report
 
-            val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
+            val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.nan
             val_precision = (
-                f1_report["weighted avg"]["precision"] if f1_report else np.NAN
+                f1_report["weighted avg"]["precision"] if f1_report else np.nan
             )
-            val_recall = f1_report["weighted avg"]["recall"] if f1_report else np.NAN
+            val_recall = f1_report["weighted avg"]["recall"] if f1_report else np.nan
             epoch_time = time.time() - start_time
             logger.info(
                 "\rEPOCH %d (%ds), loss: %f - acc: %f - f1_score %f -- "
@@ -416,7 +451,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
                 % (
                     self._epoch_id,
                     epoch_time,
-                    *model_results[1:],
+                    model_results.get("loss", np.nan),
+                    acc_value,
+                    f1_value,
                     val_f1,
                     val_precision,
                     val_recall,
@@ -463,7 +500,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             y_val_pred.append(
                 self._model.predict(
                     x_val, batch_size=batch_size_test, verbose=verbose_keras
-                )[1]
+                )[self._ARGMAX_OUTPUT]
             )
             y_val_test.append(np.argmax(y_val, axis=-1))
             batch_id += 1
@@ -536,10 +573,10 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             if show_confidences:
                 confidences[
                     allocation_index : allocation_index + num_samples_in_batch
-                ] = model_output[0].numpy()
-            predictions[
-                allocation_index : allocation_index + num_samples_in_batch
-            ] = model_output[1].numpy()
+                ] = model_output[self._SOFTMAX_OUTPUT].numpy()
+            predictions[allocation_index : allocation_index + num_samples_in_batch] = (
+                model_output[self._ARGMAX_OUTPUT].numpy()
+            )
 
             allocation_index += num_samples_in_batch
 

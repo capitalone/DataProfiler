@@ -1,4 +1,5 @@
 """Contains functions for generating graph data report."""
+
 # !/usr/bin/env python3
 from __future__ import annotations
 

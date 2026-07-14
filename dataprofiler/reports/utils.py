@@ -1,4 +1,5 @@
 """Contains functions for checking for installations/dependencies."""
+
 import sys
 import warnings
 from typing import Any, Callable, List, TypeVar, cast

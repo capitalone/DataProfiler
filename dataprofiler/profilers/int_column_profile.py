@@ -1,4 +1,5 @@
 """Int profile analysis for individual col within structured profiling."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -163,7 +164,7 @@ class IntColumn(
         df_series = df_series.reset_index(drop=True)
         is_each_row_int = self._is_each_row_int(df_series)
         sample_size = len(is_each_row_int)
-        match_int_count = np.sum(is_each_row_int)
+        match_int_count: int = int(np.sum(is_each_row_int))
         profile = dict(match_count=match_int_count, sample_size=sample_size)
 
         BaseColumnProfiler._perform_property_calcs(

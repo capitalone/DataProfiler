@@ -1,4 +1,5 @@
 """Contains methods to decode components of a Profiler."""
+
 from __future__ import annotations
 
 import warnings
@@ -116,9 +117,9 @@ def get_structured_col_profiler_class(class_name: str) -> type[StructuredColProf
     :type class_name: str representing name of class
     :return: subclass of StructuredColProfiler object
     """
-    struct_col_profiler_class: None | (
-        type[StructuredColProfiler]
-    ) = _structured_col_profiler.get(class_name)
+    struct_col_profiler_class: None | (type[StructuredColProfiler]) = (
+        _structured_col_profiler.get(class_name)
+    )
     if struct_col_profiler_class is None:
         raise ValueError(
             f"Invalid structured col profiler class {class_name} " f"failed to load."
@@ -153,9 +154,9 @@ def load_column_profile(
         JSON
 
     """
-    column_profiler_cls: type[
-        BaseColumnProfiler[BaseColumnProfiler]
-    ] = get_column_profiler_class(serialized_json["class"])
+    column_profiler_cls: type[BaseColumnProfiler[BaseColumnProfiler]] = (
+        get_column_profiler_class(serialized_json["class"])
+    )
     return column_profiler_cls.load_from_dict(serialized_json["data"], config)
 
 

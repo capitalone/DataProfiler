@@ -10,8 +10,10 @@ import tensorflow as tf
 
 from dataprofiler.labelers import utils as labeler_utils
 from dataprofiler.labelers.character_level_cnn_model import (
+    ArgMaxLayer,
     CharacterLevelCnnModel,
     EncodingLayer,
+    ThreshArgMaxLayer,
 )
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -253,6 +255,36 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         self.assertIsNotNone(f1_report)
         self.assertEqual(11, f1_report["ADDRESS"]["support"])
 
+    def test_normalize_old_list_output_model(self):
+        default_ind = self.label_mapping["UNKNOWN"]
+        num_labels = max(self.label_mapping.values()) + 1
+        inputs = tf.keras.Input(shape=(2, 4))
+        hidden = tf.keras.layers.Dense(8, activation="relu")(inputs)
+        softmax_output = tf.keras.layers.Dense(num_labels, activation="softmax")(hidden)
+        argmax_output = ArgMaxLayer()(softmax_output)
+        threshold_output = ThreshArgMaxLayer(
+            threshold_=0.0,
+            num_labels_=num_labels,
+            default_ind=default_ind,
+        )(argmax_output, softmax_output)
+        old_format_model = tf.keras.Model(
+            inputs, [softmax_output, argmax_output, threshold_output]
+        )
+
+        normalized_model = CharacterLevelCnnModel._normalize_model_outputs(
+            old_format_model, default_ind, num_labels
+        )
+
+        self.assertIsInstance(normalized_model.output, dict)
+        self.assertSetEqual(
+            set(normalized_model.output.keys()),
+            {
+                CharacterLevelCnnModel._SOFTMAX_OUTPUT,
+                CharacterLevelCnnModel._ARGMAX_OUTPUT,
+                CharacterLevelCnnModel._THRESH_OUTPUT,
+            },
+        )
+
     def test_fit_and_predict_with_new_labels(self):
         # Initialize model
         cnn_model = CharacterLevelCnnModel(self.label_mapping)
@@ -430,7 +462,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         StringIO.close(mock_file)
 
     @mock.patch("tensorflow.keras.Model.save", return_value=None)
-    @mock.patch("tensorflow.keras.models.load_model", return_value=mock.Mock())
+    @mock.patch("tensorflow.keras.models.load_model", return_value=mock.MagicMock())
     @mock.patch("builtins.open", side_effect=mock_open)
     def test_load(self, *mocks):
         dir = os.path.join(_resource_labeler_dir, "unstructured_model/")
@@ -446,8 +478,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cnn_model.details()
 
         expected_layers = [
-            "input_1",
-            "lambda",
+            "input_layer",
+            "encoding_layer",
             "embedding",
             "conv1d",
             "dropout",
@@ -465,8 +497,9 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
             "dropout_4",
             "dense_1",
             "dropout_5",
-            "dense_2",
-            "thresh_arg_max_layer",
+            "softmax_output",
+            "argmax_output",
+            "thresh_argmax_output",
         ]
         model_layers = [layer.name for layer in cnn_model._model.layers]
         self.assertEqual(len(expected_layers), len(model_layers))

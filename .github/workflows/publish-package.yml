@@ -21,7 +21,7 @@ jobs:
       run: |
         git describe --exact-match --tags
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v7
       with:
         python-version: '3.11'
     - name: Install dependencies

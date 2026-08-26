@@ -33,7 +33,7 @@ def plot_histograms(
     profiler: StructuredProfiler,
     column_names: list[int | str] | None = None,
     column_inds: list[int] | None = None,
-) -> matplotlib.pyplot.figure:
+) -> matplotlib.figure.Figure | None:
     """
     Plot the histograms of column names that are int or float columns.
 
@@ -109,7 +109,7 @@ def plot_histograms(
             "No plots were constructed"
             " because no int or float columns were found in columns"
         )
-        return
+        return None
 
     # get proper tile format for graph
     n = len(inds_to_graph)
@@ -192,7 +192,7 @@ def plot_missing_values_matrix(
     profiler: StructuredProfiler,
     ax: matplotlib.axes.Axes | None = None,
     title: str | None = None,
-) -> matplotlib.pyplot.figure:
+) -> matplotlib.figure.Figure | None:
     """
     Generate matrix of bar graphs for missing value locations in cols of struct dataset.
 
@@ -216,7 +216,7 @@ def plot_col_missing_values(
     col_profiler_list: list[StructuredColProfiler],
     ax: matplotlib.axes.Axes | None = None,
     title: str | None = None,
-) -> matplotlib.pyplot.figure:
+) -> matplotlib.figure.Figure | None:
     """
     Generate bar graph of missing value locations within a col.
 
@@ -244,7 +244,7 @@ def plot_col_missing_values(
         warnings.warn(
             "There was no data in the profiles to plot missing " "column values."
         )
-        return
+        return None
 
     # bar width settings and height settings for each null value
     # width = 1, height = 1 would be no gaps
@@ -263,7 +263,7 @@ def plot_col_missing_values(
         ax = fig.add_subplot(111)
         is_own_fig = True
     # in case user passed their own axes
-    fig = ax.figure
+    fig = cast(matplotlib.figure.Figure, ax.figure)
 
     # loop through eac column plotting their null values
     for col_id, col_profiler in enumerate(col_profiler_list):

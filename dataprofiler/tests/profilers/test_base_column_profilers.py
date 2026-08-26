@@ -176,11 +176,13 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
         """showing we normally can't instantiate an abstract class"""
         with self.assertRaises(TypeError) as e:
             BaseColumnPrimitiveTypeProfiler()
-        self.assertEqual(
-            "Can't instantiate abstract class BaseColumnPrimitiveTypeProfiler "
-            "with abstract methods _update_helper, profile, report, update",
-            str(e.exception),
+        error_message = str(e.exception)
+        self.assertIn(
+            "Can't instantiate abstract class " "BaseColumnPrimitiveTypeProfiler",
+            error_message,
         )
+        for abstract_method in ("_update_helper", "profile", "report", "update"):
+            self.assertIn(abstract_method, error_message)
 
     def test_combine_unqiue_sets(self):
         a = [1, 2, 3]

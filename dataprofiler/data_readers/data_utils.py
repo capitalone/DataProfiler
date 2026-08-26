@@ -6,6 +6,7 @@ import os
 import random
 import re
 import urllib
+import urllib.parse
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from itertools import islice
@@ -25,12 +26,12 @@ from typing import (
 
 import boto3
 import botocore
-import dateutil
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
 from chardet.universaldetector import UniversalDetector
+from dateutil import parser as dateutil_parser  # type: ignore[import-untyped]
 from typing_extensions import TypeGuard
 
 from .. import dp_logging, rng_utils
@@ -277,7 +278,7 @@ def read_json(
     return lines
 
 
-def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
+def reservoir(file: TextIOWrapper | StringIO, sample_nrows: int) -> list:
     """
     Implement the mathematical logic of Reservoir sampling.
 
@@ -344,7 +345,9 @@ def reservoir(file: TextIOWrapper, sample_nrows: int) -> list:
     return values
 
 
-def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> StringIO:
+def rsample(
+    file_path: TextIOWrapper | StringIO, sample_nrows: int, args: dict
+) -> StringIO:
     """
     Implement Reservoir Sampling to sample n rows out of a total of M rows.
 
@@ -369,7 +372,7 @@ def rsample(file_path: TextIOWrapper, sample_nrows: int, args: dict) -> StringIO
 
 
 def read_csv_df(
-    file_path: Union[str, BytesIO, TextIOWrapper],
+    file_path: Union[str, StringIO, BytesIO, TextIOWrapper],
     delimiter: Optional[str],
     header: Optional[int],
     sample_nrows: Optional[int] = None,
@@ -425,7 +428,7 @@ def read_csv_df(
         file_path = open(file_path, encoding=encoding)
         is_file_open = True
 
-    file_data = file_path
+    file_data: TextIOWrapper | StringIO = file_path
     if sample_nrows:
         file_data = rsample(file_path, sample_nrows, args)
     fo = pd.read_csv(file_data, **args)
@@ -503,10 +506,10 @@ def sample_parquet(
     # sample
     n_rows = parquet_table.num_rows
     if n_rows > sample_nrows:
-        sample_index = np.array([False] * n_rows)
+        sample_index = cast(np.ndarray, np.array([False] * n_rows))
         sample_index[random.sample(range(n_rows), sample_nrows)] = True
     else:
-        sample_index = np.array([True] * n_rows)
+        sample_index = cast(np.ndarray, np.array([True] * n_rows))
     sample_df = parquet_table.filter(sample_index).to_pandas()
 
     # Convert all the unicode columns to utf-8
@@ -674,7 +677,7 @@ def detect_file_encoding(
     # If no encoding is still found, default to utf-8
     if not encoding:
         encoding = "utf-8"
-    return encoding.lower()
+    return str(encoding).lower()
 
 
 def detect_cell_type(cell: str) -> str:
@@ -691,7 +694,7 @@ def detect_cell_type(cell: str) -> str:
 
         try:
             # need to ingore type bc https://github.com/python/mypy/issues/8878
-            if dateutil.parser.parse(cell, fuzzy=False):  # type:ignore
+            if dateutil_parser.parse(cell, fuzzy=False):  # type: ignore[attr-defined]
                 cell_type = "date"
         except (ValueError, OverflowError, TypeError):
             pass

@@ -8,6 +8,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from typing import cast
 
 import numpy as np
 import tensorflow as tf
@@ -608,8 +609,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             _file_dir,
             "embeddings/glove-reduced-{}D.txt".format(self._parameters["dim_embed"]),
         )
-        embedding_matrix = np.zeros(
-            (max_char_encoding_id + 2, self._parameters["dim_embed"])
+        embedding_matrix = cast(
+            np.ndarray,
+            np.zeros((max_char_encoding_id + 2, self._parameters["dim_embed"])),
         )
         embedding_dict = build_embd_dictionary(embed_file)
 
@@ -911,8 +913,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             )
         # Pre-allocate space for predictions
         confidences: list | np.ndarray = []
-        sentence_lengths = np.zeros((batch_size,), dtype=int)
-        predictions = np.zeros((batch_size, self._parameters["max_length"]))
+        sentence_lengths: np.ndarray = np.zeros((batch_size,), dtype=int)
+        predictions: np.ndarray = np.zeros((batch_size, self._parameters["max_length"]))
         if show_confidences:
             confidences = np.zeros(
                 (batch_size, self._parameters["max_length"], self.num_labels)

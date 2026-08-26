@@ -44,7 +44,7 @@ def as_float_scalar(
     value: int | float | np.integer | np.floating | np.ndarray | list[float],
 ) -> float:
     """Convert a scalar-like value to a Python float."""
-    array_value = np.asarray(value)
+    array_value = cast(np.ndarray, np.asarray(value))
     if array_value.ndim == 0:
         return float(array_value)
     if array_value.size == 1:
@@ -135,13 +135,13 @@ def shuffle_in_chunks(
         values = [-1] * true_chunk_size
 
         # Generate random list of indexes
-        lower_bound_list = np.array(range(j, j + true_chunk_size))
-        random_list = rng.integers(lower_bound_list, data_length)
+        lower_bound_list = cast(np.ndarray, np.array(range(j, j + true_chunk_size)))
+        random_list = cast(np.ndarray, rng.integers(lower_bound_list, data_length))
 
         # shuffle the indexes
         for count in range(true_chunk_size):
             # get a random index to swap and swap it with j
-            k = random_list[count]
+            k = int(random_list[count])
             indices[j], indices[k] = indices[k], indices[j]
 
             # set the swapped value to the output
@@ -610,11 +610,11 @@ def find_diff_of_matrices(
     :rtype: list(list(float))
     """
     if matrix1 is not None and matrix2 is not None:
-        mat1 = np.array(matrix1, dtype=np.float64)
-        mat2 = np.array(matrix2, dtype=np.float64)
+        mat1 = cast(np.ndarray, np.array(matrix1, dtype=np.float64))
+        mat2 = cast(np.ndarray, np.array(matrix2, dtype=np.float64))
 
         if np.shape(mat1) == np.shape(mat2):
-            diff: np.ndarray = mat1 - mat2
+            diff: np.ndarray = cast(np.ndarray, mat1 - mat2)
             if ((diff == 0) | np.isnan(diff)).all():
                 return "unchanged"
             return diff

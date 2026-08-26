@@ -66,7 +66,7 @@ def find_resources_dir(resource_path: str | Path | None = None) -> Traversable:
     """Return the path to the package resources."""
     resource = importlib.resources.files("dataprofiler") / "resources"
     if resource_path:
-        resource /= resource_path
+        resource = resource / str(resource_path)
 
     if not (resource.is_file() or resource.is_dir()):
         raise FileNotFoundError(f"Resource not found: {resource_path}")

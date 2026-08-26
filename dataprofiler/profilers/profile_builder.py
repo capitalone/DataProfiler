@@ -12,7 +12,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, List, Optional, TypeVar, cast
+from typing import Any, Generator, List, Optional, Sized, TypeVar, cast
 
 import networkx as nx
 import numpy as np
@@ -612,7 +612,7 @@ class StructuredColProfiler:
             )
         else:
             sample_ind_generator = profiler_utils.partition(
-                sample_ids[0], chunk_size=sample_size
+                list(sample_ids[0]), chunk_size=sample_size
             )
 
         na_columns: dict = dict()
@@ -738,7 +738,7 @@ class BaseProfiler:
         self._min_sample_size: int = 5000
 
         # assign data labeler
-        data_labeler_options = self.options.data_labeler
+        data_labeler_options = cast(Any, self.options).data_labeler
         if (
             data_labeler_options.is_enabled
             and data_labeler_options.data_labeler_object is None
@@ -751,11 +751,13 @@ class BaseProfiler:
                     dirpath=data_labeler_options.data_labeler_dirpath,
                     load_options=None,
                 )
-                self.options.set({"data_labeler.data_labeler_object": data_labeler})
+                cast(Any, self.options).set(
+                    {"data_labeler.data_labeler_object": data_labeler}
+                )
 
             except Exception as e:
                 profiler_utils.warn_on_profile("data_labeler", e)
-                self.options.set({"data_labeler.is_enabled": False})
+                cast(Any, self.options).set({"data_labeler.is_enabled": False})
 
     def _add_error_checks(self, other: BaseProfiler) -> None:
         """
@@ -976,7 +978,7 @@ class BaseProfiler:
                 f"one of the following: {self._allowed_external_data_types}"
             )
 
-        if not len(data):
+        if not len(cast(Sized, data)):
             warnings.warn(
                 "The passed dataset was empty, hence no data was " "profiled."
             )
@@ -2344,11 +2346,11 @@ class StructuredProfiler(BaseProfiler):
 
         # fill correlation matrix with nan initially
         n_cols = len(self._profile)
-        corr_mat = np.full((n_cols, n_cols), np.nan)
+        corr_mat = cast(np.ndarray, np.full((n_cols, n_cols), np.nan))
 
         # then, fill in the correlations for valid columns
-        rows = [[id] for id in clean_column_ids]
-        corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
+        corr_rows = np.ix_(clean_column_ids, clean_column_ids)
+        corr_mat[corr_rows] = np.corrcoef(data, rowvar=False)
 
         return corr_mat
 
@@ -2397,26 +2399,28 @@ class StructuredProfiler(BaseProfiler):
             return None
 
         # get column indices without nan
-        col_ids1 = np.where(~np.isnan(corr_mat1).all(axis=0))[0]
-        col_ids2 = np.where(~np.isnan(corr_mat2).all(axis=0))[0]
+        col_ids1 = cast(np.ndarray, np.where(~np.isnan(corr_mat1).all(axis=0))[0])
+        col_ids2 = cast(np.ndarray, np.where(~np.isnan(corr_mat2).all(axis=0))[0])
 
         if len(col_ids1) != len(col_ids2) or len(col_ids1) <= 1:
             return None
-        if (col_ids1 != col_ids2).any():
+        col_ids1_list = cast(list[int], col_ids1.tolist())
+        col_ids2_list = cast(list[int], col_ids2.tolist())
+        if col_ids1_list != col_ids2_list:
             return None
 
         mean1 = np.array(
             [
                 self._profile[idx].profile["statistics"]["mean"]
                 for idx in range(len(self._profile))
-                if idx in col_ids1
+                if idx in col_ids1_list
             ]
         )
         std1 = np.array(
             [
                 self._profile[idx].profile["statistics"]["stddev"]
                 for idx in range(len(self._profile))
-                if idx in col_ids1
+                if idx in col_ids1_list
             ]
         )
 
@@ -2424,14 +2428,14 @@ class StructuredProfiler(BaseProfiler):
             [
                 other._profile[idx].profile["statistics"]["mean"]
                 for idx in range(len(self._profile))
-                if idx in col_ids2
+                if idx in col_ids2_list
             ]
         )
         std2 = np.array(
             [
                 other._profile[idx].profile["statistics"]["stddev"]
                 for idx in range(len(self._profile))
-                if idx in col_ids2
+                if idx in col_ids2_list
             ]
         )
         return self._merge_correlation_helper(
@@ -2559,7 +2563,7 @@ class StructuredProfiler(BaseProfiler):
         """
         n_cols = len(self._profile)
         # Fill matrix with nan initially
-        chi2_mat = np.full((n_cols, n_cols), np.nan)
+        chi2_mat = cast(np.ndarray, np.full((n_cols, n_cols), np.nan))
         # Compute chi_sq for each
         for i in range(n_cols):
             data_stats_compiler1 = self._profile[i].profiles["data_stats_profile"]
@@ -2568,7 +2572,7 @@ class StructuredProfiler(BaseProfiler):
                 continue
             for j in range(i, n_cols):
                 if i == j:
-                    chi2_mat[i][j] = 1
+                    chi2_mat[i, j] = 1
                     continue
                 data_stats_compiler2 = self._profile[j].profiles["data_stats_profile"]
                 profiler2 = data_stats_compiler2._profiles["category"]
@@ -2581,8 +2585,8 @@ class StructuredProfiler(BaseProfiler):
                     profiler2.categorical_counts,
                     profiler2.sample_size,
                 )
-                chi2_mat[i][j] = results["p-value"]
-                chi2_mat[j][i] = results["p-value"]
+                chi2_mat[i, j] = results["p-value"]
+                chi2_mat[j, i] = results["p-value"]
 
         return chi2_mat
 
@@ -2674,18 +2678,19 @@ class StructuredProfiler(BaseProfiler):
                 mean_not_null = sum_not_null / true_count
 
             # Convert numpy arrays to lists (serializable)
-            sum_null = sum_null.tolist()
-            sum_not_null = sum_not_null.tolist()
+            sum_null_list = cast(list[float], sum_null.tolist())
+            sum_not_null_list = cast(list[float], sum_not_null.tolist())
 
-            mean_null = mean_null.tolist()
-            mean_not_null = mean_not_null.tolist()
+            mean_null_list = cast(list[float], mean_null.tolist())
+            mean_not_null_array = cast(np.ndarray, mean_not_null)
+            mean_not_null_list = cast(list[float], mean_not_null_array.tolist())
 
             # Array index serves as class label
             # 0 indicates not null, 1 indicates null
             self._null_replication_metrics[col_id] = {
                 "class_prior": [prior_not_null, prior_null],
-                "class_sum": [sum_not_null, sum_null],
-                "class_mean": [mean_not_null, mean_null],
+                "class_sum": [sum_not_null_list, sum_null_list],
+                "class_mean": [mean_not_null_list, mean_null_list],
             }
 
     def _merge_null_replication_metrics(self, other: StructuredProfiler) -> dict:
@@ -2724,7 +2729,9 @@ class StructuredProfiler(BaseProfiler):
                 for profile in other._profile
             ]
         )
-        total_row_sum: np.ndarray = self_row_sum + other_row_sum
+        self_row_sum = cast(np.ndarray, self_row_sum)
+        other_row_sum = cast(np.ndarray, other_row_sum)
+        total_row_sum = cast(np.ndarray, self_row_sum + other_row_sum)
         merged_properties: dict = defaultdict(dict)
         for col_id in range(len(self._profile)):
             self_profile = self._profile[col_id]
@@ -2755,7 +2762,7 @@ class StructuredProfiler(BaseProfiler):
                 else None
             )
             # Initialize zeros array of size (number of columns - 1)
-            sum_null = np.zeros(len(self._profile) - 1)
+            sum_null = cast(np.ndarray, np.zeros(len(self._profile) - 1))
 
             # Add sum_nulls if they exist
             # Guarantees that at least one of self_sum_null, other_sum_null != None
@@ -2765,7 +2772,7 @@ class StructuredProfiler(BaseProfiler):
             if other_sum_null is not None:
                 sum_null += np.asarray(other_sum_null)
 
-            sum_not_null = np.delete(total_row_sum, col_id) - sum_null
+            sum_not_null = cast(np.ndarray, np.delete(total_row_sum, col_id) - sum_null)
 
             mean_null = sum_null / null_count
 
@@ -2776,18 +2783,19 @@ class StructuredProfiler(BaseProfiler):
                 mean_not_null = sum_not_null / true_count
 
             # Convert numpy arrays to lists (serializable)
-            sum_null = sum_null.tolist()
-            sum_not_null = sum_not_null.tolist()
+            sum_null_list = cast(list[float], sum_null.tolist())
+            sum_not_null_list = cast(list[float], sum_not_null.tolist())
 
-            mean_null = mean_null.tolist()
-            mean_not_null = mean_not_null.tolist()
+            mean_null_list = cast(list[float], mean_null.tolist())
+            mean_not_null_array = cast(np.ndarray, mean_not_null)
+            mean_not_null_list = cast(list[float], mean_not_null_array.tolist())
 
             merged_properties[col_id] = {
                 # Array index serves as class label
                 # 0 indicates not null, 1 indicates null
                 "class_prior": [prior_not_null, prior_null],
-                "class_sum": [sum_not_null, sum_null],
-                "class_mean": [mean_not_null, mean_null],
+                "class_sum": [sum_not_null_list, sum_null_list],
+                "class_mean": [mean_not_null_list, mean_null_list],
             }
 
         return merged_properties

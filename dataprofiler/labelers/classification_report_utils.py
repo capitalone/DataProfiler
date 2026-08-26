@@ -32,25 +32,27 @@ def convert_confusion_matrix_to_MCM(conf_matrix: list | np.ndarray) -> np.ndarra
     """
     if not isinstance(conf_matrix, np.ndarray):
         conf_matrix = np.array(conf_matrix)
+    conf_matrix = cast(np.ndarray, conf_matrix)
     num_labels = len(conf_matrix)
     num_samples: int = int(np.sum(conf_matrix))
-    MCM = np.zeros((num_labels, 2, 2), dtype=np.int64)
+    MCM = cast(np.ndarray, np.zeros((num_labels, 2, 2), dtype=np.int64))
 
     # True Positives
     MCM[:, 1, 1] = np.sum(conf_matrix * np.eye(num_labels), axis=1)
 
     # False Negatives
-    MCM[:, 1, 0] = np.sum(
-        conf_matrix * (np.ones(num_labels) - np.eye(num_labels)), axis=1
+    non_diagonal_mask = cast(
+        np.ndarray, np.logical_not(np.eye(num_labels, dtype=bool)).astype(np.int64)
     )
+    MCM[:, 1, 0] = np.sum(conf_matrix * non_diagonal_mask, axis=1)
 
     # False Positives
-    MCM[:, 0, 1] = np.sum(
-        conf_matrix.T * (np.ones(num_labels) - np.eye(num_labels)), axis=1
-    )
+    MCM[:, 0, 1] = np.sum(conf_matrix.T * non_diagonal_mask, axis=1)
 
     # True Negatives
-    MCM[:, 0, 0] = num_samples - MCM[:, 1, 0] - MCM[:, 0, 1] - MCM[:, 1, 1]
+    MCM[:, 0, 0] = cast(
+        np.ndarray, num_samples - MCM[:, 1, 0] - MCM[:, 0, 1] - MCM[:, 1, 1]
+    )
 
     return MCM
 
@@ -210,6 +212,7 @@ def precision_recall_fscore_support(
     support: np.ndarray | None = true_sum
     if average == "weighted":
         weights = true_sum
+        assert weights is not None
         if weights.sum() == 0:
             return np.array([0.0]), np.array([0.0]), np.array([0.0]), None
     elif average == "samples":

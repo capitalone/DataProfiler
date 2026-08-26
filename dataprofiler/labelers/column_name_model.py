@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 import numpy as np
 
@@ -176,7 +176,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def _need_to_reconstruct_model(self) -> bool:
-        pass
+        return False
 
     def reset_weights(self) -> None:
         """Reset weights function."""
@@ -191,15 +191,17 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         scorer: Callable,
         include_label: bool = False,
     ) -> list:
-        scores = []
+        scores: list[list[float | int]] = []
 
         check_values_list = [dict["attribute"] for dict in check_values_dict]
 
         model_outputs = rapidfuzz.process.cdist(
             list_of_column_names, check_values_list, processor=processor, scorer=scorer
         )
+        model_outputs = cast(np.ndarray, model_outputs)
 
-        for iter_value, ngram_match_results in enumerate(model_outputs):
+        for i in range(len(model_outputs)):
+            ngram_match_results: np.ndarray = cast(np.ndarray, model_outputs[i])
             column_result = [np.max(ngram_match_results)]
             if include_label:
                 index_max_result = ngram_match_results.argmax(axis=0)

@@ -759,7 +759,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)
 
-            profile = num_profiler.profile()
+            profile = num_profiler.profile
             # pop out the histogram and quartiles to test separately from the
             # rest of the dict as we need comparison with some precision
             histogram = profile.pop("histogram")

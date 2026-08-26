@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+from typing import Any
 
 import numpy as np
 
@@ -167,7 +168,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def _need_to_reconstruct_model(self) -> bool:
-        pass
+        return False
 
     def reset_weights(self) -> None:
         """Reset weights."""
@@ -225,7 +226,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         # Construct array initial regex predictions where background is
         # predicted.
-        predictions = [np.empty((0,))] * 100
+        predictions: list[Any] = [np.empty((0,))] * 100
         i = 0
         for i, input_string in enumerate(data):
 
@@ -247,7 +248,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             if verbose:
                 sys.stdout.flush()
                 sys.stdout.write(f"\rData Samples Processed: {i + 1:d}   ")
-            predictions[i] = pred
+            predictions[i] = pred.tolist()
 
         if verbose:
             logger.info(f"\rData Samples Processed: {i + 1:d}   ")

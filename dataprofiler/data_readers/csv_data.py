@@ -674,8 +674,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         empty_line_count = 0
         delimiter_count = dict()
 
-        delimiter_regex = data_utils.get_delimiter_regex(delimiter, quotechar)
-        space_regex = data_utils.get_delimiter_regex(" ", quotechar)
+        delimiter_regex = data_utils.get_delimiter_regex(
+            delimiter or ",", quotechar or '"'
+        )
+        space_regex = data_utils.get_delimiter_regex(" ", quotechar or '"')
 
         # Count the possible delimiters
         for line in data_as_str.split("\n")[header:]:
@@ -722,15 +724,19 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             active_line_count - max_deviation_count
         ) / active_line_count
 
-        delimiter_count_values = np.array(list(delimiter_count.values()))
-        count_percent = delimiter_count_values / np.sum(delimiter_count_values)
+        delimiter_count_values = cast(
+            np.ndarray, np.array(list(delimiter_count.values()))
+        )
+        count_percent = cast(
+            np.ndarray, delimiter_count_values / np.sum(delimiter_count_values)
+        )
 
         if not count_percent.size:
             return False
 
-        max_count_index = count_percent.argmax()
+        max_count_index = int(count_percent.argmax())
         max_count_value = list(delimiter_count.keys())[max_count_index]
-        max_count_percent = count_percent[max_count_index]
+        max_count_percent = float(count_percent[max_count_index])
 
         # Inferred the file was a CSV
         if (max_count_value > 0 or delimiter is None) and (

@@ -120,16 +120,22 @@ def evaluate_accuracy(
             if x[1] not in omitted_labels
         ]
 
-    predicted_entities = [np.asarray(row) for row in predicted_entities_in_index]
-    true_entities = [np.asarray(row) for row in true_entities_in_index]
+    predicted_entities: list[np.ndarray] = [
+        np.asarray(row) for row in predicted_entities_in_index
+    ]
+    true_entities: list[np.ndarray] = [
+        np.asarray(row) for row in true_entities_in_index
+    ]
 
     max_len = len(predicted_entities[0])
-    true_labels_padded = np.zeros((len(true_entities), max_len))
+    true_labels_padded: np.ndarray = cast(
+        np.ndarray, np.zeros((len(true_entities), max_len))
+    )
     for i, true_labels_row in enumerate(true_entities):
         true_labels_padded[i][: len(true_labels_row)] = true_labels_row
 
-    true_labels_flatten = np.hstack(true_labels_padded)  # type: ignore
-    predicted_labels_flatten = np.hstack(predicted_entities)
+    true_labels_flatten: np.ndarray = np.hstack(true_labels_padded)  # type: ignore
+    predicted_labels_flatten: np.ndarray = np.hstack(predicted_entities)
 
     all_labels: list[str] = []
     if entity_rev_dict:
@@ -139,7 +145,9 @@ def evaluate_accuracy(
     # By definition a confusion matrix :math:`C` is such that :math:`C_{i, j}`
     # is equal to the number of observations known to be in group :math:`i` but
     # predicted to be in group :math:`j`.
-    conf_mat = np.zeros((num_labels, num_labels), dtype=np.int64)
+    conf_mat: np.ndarray = cast(
+        np.ndarray, np.zeros((num_labels, num_labels), dtype=np.int64)
+    )
     batch_size = min(2**20, len(true_labels_flatten))
     for batch_ind in range(len(true_labels_flatten) // batch_size + 1):
         true_label_batch = true_labels_flatten[

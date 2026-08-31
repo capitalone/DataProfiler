@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..profilers.float_column_profile import FloatColumn
@@ -74,7 +74,8 @@ def plot_histograms(
     if not column_names and not column_inds:
         inds_to_graph = list(range(len(profile_list)))
     elif not column_inds:
-        for column in cast(list[Union[str, int]], column_names):
+        assert column_names is not None
+        for column in column_names:
             col = column
             if isinstance(col, str):
                 col = col.lower()
@@ -97,9 +98,8 @@ def plot_histograms(
         """
         col_profiler = profile_list[ind_to_graph]
         data_compiler = col_profiler.profiles["data_type_profile"]
-        if cast(
-            ColumnPrimitiveTypeProfileCompiler, data_compiler
-        ).selected_data_type not in ["int", "float"]:
+        assert isinstance(data_compiler, ColumnPrimitiveTypeProfileCompiler)
+        if data_compiler.selected_data_type not in ["int", "float"]:
             return False
         return True
 
@@ -127,9 +127,8 @@ def plot_histograms(
     for col_ind, ax in zip(inds_to_graph, axs):
         col_profiler = profile_list[col_ind]
         data_compiler = col_profiler.profiles["data_type_profile"]
-        data_type = cast(
-            ColumnPrimitiveTypeProfileCompiler, data_compiler
-        ).selected_data_type
+        assert isinstance(data_compiler, ColumnPrimitiveTypeProfileCompiler)
+        data_type = data_compiler.selected_data_type
         data_type_profiler = data_compiler._profiles[data_type]
         ax = plot_col_histogram(
             data_type_profiler, ax=ax, title=str(data_type_profiler.name)
@@ -266,7 +265,8 @@ def plot_col_missing_values(
         is_own_fig = True
     # in case user passed their own axes
     else:
-        fig = cast(Figure, ax.figure)
+        assert ax.figure is not None
+        fig = ax.figure
 
     # loop through eac column plotting their null values
     for col_id, col_profiler in enumerate(col_profiler_list):

@@ -2,7 +2,6 @@ import json
 import os
 import unittest
 from collections import defaultdict
-from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -93,8 +92,7 @@ class TestCategoricalColumn(unittest.TestCase):
         dataset = self.aws_dataset["host"].dropna()
         profile = CategoricalColumn(dataset.name)
 
-        time_array = [float(x) for x in range(17, 0, -1)]
-        with patch("time.time", side_effect=lambda: time_array.pop()):
+        with test_utils.mock_timeit():
             # Validate the time in the column class is empty.
             self.assertEqual(defaultdict(float), profile.profile["times"])
 

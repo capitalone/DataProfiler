@@ -213,6 +213,46 @@ class TestEvaluateAccuracy(unittest.TestCase):
         self.assertEqual(2 / 3, f1)
         self.assertDictEqual(expected_output, f1_report)
 
+    def test_predicted_label_without_support_lowers_f1(self):
+        """A label that never occurs in the truth but is still predicted must stay in the average.
+
+        Every prediction of such a label is a false positive, so its precision is a measured 0.
+        Counting support alone dropped it from the rescale, which hid those false positives.
+        """
+        reverse_label_mapping = {0: "PAD", 1: "UNKNOWN", 2: "ADDRESS", 3: "SSN"}
+        # 10 ADDRESS characters, then 10 background characters that the model tags as SSN.
+        y_true = [[2] * 10 + [1] * 10]
+        y_pred = [[2] * 10 + [3] * 10]
+
+        f1, f1_report = labeler_utils.evaluate_accuracy(
+            y_pred,
+            y_true,
+            4,
+            reverse_label_mapping,
+            verbose=False,
+        )
+
+        # ADDRESS is perfect and SSN is never right, so the average over the two is 1/2.
+        self.assertEqual(1 / 2, f1)
+        self.assertEqual(0, f1_report["SSN"]["precision"])
+        self.assertEqual(0, f1_report["SSN"]["support"])
+
+    def test_label_neither_predicted_nor_in_truth_is_still_excluded(self):
+        """The rescale still ignores a label that neither the truth nor the prediction used."""
+        reverse_label_mapping = {0: "PAD", 1: "UNKNOWN", 2: "ADDRESS", 3: "SSN"}
+        y_true = [[2] * 10 + [1] * 10]
+        y_pred = [[2] * 10 + [1] * 10]
+
+        f1, _ = labeler_utils.evaluate_accuracy(
+            y_pred,
+            y_true,
+            4,
+            reverse_label_mapping,
+            verbose=False,
+        )
+
+        self.assertEqual(1, f1)
+
     def test_verbose(self):
         with self.assertLogs("DataProfiler.labelers.labeler_utils", level="INFO") as cm:
             f1, f1_report = labeler_utils.evaluate_accuracy(

@@ -1,4 +1,4 @@
-"""Text profile analysis for individual col within structured profiling.."""
+"""Text profile analysis for individual col within structured profiling."""
 
 from __future__ import annotations
 

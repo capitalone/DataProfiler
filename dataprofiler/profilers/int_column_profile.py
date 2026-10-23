@@ -16,7 +16,7 @@ class IntColumn(
     NumericStatsMixin["IntColumn"], BaseColumnPrimitiveTypeProfiler["IntColumn"]
 ):
     """
-    Integer column profile mixin with of numerical stats.
+    Integer column profile mixin with numerical stats.
 
     Represents a column in the dataset which is an integer column.
     """

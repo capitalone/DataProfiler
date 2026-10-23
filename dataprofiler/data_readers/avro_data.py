@@ -1,4 +1,4 @@
-"""Contains class for saving and loading spreadsheet data."""
+"""Contains class for saving and loading AVRO data."""
 
 from io import BytesIO, StringIO
 from typing import Any, Dict, List, Optional, Union
@@ -13,7 +13,7 @@ from .json_data import JSONData
 
 
 class AVROData(JSONData, BaseData):
-    """AVROData class to save and load spreadsheet data."""
+    """AVROData class to save and load AVRO data."""
 
     data_type: str = "avro"
 

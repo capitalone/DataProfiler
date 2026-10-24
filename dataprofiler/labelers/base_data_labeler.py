@@ -669,7 +669,7 @@ class BaseDataLabeler:
         postprocessor: data_processing.BaseDataPostprocessor,
     ) -> BaseDataLabeler:
         """
-        Load the data labeler from a its set of components.
+        Load the data labeler from its set of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor
@@ -906,7 +906,7 @@ class TrainableDataLabeler(BaseDataLabeler):
         postprocessor: data_processing.BaseDataPostprocessor,
     ) -> TrainableDataLabeler:
         """
-        Load the data labeler from a its set of components.
+        Load the data labeler from its set of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor

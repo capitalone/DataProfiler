@@ -771,6 +771,10 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             - 0.1 < PSI < 0.2: moderate population change
             - PSI >= 0.2: significant population change
 
+        Bins with a zero share on exactly one side are not skipped: the zero
+        is replaced with profiler_utils.PSI_ZERO_SHARE_EPSILON so the term
+        stays large but finite (see profiler_utils.calculate_psi_term).
+
         :param self_match_count: self.match_count
         :type self_match_count: int
         :param self_histogram: self._stored_histogram["histogram"]
@@ -808,14 +812,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             other_percent = (
                 new_other_histogram["bin_counts"][iter_value] / other_match_count
             )
-            if (self_percent == other_percent) and self_percent == 0:
-                continue
-
-            iter_psi = (other_percent - self_percent) * np.log(
-                other_percent / self_percent
+            psi_value += profiler_utils.calculate_psi_term(
+                self_percent, other_percent
             )
-            if iter_psi and iter_psi != float("inf"):
-                psi_value += iter_psi
 
         return psi_value
 

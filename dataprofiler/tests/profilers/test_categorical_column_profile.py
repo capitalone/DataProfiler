@@ -749,7 +749,10 @@ class TestCategoricalColumn(unittest.TestCase):
                     "deg_of_free": 2,
                     "p-value": 0.3099238764710244,
                 },
-                "psi": 0.0990210257942779,
+                # category "maybe" only exists in profile2; it now contributes
+                # via epsilon substitution instead of being skipped
+                # (0.0990210257942779 -> 2.371818811905591)
+                "psi": 2.371818811905591,
             },
         }
         actual_diff = profile.diff(profile2)
@@ -815,6 +818,32 @@ class TestCategoricalColumn(unittest.TestCase):
             },
         }
         self.assertDictEqual(expected_diff, profile.diff(profile2))
+
+    def test_categorical_diff_psi_one_sided_category(self):
+        # gh-1235: a category present on only one side used to be skipped, so
+        # a brand-new category holding 25% of the population reported PSI
+        # 0.0719 ("no significant change"). With epsilon substitution it now
+        # reports ~2.03 ("significant population change").
+        df_categorical1 = pd.Series(["a"] * 1000 + ["b"] * 600 + ["c"] * 400)
+        profile1 = CategoricalColumn(df_categorical1.name)
+        profile1.update(df_categorical1)
+
+        df_categorical2 = pd.Series(
+            ["a"] * 750 + ["b"] * 450 + ["c"] * 300 + ["d"] * 500
+        )
+        profile2 = CategoricalColumn(df_categorical2.name)
+        profile2.update(df_categorical2)
+
+        diff = profile1.diff(profile2)
+        self.assertAlmostEqual(
+            2.0271496162259326, diff["statistics"]["psi"], places=10
+        )
+
+        # the reverse direction gives the same value (PSI is symmetric here)
+        diff = profile2.diff(profile1)
+        self.assertAlmostEqual(
+            2.0271496162259326, diff["statistics"]["psi"], places=10
+        )
 
     def test_unalikeability(self):
         df_categorical = pd.Series(["a", "a"])

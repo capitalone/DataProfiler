@@ -425,6 +425,37 @@ class Subtractable(Protocol):
 
 T = TypeVar("T", bound=Subtractable)
 
+# Share substituted for a zero proportion when summing PSI terms. A bin or
+# category that exists on only one side of the comparison would otherwise make
+# the log infinite and get dropped, which hides exactly the largest shifts.
+PSI_ZERO_SHARE_EPSILON = 1e-4
+
+
+def calculate_psi_term(percent_self: float, percent_other: float) -> float:
+    """
+    Calculate one bin's contribution to PSI (Population Stability Index).
+
+    The term is `(percent_other - percent_self) * ln(percent_other /
+    percent_self)`. A bin with zero share on both sides contributes nothing.
+    When exactly one side has a zero share, the zero is replaced with
+    PSI_ZERO_SHARE_EPSILON so the term stays large but finite instead of
+    being skipped.
+
+    :param percent_self: share of the bin in the self profile
+    :type percent_self: float
+    :param percent_other: share of the bin in the other profile
+    :type percent_other: float
+    :return: the bin's PSI contribution
+    :rtype: float
+    """
+    if percent_self == 0 and percent_other == 0:
+        return 0.0
+    if percent_self == 0:
+        percent_self = PSI_ZERO_SHARE_EPSILON
+    elif percent_other == 0:
+        percent_other = PSI_ZERO_SHARE_EPSILON
+    return (percent_other - percent_self) * math.log(percent_other / percent_self)
+
 
 @overload
 def find_diff_of_numbers(

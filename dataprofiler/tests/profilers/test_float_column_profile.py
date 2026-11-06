@@ -1762,7 +1762,9 @@ class TestFloatColumn(unittest.TestCase):
                     "p-value": 0.6128117908944144,
                 },
             },
-            "psi": 0,
+            # the histograms barely overlap; one-sided bins now contribute
+            # via epsilon substitution instead of being skipped (0 -> 16.76)
+            "psi": 16.755625121809416,
         }
         profile_diff = profiler1.diff(profiler2)
         try:

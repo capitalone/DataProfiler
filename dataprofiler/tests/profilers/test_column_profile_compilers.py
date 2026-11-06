@@ -243,7 +243,7 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
                         "p-value": 0.7011367179395704,
                     },
                 },
-                "psi": 0.17328679513998632,
+                "psi": 10.296718965867925,
             },
         }
         profile_diff = compiler1.diff(compiler2)
@@ -354,7 +354,10 @@ class TestColumnPrimitiveTypeProfileCompiler(unittest.TestCase):
                         "p-value": 0.28696889329266506,
                     },
                 },
-                "psi": 0,
+                # the two histograms barely overlap; one-sided bins now
+                # contribute via epsilon substitution instead of being
+                # skipped (0 -> 16.68)
+                "psi": 16.683692825392907,
             },
         }
         profile_diff = compiler1.diff(compiler2)
@@ -551,7 +554,10 @@ class TestColumnStatsProfileCompiler(unittest.TestCase):
                     "deg_of_free": 2,
                     "p-value": 0.3499377491111554,
                 },
-                "psi": 0.009815252971365292,
+                # categories "1" and "10" exist on only one side; they now
+                # contribute via epsilon substitution instead of being
+                # skipped (0.009815252971365292 -> 4.67)
+                "psi": 4.668142539378713,
             },
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))

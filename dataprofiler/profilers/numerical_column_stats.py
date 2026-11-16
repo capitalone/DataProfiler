@@ -786,7 +786,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         :return: psi_value
         :rtype: optional[float]
         """
-        psi_value = 0
+        psi_value = 0.0
 
         new_self_histogram, new_other_histogram = self._preprocess_for_calculate_psi(
             self_histogram=self_histogram,

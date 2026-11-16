@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.14.1 - 2026-11-16
+## 0.15.0 - 2026-11-16
+
+### Breaking Changes
+
+- Dropped support for Python 3.10 (end of life). The minimum supported version
+  is now Python 3.11 (`python_requires>=3.11`), as required by `pyarrow>=26.0.0`.
 
 ### Security
 

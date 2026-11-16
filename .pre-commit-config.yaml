@@ -56,7 +56,7 @@ repos:
             'pandas>=1.1.2,<3.0.0',
             python-dateutil>=2.7.5,
             pytz>=2020.1,
-            'pyarrow>=1.0.1,<24.0.0',
+            'pyarrow>=26.0.0,<27.0.0',
             'chardet>=3.0.4,<7.0.0',
             fastavro>=1.1.0,
             python-snappy>=0.7.1,
@@ -64,13 +64,14 @@ repos:
             psutil>=4.0.0,
             scipy>=1.10.0,
             requests>=2.32.4,
+            certifi>=2026.10.19,
             networkx>=2.5.1,
             typing-extensions>=3.10.0.2,
             HLL>=2.0.3,
             datasketches>=4.1.0,
             packaging>=23.0,
             boto3>=1.37.15,
-            urllib3>=2.5.0,
+            urllib3>=2.8.0,
 
             # requirements-dev.txt
             check-manifest>=0.50,
@@ -112,11 +113,11 @@ repos:
     hooks:
       - id: check-manifest
         additional_dependencies: ['h5py', 'wheel', 'future', 'numpy>=1.22.0,<3.0.0',
-        'pandas', 'python-dateutil', 'pytz', 'pyarrow<24.0.0', 'chardet',
+        'pandas', 'python-dateutil', 'pytz', 'pyarrow>=26.0.0,<27.0.0', 'chardet',
         'fastavro>=1.1.0', 'python-snappy', 'charset-normalizer', 'psutil',
-        'scipy>=1.10.0', 'requests>=2.32.4', 'networkx', 'typing-extensions',
-        'HLL', 'datasketches', 'packaging>=23.0', 'boto3>=1.37.15',
-        'urllib3>=2.5.0']
+        'scipy>=1.10.0', 'requests>=2.32.4', 'certifi>=2026.10.19', 'networkx',
+        'typing-extensions', 'HLL', 'datasketches', 'packaging>=23.0',
+        'boto3>=1.37.15', 'urllib3>=2.8.0']
   # Pyupgrade - standardize and modernize Python syntax for newer versions of the language
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.0

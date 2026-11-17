@@ -50,7 +50,7 @@ setup(
     name="DataProfiler",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    python_requires=">=3.10",
+    python_requires=">=3.11",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",

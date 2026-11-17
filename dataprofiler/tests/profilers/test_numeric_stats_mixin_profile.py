@@ -1162,7 +1162,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             },
         }
 
-        expected_psi_value = 0.6617899380349177
+        # the regenerated `other` histogram has no mass in bins 7-11 while
+        # `self` does; those one-sided bins now contribute via epsilon
+        # substitution instead of being skipped (0.6617899380349177 -> 5.20)
+        expected_psi_value = 5.2035838526982685
         psi_value = other1._calculate_psi(
             self_match_count=other1.match_count,
             self_histogram=other1._stored_histogram["histogram"],
@@ -1172,12 +1175,50 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(expected_psi_value, psi_value)
 
         # PSI regen self / not other
-        expected_psi_value = 0.6617899380349177
+        expected_psi_value = 5.2035838526982685
         psi_value = other1._calculate_psi(
             self_match_count=other2.match_count,
             self_histogram=other2._stored_histogram["histogram"],
             other_match_count=other1.match_count,
             other_histogram=other1._stored_histogram["histogram"],
+        )
+        self.assertEqual(expected_psi_value, psi_value)
+
+        # PSI with a bin that has mass on only one side: the zero share is
+        # replaced with an epsilon so the bin contributes instead of being
+        # dropped (gh-1235). Bins 7-9 are empty on both sides and still
+        # contribute nothing.
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1.match_count = 30
+        other1._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {
+                "bin_counts": np.array([5, 0, 5, 5, 5, 5, 0, 0, 0, 5]),
+                "bin_edges": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+            },
+        }
+
+        other2.match_count = 35
+        other2._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {
+                "bin_counts": np.array([5, 5, 5, 5, 5, 5, 0, 0, 0, 5]),
+                "bin_edges": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+            },
+        }
+
+        # bins 1,3,4,5,6,10 contribute normally; bin 2 (empty in other1)
+        # contributes (5/35 - 1e-4) * ln((5/35) / 1e-4); bins 7-9 are 0
+        expected_psi_value = 1.059070828798869
+        psi_value = other1._calculate_psi(
+            self_match_count=other1.match_count,
+            self_histogram=other1._stored_histogram["histogram"],
+            other_match_count=other2.match_count,
+            other_histogram=other2._stored_histogram["histogram"],
         )
         self.assertEqual(expected_psi_value, psi_value)
 

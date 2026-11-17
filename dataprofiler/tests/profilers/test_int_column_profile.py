@@ -1068,7 +1068,10 @@ class TestIntColumn(unittest.TestCase):
                     "p-value": 0.6691886269547123,
                 },
             },
-            "psi": 0.0675775180180274,
+            # most bins have mass on only one side; they now contribute via
+            # epsilon substitution instead of being skipped
+            # (0.0675775180180274 -> 9.73)
+            "psi": 9.731518770995724,
         }
         profile_diff = profiler1.diff(profiler2)
         try:

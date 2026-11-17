@@ -188,6 +188,23 @@ class TestShuffleInChunks(unittest.TestCase):
             expected_diff, profiler_utils.find_diff_of_dicts(dict1, dict2)
         )
 
+    def test_calculate_psi_term(self):
+        # both sides empty contribute nothing
+        self.assertEqual(0.0, profiler_utils.calculate_psi_term(0.0, 0.0))
+        # a zero share on exactly one side is replaced with
+        # PSI_ZERO_SHARE_EPSILON so the term stays large but finite, and the
+        # magnitude is symmetric across directions (gh-1235)
+        self.assertAlmostEqual(
+            1.9552290981129874, profiler_utils.calculate_psi_term(0.0, 0.25)
+        )
+        self.assertAlmostEqual(
+            1.9552290981129874, profiler_utils.calculate_psi_term(0.25, 0.0)
+        )
+        # ordinary bin: (other - self) * ln(other / self)
+        self.assertAlmostEqual(
+            0.03596025905647261, profiler_utils.calculate_psi_term(0.5, 0.375)
+        )
+
     def test_diff_of_dicts_with_diff_keys(self):
         dict1 = {"unique1": 1, "shared1": 2, "shared2": 3}
         dict2 = {"unique2": 5, "shared1": 2, "shared2": 6}

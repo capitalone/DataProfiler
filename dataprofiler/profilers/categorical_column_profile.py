@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 from collections import defaultdict
 from operator import itemgetter
 from typing import cast
@@ -321,11 +320,10 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             for iter_key in self_cat_count.keys():
                 percent_self = self_cat_count[iter_key] / self.sample_size
                 percent_other = other_cat_count[iter_key] / other_profile.sample_size
-                if (percent_other != 0) and (percent_self != 0):
-                    total_psi += (percent_other - percent_self) * math.log(
-                        percent_other / percent_self
-                    )
-                differences["statistics"]["psi"] = total_psi
+                total_psi += profiler_utils.calculate_psi_term(
+                    percent_self, percent_other
+                )
+            differences["statistics"]["psi"] = total_psi
 
             differences["statistics"]["categorical_count"] = (
                 profiler_utils.find_diff_of_dicts(self_cat_count, other_cat_count)

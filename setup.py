@@ -1,4 +1,4 @@
-"""A setuptools for the Data Profiler Application and Python Libraries."""
+"""A setuptools based setup for the Data Profiler Application and Python Libraries."""
 
 # To use a consistent encoding
 from codecs import open

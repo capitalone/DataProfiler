@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
-from chardet.universaldetector import UniversalDetector
+from chardet import UniversalDetector
 from dateutil import parser as dateutil_parser  # type: ignore[import-untyped]
 from typing_extensions import TypeGuard
 

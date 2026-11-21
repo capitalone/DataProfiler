@@ -187,13 +187,28 @@ def evaluate_accuracy(
         ),
     )
 
-    # adjust macro average to be updated only on positive support labels
+    # adjust macro average to be updated only on labels the truth or prediction used
     # note: in sklearn, support is number of occurrences of each label in
     # true_labels_flatten
+    #
+    # Counting support alone drops a label that never occurs in the truth but is
+    # still predicted. Every prediction of it is a false positive, so it has a
+    # measured precision of 0, and leaving it out both hides those false positives
+    # and inflates the rescale below. A label is active when it occurs in the truth
+    # (support) or when anything was predicted as it (its column in the confusion
+    # matrix is non-empty).
+    label_index_by_name: Dict[str, int] = {}
+    if label_names and label_indexes:
+        label_index_by_name = dict(zip(label_names, label_indexes))
+
     num_labels_with_positive_support = 0
     for key, values in f1_report.items():
         if key not in ["accuracy", "macro avg", "weighted avg", "micro avg"]:
-            if values["support"]:
+            label_index = label_index_by_name.get(key)
+            predicted_as_label = label_index is not None and bool(
+                conf_mat[:, label_index].sum()
+            )
+            if values["support"] or predicted_as_label:
                 num_labels_with_positive_support += 1
 
     # bc sklearn does not remove 0.0 f1 score for 0 support in macro avg.

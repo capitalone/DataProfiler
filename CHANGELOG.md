@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.15.0 - 2026-11-16
+
+### Breaking Changes
+
+- Dropped support for Python 3.10 (end of life). The minimum supported version
+  is now Python 3.11 (`python_requires>=3.11`), as required by `pyarrow>=26.0.0`.
+
+### Security
+
+- Raised `pyarrow` to `>=26.0.0,<27.0.0` (previously `>=1.0.1,<24.0.0`) to
+  resolve CVE-2026-92287.
+- Raised `urllib3` to `>=2.8.0` (previously `>=2.5.0`) to resolve
+  CVE-2026-97689, CVE-2026-97687, and CVE-2026-97688.
+- Added `certifi>=2026.10.19` to resolve WS-2026-0133 in the CA bundle pulled
+  in by `requests`.
+
 ## 0.14.0 - 2026-09-08
 
 ### Breaking Changes
